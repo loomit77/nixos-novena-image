@@ -20,7 +20,7 @@ Repository:
 
     ~/nixos-novena-image
 
-Git-Commit:
+Ursprünglicher Golden-Build-Commit:
 
     f26464fac1dc87b6bb07f0c1eac8a0a7f01ed3d7
 
@@ -117,6 +117,10 @@ Lokaler Backup-Pfad:
 
     ~/novena-backups/nixos-display-working-2026-09-11/
 
+Gesamtgröße nach Abschluss der Nix-Closure-Sicherung:
+
+    6,2G
+
 Aufbau:
 
     nixos-display-working-2026-09-11/
@@ -131,11 +135,15 @@ Aufbau:
     │   ├── System.map
     │   ├── zImage
     │   └── dtbs/
-    └── metadata/
-        ├── build-info.txt
-        ├── image-references.txt
-        ├── kernel-references.txt
-        └── nixos-novena-image-f26464f.tar.gz
+    ├── metadata/
+    │   ├── build-info.txt
+    │   ├── image-references.txt
+    │   ├── kernel-references.txt
+    │   ├── nix-closure-info.txt
+    │   └── nixos-novena-image-f26464f.tar.gz
+    └── nix/
+        ├── image-closure.nar
+        └── kernel-closure.nar
 
 ## Integritätsprüfung
 
@@ -144,17 +152,17 @@ SHA-256-Prüfsummenliste erzeugt:
 
     SHA256SUMS
 
-Am 2026-09-11 wurde das komplette Backup mit folgendem Befehl geprüft:
+Nach Abschluss aller Sicherungsschritte wurde das komplette Backup erneut
+mit folgendem Befehl geprüft:
 
     sha256sum -c SHA256SUMS
 
-Ergebnis:
+Finales Ergebnis am 2026-09-11:
 
-    Exit-Code: 0
     Fehlerhafte Einträge: 0
-    Geprüfte Dateien: 1395
+    Geprüfte Dateien: 1398
 
-Damit waren zum Zeitpunkt der Prüfung alle 1395 gesicherten Dateien
+Damit waren zum Zeitpunkt der Prüfung alle 1398 gesicherten Dateien
 bitgenau konsistent mit der Prüfsummenliste.
 
 ## Nix-Store-Ursprung
@@ -184,6 +192,59 @@ zusätzlich gespeichert:
     metadata/image-references.txt
     metadata/kernel-references.txt
 
+## Nix-Closure-Sicherung
+
+Zusätzlich zu den fertigen Binärartefakten wurden die vorhandenen
+Nix-Store-Closures exportiert.
+
+### Image-Closure
+
+Datei:
+
+    nix/image-closure.nar
+
+Größe:
+
+    3833159224 bytes
+
+Enthaltene Store-Pfade zum Zeitpunkt des Exports:
+
+    605
+
+SHA-256:
+
+    8228f00e3f9f85046a55621727e82f70395125e75f00ee0fc497402879464b02
+
+### Kernel-Closure
+
+Der Kernel-Store-Pfad war nicht Bestandteil der zuvor ermittelten
+Image-Closure und wurde deshalb separat exportiert.
+
+Datei:
+
+    nix/kernel-closure.nar
+
+Größe:
+
+    96724392 bytes
+
+SHA-256:
+
+    5f44cfedcdea2d98cb3b8ea4b56fae35e5c0894a8ca5beffb8f78e080e8b069f
+
+Die Details der Closure-Sicherung sind zusätzlich dokumentiert in:
+
+    metadata/nix-closure-info.txt
+
+Die Archive können später in einen kompatiblen Nix Store importiert werden
+mit:
+
+    nix-store --import < archive.nar
+
+Die Closure-Archive ergänzen die binären Golden-Build-Artefakte und die
+Projektquellen. Sie ersetzen weder das fertige SD-Image noch das
+Git-Repository.
+
 ## Display-relevante Projektdateien
 
 Der Git-Stand enthält insbesondere die für den aktuellen Display-Port
@@ -201,7 +262,7 @@ Konfiguration als zusammengehöriger Stand betrachtet werden.
 
 ## Wiederherstellungsstrategie
 
-Es existieren zwei voneinander unabhängige Wiederherstellungswege.
+Es existieren mehrere voneinander unabhängige Wiederherstellungswege.
 
 ### 1. Direkte binäre Wiederherstellung
 
@@ -215,7 +276,7 @@ Vorher muss dessen SHA-256 geprüft werden:
 Damit kann der bekannte Buildstand verwendet werden, ohne zuerst einen
 neuen Kernel oder ein neues NixOS-Image bauen zu müssen.
 
-### 2. Neuer Build aus den Quellen
+### 2. Wiederherstellung der Projektquellen
 
 Die Projektquellen sind durch folgende Ebenen abgesichert:
 
@@ -227,8 +288,11 @@ Die Projektquellen sind durch folgende Ebenen abgesichert:
 `flake.lock` ist Teil des gespeicherten Git-Stands und fixiert die
 verwendeten Flake-Inputs.
 
-Der Build soll deshalb grundsätzlich aus genau diesem Commit und dessen
-`flake.lock` rekonstruiert werden.
+### 3. Wiederherstellung von Nix-Store-Ausgaben
+
+Die exportierten Nix-Closures erlauben zusätzlich die Wiederherstellung
+der gesicherten Store-Ausgaben, selbst wenn diese später nicht mehr aus
+einem Binär-Cache verfügbar sein sollten.
 
 Ein zukünftiger Neubau ist trotzdem erst dann als vollständig bestätigt
 anzusehen, wenn das resultierende System erneut auf echter Novena-
@@ -270,6 +334,9 @@ Stand 2026-09-11:
 - komplette Kernel-DTB-Sammlung gesichert
 - Git-Projektarchiv gesichert
 - Nix-Referenzlisten gesichert
-- SHA256SUMS erzeugt
-- 1395 Dateien erfolgreich verifiziert
+- Image-Closure gesichert
+- Kernel-Closure gesichert
+- SHA256SUMS neu erzeugt
+- 1398 Dateien erfolgreich verifiziert
+- vollständiges Golden Backup: 6,2G
 - funktionierender Display-Stand als Golden Build konserviert
