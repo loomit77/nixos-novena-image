@@ -1,0 +1,48 @@
+diff -ruN a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
+--- a/drivers/gpu/drm/panel/panel-simple.c	2026-09-06 17:28:54.012515596 +0200
++++ b/drivers/gpu/drm/panel/panel-simple.c	2026-09-06 17:30:57.461814713 +0200
+@@ -2842,6 +2842,31 @@
+ 	.connector_type = DRM_MODE_CONNECTOR_LVDS,
+ };
+ 
++static const struct drm_display_mode innolux_n133hse_ea1_mode = {
++	.clock = 138500,
++	.hdisplay = 1920,
++	.hsync_start = 1920 + 46,
++	.hsync_end = 1920 + 46 + 30,
++	.htotal = 1920 + 160,
++	.vdisplay = 1080,
++	.vsync_start = 1080 + 2,
++	.vsync_end = 1080 + 2 + 4,
++	.vtotal = 1080 + 32,
++};
++
++static const struct panel_desc innolux_n133hse_ea1 = {
++	.modes = &innolux_n133hse_ea1_mode,
++	.num_modes = 1,
++	.bpc = 8,
++	.size = {
++		.width = 293,
++		.height = 165,
++	},
++	.bus_format = MEDIA_BUS_FMT_RGB888_1X7X4_JEIDA,
++	.connector_type = DRM_MODE_CONNECTOR_LVDS,
++};
++
++
+ static const struct drm_display_mode innolux_n156bge_l21_mode = {
+ 	.clock = 69300,
+ 	.hdisplay = 1366,
+@@ -5202,6 +5227,12 @@
+ 	}, {
+ 		.compatible = "innolux,g156hce-l01",
+ 		.data = &innolux_g156hce_l01,
++
++	}, {
++		.compatible = "innolux,n133hse-ea1",
++		.data = &innolux_n133hse_ea1,
++	}, {
++		.compatible = "innolux,n156bge-l21",
+ 	}, {
+ 		.compatible = "innolux,n156bge-l21",
+ 		.data = &innolux_n156bge_l21,

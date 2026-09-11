@@ -1,0 +1,62 @@
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -542,6 +542,10 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+
+ 		/* check for arbitration lost */
+ 		if (multi_master && (temp & I2SR_IAL)) {
++			dev_err(&i2c_imx->adapter.dev,
++				"NOVENA-I2C: arbitration lost in bus_busy, I2SR=0x%02x\n",
++				temp);
++
+ 			i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+ 			return -EAGAIN;
+ 		}
+@@ -600,7 +604,9 @@ static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx, bool atomic)
+
+ 	/* In multi-master mode check for arbitration lost */
+ 	if (i2c_imx->multi_master && (i2c_imx->i2csr & I2SR_IAL)) {
+-		dev_dbg(&i2c_imx->adapter.dev, "<%s> Arbitration lost\n", __func__);
++		dev_err(&i2c_imx->adapter.dev,
++			"NOVENA-I2C: arbitration lost in trx_complete, I2SR=0x%02x\n",
++			i2c_imx->i2csr);
+ 		i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+
+ 		i2c_imx->i2csr = 0;
+@@ -1154,8 +1160,16 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
+ 	scoped_guard(spinlock_irqsave, &i2c_imx->slave_lock) {
+ 		status = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+ 		ctl = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+
++		if (i2c_imx->state == IMX_I2C_STATE_WRITE &&
++		    i2c_imx->msg &&
++		    i2c_imx->msg->addr == 0x5c)
++			dev_err(&i2c_imx->adapter.dev,
++				"NOVENA-I2C: IT6251 ISR enter state=%d I2SR=0x%02x I2CR=0x%02x idx=%u len=%u\n",
++				i2c_imx->state, status, ctl,
++				i2c_imx->msg_buf_idx, i2c_imx->msg->len);
++
+ 		if (!(status & I2SR_IIF))
+ 			return IRQ_NONE;
+
+ 		i2c_imx_clear_irq(i2c_imx, I2SR_IIF);
+@@ -1425,6 +1439,19 @@ static int i2c_imx_write(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs)
+ 	if (i2c_imx->state != IMX_I2C_STATE_DONE) {
++		unsigned int status;
++		unsigned int ctl;
++
++		status = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
++		ctl = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
++
+ 		dev_err(&i2c_imx->adapter.dev, "<%s> write timedout\n", __func__);
++
++		if (msgs->addr == 0x5c)
++			dev_err(&i2c_imx->adapter.dev,
++				"NOVENA-I2C: IT6251 write timeout state=%d I2SR=0x%02x I2CR=0x%02x idx=%u len=%u addr=0x%02x\n",
++				i2c_imx->state, status, ctl,
++				i2c_imx->msg_buf_idx, msgs->len, msgs->addr);
++
+ 		return -ETIMEDOUT;
+ 	}
+ 	return 0;
+ }

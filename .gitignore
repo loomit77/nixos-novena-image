@@ -1,0 +1,14 @@
+# Nix build result symlinks
+result
+result-*
+
+# Ausgepackte Kernel-Arbeitsbäume
+kernel/linux-*/
+kernel/*-orig/
+kernel/panel-patch/
+
+# Temporäre Dateien
+*.tmp
+*.swp
+*~
+.DS_Store
