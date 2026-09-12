@@ -11,10 +11,12 @@ Der Golden Build dient als bekannte funktionierende Referenz, auf die bei
 späteren Kernel-, Device-Tree-, DRM-, Display-, I2C- oder
 Bootloader-Experimenten zurückgegriffen werden kann.
 
-Es ist wichtig, zwei Ebenen voneinander zu unterscheiden:
+Es ist wichtig, mehrere Ebenen voneinander zu unterscheiden:
 
-1. die am 2026-09-11 angelegte und verifizierte Golden-Build-Sicherung
-2. die am 2026-09-12 erfolgte erfolgreiche Hardware-Validierung des
+1. die am 2026-09-11 angelegte Golden-Build-Sicherung
+2. den darin enthaltenen historischen Display-DTB
+3. den späteren Git-Stand des Projekts
+4. die am 2026-09-12 erfolgte erfolgreiche Hardware-Validierung des
    aktuellen Images auf echter Novena-Hardware
 
 Die Sicherung vom 2026-09-11 wird nicht verändert oder überschrieben.
@@ -23,29 +25,47 @@ Die Sicherung vom 2026-09-11 wird nicht verändert oder überschrieben.
 
 Repository:
 
-```
+```text
 ~/nixos-novena-image
 ```
 
-Ursprünglicher Golden-Build-Commit:
+In den Metadaten der ursprünglichen Golden-Build-Sicherung ist folgender
+Git-Commit dokumentiert:
 
-```
+```text
 f26464fac1dc87b6bb07f0c1eac8a0a7f01ed3d7
 ```
 
 Kurzform:
 
-```
+```text
 f26464f
 ```
 
 Commit:
 
-```
+```text
 Add reproducible Novena NixOS image project
 ```
 
-Der exakte Repository-Inhalt dieses Commits wurde zusätzlich als
+Dieser Commit ist der Root-Commit der vorhandenen Git-Historie.
+
+Wichtig:
+
+Der im Backup dokumentierte Git-Commit darf nicht als Beweis dafür
+verstanden werden, dass sämtliche darin gesicherten Binärartefakte aus
+exakt diesem committed Quellzustand gebaut wurden.
+
+Insbesondere wurde der gesicherte Novena-DTB mit SHA-256
+
+```text
+e36cd0c8d229c3d34e688e896f468e40761e9240cf99b6e8691a9c5138f4cd6f
+```
+
+nachträglich als Artefakt eines früheren Vor-Git-Overlay-Zustands
+identifiziert.
+
+Der exakte Repository-Inhalt von Commit `f26464f` wurde zusätzlich als
 unabhängiges tar.gz-Archiv gesichert.
 
 ## Zusätzlicher Git-Sicherungspunkt vom 2026-09-12
@@ -53,23 +73,23 @@ unabhängiges tar.gz-Archiv gesichert.
 Nach der erfolgreichen Hardware-Validierung wurde ein zusätzlicher
 annotierter Git-Tag angelegt:
 
-```
+```text
 novena-display-working-2026-09-12
 ```
 
 Der Tag zeigt auf Commit:
 
-```
+```text
 1d43425
 ```
 
 Commit-Beschreibung:
 
-```
+```text
 Document Nix closure backup for golden build
 ```
 
-Dieser Tag markiert den aktuell bestätigten funktionierenden
+Dieser Tag markiert einen bestätigten funktionierenden
 Display-Zwischenstand vor weiteren Änderungen an der
 I2C-Diagnoseinstrumentierung.
 
@@ -77,19 +97,19 @@ I2C-Diagnoseinstrumentierung.
 
 Kernel-Version:
 
-```
+```text
 Linux 6.18.49
 ```
 
 Gesicherter Kernel:
 
-```
+```text
 kernel/zImage
 ```
 
 SHA-256:
 
-```
+```text
 30a63036889af44301f4821f76ca66a7b8f428c18e725ca5ec29775b6d5fbf5c
 ```
 
@@ -105,29 +125,52 @@ Dazu gehören insbesondere:
 
 Separat gesicherter Novena-DTB:
 
-```
+```text
 dtb/imx6q-novena.dtb
 ```
 
 SHA-256:
 
-```
+```text
 e36cd0c8d229c3d34e688e896f468e40761e9240cf99b6e8691a9c5138f4cd6f
 ```
 
-Dieser DTB gehört zum gesicherten Linux-6.18.49-Stand.
+Dieser DTB verwendet Linux 6.18.49 als Kernelbasis, stammt aber aus
+einem früheren Device-Tree-Overlay-Zustand als der später versionierte
+Projektstand in `hardware/novena.nix`.
+
+Der zugehörige unveränderte Kernel-Basis-DTB besitzt den SHA-256-Wert:
+
+```text
+b560d50c186e0953cc1b9042ca991ffed7609db2d00379446e4286c252e47522
+```
+
+Der historische Golden-DTB wurde über erhaltene Nix-Derivationen auf
+folgenden Overlay-Output zurückgeführt:
+
+```text
+/nix/store/pgyag1yxfcrwf1lz4zqpjhgag2ah564b-device-tree-overlays/imx6q-novena.dtb
+```
+
+Der später aktuell gebootete Display-DTB besitzt dagegen den SHA-256-Wert:
+
+```text
+31f2b35e9d0f05adbe6b6e07dbe92bf517b4736366ff81aafa7144ea18377e0f
+```
+
+Beide DTB-Zustände basieren auf demselben Kernel-Basis-DTB.
 
 ## Kernel-Konfiguration
 
 Gesicherte Kernel-Konfiguration:
 
-```
+```text
 config/linux-6.18.49.config
 ```
 
 SHA-256:
 
-```
+```text
 cef1365fe594704ec72394e8abbe2b96cc8ccad37090fcff42aa8d221aaa5ef3
 ```
 
@@ -138,13 +181,13 @@ Buildstands separat erhalten.
 
 Gesichertes Image:
 
-```
+```text
 image/nixos-novena-sd-image.img
 ```
 
 SHA-256:
 
-```
+```text
 5e65bfa6b7c599bdf507c2f1957c99136255e74eff01dec0dfb0bf8fb31ab94b
 ```
 
@@ -153,7 +196,7 @@ NixOS-Novena-Build.
 
 Nix-Store-Ursprung:
 
-```
+```text
 /nix/store/sz31gh0cxpm9yksi89vc990k4nid7k4y-nixos-novena-sd-image.img
 ```
 
@@ -182,7 +225,7 @@ Die Product-ID wurde bereits beim ersten Versuch korrekt gelesen.
 
 Gelesene Register:
 
-```
+```text
 0x00 = 0x15
 0x01 = 0xca
 0x02 = 0x51
@@ -191,7 +234,7 @@ Gelesene Register:
 
 Kernelmeldung:
 
-```
+```text
 IT6251 detected: vendor ca15 device 6251
 ```
 
@@ -203,20 +246,20 @@ Das Linktraining endete nach zehn Iterationen.
 
 Systemstatus:
 
-```
+```text
 0x3e
 ```
 
 Gemessene aktive Auflösung:
 
-```
+```text
 hactive: 1920
 vactive: 1080
 ```
 
 Erfolgsindikatoren:
 
-```
+```text
 is_stable: stable 1920x1080
 display link stable
 bridge_enable: exit success
@@ -231,14 +274,14 @@ Nach dem erfolgreichen Displaystart wurden die GPIO-Zustände geprüft.
 
 Ergebnis:
 
-```
+```text
 gpio-15 (regulator-lvds-lcd) out hi
 gpio-28 (regulator-display) out hi
 ```
 
 Regulator-Zusammenfassung:
 
-```
+```text
 lcd-lvds-power
 ```
 
@@ -248,7 +291,7 @@ lcd-lvds-power
 
 und:
 
-```
+```text
 lcd-display-power
 ```
 
@@ -262,25 +305,54 @@ Damit waren sowohl Display- als auch Backlight-Versorgung aktiv.
 
 Der aktuell funktionierende Displaystand enthält unter anderem:
 
-* LDB-Clock-Zuweisung auf PLL2 PFD2 396 MHz
+* explizite LDB-Clock-Zuweisungen
 * `single-master;` auf dem Display-I2C-Bus
 * Novena-spezifisches IT6251-Pinmux
 * Novena-spezifisches Backlight-Pinmux
 * `startup-delay-us = <2000000>` für `reg_display`
 * kein `regulator-always-on` auf `reg_display`
+* kein `regulator-always-on` auf `reg_lvds_lcd`
 
-Die Clock-Korrektur wurde durch stabile Erkennung von 1920x1080
-bestätigt.
+Mit diesem Gesamtzustand wurde eine stabile interne Displayausgabe mit
+1920x1080 bestätigt.
 
-`single-master;` beseitigte die zuvor beobachteten
+Die exakte isolierte Wirkung der Clock-Zuweisungen wurde in den
+erhaltenen Vor-Git-Aufzeichnungen nicht separat nachgewiesen.
+
+`single-master;` beseitigte dagegen die zuvor beobachteten
 Arbitration-Lost-/EAGAIN-Fehler auf dem Display-I2C-Bus.
+
+## Historischer Display-Overlay-Zustand
+
+Der historische Golden-DTB `e36cd0c8...` unterscheidet sich vom später
+aktuell gebooteten DTB `31f2b35e...`.
+
+Der frühere Zustand enthielt unter anderem:
+
+* `regulator-always-on;` auf `reg_display`
+* `regulator-always-on;` auf `reg_lvds_lcd`
+* den bereits im Kernel-Basis-DTB vorhandenen
+  `startup-delay-us = <200000>` auf `reg_display`
+* kein `single-master;` auf dem Display-I2C-Bus
+* keine späteren expliziten Clock-Zuweisungen
+
+Der spätere funktionierende Zustand enthält dagegen:
+
+* kein `regulator-always-on` auf `reg_display`
+* kein `regulator-always-on` auf `reg_lvds_lcd`
+* `startup-delay-us = <2000000>`
+* `single-master;`
+* explizite Clock-Zuweisungen
+
+Die beiden Zustände dürfen deshalb nicht als identische Device-Tree-
+Generation behandelt werden.
 
 ## Erwartete IT6251-Reset-NACKs
 
 Während der IT6251-Reset-Sequenzen wurden temporär folgende Meldungen
 beobachtet:
 
-```
+```text
 error -6 writing to eDP addr 0x5
 error -6 writing to LVDS addr 0x5
 ```
@@ -313,13 +385,13 @@ auch auf anderen i.MX-I2C-Controllern.
 
 Auf `i2c-0` wurden nach dem Boot große Mengen folgender Meldung erzeugt:
 
-```
+```text
 NOVENA-I2C: arbitration lost in bus_busy, I2SR=0x93
 ```
 
 Zusätzlich wurde beobachtet:
 
-```
+```text
 <i2c_imx_write> write timedout
 ```
 
@@ -327,44 +399,87 @@ Dieses Problem ist getrennt vom erfolgreichen IT6251-Betrieb auf
 `i2c-2` zu betrachten.
 
 Vor weiteren Reproduzierbarkeitstests muss der Diagnose-Patch
-entschärft werden.
+entschärft oder auf den relevanten Bus begrenzt werden.
+
+## STMPE811 / Touchscreen
+
+Der STMPE811 auf I2C-Adresse `0x44` ist sowohl im historischen
+Golden-DTB `e36cd0c8...` als auch im später aktuell gebooteten
+DTB `31f2b35e...` aktiv.
+
+Der STMPE811 wird beim Boot zunächst erfolgreich erkannt:
+
+```text
+stmpe811 detected, chip id: 0x811
+```
+
+Anschließend wird auch das Touchscreen-Eingabegerät registriert.
+
+Im weiteren Betrieb wurden jedoch wiederholt fehlerhafte Zugriffe
+beobachtet, unter anderem:
+
+```text
+stmpe-i2c 0-0044: failed to read regs 0xb: -110
+```
+
+sowie entsprechende Meldungen mit `-6` und `-11`.
+
+Damit ist klar:
+
+Die erfolgreiche Displayinitialisierung beruht nicht auf einer
+Deaktivierung des STMPE811.
+
+Displaypfad und STMPE-/Touchscreen-Problem sind getrennt zu betrachten.
+
+Ein späterer kontrollierter Test soll deshalb nur den STMPE811-/
+Touchscreen-Pfad deaktivieren, während der funktionierende Displaypfad
+unverändert bleibt.
 
 ## Projektarchiv
 
-Archiv des ursprünglichen Golden-Build-Git-Commits:
+Archiv des in der ursprünglichen Golden-Build-Sicherung dokumentierten
+Git-Commits:
 
-```
+```text
 metadata/nixos-novena-image-f26464f.tar.gz
 ```
 
 SHA-256:
 
-```
+```text
 75779166a971aba60003c0599294e3f69389bce789375e1e47d3baf8d295f6b3
 ```
 
 Das Archiv wurde mit `git archive` direkt aus Commit `f26464f` erzeugt.
 
 Dadurch existiert zusätzlich zu den Git-Remotes eine unabhängige Kopie
-der exakten Projektquellen dieses ursprünglichen Golden-Build-Stands.
+der exakten Projektquellen dieses Commits.
+
+Wichtig:
+
+Dieses Git-Archiv dokumentiert den Quellstand von `f26464f`.
+
+Es ist kein Provenienznachweis dafür, dass der historische
+Golden-DTB `e36cd0c8...` aus genau diesem committed Quellstand gebaut
+wurde.
 
 ## Golden-Backup-Pfad auf foobox
 
 Lokaler Backup-Pfad:
 
-```
+```text
 ~/novena-backups/nixos-display-working-2026-09-11/
 ```
 
 Gesamtgröße nach Abschluss der Nix-Closure-Sicherung:
 
-```
+```text
 6,2G
 ```
 
 Aufbau:
 
-```
+```text
 nixos-display-working-2026-09-11/
 ├── SHA256SUMS
 ├── config/
@@ -393,20 +508,20 @@ nixos-display-working-2026-09-11/
 Für sämtliche normalen Dateien des Golden Backups wurde eine gemeinsame
 SHA-256-Prüfsummenliste erzeugt:
 
-```
+```text
 SHA256SUMS
 ```
 
 Nach Abschluss aller Sicherungsschritte wurde das komplette Backup erneut
 mit folgendem Befehl geprüft:
 
-```
+```text
 sha256sum -c SHA256SUMS
 ```
 
-Finales Ergebnis am 2026-09-11:
+Finales Ergebnis:
 
-```
+```text
 Fehlerhafte Einträge: 0
 Geprüfte Dateien: 1398
 ```
@@ -421,35 +536,39 @@ Nix-Store-Objekte.
 
 Image:
 
-```
+```text
 /nix/store/sz31gh0cxpm9yksi89vc990k4nid7k4y-nixos-novena-sd-image.img
 ```
 
 Kernel:
 
-```
+```text
 /nix/store/963ddhz2d6v5cq1n4m0nrnjdrq6hck5k-linux-armv7l-unknown-linux-gnueabihf-6.18.49
 ```
 
 Novena-DTB:
 
-```
+```text
 /nix/store/dwjrq51m78hhbr3ip1s9d6g9y00jm8ir-imx6q-novena.dtb
 ```
 
 Kernel-Konfiguration:
 
-```
+```text
 /nix/store/vslqb6asbfd5l1lg4sp9a4wmvzjnz62y-linux-config-armv7l-unknown-linux-gnueabihf-6.18.49
 ```
 
 Die unmittelbaren Nix-Store-Referenzen von Image und Kernel wurden
 zusätzlich gespeichert:
 
-```
+```text
 metadata/image-references.txt
 metadata/kernel-references.txt
 ```
+
+Die gespeicherten Metadaten müssen im Zusammenhang mit der oben
+beschriebenen Vor-Git-Provenienz des historischen Device Trees gelesen
+werden.
 
 ## Nix-Closure-Sicherung
 
@@ -460,25 +579,25 @@ Nix-Store-Closures exportiert.
 
 Datei:
 
-```
+```text
 nix/image-closure.nar
 ```
 
 Größe:
 
-```
+```text
 3833159224 bytes
 ```
 
 Enthaltene Store-Pfade zum Zeitpunkt des Exports:
 
-```
+```text
 605
 ```
 
 SHA-256:
 
-```
+```text
 8228f00e3f9f85046a55621727e82f70395125e75f00ee0fc497402879464b02
 ```
 
@@ -489,32 +608,32 @@ Image-Closure und wurde deshalb separat exportiert.
 
 Datei:
 
-```
+```text
 nix/kernel-closure.nar
 ```
 
 Größe:
 
-```
+```text
 96724392 bytes
 ```
 
 SHA-256:
 
-```
+```text
 5f44cfedcdea2d98cb3b8ea4b56fae35e5c0894a8ca5beffb8f78e080e8b069f
 ```
 
 Die Details der Closure-Sicherung sind zusätzlich dokumentiert in:
 
-```
+```text
 metadata/nix-closure-info.txt
 ```
 
 Die Archive können später in einen kompatiblen Nix Store importiert
 werden mit:
 
-```
+```text
 nix-store --import < archive.nar
 ```
 
@@ -527,7 +646,7 @@ Sie ersetzen weder das fertige SD-Image noch das Git-Repository.
 
 Der aktuelle Projektstand enthält insbesondere:
 
-```
+```text
 kernel/0001-drm-bridge-it6251.patch
 kernel/0002-drm-panel-add-innolux-n133hse-ea1.patch
 kernel/0003-i2c-imx-debug-arbitration-lost.patch
@@ -535,6 +654,77 @@ kernel/it6251.c
 kernel/it6251.c.before-drm-lifecycle
 ```
 
-Diese Dateien müssen zusammen mit `flake.nix`, `flake.lock`,
-`hardware/novena.nix`, `image/novena-image.nix` und der
-Kernel-Ko
+Diese Dateien müssen zusammen mit
+
+```text
+flake.nix
+flake.lock
+hardware/novena.nix
+image/novena-image.nix
+```
+
+und der verwendeten Kernel-Konfiguration betrachtet werden, wenn der
+funktionierende Displaystand reproduziert oder weiterentwickelt wird.
+
+Für die Device-Tree-Provenienz ist zusätzlich zu beachten, dass der
+historische Golden-DTB `e36cd0c8...` aus einem früheren Vor-Git-
+Overlay-Zustand stammt und nicht allein aus dem Git-Commit `f26464f`
+rekonstruiert werden darf.
+
+## Wiederherstellungsstrategie
+
+Bei späteren Änderungen am Display-, DRM-, I2C- oder Bootpfad soll der
+Golden Build als Rückfallreferenz erhalten bleiben.
+
+Vor riskanten Änderungen sollen mindestens gesichert beziehungsweise
+geprüft werden:
+
+1. aktueller Git-Stand
+2. aktuelle DTB-Hashes
+3. aktueller Image-Hash
+4. funktionierender Rückfall-DTB
+5. externes SD-Testmedium
+6. serieller Konsolenzugriff
+
+Das ursprüngliche Golden Backup vom 2026-09-11 bleibt unverändert.
+
+Neue Versuchsstände sollen in separaten Builds, Git-Commits oder
+zusätzlichen Backups abgelegt werden.
+
+## Aktuell bestätigter Referenzzustand
+
+Für den derzeit bestätigten funktionierenden Displayzustand gilt:
+
+* Kernel: Linux 6.18.49
+* NixOS: 26.05.20260903.a5cc6f2
+* aktueller Display-DTB:
+  `31f2b35e9d0f05adbe6b6e07dbe92bf517b4736366ff81aafa7144ea18377e0f`
+* Kernel-Basis-DTB:
+  `b560d50c186e0953cc1b9042ca991ffed7609db2d00379446e4286c252e47522`
+* historischer Golden-DTB:
+  `e36cd0c8d229c3d34e688e896f468e40761e9240cf99b6e8691a9c5138f4cd6f`
+* IT6251-Product-ID wird erfolgreich gelesen
+* Display-Link erreicht stabil 1920x1080
+* Linux schaltet die Displayversorgung selbst ein
+* `single-master;` ist auf dem Display-I2C-Bus aktiv
+* `startup-delay-us = <2000000>` ist auf `reg_display` aktiv
+* STMPE811 bleibt ein separates offenes I2C-/Touchscreen-Thema
+* der umfangreiche I2C-Diagnose-Patch ist noch nicht für einen finalen
+  Produktionsstand geeignet
+
+## Nächste Schritte
+
+Vor einer endgültigen Einstufung als reproduzierbarer Produktionsstand
+sind insbesondere vorgesehen:
+
+1. STMPE811-/Touchscreen-Pfad kontrolliert und reproduzierbar testen
+2. funktionierenden Displaypfad dabei unverändert lassen
+3. I2C-Diagnose-Patch entfernen oder gezielt begrenzen
+4. mehrere identische echte Kaltstarts durchführen
+5. Boot- und Displayverhalten jedes Laufs dokumentieren
+6. erst danach einen neuen finalen Golden- beziehungsweise
+   Produktionsreferenzstand festlegen
+
+Bis dahin bleibt das Backup vom 2026-09-11 die unveränderte historische
+Sicherung, während der am 2026-09-12 bestätigte aktuelle Displaystand
+separat dokumentiert und weiter validiert wird.

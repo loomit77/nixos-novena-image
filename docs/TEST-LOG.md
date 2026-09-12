@@ -1,5 +1,7 @@
 # Test Log
 
+Stand: 2026-09-12
+
 ## Frühere NixOS-Tests
 
 Ein älterer NixOS-Ansatz verwendete den Novena-spezifischen Kernel:
@@ -69,8 +71,8 @@ i.MX-I2C-Treiber.
 Bei früheren Tests wurde festgestellt, dass der IT6251 grundsätzlich mit
 Linux 6.18.49 angesprochen werden kann.
 
-Vor der Korrektur der LDB-Clock-Zuweisung wurden jedoch falsche aktive
-Bildgrößen gemessen, beispielsweise:
+In einem frühen Diagnosezustand wurden jedoch falsche aktive Bildgrößen
+gemessen, beispielsweise:
 
 `hactive: 3504`
 
@@ -79,20 +81,23 @@ Bildgrößen gemessen, beispielsweise:
 Die IT6251-Registerprogrammierung selbst entsprach weitgehend dem
 historischen funktionierenden Novena-Treiber.
 
-Die Analyse des bekannten funktionierenden Device Trees zeigte eine
-wichtige Abweichung bei der Clock-Konfiguration.
+Im später funktionierenden Device-Tree-Zustand sind für die beiden
+LDB-DI-Clock-Selektoren explizite Clock-Zuweisungen vorhanden.
 
-Für die beiden LDB-DI-Clock-Selektoren wurde deshalb PLL2 PFD2 396 MHz
-als Parent eingetragen.
-
-Danach konnte erstmals korrekt gemessen werden:
+Mit dem späteren Gesamtzustand konnte korrekt gemessen werden:
 
 `hactive: 1920`
 
 `vactive: 1080`
 
-Damit wurde die LDB-Clock-Zuweisung als wesentliche Displaykorrektur
-bestätigt.
+Damit ist belegt, dass der funktionierende spätere Displayzustand die
+expliziten Clock-Zuweisungen enthält und eine stabile 1920x1080-Ausgabe
+erreicht.
+
+Der genaue einzelne Vor-Git-Test, in dem diese Clock-Zuweisungen
+erstmals eingeführt wurden, und ihre isolierte Wirkung gegenüber den
+anderen gleichzeitig entwickelten Device-Tree-Korrekturen sind aus den
+erhaltenen Aufzeichnungen nicht eindeutig rekonstruierbar.
 
 ## I2C-Arbitration-Lost-Diagnose
 
@@ -127,6 +132,9 @@ Ein vorheriger Teststand enthielt für die IT6251-Versorgung:
 
 `regulator-always-on`
 
+Auch `reg_lvds_lcd` war in einem früheren Overlay-Zustand mit
+`regulator-always-on` versehen.
+
 Die Regulator-Diagnose zeigte, dass `lcd-display-power` dadurch auch dann
 aktiv blieb, wenn der IT6251-Consumer selbst nicht aktiv war.
 
@@ -136,9 +144,15 @@ einem ausgeschalteten Zustand zu initialisieren.
 
 `regulator-always-on` wurde deshalb für `reg_display` entfernt.
 
-Die konfigurierte Einschaltverzögerung blieb:
+Der Kernel-Basis-DTB enthielt bereits eine Einschaltverzögerung von:
+
+`startup-delay-us = <200000>`
+
+Im späteren Teststand wurde diese auf:
 
 `startup-delay-us = <2000000>`
+
+erhöht.
 
 Ein anschließender Test bestätigte, dass Linux den Regulator tatsächlich
 aus- und wieder einschalten konnte und die konfigurierte Verzögerung von
@@ -208,9 +222,13 @@ Die DRM-Bridge rief anschließend die Power-Up-Sequenz auf:
 
 `power_up: regulator enabled`
 
-Danach begann unmittelbar der erste Product-ID-Versuch:
+Danach begann der erste Product-ID-Versuch:
 
 `power_up: product ID attempt 1/5`
+
+Die Kernel-Zeitstempel des erfolgreichen Tests zeigten, dass die
+konfigurierte Einschaltverzögerung von ungefähr zwei Sekunden vor dem
+ersten IT6251-Zugriff eingehalten wurde.
 
 Anders als beim vorherigen fehlgeschlagenen Test trat diesmal kein
 Timeout beim ersten IT6251-Zugriff auf.
@@ -248,6 +266,62 @@ Danach:
 Damit ist nachgewiesen, dass Linux den IT6251 in diesem Test nach dem
 Einschalten der Versorgung selbst erfolgreich erreichen konnte.
 
+### Display-Link
+
+Die anschließende IT6251-Initialisierung war erfolgreich.
+
+Das DisplayPort-Linktraining endete nach zehn Iterationen.
+
+Systemstatus:
+
+`0x3e`
+
+Gemessene aktive Auflösung:
+
+`hactive: 1920`
+
+`vactive: 1080`
+
+Erfolgsindikatoren:
+
+`is_stable: stable 1920x1080`
+
+`display link stable`
+
+`bridge_enable: exit success`
+
+Damit wurde auf echter Novena-Hardware ein stabiler interner
+1920x1080-Display-Link erreicht.
+
+### Regulatorstatus
+
+Nach erfolgreicher Displayinitialisierung wurden folgende GPIO-Zustände
+beobachtet:
+
+`gpio-15 (regulator-lvds-lcd) out hi`
+
+`gpio-28 (regulator-display) out hi`
+
+Die Regulator-Zusammenfassung zeigte sowohl `lcd-lvds-power` als auch
+`lcd-display-power` aktiv bei 3300 mV.
+
+Der IT6251 war als Consumer `2-005c-power` eingetragen.
+
+### Erwartete IT6251-Reset-NACKs
+
+Während der Reset-Sequenzen wurden temporär folgende Meldungen
+beobachtet:
+
+`error -6 writing to eDP addr 0x5`
+
+`error -6 writing to LVDS addr 0x5`
+
+Die Initialisierung lief anschließend erfolgreich weiter.
+
+Diese Meldungen verhinderten den erfolgreichen Displaystart nicht und
+werden für diesen Test als erwartete temporäre Nichtantworten während
+der IT6251-Resetsequenz eingeordnet.
+
 ### I2C-ISR-Diagnose
 
 Die zusätzliche Instrumentierung zeigte während der erfolgreichen
@@ -262,3 +336,136 @@ und anschließend:
 `NOVENA-I2C: IT6251 ISR enter state=2 I2SR=0xa2 I2CR=0xf8 idx=1 len=1`
 
 Damit wurde für diesen erfolgreichen Test bestätigt, dass die
+instrumentierten IT6251-I2C-Transfers bis in den Interruptpfad des
+i.MX-I2C-Treibers verfolgt werden konnten.
+
+Die Diagnoseinstrumentierung selbst ist jedoch sehr umfangreich und
+kann das Timing beeinflussen.
+
+Sie ist deshalb noch nicht für einen finalen Produktionskernel
+geeignet.
+
+## Separates i2c-0-Diagnoseproblem
+
+Nach dem erfolgreichen Displaystart wurden auf `i2c-0` große Mengen von
+Meldungen der Form:
+
+`NOVENA-I2C: arbitration lost in bus_busy, I2SR=0x93`
+
+beobachtet.
+
+Später trat dort zusätzlich auf:
+
+`<i2c_imx_write> write timedout`
+
+Dieses Verhalten ist getrennt vom erfolgreichen IT6251-Betrieb auf
+`i2c-2` zu betrachten.
+
+Der Diagnose-Patch muss vor abschließenden Reproduzierbarkeitstests
+entfernt, entschärft oder auf den tatsächlich benötigten Bus begrenzt
+werden.
+
+## STMPE811 / Touchscreen
+
+Die spätere Untersuchung des laufenden Device Trees zeigte, dass der
+STMPE811 auf I2C-Adresse `0x44` weiterhin aktiv ist.
+
+Beim Boot wurde er zunächst erfolgreich erkannt:
+
+`stmpe811 detected, chip id: 0x811`
+
+Auch das Touchscreen-Eingabegerät wurde registriert.
+
+Im weiteren Betrieb wurden wiederholt STMPE-I2C-Fehler beobachtet,
+darunter:
+
+`stmpe-i2c 0-0044: failed to read regs 0xb: -110`
+
+sowie entsprechende Fehler mit:
+
+* `-6`
+* `-11`
+
+Ein Vergleich des historischen Golden-DTB `e36cd0c8...` mit dem später
+aktuell gebooteten DTB `31f2b35e...` zeigte, dass der STMPE811-/
+Touchscreen-Teilbaum in beiden Zuständen aktiv und inhaltlich
+gleich ist.
+
+Damit ist die frühere Annahme widerlegt, dass der funktionierende
+Displayzustand durch eine Deaktivierung des STMPE811 entstanden sei.
+
+Displaypfad und STMPE-/Touchscreen-Problem sind getrennt zu behandeln.
+
+Als nächster kontrollierter Test soll nur der STMPE811-/
+Touchscreen-Pfad reproduzierbar deaktiviert werden, während der
+funktionierende Displaypfad unverändert bleibt.
+
+## Rekonstruktion der Vor-Git-Displayentwicklung
+
+Die Git-Historie des Projekts beginnt mit:
+
+`f26464fac1dc87b6bb07f0c1eac8a0a7f01ed3d7`
+
+Commit:
+
+`Add reproducible Novena NixOS image project`
+
+Der historische Golden-DTB besitzt den SHA-256-Wert:
+
+`e36cd0c8d229c3d34e688e896f468e40761e9240cf99b6e8691a9c5138f4cd6f`
+
+Der später aktuell gebootete DTB besitzt:
+
+`31f2b35e9d0f05adbe6b6e07dbe92bf517b4736366ff81aafa7144ea18377e0f`
+
+Beide basieren auf demselben Kernel-Basis-DTB:
+
+`b560d50c186e0953cc1b9042ca991ffed7609db2d00379446e4286c252e47522`
+
+Die DTB-Unterschiede stammen deshalb aus unterschiedlichen
+Overlay-Zuständen.
+
+Der historische `e36cd0c8...`-Zustand enthielt unter anderem:
+
+* `regulator-always-on` auf `reg_display`
+* `regulator-always-on` auf `reg_lvds_lcd`
+* kein `single-master;`
+* keine späteren expliziten Clock-Zuweisungen
+* den Basiswert `startup-delay-us = <200000>`
+
+Der später funktionierende `31f2b35e...`-Zustand enthält:
+
+* kein `regulator-always-on` auf `reg_display`
+* kein `regulator-always-on` auf `reg_lvds_lcd`
+* `single-master;`
+* explizite Clock-Zuweisungen
+* `startup-delay-us = <2000000>`
+
+Der Commit `f26464f...` enthält bereits den späteren
+Device-Tree-Quellzustand mit `single-master`, 2-Sekunden-Delay und den
+Clock-Zuweisungen.
+
+Deshalb darf der in der Golden-Build-Sicherung dokumentierte
+Git-Commit nicht als Provenienznachweis dafür verwendet werden, dass
+der historische DTB `e36cd0c8...` aus exakt diesem committed
+Quellzustand gebaut wurde.
+
+Die vorhergehenden Display-Experimente fanden vor der vorhandenen
+Git-Historie statt und müssen aus Nix-Artefakten, Device Trees, Backups
+und Testaufzeichnungen rekonstruiert werden.
+
+## Nächste Testschritte
+
+Vor einer endgültigen Einstufung des Displaystands als reproduzierbar
+sind vorgesehen:
+
+1. STMPE811-/Touchscreen-Pfad kontrolliert deaktivieren
+2. überprüfen, dass der Displaypfad unverändert funktioniert
+3. I2C-Diagnoseinstrumentierung entfernen oder gezielt begrenzen
+4. mindestens fünf identische echte Kaltstarts durchführen
+5. pro Start Boot-ID und monotone Kernel-Zeitstempel sichern
+6. Display-, IT6251- und relevante I2C-Meldungen vergleichen
+
+Bis diese Tests abgeschlossen sind, bleibt der aktuelle Stand ein
+bestätigter funktionierender Entwicklungsstand und noch kein finaler
+Produktionsstand.
