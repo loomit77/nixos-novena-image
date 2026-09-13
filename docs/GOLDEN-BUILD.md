@@ -395,22 +395,21 @@ einem stabilen 1920x1080-Link.
 
 ## Aktuelle Einschränkung
 
-Der erfolgreiche Test vom 2026-09-12 bestätigte, dass der
-Linux-6.18.49-Displaypfad grundsätzlich vollständig funktionieren kann.
+Der erfolgreiche Test vom 2026-09-12 bestätigte, dass der Linux-6.18.49-Displaypfad grundsätzlich vollständig funktionieren kann.
 
-Spätere Tests zeigten jedoch, dass dieser Erfolg nicht bei jedem echten
-Kaltstart reproduzierbar ist.
+Spätere Tests zeigten jedoch, dass dieser Erfolg nicht bei jedem echten Kaltstart reproduzierbar ist. Mit einem isoliert STMPE811-deaktivierten Test-DTB wurden fünf echte Kaltstarts durchgeführt: 2/5 direkte Display-Erfolge, 3/5 direkte Display-Fehler und 3/3 erfolgreiche DRM-Rebind-Recoveries.
 
-Mit einem isoliert STMPE811-deaktivierten Test-DTB wurden fünf echte
-Kaltstarts durchgeführt: 2/5 direkte Display-Erfolge, 3/5 direkte
-Display-Fehler und 3/3 erfolgreiche DRM-Rebind-Recoveries nach den
-Fehlern.
+Die anschließende `0004`-/`0005`-Diagnose lokalisierte die entscheidende Cold-Boot-Divergenz weiter auf den Übergang in den Master-/START-Zustand:
 
-Diese spätere Diagnose ändert den historischen Golden Build nicht. Sie
-präzisiert nur seine Rolle: Der Golden Build bleibt eine bekannte
-funktionierende Referenz, ist aber kein Beweis für deterministische
-Cold-Boot-Stabilität aller später untersuchten Software-/DTB-
-Kombinationen.
+`FAIL: A=81/80 B=93/80 C=83/80 ret=-11`
+
+gegen:
+
+`Same-Boot Rebind PASS: A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8`
+
+Auch das Entfernen von `single-master;` verhindert das vom i.MX6-I2C-Controller gemeldete IAL-Ereignis nicht.
+
+Diese spätere Diagnose ändert den historischen Golden Build nicht. Der Golden Build bleibt eine bekannte funktionierende Referenz, ist aber kein Beweis für deterministische Cold-Boot-Stabilität. Die tiefere Root Cause des START-/IAL-Verhaltens ist weiterhin offen.
 
 ## Separates i2c-0-Diagnoseproblem
 
@@ -721,8 +720,60 @@ Quelle:
 
 Patchbasis: `0001`, `0002`, `0003`, `0004`.
 
-Dieser Build wurde erfolgreich erstellt und provenienzgeprüft, aber zum
-Stand dieses Dokuments noch nicht auf echter Novena-Hardware getestet.
+Dieser Build wurde erfolgreich erstellt und provenienzgeprüft. Die
+anschließend durchgeführten Hardwaretests sind im folgenden Abschnitt
+dokumentiert.
+
+## Diagnose-Meilenstein nach dem Golden Build: 0004/0005
+
+Die historische Golden-Sicherung bleibt unverändert. Die folgenden
+Ergebnisse gehören ausschließlich zur späteren Diagnoseentwicklung und
+dürfen nicht als Eigenschaften des historischen Golden-DTB beziehungsweise
+des ursprünglichen Golden-Build-Zustands gelesen werden.
+
+Mit `0004` zeigte ein Cold-Boot-FAIL mit aktivem `single-master;`:
+
+`A=81/80 B=93/80 C=93/80 D=93/d8 E=93/d8 IRQ=93/d8`
+
+Nach isoliertem Entfernen von `single-master;` blieb der Cold-Boot-Fehler bestehen. Der dabei verwendete STMPE-deaktivierte DTB besitzt SHA-256:
+
+`0058510ff34cae32185b8d1b27e6514d0e140974f9aff5542ccc2311220ae081`
+
+Ohne `single-master;` erkannte der Treiber `IAL=0x93` und brach mit `-EAGAIN` ab. Damit ist bestätigt, dass `single-master;` das vom i.MX6-I2C-Controller gemeldete IAL-Ereignis weder verursacht noch verhindert.
+
+Mit `0005` wurde der frühe Fehlerpfad direkt instrumentiert. Patch-SHA-256:
+
+`81c2de96d7200a6e7e2684518c711bc5686b8d5295a52d5e7aaa54efed94e556`
+
+Kernel:
+
+`/nix/store/97pmqlp5xvsh1l0i877lfc4r4sq6i7np-linux-armv7l-unknown-linux-gnueabihf-6.18.49`
+
+SHA-256 des `zImage`:
+
+`197ce0ef325307a877eb5a889519387be91fdf536da3bee03883f0c40264fc7c`
+
+Der erste echte Cold Boot mit diesem Stand schlug fehl. Boot-ID:
+
+`48462ba4-4972-4d23-9261-e69c822ed584`
+
+Direkte START-Diagnose:
+
+`A=81/80 B=93/80 C=83/80 ret=-11`
+
+Im gleichen Boot war ein DRM-Rebind erfolgreich:
+
+`A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8`
+
+mit `IRQ=a2/f8` beziehungsweise `IRQ=a6/f8`. Der Rebind erreichte einen stabilen 1920x1080-Link.
+
+Damit ist die Cold-Boot-Divergenz unmittelbar beim Eintritt in den Master-/START-Zustand lokalisiert. Die tiefere Root Cause bleibt offen.
+
+Das vollständige `0005`-Testarchiv besitzt SHA-256:
+
+`0c38c954a7fac033b5fd619653efd8eb0d5fffa3c4024329cb6d85d247e1c3db`
+
+und wurde auf Novena und foobox identisch verifiziert.
 
 ## Display-relevante Projektdateien
 
@@ -839,36 +890,25 @@ Novena-Hardware getestet.
 
 ## Nächste Schritte
 
+Der historische Golden Build bleibt unverändert als bekannte funktionierende Referenz erhalten.
 
-Vor einer endgültigen Einstufung als reproduzierbarer Produktionsstand
-sind insbesondere vorgesehen:
+Die spätere Diagnoseentwicklung hat den Cold-Boot-Fehler wesentlich genauer lokalisiert. Der nächste Schritt ist eine getrennte Root-Cause-Analyse des i.MX6-I2C-Master-/START-Übergangs.
 
-1. den bereits gebauten `0004`-Diagnosekernel kontrolliert auf der
-   Novena testen
-2. den STMPE811-deaktivierten Test-DTB für diesen Diagnoseschritt
-   zunächst unverändert lassen
-3. mindestens einen Cold-Boot-PASS und einen Cold-Boot-FAIL mit den
-   START-Snapshots A bis E erfassen
-4. die A-bis-E-Zustände mit dem bereits vorhandenen ISR-Zustand
-   vergleichen
-5. die Ursache des bei den fehlgeschlagenen Starts auftretenden frischen
-   IAL-Ereignisses weiter eingrenzen
-6. erst danach eine gezielte funktionale Änderung am I2C-Treiber,
-   Device Tree oder an einer anderen nachgewiesenen Ursache vornehmen
-7. nach einer belastbaren Korrektur erneut mehrere identische echte
-   Kaltstarts durchführen
-8. die Diagnoseinstrumentierung anschließend entfernen oder auf das
-   wirklich notwendige Minimum reduzieren
-9. erst nach bestandener Stabilitätsserie einen neuen finalen Golden-
-   beziehungsweise Produktionsreferenzstand festlegen
+Ausgangspunkt:
 
-Vor dem Deployment des `0004`-Kernels müssen der aktuelle SD-Stand,
-Rollback-DTB, Kernel-Rückfallstand und die externen Backups erneut
-geprüft werden.
+`Cold Boot FAIL: A=81/80 B=93/80 C=83/80 ret=-11`
 
-Bis dahin bleibt das Backup vom 2026-09-11 die unveränderte historische
-Golden-Sicherung.
+gegen:
 
-Der später reproduzierte Display-Baseline-Zustand sowie die
-STMPE-/Cold-Boot-Diagnose bleiben davon getrennte Entwicklungs- und
-Teststände.
+`Same-Boot Rebind PASS: A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8`
+
+Vor einer Einstufung eines späteren Entwicklungsstands als Produktionsreferenz sind weiterhin erforderlich:
+
+1. Root Cause des unterschiedlichen START-/IAL-Verhaltens ausreichend nachweisen
+2. daraus eine gezielte funktionale Korrektur ableiten
+3. Rollback-Artefakte und Backups vor jedem Test prüfen
+4. mehrere identische echte Kaltstarts ohne manuelle Recovery bestehen
+5. Diagnoseinstrumentierung entfernen oder auf das notwendige Minimum reduzieren
+6. erst danach einen neuen finalen Golden- beziehungsweise Produktionsreferenzstand festlegen
+
+Bis dahin bleibt das Backup vom 2026-09-11 die unveränderte historische Golden-Sicherung.

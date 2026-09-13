@@ -1,0 +1,146 @@
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -262,6 +262,20 @@
+ 
+ 	bool			multi_master;
+ 
++	/*
++	 * Novena IT6251 diagnostics.
++	 *
++	 * Capture I2SR/I2CR at selected points in the first transaction
++	 * without printing from the timing-sensitive start path. The
++	 * snapshots are emitted later from the already-instrumented ISR.
++	 */
++	bool			novena_trace_it6251;
++	unsigned int			novena_i2sr_a, novena_i2cr_a;
++	unsigned int			novena_i2sr_b, novena_i2cr_b;
++	unsigned int			novena_i2sr_c, novena_i2cr_c;
++	unsigned int			novena_i2sr_d, novena_i2cr_d;
++	unsigned int			novena_i2sr_e, novena_i2cr_e;
++
+ 	/* For checking slave events. */
+ 	spinlock_t     slave_lock;
+ 	struct hrtimer slave_timer;
+@@ -699,7 +713,8 @@
+ 	return notifier_from_errno(ret);
+ }
+ 
+-static int i2c_imx_start(struct imx_i2c_struct *i2c_imx, bool atomic)
++static int i2c_imx_start(struct imx_i2c_struct *i2c_imx, bool atomic,
++			 bool trace_it6251)
+ {
+ 	unsigned int temp = 0;
+ 	int result;
+@@ -715,11 +730,39 @@
+ 	else
+ 		usleep_range(50, 150);
+ 
++	i2c_imx->novena_trace_it6251 = trace_it6251;
++
++	if (trace_it6251) {
++		/* A: controller stable, immediately before requesting MSTA. */
++		i2c_imx->novena_i2sr_a =
++			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
++		i2c_imx->novena_i2cr_a =
++			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
++	}
++
+ 	/* Start I2C transaction */
+ 	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+ 	temp |= I2CR_MSTA;
+ 	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
++
++	if (trace_it6251) {
++		/* B: immediately after requesting master mode. */
++		i2c_imx->novena_i2sr_b =
++			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
++		i2c_imx->novena_i2cr_b =
++			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
++	}
++
+ 	result = i2c_imx_bus_busy(i2c_imx, 1, atomic);
++
++	if (trace_it6251) {
++		/* C: immediately after the bus-busy check. */
++		i2c_imx->novena_i2sr_c =
++			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
++		i2c_imx->novena_i2cr_c =
++			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
++	}
++
+ 	if (result)
+ 		return result;
+ 
+@@ -729,6 +772,15 @@
+ 
+ 	temp &= ~I2CR_DMAEN;
+ 	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
++
++	if (trace_it6251) {
++		/* D: controller configured for the first address transfer. */
++		i2c_imx->novena_i2sr_d =
++			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
++		i2c_imx->novena_i2cr_d =
++			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
++	}
++
+ 	return result;
+ }
+ 
+@@ -1169,6 +1221,21 @@
+ 				i2c_imx->state, status, ctl,
+ 				i2c_imx->msg_buf_idx, i2c_imx->msg->len);
+ 
++		if (i2c_imx->state == IMX_I2C_STATE_WRITE &&
++		    i2c_imx->msg &&
++		    i2c_imx->msg->addr == 0x5c &&
++		    i2c_imx->novena_trace_it6251)
++			dev_err(&i2c_imx->adapter.dev,
++				"NOVENA-I2C: IT6251 START snapshots "
++				"A=%02x/%02x B=%02x/%02x C=%02x/%02x "
++				"D=%02x/%02x E=%02x/%02x IRQ=%02x/%02x\n",
++				i2c_imx->novena_i2sr_a, i2c_imx->novena_i2cr_a,
++				i2c_imx->novena_i2sr_b, i2c_imx->novena_i2cr_b,
++				i2c_imx->novena_i2sr_c, i2c_imx->novena_i2cr_c,
++				i2c_imx->novena_i2sr_d, i2c_imx->novena_i2cr_d,
++				i2c_imx->novena_i2sr_e, i2c_imx->novena_i2cr_e,
++				status, ctl);
++
+ 		if (!(status & I2SR_IIF))
+ 			return IRQ_NONE;
+ 
+@@ -1426,6 +1493,14 @@
+ 	 * By writing the device address we start the state machine in the ISR.
+ 	 * The ISR will report when it is done or when it fails.
+ 	 */
++	if (i2c_imx->novena_trace_it6251 && msgs->addr == 0x5c) {
++		/* E: immediately before writing the IT6251 slave address. */
++		i2c_imx->novena_i2sr_e =
++			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
++		i2c_imx->novena_i2cr_e =
++			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
++	}
++
+ 	imx_i2c_write_reg(i2c_8bit_addr_from_msg(msgs), i2c_imx, IMX_I2C_I2DR);
+ 	wait_event_timeout(i2c_imx->queue,
+ 			   i2c_imx->state == IMX_I2C_STATE_DONE ||
+@@ -1611,7 +1686,8 @@
+ 	int use_dma = 0;
+ 
+ 	/* Start I2C transfer */
+-	result = i2c_imx_start(i2c_imx, atomic);
++	result = i2c_imx_start(i2c_imx, atomic,
++			       num > 0 && msgs[0].addr == 0x5c);
+ 	if (result) {
+ 		/*
+ 		 * Bus recovery uses gpiod_get_value_cansleep() which is not
+@@ -1619,7 +1695,8 @@
+ 		 */
+ 		if (!atomic && i2c_imx->adapter.bus_recovery_info) {
+ 			i2c_recover_bus(&i2c_imx->adapter);
+-			result = i2c_imx_start(i2c_imx, atomic);
++			result = i2c_imx_start(i2c_imx, atomic,
++			       num > 0 && msgs[0].addr == 0x5c);
+ 		}
+ 	}
+ 

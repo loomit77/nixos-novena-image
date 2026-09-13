@@ -748,6 +748,86 @@ oder Timing sowie Kombinationen daraus.
 
 Eine Root Cause ist damit noch nicht bewiesen.
 
+## Diagnose-Meilenstein 0004/0005 am 2026-09-13
+
+Die Hardwaretests der Diagnose-Patches `0004` und `0005` sind abgeschlossen.
+
+`0004` wurde zunächst mit aktivem `single-master;` getestet. Der native Cold Boot schlug fehl und zeigte:
+
+`A=81/80 B=93/80 C=93/80 D=93/d8 E=93/d8 IRQ=93/d8`
+
+Im gleichen Boot war ein DRM-Rebind erfolgreich.
+
+Anschließend wurde `single-master;` isoliert entfernt, während STMPE811 deaktiviert blieb. Der resultierende DTB besitzt SHA-256:
+
+`0058510ff34cae32185b8d1b27e6514d0e140974f9aff5542ccc2311220ae081`
+
+Auch ohne `single-master;` blieb der Cold-Boot-Fehler bestehen.
+`i2c_imx_bus_busy()` erkannte `IAL=0x93` und brach mit `-EAGAIN` (`-11`) ab.
+Damit ist bestätigt, dass `single-master;` das vom i.MX6-I2C-Controller
+gemeldete IAL-Ereignis nicht verursacht und nicht verhindert; die
+Eigenschaft verändert die Treiberbehandlung.
+
+Für die Ausgabe der START-Snapshots auch auf diesem frühen Fehlerpfad wurde `kernel/0005-i2c-imx-debug-start-error.patch` ergänzt.
+
+SHA-256 des `0005`-Patches:
+
+`81c2de96d7200a6e7e2684518c711bc5686b8d5295a52d5e7aaa54efed94e556`
+
+Kernel mit `0001` bis `0005`:
+
+`/nix/store/97pmqlp5xvsh1l0i877lfc4r4sq6i7np-linux-armv7l-unknown-linux-gnueabihf-6.18.49`
+
+Deriver:
+
+`/nix/store/lakip7c5jxqj4ys7vgwzh1fcspk465vx-linux-armv7l-unknown-linux-gnueabihf-6.18.49.drv`
+
+Quelle:
+
+`/nix/store/z4dyijrrjydyb7avcwm7vp5vadrmwqkv-linux-6.18.49.tar.xz`
+
+SHA-256 des `0005`-`zImage`:
+
+`197ce0ef325307a877eb5a889519387be91fdf536da3bee03883f0c40264fc7c`
+
+Der erste echte Cold Boot mit diesem Stand schlug fehl.
+
+Boot-ID:
+
+`48462ba4-4972-4d23-9261-e69c822ed584`
+
+Der neue Fehlerpfad zeigte reproduzierbar:
+
+`A=81/80 B=93/80 C=83/80 ret=-11`
+
+A liegt vor dem `MSTA`-Versuch und enthält noch kein `IAL`. Unmittelbar nach dem `MSTA`-Versuch zeigt B ein frisches `IAL`; `MSTA` ist bereits nicht mehr gesetzt. C wurde nach Rückkehr aus `i2c_imx_bus_busy()` erfasst, nachdem dort `IAL` gelöscht wurde. Der Rückgabewert ist `-EAGAIN`.
+
+Im exakt gleichen Boot war ein DRM-Rebind erfolgreich. Die erfolgreichen START-Snapshots lauteten wiederholt:
+
+`A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8`
+
+mit `IRQ=a2/f8` beziehungsweise `IRQ=a6/f8`.
+
+Der IT6251 erreichte anschließend `System status: 0x3e`, `hactive: 1920`, `vactive: 1080`, `display link stable` und `bridge_enable: exit success`.
+
+Der direkte Same-Boot-Vergleich lautet damit:
+
+`Cold Boot FAIL: A=81/80 B=93/80 C=83/80 ret=-11`
+
+`Rebind PASS: A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8`
+
+Die entscheidende Divergenz entsteht beim Eintritt in den Master-/START-Zustand. Die tieferliegende Root Cause ist weiterhin nicht bewiesen.
+
+Das vollständige Testarchiv `novena-0005-no-single-master-test-2026-09-13.tar.gz` wurde auf Novena und foobox identisch verifiziert.
+
+SHA-256:
+
+`0c38c954a7fac033b5fd619653efd8eb0d5fffa3c4024329cb6d85d247e1c3db`
+
+foobox-Pfad:
+
+`/home/loomit/novena-backups/0005-no-single-master-2026-09-13/novena-0005-no-single-master-test-2026-09-13.tar.gz`
+
 ## Aktueller Bootzustand
 
 Die aktuell getestete Novena verhält sich beim Booten wie folgt:
@@ -778,74 +858,60 @@ I2C-/STMPE-Diagnose noch nicht abgeschlossen ist.
 
 ## Aktueller Arbeitsstand
 
-Das aktuelle Image und die bisher untersuchten Kernel-/DTB-Stände
-erreichen grundsätzlich den vollständigen Linux-Displaypfad bis zu einem
-stabilen 1920x1080-Link.
+Das aktuelle Image erreicht grundsätzlich den vollständigen Linux-Displaypfad bis zu einem stabilen 1920x1080-Link, ist aber weiterhin nicht cold-boot-stabil.
 
-Der Displaypfad ist damit grundsätzlich funktionsfähig, aber noch nicht
-cold-boot-stabil.
+Die STMPE811-Isolation ist abgeschlossen. Die STMPE-I2C-Fehler verschwinden bei deaktiviertem STMPE811 vollständig; das intermittierende IT6251-Cold-Boot-Problem bleibt bestehen.
 
-Der kontrollierte STMPE811-Test ist abgeschlossen:
+Die Diagnose-Patches `0004` und `0005` wurden inzwischen gebaut, provenienzgeprüft und auf echter Novena-Hardware getestet.
 
-* STMPE811 lässt sich reproduzierbar isoliert deaktivieren.
-* Die STMPE-I2C-Fehler verschwinden vollständig.
-* Das intermittierende IT6251-Cold-Boot-Problem bleibt bestehen.
+Der entscheidende Befund ist jetzt direkt gemessen:
 
-Die Fünf-Cold-Boot-Serie ergab:
+`Cold Boot FAIL: A=81/80 B=93/80 C=83/80 ret=-11`
 
-* 2/5 direkte Display-Erfolge
-* 3/5 Display-Fehler
-* 3/3 erfolgreiche DRM-Rebind-Recoveries
+gegen:
 
-Die derzeit stärkste Diagnose-Spur ist der Zustand des i.MX-I2C-
-Controllers beziehungsweise des Busses beim ersten IT6251-Zugriff.
+`Same-Boot Rebind PASS: A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8`
 
-Noch offen sind insbesondere:
+Der Zustand A ist identisch. Beim fehlgeschlagenen Cold Boot erscheint unmittelbar nach dem Versuch, `MSTA` zu setzen, ein frisches `IAL`; `MSTA` bleibt nicht gesetzt. Beim erfolgreichen Rebind bleibt `MSTA` gesetzt und anschließend erscheint `IBB`.
 
-* Hardwaretest des neuen `0004`-Diagnosekernels
-* Vergleich der START-Snapshots A bis E zwischen PASS und FAIL
-* Erklärung dafür, warum bei fehlgeschlagenen Cold Boots ein frisches IAL entsteht
-* anschließende gezielte Korrektur
-* erneute Cold-Boot-Stabilitätsserie
-* endgültige Bereinigung für einen universellen Produktionsstand
+Das Entfernen von `single-master;` beseitigt das vom i.MX6-I2C-Controller gemeldete IAL-Ereignis nicht. Ohne `single-master;` erkennt `i2c_imx_bus_busy()` das IAL und liefert `-EAGAIN`.
 
-`loglevel=7` bleibt während dieser Diagnosephase bewusst aktiviert.
+Die Root Cause des unterschiedlichen Hardwareverhaltens zwischen Cold Boot und Same-Boot-Rebind ist weiterhin offen.
+
+`loglevel=7` und die Diagnoseinstrumentierung bleiben für die Root-Cause-Untersuchung bewusst aktiv.
 
 ## Nächster geplanter Test
 
-Der nächste kontrollierte Hardwaretest verwendet den bereits erfolgreich
-gebauten Kernel mit `kernel/0004-i2c-imx-debug-start-state.patch`.
+Der Diagnose-Meilenstein `0005` ist abgeschlossen und extern gesichert.
 
-Der STMPE811-deaktivierte Test-DTB bleibt zunächst unverändert.
+Der nächste Schritt ist eine gezielte Root-Cause-Analyse des Master-/START-Übergangs auf dem i.MX6-I2C-Controller.
 
-Ziel ist ein Vergleich der Snapshots A bis E und des ISR-Zustands zwischen
-mindestens einem Cold Boot mit direktem Display-PASS und einem Cold Boot
-mit reproduziertem Display-FAIL.
+Ausgangspunkt:
 
-Erst danach soll entschieden werden, ob die nächste Änderung im
-I2C-Treiber, im Device Tree oder an anderer Stelle sinnvoll ist.
+`FAIL: A=81/80 B=93/80 C=83/80 ret=-11`
 
-Vor dem Deployment des 0004-Kernels müssen aktueller SD-Stand und
-Rückfallartefakte erneut geprüft werden.
+`PASS: A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8`
+
+Zu untersuchen sind insbesondere der tatsächliche Buszustand unmittelbar vor und beim START, mögliche SDA-/SCL-Zustände, Controller-/Pinmux-/Clock-Zustand zwischen Cold Boot und Rebind, die Initialisierungsreihenfolge anderer I2C-Geräte und Controller sowie das zusätzlich beobachtete Arbitration-Lost-Verhalten auf `i2c-0`.
+
+Eine funktionale Korrektur soll erst vorgenommen werden, wenn eine konkrete Ursache ausreichend belegt ist.
+
+Vor jedem neuen Kernel-, DTB- oder Bootmedium-Test müssen Rollback-Artefakte und Backups erneut geprüft werden.
 
 ## Reproduzierbarkeitsziel nach STMPE-Test
 
-Das ursprünglich geplante Fünf-Cold-Boot-Kriterium nach dem STMPE-Test
-wurde durchgeführt und nicht bestanden.
-
-Ergebnis:
+Das Fünf-Cold-Boot-Kriterium nach dem STMPE-Test wurde durchgeführt und nicht bestanden:
 
 * 5 echte Kaltstarts
 * 2 direkte Display-PASS
 * 3 direkte Display-FAIL
 * 3 erfolgreiche Runtime-Recoveries nach den drei Fehlern
 
-Der aktuelle Displaystand darf daher noch nicht als cold-boot-stabiler
-Produktionsstand eingestuft werden.
+Die anschließende `0004`-/`0005`-Diagnose hat den Fehlerpfad wesentlich genauer lokalisiert, aber noch keine Root Cause beseitigt.
 
-Das nächste Reproduzierbarkeitsziel wird erst nach Auswertung des
-0004-Diagnosekernels und einer daraus abgeleiteten gezielten Korrektur
-festgelegt.
+Der aktuelle Displaystand darf deshalb weiterhin nicht als cold-boot-stabiler Produktionsstand eingestuft werden.
+
+Ein neues Stabilitätskriterium wird erst nach einer gezielten funktionalen Korrektur festgelegt. Danach muss erneut eine Serie identischer echter Kaltstarts ohne manuelle Recovery bestanden werden.
 
 ## Versionskontrolle
 
@@ -867,9 +933,16 @@ Der Ausgangsstand vor den Dokumentations- und Diagnoseänderungen vom
 2026-09-13 ist damit durch Commit
 `9719cd3b9dc1199536b23fc5b8dca93280611dec` in Git gesichert.
 
-Die danach vorgenommenen Dokumentations-, STMPE- und
-`0004`-Diagnoseänderungen sind zum Stand dieses Dokuments noch nicht als
-gemeinsamer Projektstand committed.
+Der Dokumentationsstand bis einschließlich der STMPE- und frühen
+Cold-Boot-Diagnose wurde anschließend mit Commit `b4fa143`
+(`Document STMPE and display cold-boot diagnosis`) gesichert und zu
+Codeberg sowie GitHub gepusht.
+
+Die danach vorgenommenen Änderungen an `hardware/novena.nix`, die
+Diagnose-Patches `0004` und `0005` sowie die hier dokumentierten
+Hardwaretestergebnisse sind zum Stand dieses Dokuments noch nicht als
+gemeinsamer Projektstand committed. Vor einem Commit muss der vollständige
+Diff gemeinsam geprüft werden.
 
 Die Vor-Git-Displayentwicklung muss dagegen anhand der erhaltenen
 Nix-Artefakte, Device Trees, Backups und Chat-/Testaufzeichnungen

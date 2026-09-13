@@ -48,6 +48,16 @@
       name = "novena-i2c-imx-debug-arbitration-lost";
       patch = ../kernel/0003-i2c-imx-debug-arbitration-lost.patch;
     }
+
+    {
+      name = "novena-i2c-imx-debug-start-state";
+      patch = ../kernel/0004-i2c-imx-debug-start-state.patch;
+    }
+
+    {
+      name = "novena-i2c-imx-debug-start-error";
+      patch = ../kernel/0005-i2c-imx-debug-start-error.patch;
+    }
   ];
 
   hardware.deviceTree.overlays = [
@@ -112,8 +122,6 @@
         };
 
         &i2c3 {
-          single-master;
-
           it6251: it6251@5c {
             compatible = "it,it6251";
             reg = <0x5c>;
@@ -164,6 +172,23 @@
               };
             };
           };
+        };
+      '';
+    }
+
+    {
+      name = "novena-disable-stmpe811";
+
+      dtsText = ''
+        /dts-v1/;
+        /plugin/;
+
+        / {
+          compatible = "kosagi,imx6q-novena";
+        };
+
+        &touch {
+          status = "disabled";
         };
       '';
     }

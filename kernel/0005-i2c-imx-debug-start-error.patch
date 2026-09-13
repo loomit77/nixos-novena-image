@@ -1,0 +1,22 @@
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -763,8 +763,18 @@
+ 			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+ 	}
+ 
+-	if (result)
++	if (result) {
++		if (trace_it6251)
++			dev_err(&i2c_imx->adapter.dev,
++				"NOVENA-I2C: IT6251 START failure "
++				"A=%02x/%02x B=%02x/%02x C=%02x/%02x ret=%d\n",
++				i2c_imx->novena_i2sr_a, i2c_imx->novena_i2cr_a,
++				i2c_imx->novena_i2sr_b, i2c_imx->novena_i2cr_b,
++				i2c_imx->novena_i2sr_c, i2c_imx->novena_i2cr_c,
++				result);
++
+ 		return result;
++	}
+ 
+ 	temp |= I2CR_IIEN | I2CR_MTX | I2CR_TXAK;
+ 	if (atomic)

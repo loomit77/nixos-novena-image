@@ -525,8 +525,8 @@ Ein bloß übrig gebliebenes altes IAL-Bit ist deshalb stark entkräftet.
 Im ISR-Pfad führt gesetztes RXAK über `i2c_imx_isr_acked()` zu
 `-ENXIO`, also `-6`.
 
-Warum das Hardware-IAL in den fehlgeschlagenen Cold Boots entsteht, ist
-noch nicht bewiesen.
+Warum das vom i.MX6-I2C-Controller gemeldete IAL-Ereignis in den
+fehlgeschlagenen Cold Boots entsteht, ist noch nicht bewiesen.
 
 ## 2026-09-13 – Diagnose-Patch 0004
 
@@ -562,21 +562,143 @@ Separate Ausgaben:
 
 Das Modules-Output enthält `lib/modules/6.18.49`.
 
-Der 0004-Kernel wurde zum Stand dieses Dokuments noch nicht auf der
-Novena getestet.
+Der anschließend durchgeführte Hardwaretest ist im folgenden Abschnitt
+dokumentiert.
+
+## 2026-09-13 – Hardwaretest Diagnose-Patch 0004 mit single-master
+
+Der `0004`-Kernel wurde auf echter Novena-Hardware getestet.
+
+Kernel:
+
+`/nix/store/9g9pdbrbc4khk64xgiln3w23slx8aivk-linux-armv7l-unknown-linux-gnueabihf-6.18.49`
+
+SHA-256 des `zImage`:
+
+`23156ad9ae38cc8db808cdc337b4a80d9f3e1e65076080ab79a7778cf7b43961`
+
+Beim nativen Cold Boot blieb das Display dunkel. Boot-ID:
+
+`aa5c3bfe-51ae-46f6-9a73-90e7428bccff`
+
+START-Snapshots:
+
+`A=81/80 B=93/80 C=93/80 D=93/d8 E=93/d8 IRQ=93/d8`
+
+A enthält noch kein `IAL`. Unmittelbar nach dem `MSTA`-Versuch zeigt B `IAL`, während `MSTA` bereits nicht mehr gesetzt ist. Die Divergenz liegt damit vor dem ersten Adressbyte.
+
+Der Same-Boot-Rebind war erfolgreich. Erfolgreiche START-Snapshots:
+
+`A=81/80 B=81/a0 C=81/a0 D=81/f8 E=81/f8 IRQ=a2/f8`
+
+beziehungsweise `IRQ=a6/f8`.
+
+## 2026-09-13 – isolierter Test ohne single-master
+
+`single-master;` wurde isoliert aus `i2c3` entfernt; STMPE811 blieb deaktiviert.
+
+DTB-SHA-256:
+
+`0058510ff34cae32185b8d1b27e6514d0e140974f9aff5542ccc2311220ae081`
+
+Der native Cold Boot schlug weiterhin fehl. Boot-ID:
+
+`f32745ef-b5dc-459a-ad80-f3b268dc950f`
+
+Der Treiber meldete `NOVENA-I2C: arbitration lost in bus_busy, I2SR=0x93`; der IT6251-Pfad endete mit `SEND failed ret=-11`.
+
+Der Same-Boot-Rebind war erfolgreich:
+
+`A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8`
+
+beziehungsweise `IRQ=a6/f8`.
+
+Damit ist bestätigt, dass `single-master;` das vom i.MX6-I2C-Controller gemeldete IAL-Ereignis nicht verhindert und nicht dessen Ursache ist. Die Eigenschaft verändert die Treiberbehandlung.
+
+Archiv `novena-0004-no-single-master-test-2026-09-13.tar.gz`, SHA-256:
+
+`653ca502f83d4a3c6d8afc2f7ab36098eae3c6196b7e4e86215360ce30103766`
+
+## 2026-09-13 – Diagnose-Patch 0005
+
+Für die Ausgabe der START-Snapshots auf dem frühen `-EAGAIN`-Fehlerpfad wurde `kernel/0005-i2c-imx-debug-start-error.patch` ergänzt.
+
+Patch-SHA-256:
+
+`81c2de96d7200a6e7e2684518c711bc5686b8d5295a52d5e7aaa54efed94e556`
+
+Kernel:
+
+`/nix/store/97pmqlp5xvsh1l0i877lfc4r4sq6i7np-linux-armv7l-unknown-linux-gnueabihf-6.18.49`
+
+Deriver:
+
+`/nix/store/lakip7c5jxqj4ys7vgwzh1fcspk465vx-linux-armv7l-unknown-linux-gnueabihf-6.18.49.drv`
+
+SHA-256 des `zImage`:
+
+`197ce0ef325307a877eb5a889519387be91fdf536da3bee03883f0c40264fc7c`
+
+## 2026-09-13 – 0005 Cold Boot FAIL und Same-Boot-Rebind PASS
+
+Boot-ID:
+
+`48462ba4-4972-4d23-9261-e69c822ed584`
+
+Der native Cold Boot schlug fehl. STMPE811 war `disabled`; `single-master` war nicht vorhanden.
+
+Reproduzierbarer Fehlerpfad:
+
+`NOVENA-I2C: IT6251 START failure A=81/80 B=93/80 C=83/80 ret=-11`
+
+A liegt vor dem Master-Startversuch, B unmittelbar danach und zeigt frisches `IAL` bei bereits fehlendem `MSTA`. C wurde nach `bus_busy()` erfasst, nachdem dort `IAL` gelöscht wurde. Der Rückgabewert ist `-EAGAIN`.
+
+Der Same-Boot-Rebind war erfolgreich:
+
+`A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8`
+
+beziehungsweise `IRQ=a6/f8`.
+
+Der IT6251 erreichte anschließend `System status: 0x3e`, `hactive: 1920`, `vactive: 1080`, `display link stable` und `bridge_enable: exit success`.
+
+Direkter Vergleich:
+
+`Cold Boot FAIL: A=81/80 B=93/80 C=83/80 ret=-11`
+
+`Rebind PASS: A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8`
+
+Damit ist die entscheidende Cold-Boot-Divergenz auf den Eintritt in den Master-/START-Zustand lokalisiert. Die tiefere Root Cause bleibt offen.
+
+Gesicherte SHA-256-Werte:
+
+* nativer Kernel-Log: `d3362fcc09c7a896a567ad8e29ce30e9c470e53dbf6903c44b690e50f5438692`
+* Boot-ID-Datei: `10335015dc278fe8cae18b8dfc80dd70398e3f76946c010da251ee73a3662ac3`
+* Ergebnisdatei: `12e317c3cdb9e7a2aa9138c05d02e5d5e62236c2ebc2b87dbbc49feca2788740`
+* Post-Rebind-Kernel-Log: `26cc1df43f0a222c4011e7003911ccff8dfa362dbf694ec2981d565216d282bc`
+* Post-Rebind-Ergebnisdatei: `795bd21294c918b72e0187157e75ac4602a05d7b35bd112f8bdaae8ec24ed7e2`
+
+Archiv `novena-0005-no-single-master-test-2026-09-13.tar.gz`, SHA-256:
+
+`0c38c954a7fac033b5fd619653efd8eb0d5fffa3c4024329cb6d85d247e1c3db`
+
+Der Hash wurde auf Novena und foobox identisch verifiziert; `gzip -t` meldete `GZIP: OK`.
 
 ## Nächste Testschritte
 
-Der nächste Testschritt ist ein kontrollierter Hardwaretest des
-0004-Diagnosekernels mit unverändertem STMPE811-deaktiviertem Test-DTB.
+Der `0004`-/`0005`-Diagnoseblock ist abgeschlossen und extern gesichert.
 
-Benötigt werden mindestens ein echter Cold Boot mit Display-PASS und ein
-echter Cold Boot mit Display-FAIL. Für beide Fälle sollen die A-bis-E-
-Snapshots und der ISR-Zustand verglichen werden.
+Die nächste Phase ist eine gezielte Root-Cause-Analyse des Master-/START-Übergangs.
 
-Erst nach dieser Auswertung soll die nächste funktionale Änderung
-festgelegt werden.
+Ausgangspunkt:
 
-Die derzeitige Arbeitshypothese konzentriert sich auf den
-I2C-Controller-/Buszustand beim ersten IT6251-Zugriff. Eine Root Cause
-ist noch nicht bewiesen.
+`FAIL: A=81/80 B=93/80 C=83/80 ret=-11`
+
+gegen:
+
+`PASS: A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8`
+
+Zu untersuchen sind insbesondere Buszustand und mögliche SDA-/SCL-Bedingungen beim ersten START, Controller-, Pinmux- und Clock-Zustand vor Cold-Boot-START und Rebind, Initialisierungsreihenfolge und mögliche Interaktion mit anderen I2C-Geräten beziehungsweise Controllern sowie das zusätzlich beobachtete Arbitration-Lost-Verhalten auf `i2c-0`.
+
+Eine funktionale Korrektur soll erst vorgenommen werden, wenn eine konkrete Ursache ausreichend begründet ist. Danach ist erneut eine echte Cold-Boot-Stabilitätsserie erforderlich.
+
+Die Diagnoseinstrumentierung bleibt vorerst ein Entwicklungswerkzeug und ist nicht als Produktionsstand einzustufen.
