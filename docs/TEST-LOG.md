@@ -1,6 +1,6 @@
 # Test Log
 
-Stand: 2026-09-12
+Stand: 2026-09-13
 
 ## Frühere NixOS-Tests
 
@@ -37,11 +37,16 @@ Diese Erkenntnisse bilden die Grundlage für das neue universelle Image.
 
 Für das aktuelle Image wird Linux 6.18.49 verwendet.
 
-Patchserie:
+Die Displaybasis besteht aus `0001-drm-bridge-it6251.patch` und
+`0002-drm-panel-add-innolux-n133hse-ea1.patch`.
 
-1. IT6251 DRM Bridge
-2. Innolux N133HSE-EA1 Panel
-3. I2C-IMX-Diagnose für Arbitration Lost und Timeouts
+Für die Diagnose kamen später `0003-i2c-imx-debug-arbitration-lost.patch`
+und `0004-i2c-imx-debug-start-state.patch` hinzu.
+
+Die Fünf-Cold-Boot-Serie wurde mit `0001` bis `0003` durchgeführt.
+`0004` wurde anschließend auf Basis dieser Ergebnisse entwickelt,
+erfolgreich gebaut und provenienzgeprüft, aber noch nicht auf der Novena
+getestet.
 
 ## 2026-09-07 – aktuelles Diagnose-Image gebaut
 
@@ -101,30 +106,30 @@ erhaltenen Aufzeichnungen nicht eindeutig rekonstruierbar.
 
 ## I2C-Arbitration-Lost-Diagnose
 
-Der Linux-i.MX-I2C-Treiber aktiviert standardmäßig Multi-Master-Betrieb,
-wenn im Device Tree keine Eigenschaft `single-master` gesetzt ist.
+Historisch wurden auf dem Display-I2C-Bus Meldungen mit `I2SR=0x93` und
+Rückgabewert `-11` beobachtet.
 
-Auf dem Display-I2C-Bus wurden wiederholt folgende Diagnosemeldungen
-beobachtet:
+Nach Einführung von `single-master;` verschwanden diese sichtbaren
+`-11`-/`EAGAIN`-Fehler.
 
-`NOVENA-I2C: arbitration lost in bus_busy, I2SR=0x93`
+Die spätere Analyse des exakten Linux-6.18.49-Quellcodes zeigte jedoch:
 
-Die zugehörigen IT6251-Zugriffe endeten mit:
+```c
+i2c_imx->multi_master =
+        !of_property_read_bool(pdev->dev.of_node, "single-master");
+```
 
-`-11`
+Damit bedeutet `single-master;` exakt `multi_master = false`.
 
-Die Quellcodeanalyse zeigte, dass dieser Rückgabewert durch die
-Arbitration-Lost-Behandlung des i.MX-I2C-Treibers erzeugt wurde.
+In diesem Modus werden die normalen IAL-Prüfungen in
+`i2c_imx_bus_busy()` und `i2c_imx_trx_complete()` übersprungen. Die
+Eigenschaft verhindert daher nicht, dass die Hardware selbst
+`I2SR_IAL` setzt.
 
-Daraufhin wurde für den Displaybus `i2c3` im Device Tree gesetzt:
-
-`single-master;`
-
-Nach dieser Änderung verschwanden die `-11`-/Arbitration-Lost-Fehler auf
-dem Display-I2C-Bus.
-
-Diese Änderung bleibt Bestandteil des aktuell funktionierenden
-Teststands.
+Die historische Beobachtung wird heute so eingeordnet: `single-master;`
+beseitigte die sichtbare softwareseitige `-EAGAIN`-Fehlerbehandlung, ist
+aber kein Beweis für das vollständige Verschwinden von
+Hardware-Arbitration-Lost.
 
 ## Untersuchung von regulator-always-on
 
@@ -454,18 +459,124 @@ Die vorhergehenden Display-Experimente fanden vor der vorhandenen
 Git-Historie statt und müssen aus Nix-Artefakten, Device Trees, Backups
 und Testaufzeichnungen rekonstruiert werden.
 
+
+## 2026-09-12 – isolierter STMPE811-Disable-Test
+
+Der STMPE811-/Touchscreen-Pfad wurde mit einem separaten Overlay gezielt
+deaktiviert:
+
+```dts
+&touch {
+        status = "disabled";
+};
+```
+
+Exakt reproduzierte Baseline:
+
+`31f2b35e9d0f05adbe6b6e07dbe92bf517b4736366ff81aafa7144ea18377e0f`
+
+STMPE-deaktivierter Test-DTB:
+
+`d9e0c8d5554315814143da89a5b661553b6587902add7ca0d2d41139c09544b8`
+
+Der semantische Vergleich zeigte ausschließlich `status = "disabled"`
+am STMPE811-Knoten.
+
+Im Hardwaretest verschwanden die zuvor beobachteten STMPE-/`0-0044`-
+Fehler vollständig. Das intermittierende IT6251-Displayproblem blieb
+jedoch bestehen.
+
+## 2026-09-12 – Fünf-Cold-Boot-Serie
+
+Mit unverändertem STMPE-deaktiviertem Test-DTB wurden fünf echte
+Kaltstarts durchgeführt.
+
+* Cold Boot 1: PASS — Boot-ID `79b5de22-7579-4c04-bc5d-26b70eca4ba0`
+* Cold Boot 2: PASS — Boot-ID `2d2f940a-d924-46ce-97e991dd82960d65`
+* Cold Boot 3: FAIL — Boot-ID `ef1ab7ab-e833-4b19-96da-be150ae1a556`, danach DRM-Rebind PASS
+* Cold Boot 4: FAIL — Boot-ID `6d4bc1c8-086e-4261-805a-03e3da1a7e02`, danach DRM-Rebind PASS
+* Cold Boot 5: FAIL — Boot-ID `bef4ce6b-f53f-41d6-869b-c12d647214fb`, danach unmittelbarer DRM-Rebind PASS
+
+Gesamt:
+
+* native Cold-Boot-Erfolge: 2/5
+* native Cold-Boot-Fehler: 3/5
+* erfolgreiche DRM-Rebind-Recoveries nach Fehler: 3/3
+
+Erfolgreiche Starts beziehungsweise Recoveries zeigten typischerweise
+`I2SR=0xa2` oder `0xa6` mit `I2CR=0xf8`.
+
+Alle drei fehlgeschlagenen Cold Boots begannen den ersten IT6251-
+Transfer mit `I2SR=0x93` und `I2CR=0xd8`; einzelne Timeout-Pfade zeigten
+`0x91/0xd8`.
+
+`0x93` enthält unter anderem `ICF`, `IAL`, `IIF` und `RXAK`.
+`0xd8` enthält kein `MSTA`.
+
+Die Debugausgabe liest diese Register im ISR-Wrapper vor dem Master-ISR.
+Daraus folgt nicht, dass der Transfer ohne MSTA gestartet wurde. Die
+Quellcodeanalyse von `i2c_imx_start()` zeigt ausdrücklich, dass MSTA vor
+dem Transfer angefordert wird.
+
+Für i.MX6 wird `I2SR_CLR_OPCODE_W0C` verwendet. `i2c_imx_start()` schreibt
+vor jedem START `0x00` nach I2SR und löscht damit vorherige Statusbits.
+Ein bloß übrig gebliebenes altes IAL-Bit ist deshalb stark entkräftet.
+
+Im ISR-Pfad führt gesetztes RXAK über `i2c_imx_isr_acked()` zu
+`-ENXIO`, also `-6`.
+
+Warum das Hardware-IAL in den fehlgeschlagenen Cold Boots entsteht, ist
+noch nicht bewiesen.
+
+## 2026-09-13 – Diagnose-Patch 0004
+
+Auf Grundlage des reproduzierbaren `0x93/0xd8`-Fehlermusters wurde
+`kernel/0004-i2c-imx-debug-start-state.patch` entwickelt.
+
+Der Patch speichert START-Snapshots A bis E für Adresse `0x5c` ohne an
+diesen Punkten selbst zusätzliche Logs auszugeben. Die Ausgabe erfolgt
+erst im bereits instrumentierten ISR-Pfad.
+
+Der Patch wurde gegen den exakten Linux-6.18.49-Quellstand mit bereits
+angewendetem `0003` geprüft. Dry-Run: `PATCH_DRY_RUN_STATUS=0`.
+
+Erfolgreicher Kernel-Build:
+
+`/nix/store/9g9pdbrbc4khk64xgiln3w23slx8aivk-linux-armv7l-unknown-linux-gnueabihf-6.18.49`
+
+Deriver:
+
+`/nix/store/qk21vdydrywnkqlh3rrvg7n9zn4pwapk-linux-armv7l-unknown-linux-gnueabihf-6.18.49.drv`
+
+Quelle:
+
+`/nix/store/z4dyijrrjydyb7avcwm7vp5vadrmwqkv-linux-6.18.49.tar.xz`
+
+Die Derivation enthält bestätigt `0001`, `0002`, `0003`, `0004`.
+
+Separate Ausgaben:
+
+* `/nix/store/4c7nvncjad0sbgahcngalj8nn0la7njh-linux-armv7l-unknown-linux-gnueabihf-6.18.49-dev`
+* `/nix/store/9g9pdbrbc4khk64xgiln3w23slx8aivk-linux-armv7l-unknown-linux-gnueabihf-6.18.49`
+* `/nix/store/z1dl1i2pkqzz3p3cg1y9s7knhmbwzczy-linux-armv7l-unknown-linux-gnueabihf-6.18.49-modules`
+
+Das Modules-Output enthält `lib/modules/6.18.49`.
+
+Der 0004-Kernel wurde zum Stand dieses Dokuments noch nicht auf der
+Novena getestet.
+
 ## Nächste Testschritte
 
-Vor einer endgültigen Einstufung des Displaystands als reproduzierbar
-sind vorgesehen:
+Der nächste Testschritt ist ein kontrollierter Hardwaretest des
+0004-Diagnosekernels mit unverändertem STMPE811-deaktiviertem Test-DTB.
 
-1. STMPE811-/Touchscreen-Pfad kontrolliert deaktivieren
-2. überprüfen, dass der Displaypfad unverändert funktioniert
-3. I2C-Diagnoseinstrumentierung entfernen oder gezielt begrenzen
-4. mindestens fünf identische echte Kaltstarts durchführen
-5. pro Start Boot-ID und monotone Kernel-Zeitstempel sichern
-6. Display-, IT6251- und relevante I2C-Meldungen vergleichen
+Benötigt werden mindestens ein echter Cold Boot mit Display-PASS und ein
+echter Cold Boot mit Display-FAIL. Für beide Fälle sollen die A-bis-E-
+Snapshots und der ISR-Zustand verglichen werden.
 
-Bis diese Tests abgeschlossen sind, bleibt der aktuelle Stand ein
-bestätigter funktionierender Entwicklungsstand und noch kein finaler
-Produktionsstand.
+Erst nach dieser Auswertung soll die nächste funktionale Änderung
+festgelegt werden.
+
+Die derzeitige Arbeitshypothese konzentriert sich auf den
+I2C-Controller-/Buszustand beim ersten IT6251-Zugriff. Eine Root Cause
+ist noch nicht bewiesen.

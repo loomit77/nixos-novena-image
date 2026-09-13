@@ -1,6 +1,6 @@
 # Golden Build – funktionierendes Novena-Display
 
-Stand: 2026-09-12
+Stand: 2026-09-13
 
 ## Zweck
 
@@ -115,11 +115,33 @@ SHA-256:
 
 Der komplette Kernel-Ausgabebaum wurde im Golden Backup übernommen.
 
-Dazu gehören insbesondere:
+Der zugehörige Golden-Kernel liegt im Nix Store unter:
 
-* zImage
-* System.map
-* die erzeugte DTB-Sammlung
+```text
+/nix/store/963ddhz2d6v5cq1n4m0nrnjdrq6hck5k-linux-armv7l-unknown-linux-gnueabihf-6.18.49
+```
+
+Die später untersuchte Derivation zeigt für diesen Golden-Kernel die
+Display-Patches `0001` und `0002`.
+
+Die später entwickelten Diagnose-Patches `0003` und `0004` gehören nicht
+zum historischen Golden-Kernel.
+
+Späterer `0003`-Debug-Kernel:
+
+```text
+/nix/store/2d1h5iihfq560zm0sg4kh4n4ydvk2a2m-linux-armv7l-unknown-linux-gnueabihf-6.18.49
+```
+
+Noch späterer `0004`-Diagnosekernel:
+
+```text
+/nix/store/9g9pdbrbc4khk64xgiln3w23slx8aivk-linux-armv7l-unknown-linux-gnueabihf-6.18.49
+```
+
+Diese Debug-Builds sind Diagnoseentwicklungen nach dem Golden Build und
+dürfen nicht als Bestandteil der ursprünglichen Sicherung interpretiert
+werden.
 
 ## Novena Device Tree
 
@@ -319,8 +341,15 @@ Mit diesem Gesamtzustand wurde eine stabile interne Displayausgabe mit
 Die exakte isolierte Wirkung der Clock-Zuweisungen wurde in den
 erhaltenen Vor-Git-Aufzeichnungen nicht separat nachgewiesen.
 
-`single-master;` beseitigte dagegen die zuvor beobachteten
-Arbitration-Lost-/EAGAIN-Fehler auf dem Display-I2C-Bus.
+Historisch verschwanden nach Einführung von `single-master;` die zuvor
+sichtbaren `-EAGAIN`-Fehler auf dem Display-I2C-Bus.
+
+Eine spätere Quellcodeanalyse zeigte jedoch, dass `single-master;`
+intern `multi_master = false` setzt und dadurch die normale IAL-
+Behandlung im Treiber übersprungen wird.
+
+Die Eigenschaft darf deshalb nicht als Beweis dafür verstanden werden,
+dass Hardware-Arbitration-Lost vollständig verhindert wurde.
 
 ## Historischer Display-Overlay-Zustand
 
@@ -366,17 +395,22 @@ einem stabilen 1920x1080-Link.
 
 ## Aktuelle Einschränkung
 
-Der erfolgreiche Test vom 2026-09-12 wurde mit einem stark
-instrumentierten I2C-Diagnose-Kernel durchgeführt.
+Der erfolgreiche Test vom 2026-09-12 bestätigte, dass der
+Linux-6.18.49-Displaypfad grundsätzlich vollständig funktionieren kann.
 
-Insbesondere enthält der aktuelle Kernel zusätzliche Logausgaben direkt
-im i.MX-I2C-Interruptpfad.
+Spätere Tests zeigten jedoch, dass dieser Erfolg nicht bei jedem echten
+Kaltstart reproduzierbar ist.
 
-Diese Instrumentierung kann das Timing des Systems beeinflussen.
+Mit einem isoliert STMPE811-deaktivierten Test-DTB wurden fünf echte
+Kaltstarts durchgeführt: 2/5 direkte Display-Erfolge, 3/5 direkte
+Display-Fehler und 3/3 erfolgreiche DRM-Rebind-Recoveries nach den
+Fehlern.
 
-Deshalb ist der Stand zwar als funktionierender Entwicklungsstand
-bestätigt, aber noch nicht als endgültig reproduzierbarer
-Produktionsstand einzustufen.
+Diese spätere Diagnose ändert den historischen Golden Build nicht. Sie
+präzisiert nur seine Rolle: Der Golden Build bleibt eine bekannte
+funktionierende Referenz, ist aber kein Beweis für deterministische
+Cold-Boot-Stabilität aller später untersuchten Software-/DTB-
+Kombinationen.
 
 ## Separates i2c-0-Diagnoseproblem
 
@@ -404,36 +438,34 @@ entschärft oder auf den relevanten Bus begrenzt werden.
 ## STMPE811 / Touchscreen
 
 Der STMPE811 auf I2C-Adresse `0x44` ist sowohl im historischen
-Golden-DTB `e36cd0c8...` als auch im später aktuell gebooteten
-DTB `31f2b35e...` aktiv.
+Golden-DTB `e36cd0c8...` als auch im später funktionierenden Baseline-DTB
+`31f2b35e...` aktiv.
 
-Der STMPE811 wird beim Boot zunächst erfolgreich erkannt:
+Später wurde der STMPE811 in einem kontrollierten Test durch ein separates
+Overlay deaktiviert.
 
-```text
-stmpe811 detected, chip id: 0x811
-```
-
-Anschließend wird auch das Touchscreen-Eingabegerät registriert.
-
-Im weiteren Betrieb wurden jedoch wiederholt fehlerhafte Zugriffe
-beobachtet, unter anderem:
+Baseline-DTB:
 
 ```text
-stmpe-i2c 0-0044: failed to read regs 0xb: -110
+31f2b35e9d0f05adbe6b6e07dbe92bf517b4736366ff81aafa7144ea18377e0f
 ```
 
-sowie entsprechende Meldungen mit `-6` und `-11`.
+STMPE-deaktivierter Test-DTB:
 
-Damit ist klar:
+```text
+d9e0c8d5554315814143da89a5b661553b6587902add7ca0d2d41139c09544b8
+```
 
-Die erfolgreiche Displayinitialisierung beruht nicht auf einer
-Deaktivierung des STMPE811.
+Der semantische DTB-Vergleich zeigte als einzige inhaltliche Änderung
+`status = "disabled"` am STMPE811-Knoten.
 
-Displaypfad und STMPE-/Touchscreen-Problem sind getrennt zu betrachten.
+Im Hardwaretest verschwanden damit die STMPE-/`0-0044`-Fehler
+vollständig, während das intermittierende IT6251-Cold-Boot-Problem
+bestehen blieb.
 
-Ein späterer kontrollierter Test soll deshalb nur den STMPE811-/
-Touchscreen-Pfad deaktivieren, während der funktionierende Displaypfad
-unverändert bleibt.
+Damit ist experimentell bestätigt, dass die beobachteten
+STMPE811-/Touchscreen-Fehler nicht die Ursache des intermittierenden
+IT6251-Cold-Boot-Problems sind.
 
 ## Projektarchiv
 
@@ -642,6 +674,56 @@ Projektquellen.
 
 Sie ersetzen weder das fertige SD-Image noch das Git-Repository.
 
+
+## Spätere Diagnoseentwicklung nach dem Golden Build
+
+Nach der Golden-Sicherung wurde die I2C-Diagnose weitergeführt.
+
+Golden-Kernel:
+
+```text
+/nix/store/963ddhz2d6v5cq1n4m0nrnjdrq6hck5k-linux-armv7l-unknown-linux-gnueabihf-6.18.49
+```
+
+Patchbasis: `0001`, `0002`.
+
+Späterer `0003`-Debug-Kernel:
+
+```text
+/nix/store/2d1h5iihfq560zm0sg4kh4n4ydvk2a2m-linux-armv7l-unknown-linux-gnueabihf-6.18.49
+```
+
+Deriver:
+
+```text
+/nix/store/422lrj9vi0ydb6cczl0ib8wjx8ll7sqc-linux-armv7l-unknown-linux-gnueabihf-6.18.49.drv
+```
+
+Patchbasis: `0001`, `0002`, `0003`.
+
+Neuer `0004`-Diagnosekernel:
+
+```text
+/nix/store/9g9pdbrbc4khk64xgiln3w23slx8aivk-linux-armv7l-unknown-linux-gnueabihf-6.18.49
+```
+
+Deriver:
+
+```text
+/nix/store/qk21vdydrywnkqlh3rrvg7n9zn4pwapk-linux-armv7l-unknown-linux-gnueabihf-6.18.49.drv
+```
+
+Quelle:
+
+```text
+/nix/store/z4dyijrrjydyb7avcwm7vp5vadrmwqkv-linux-6.18.49.tar.xz
+```
+
+Patchbasis: `0001`, `0002`, `0003`, `0004`.
+
+Dieser Build wurde erfolgreich erstellt und provenienzgeprüft, aber zum
+Stand dieses Dokuments noch nicht auf echter Novena-Hardware getestet.
+
 ## Display-relevante Projektdateien
 
 Der aktuelle Projektstand enthält insbesondere:
@@ -650,6 +732,7 @@ Der aktuelle Projektstand enthält insbesondere:
 kernel/0001-drm-bridge-it6251.patch
 kernel/0002-drm-panel-add-innolux-n133hse-ea1.patch
 kernel/0003-i2c-imx-debug-arbitration-lost.patch
+kernel/0004-i2c-imx-debug-start-state.patch
 kernel/it6251.c
 kernel/it6251.c.before-drm-lifecycle
 ```
@@ -693,38 +776,99 @@ zusätzlichen Backups abgelegt werden.
 
 ## Aktuell bestätigter Referenzzustand
 
-Für den derzeit bestätigten funktionierenden Displayzustand gilt:
+
+Für die weitere Arbeit müssen der historische Golden-Zustand und die
+späteren Diagnosezustände getrennt betrachtet werden.
+
+Der historische Golden Build vom 2026-09-11 bleibt unverändert und ist
+weiterhin die gesicherte funktionierende Referenz.
+
+Für den später reproduzierten Display-Baseline-Zustand gilt:
 
 * Kernel: Linux 6.18.49
 * NixOS: 26.05.20260903.a5cc6f2
-* aktueller Display-DTB:
+* reproduzierter Display-Baseline-DTB:
   `31f2b35e9d0f05adbe6b6e07dbe92bf517b4736366ff81aafa7144ea18377e0f`
 * Kernel-Basis-DTB:
   `b560d50c186e0953cc1b9042ca991ffed7609db2d00379446e4286c252e47522`
 * historischer Golden-DTB:
   `e36cd0c8d229c3d34e688e896f468e40761e9240cf99b6e8691a9c5138f4cd6f`
-* IT6251-Product-ID wird erfolgreich gelesen
-* Display-Link erreicht stabil 1920x1080
-* Linux schaltet die Displayversorgung selbst ein
+* IT6251-Product-ID kann erfolgreich gelesen werden
+* Display-Link kann stabil 1920x1080 erreichen
+* Linux kann die Displayversorgung selbst einschalten
 * `single-master;` ist auf dem Display-I2C-Bus aktiv
 * `startup-delay-us = <2000000>` ist auf `reg_display` aktiv
-* STMPE811 bleibt ein separates offenes I2C-/Touchscreen-Thema
-* der umfangreiche I2C-Diagnose-Patch ist noch nicht für einen finalen
-  Produktionsstand geeignet
+
+Der anschließend isoliert getestete STMPE811-deaktivierte DTB besitzt:
+
+`d9e0c8d5554315814143da89a5b661553b6587902add7ca0d2d41139c09544b8`
+
+Der semantische Unterschied gegenüber dem reproduzierten
+Display-Baseline-DTB besteht ausschließlich aus:
+
+```dts
+status = "disabled";
+```
+
+am STMPE811-Knoten.
+
+Der Hardwaretest bestätigte:
+
+* die STMPE811-/`0-0044`-Fehler verschwinden vollständig
+* das intermittierende IT6251-Cold-Boot-Problem bleibt bestehen
+
+Damit ist experimentell bestätigt, dass die beobachteten
+STMPE811-/Touchscreen-Fehler nicht die Ursache des intermittierenden
+IT6251-Cold-Boot-Problems sind.
+
+Die anschließende Fünf-Cold-Boot-Serie ergab:
+
+* 2/5 direkte Display-Erfolge
+* 3/5 direkte Display-Fehler
+* 3/3 erfolgreiche DRM-Rebind-Recoveries nach einem Fehler
+
+Der aktuelle Diagnosezustand ist deshalb noch kein reproduzierbarer
+Produktionsstand.
+
+Insbesondere ist der umfangreiche I2C-Diagnosepfad noch nicht für einen
+finalen Produktionskernel geeignet.
+
+Der neue `0004`-Diagnosekernel wurde erfolgreich gebaut und
+provenienzgeprüft, aber zum Stand dieses Dokuments noch nicht auf echter
+Novena-Hardware getestet.
 
 ## Nächste Schritte
+
 
 Vor einer endgültigen Einstufung als reproduzierbarer Produktionsstand
 sind insbesondere vorgesehen:
 
-1. STMPE811-/Touchscreen-Pfad kontrolliert und reproduzierbar testen
-2. funktionierenden Displaypfad dabei unverändert lassen
-3. I2C-Diagnose-Patch entfernen oder gezielt begrenzen
-4. mehrere identische echte Kaltstarts durchführen
-5. Boot- und Displayverhalten jedes Laufs dokumentieren
-6. erst danach einen neuen finalen Golden- beziehungsweise
-   Produktionsreferenzstand festlegen
+1. den bereits gebauten `0004`-Diagnosekernel kontrolliert auf der
+   Novena testen
+2. den STMPE811-deaktivierten Test-DTB für diesen Diagnoseschritt
+   zunächst unverändert lassen
+3. mindestens einen Cold-Boot-PASS und einen Cold-Boot-FAIL mit den
+   START-Snapshots A bis E erfassen
+4. die A-bis-E-Zustände mit dem bereits vorhandenen ISR-Zustand
+   vergleichen
+5. die Ursache des bei den fehlgeschlagenen Starts auftretenden frischen
+   IAL-Ereignisses weiter eingrenzen
+6. erst danach eine gezielte funktionale Änderung am I2C-Treiber,
+   Device Tree oder an einer anderen nachgewiesenen Ursache vornehmen
+7. nach einer belastbaren Korrektur erneut mehrere identische echte
+   Kaltstarts durchführen
+8. die Diagnoseinstrumentierung anschließend entfernen oder auf das
+   wirklich notwendige Minimum reduzieren
+9. erst nach bestandener Stabilitätsserie einen neuen finalen Golden-
+   beziehungsweise Produktionsreferenzstand festlegen
+
+Vor dem Deployment des `0004`-Kernels müssen der aktuelle SD-Stand,
+Rollback-DTB, Kernel-Rückfallstand und die externen Backups erneut
+geprüft werden.
 
 Bis dahin bleibt das Backup vom 2026-09-11 die unveränderte historische
-Sicherung, während der am 2026-09-12 bestätigte aktuelle Displaystand
-separat dokumentiert und weiter validiert wird.
+Golden-Sicherung.
+
+Der später reproduzierte Display-Baseline-Zustand sowie die
+STMPE-/Cold-Boot-Diagnose bleiben davon getrennte Entwicklungs- und
+Teststände.
