@@ -2398,3 +2398,206 @@ I2C3-Cold-Boot-Fehlerklasse.
 
 Clamp-, Rückspeisungs-, Pull-up- und Transient-Effekte bleiben voneinander
 zu unterscheidende Hypothesen.
+
+## Block 3.13D – Korrigierte elektrische Topologie als Messgrundlage
+
+### Ausgangspunkt
+
+Block 3.13 setzt die in Block 3.12 festgelegte elektrische
+ES8328-/I2C3-Root-Cause-Untersuchung fort.
+
+Die dauerhafte Novena-Board-Konfiguration
+
+`es8328-power = regulator-always-on`
+
+bleibt unverändert und wird nicht erneut als offene Konfigurationsfrage
+behandelt.
+
+Vor einer Hardwaremessung wurde die bereits archivierte
+PVT2-A-Schaltplan-Evidence erneut visuell gegen die Originalseite 14
+geprüft.
+
+Dabei wurde eine relevante frühere Interpretation aus der
+PDF-Textextraktion korrigiert.
+
+### Korrigierte ES8328-/I2C3-Topologie
+
+Gesichert ist jetzt folgende Struktur:
+
+`I2C3_SCL -> R26A 330R -> AUD_I2C3_SCL -> ES8328E`
+
+`I2C3_SDA -> R27A 330R -> AUD_I2C3_SDA -> ES8328E`
+
+Die visuelle Prüfung der Original-Schaltplanseite zeigt außerdem:
+
+- R10B = 1 kohm von `P3.3V_DELAYED` nach `AUD_I2C3_SCL`,
+- R11B = 1 kohm von `P3.3V_DELAYED` nach `AUD_I2C3_SDA`.
+
+Damit liegen R10B und R11B auf der ES8328-Seite von R26A/R27A und nicht,
+wie zuvor aus der Text-Extraktion interpretiert, direkt auf der globalen
+I2C3-Seite.
+
+Die ursprüngliche Block-1-Dokumentation wurde entsprechend korrigiert.
+
+### Korrektur zu R11A
+
+Die frühere Interpretation
+
+`R11A = 1 kohm von AUD_P3.3V nach AUD_I2C3_SDA`
+
+war falsch.
+
+Die visuelle Originalprüfung zeigt R11A im Mikrofonbereich. R11A ist dort
+mit 10 kohm beschriftet und steht im Zusammenhang mit `MIC_DIFF_P`.
+
+R11A wird deshalb nicht mehr als Bestandteil der I2C3-Pull-up-Struktur
+geführt.
+
+### Relevante Power-Domain-Struktur
+
+Der ES8328E wird aus dem geschalteten Rail `AUD_P3.3V` versorgt.
+
+Auf derselben Schaltplanseite ist eine eigene Audio-Power-Schaltung
+dokumentiert. Sie enthält unter anderem Q11A, Q10A und Q12A sowie die
+Beschriftung:
+
+`active pulldown to ensure audio codec reset`
+
+Für die Root-Cause-Untersuchung ist damit folgende Trennung wesentlich:
+
+- `AUD_I2C3_SCL` und `AUD_I2C3_SDA` werden über R10B/R11B aus
+  `P3.3V_DELAYED` hochgezogen.
+- Die eigentliche ES8328-Versorgung erfolgt separat über das geschaltete
+  `AUD_P3.3V`.
+
+Damit kann schaltungstechnisch ein Zustand existieren, in dem
+`P3.3V_DELAYED` vorhanden ist und die ES8328-seitigen I2C-Leitungen
+hochgezogen werden, während `AUD_P3.3V` abgeschaltet ist.
+
+Nicht bewiesen ist damit, welcher Strom in diesem Zustand tatsächlich
+durch die ES8328-I/O-Struktur fließt.
+
+### Verbindung mit der gesicherten experimentellen Evidence
+
+Die korrigierte Schaltungstopologie wird auf Syntheseebene mit der bereits
+gesicherten H3-1R-Evidence zusammengeführt.
+
+Der Baseline-Cold-FAIL zeigt:
+
+`A=81/80 -> M0=93/80`
+
+und die Abschaltung von `es8328-power` ungefähr 10,716 Sekunden vor dem
+ersten beobachteten I2C3-Fehler.
+
+Der erfolgreiche Same-Boot-LDB-Rebind zeigt:
+
+`A=81/80 -> M0=81/a0`
+
+H3-1R fügte ausschließlich `regulator-always-on` für `es8328-power`
+hinzu und erreichte 5/5 erfolgreiche vorab festgelegte echte
+POR-Cold-Boots.
+
+In diesen fünf vollständigen Kernel-Logs fehlen die bekannte
+`93/80`-Signatur und das untersuchte I2C3-`arbitration lost`.
+
+Die neue Schaltplan-Evidence erklärt damit noch nicht den elektrischen
+Mechanismus, macht aber die bereits priorisierten Kandidaten M1 bis M3
+wesentlich konkreter:
+
+1. Clamp- oder Bus-Loading-Effekt am unversorgten ES8328,
+2. Rückspeisung des abgeschalteten Audio-Power-Domains,
+3. Pull-up-/Power-Domain-Wechselwirkung.
+
+M4, ein zeitabhängiger Abschalttransient, bleibt ebenfalls offen.
+
+### Neue Messgrundlage
+
+R26A und R27A besitzen für die weitere Untersuchung besonderen
+Informationswert.
+
+Jeweils eine Widerstandsseite gehört zum globalen I2C3, die andere zum
+ES8328-/Audiozweig.
+
+Für die weitere Messplanung werden deshalb mindestens folgende Größen
+vorgesehen:
+
+1. `AUD_P3.3V`,
+2. globale Seite von R26A / `I2C3_SCL`,
+3. ES8328-Seite von R26A / `AUD_I2C3_SCL`,
+4. globale Seite von R27A / `I2C3_SDA`,
+5. ES8328-Seite von R27A / `AUD_I2C3_SDA`,
+6. `P3.3V_DELAYED`,
+7. sichere gemeinsame Masse.
+
+Eine messbare Spannungsdifferenz über R26A beziehungsweise R27A kann
+Strom durch den jeweiligen Zweig anzeigen.
+
+Eine solche Beobachtung allein beweist weder Backpower noch Clamp und
+identifiziert noch keinen internen ES8328-Strompfad.
+
+### Noch keine physische Messfreigabe
+
+Die elektrischen Netze sind bestimmt, die konkreten sicheren
+Platinenmesspunkte jedoch noch nicht.
+
+Insbesondere ist noch nicht bewiesen, dass die Pads von R26A/R27A auf
+der tatsächlich getesteten Novena mechanisch sicher mit einem
+Messgerät erreichbar sind.
+
+Vor einer Hardwaremessung müssen deshalb zunächst aus Layout-Unterlagen
+und geeigneten Platinenabbildungen eindeutig bestimmt werden:
+
+- physische Lage und Orientierung von R26A,
+- physische Lage und Orientierung von R27A,
+- geeigneter Messpunkt für `AUD_P3.3V`,
+- geeigneter Messpunkt für `P3.3V_DELAYED`,
+- sicherer Massepunkt.
+
+Für jeden später verwendeten Messpunkt sind zusätzlich Messmittel,
+erwarteter Zustand, erforderliche zeitliche Auflösung und
+Kurzschluss-/Belastungsrisiko festzulegen.
+
+### Nächster Teilschritt
+
+Der nächste Teilschritt ist die read-only Erstellung einer physischen
+Messpunktkarte aus den bereits vorhandenen Layout- und
+Platinenunterlagen.
+
+Es erfolgt noch keine Messung an der Novena.
+
+Insbesondere wird derzeit nicht:
+
+- `regulator-always-on` zurückgenommen,
+- ein Audio-Power-OFF-Zustand erzeugt,
+- R26A oder R27A mit einem Tastkopf kontaktiert,
+- ein Logic Analyzer an I2C3 angeschlossen,
+- Kernel-Patch `0007` begonnen.
+
+Eine spätere temporäre Wiederherstellung eines Audio-Power-OFF-Zustands
+wäre nur als separat vorbereiteter diagnostischer Vergleich zulässig
+und stellt keine Rücknahme der dauerhaften Board-Konfiguration dar.
+
+### Dokumentationsartefakte
+
+Die korrigierte Originalquellenanalyse befindet sich unter:
+
+`research/01-original-novena-docs/notes/pvt2-a-i2c3-topology.md`
+
+Die Block-3.13-Synthese und Messplanung befindet sich unter:
+
+`research/03-root-cause-synthesis/block-3.13-elektrische-messplanung.md`
+
+### Aussagegrenze
+
+Block 3.13D beweist weiterhin keinen einzelnen elektrischen
+Root-Cause-Mechanismus.
+
+Gesichert ist jetzt zusätzlich die für die Messplanung entscheidende
+Schaltungstopologie:
+
+Die ES8328-seitigen I2C-Netze werden aus `P3.3V_DELAYED` hochgezogen,
+während die eigentliche Codec-Versorgung aus dem separat geschalteten
+`AUD_P3.3V` erfolgt.
+
+Clamp, Rückspeisung, Power-Domain-Wechselwirkung und Abschalttransient
+bleiben voneinander zu unterscheidende Hypothesen.
