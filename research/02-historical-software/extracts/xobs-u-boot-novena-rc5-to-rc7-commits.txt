@@ -1,0 +1,7 @@
+4957ffe323b580ca14d28e9ae9deb89b48e87d64	2014-10-13T18:22:13+08:00	novena: Add support for reading EEPROM file
+156d8726c09adaabbfadf50fec44bb23b10d5952	2014-10-13T18:23:40+08:00	debian: Update changelog
+a3955368908ec167dbe4718bab04d252c705db9f	2014-10-13T18:38:54+08:00	eeprom: Treat feature_retina as it6251-present on v2
+ffc4bc0bf3e68ce18ec08b59e1f171002c1fc5cb	2014-10-13T19:06:58+08:00	novena: eeprom: Don't disable features in recovery mode
+a6ac9e000cc2ae11a74f8754b9192bf7e624ac93	2014-10-13T19:15:04+08:00	debian: Update debian control version
+e38c3f9849aae6245278a10e73f54d1208c56408	2014-10-14T10:06:41+08:00	debian: Improve novena-install-spl script
+4330c957155183eec60537071cc595d39d9b5872	2014-10-14T17:57:42+08:00	novena: eeprom: Fixup parsing of es8328, sata, eeprom flags

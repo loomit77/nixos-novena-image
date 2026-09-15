@@ -1,0 +1,66 @@
+   500		.rowaddr	= 16,
+   501		.coladdr	= 10,
+   502		.pagesz		= 2,
+   503		.trcd		= 1300,
+   504		.trcmin		= 4900,
+   505		.trasmin	= 3590,
+   506	};
+   507	
+   508	uint32_t novena_read_spd(struct mx6_ddr_sysinfo *sysinfo,
+   509			         struct mx6_ddr3_cfg *cfg);
+   510	int do_write_level_calibration(void);
+   511	int do_dqs_calibration(void);
+   512	int novena_memory_test(void);
+   513	
+   514	/*
+   515	 * called from C runtime startup code (arch/arm/lib/crt0.S:_main)
+   516	 * - we have a stack and a place to store GD, both in SRAM
+   517	 * - no variable global data is available
+   518	 */
+   519	void board_init_f(ulong dummy)
+   520	{
+   521		/* setup AIPS and disable watchdog */
+   522		arch_cpu_init();
+   523	
+   524		/* setup GP timer */
+   525		timer_init();
+   526	
+   527	#ifdef CONFIG_BOARD_POSTCLK_INIT
+   528		board_postclk_init();
+   529	#endif
+   530	#ifdef CONFIG_FSL_ESDHC
+   531		get_clocks();
+   532	#endif
+   533	
+   534		/* Setup IOMUX and configure basics. */
+   535		novena_spl_setup_iomux_audio();
+   536		novena_spl_setup_iomux_buttons();
+   537		novena_spl_setup_iomux_enet();
+   538		novena_spl_setup_iomux_fpga();
+   539		novena_spl_setup_iomux_i2c();
+   540		novena_spl_setup_iomux_pcie();
+   541		novena_spl_setup_iomux_sdhc();
+   542		novena_spl_setup_iomux_spi();
+   543		novena_spl_setup_iomux_uart();
+   544		novena_spl_setup_iomux_video();
+   545	
+   546		/* UART clocks enabled and gd valid - init serial console */
+   547		preloader_console_init();
+   548	
+   549		/* Start the DDR DRAM */
+   550	
+   551		novena_read_spd(&novena_ddr_info, &novena_ddr3_cfg);
+   552		mx6dq_dram_iocfg(novena_ddr3_cfg.width,
+   553				 &novena_ddr_ioregs, &novena_grp_ioregs);
+   554		mx6_dram_cfg(&novena_ddr_info, &novena_mmdc_calib, &novena_ddr3_cfg);
+   555		do_write_level_calibration();
+   556		do_dqs_calibration();
+   557		printf("Running post-config memory test... ");
+   558		if (novena_memory_test())
+   559			printf("Fail!\n");
+   560		else
+   561			printf("Pass\n");
+   562	
+   563		/* Clear the BSS. */
+   564		memset(__bss_start, 0, __bss_end - __bss_start);
+   565	

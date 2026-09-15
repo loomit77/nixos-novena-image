@@ -1,0 +1,20 @@
+Repository: https://github.com/xobs/u-boot-novena.git
+
+=== REMOTES ===
+origin	https://github.com/xobs/u-boot-novena.git (fetch)
+origin	https://github.com/xobs/u-boot-novena.git (push)
+
+=== DEFAULT HEAD ===
+da65dfe4eb70bda1fac5238718c7c8ef763af3bd
+
+=== DEFAULT BRANCH ===
+novena-r2
+
+=== REMOTE HEAD ===
+refs/remotes/origin/novena-r2
+
+=== BRANCHES ===
+* novena-r2
+  remotes/origin/HEAD -> origin/novena-r2
+  remotes/origin/master
+  remotes/origin/novena-r2

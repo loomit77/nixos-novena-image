@@ -1,0 +1,32 @@
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/Makefile:4:# SPDX-License-Identifier:	GPL-2.0+
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:35:#include <ddr_spd.h>
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:805:uint32_t novena_read_spd(struct mx6_ddr_sysinfo *sysinfo,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:808:	struct ddr3_spd_eeprom_s spd;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:810:	int chip   = 0x50;	/* Address of the SPD I2C device */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:811:	int addr   = 0x0;	/* Start of SPD address */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:818:	ret = i2c_read(chip, addr, alen, (uint8_t *)&spd, sizeof(spd));
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:820:		printf("Error reading SPD on DDR3.\n");
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:824:	switch (spd.tck_min) {
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:844:		if (spd.tck_min <= 0xf) {
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:861:	cfg->density = (256 * (1 << (spd.density_banks & 0xf))) / 1024;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:864:	cfg->width = (1 << (spd.organization & 0x7)) * 4;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:867:	if ((spd.density_banks & 0x30) != 0) {
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:874:	cfg->rowaddr = ((spd.addressing >> 3) & 0x7) + 12;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:875:	cfg->coladdr = (spd.addressing & 0x7) + 9;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:881:	sysinfo->ncs = ((spd.organization >> 3) & 0x7) + 1;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:889:	if (spd.bus_width != 0x3) {
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:903:	mtb_scale = (spd.mtb_dividend * 100) / spd.mtb_divisor;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:905:	cfg->trcd = spd.trcd_min + 1;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:909:	cfg->trcmin = (((spd.tras_trc_ext & 0xf0) << 4) | spd.trc_min_lsb) + 1;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:913:	cfg->trasmin = (((spd.tras_trc_ext & 0xf) << 8) | spd.tras_min_lsb) + 1;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:919:	if ((spd.therm_ref_opt & 0x1) && !(spd.therm_ref_opt & 0x2))
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:6: * SPDX-License-Identifier:	GPL-2.0+
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:6: * SPDX-License-Identifier:     GPL-2.0+
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:176: *  0x50 ... SO-DIMM ID
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:195: *  0x50 ... HDMI DCC
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:213: *  0x50 ... LCD EDID
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:508:uint32_t novena_read_spd(struct mx6_ddr_sysinfo *sysinfo,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:551:	novena_read_spd(&novena_ddr_info, &novena_ddr3_cfg);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/setup.cfg:4: * SPDX-License-Identifier:	GPL-2.0+
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/novena.h:6: * SPDX-License-Identifier:	GPL-2.0+
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/novena.h:156:#define CONFIG_SYS_SPD_BUS_NUM		2

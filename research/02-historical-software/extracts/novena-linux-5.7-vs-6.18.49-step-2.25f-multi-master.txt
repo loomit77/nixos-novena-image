@@ -1,0 +1,649 @@
+=== STEP 2.25f: MULTI_MASTER / START / IAL ===
+Di 15. Sep 12:53:26 CEST 2026
+
+=== 1. QUELLDATEIEN ===
+  1337  37845 /tmp/novena-i2c-imx-5.7-rc2.c
+  2232  64112 /tmp/novena-i2c-imx-6.18.49.c
+  3569 101957 insgesamt
+0f5f281102fc70cbf54e1dee07634d4b731a153771e0fdd2e51e0042fafcd467  /tmp/novena-i2c-imx-5.7-rc2.c
+a8c9dd32c72353e80fc8462fc5157d91c168fcb76db563dab0ef48ff140f87bc  /tmp/novena-i2c-imx-6.18.49.c
+
+=== 2. MULTI_MASTER ALLE TREFFER IN 6.18.49 ===
+257-	enum i2c_slave_event last_slave_event;
+258-
+259-	struct i2c_msg		*msg;
+260-	unsigned int		msg_buf_idx;
+261-	int			isr_result;
+262-	bool			is_lastmsg;
+263-	enum imx_i2c_state	state;
+264-
+265:	bool			multi_master;
+266-
+267-	/*
+268-	 * Novena IT6251 diagnostics.
+269-	 *
+270-	 * Capture I2SR/I2CR at selected points in the first transaction
+271-	 * without printing from the timing-sensitive start path. The
+272-	 * snapshots are emitted later from the already-instrumented ISR.
+273-	 */
+274-	bool			novena_trace_it6251;
+275-	unsigned int			novena_i2sr_a, novena_i2cr_a;
+276-	unsigned int			novena_i2sr_b, novena_i2cr_b;
+277-	unsigned int			novena_i2sr_c, novena_i2cr_c;
+--
+548-	dma_release_channel(dma->chan_rx);
+549-	dma->chan_rx = NULL;
+550-
+551-	dma->chan_using = NULL;
+552-}
+553-
+554-static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+555-{
+556:	bool multi_master = i2c_imx->multi_master;
+557-	unsigned long orig_jiffies = jiffies;
+558-	unsigned int temp;
+559-
+560-	while (1) {
+561-		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+562-
+563-		/* check for arbitration lost */
+564:		if (multi_master && (temp & I2SR_IAL)) {
+565-			dev_err(&i2c_imx->adapter.dev,
+566-				"NOVENA-I2C: arbitration lost in bus_busy, I2SR=0x%02x\n",
+567-				temp);
+568-
+569-			i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+570-			return -EAGAIN;
+571-		}
+572-
+573:		if (for_busy && (!multi_master || (temp & I2SR_IBB))) {
+574-			i2c_imx->stopped = 0;
+575-			break;
+576-		}
+577-		if (!for_busy && !(temp & I2SR_IBB)) {
+578-			i2c_imx->stopped = 1;
+579-			break;
+580-		}
+581-		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
+582-			dev_dbg(&i2c_imx->adapter.dev,
+583-				"<%s> I2C bus is busy\n", __func__);
+584-			return -ETIMEDOUT;
+585-		}
+--
+616-	}
+617-
+618-	if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
+619-		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
+620-		return -ETIMEDOUT;
+621-	}
+622-
+623-	/* In multi-master mode check for arbitration lost */
+624:	if (i2c_imx->multi_master && (i2c_imx->i2csr & I2SR_IAL)) {
+625-		dev_err(&i2c_imx->adapter.dev,
+626-			"NOVENA-I2C: arbitration lost in trx_complete, I2SR=0x%02x\n",
+627-			i2c_imx->i2csr);
+628-		i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+629-
+630-		i2c_imx->i2csr = 0;
+631-		return -EAGAIN;
+632-	}
+633-
+634-	dev_dbg(&i2c_imx->adapter.dev, "<%s> TRX complete\n", __func__);
+635-	i2c_imx->i2csr = 0;
+636-	return 0;
+--
+1983-		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
+1984-		goto rpm_disable;
+1985-	}
+1986-
+1987-	/*
+1988-	 * We use the single-master property for backward compatibility.
+1989-	 * By default multi master mode is enabled.
+1990-	 */
+1991:	i2c_imx->multi_master = !of_property_read_bool(pdev->dev.of_node, "single-master");
+1992-
+1993-	/* Set up clock divider */
+1994-	i2c_imx->bitrate = I2C_MAX_STANDARD_MODE_FREQ;
+1995-	ret = of_property_read_u32(pdev->dev.of_node,
+1996-				   "clock-frequency", &i2c_imx->bitrate);
+1997-	if (ret < 0 && pdata && pdata->bitrate)
+1998-		i2c_imx->bitrate = pdata->bitrate;
+1999-	i2c_imx->clk_change_nb.notifier_call = i2c_imx_clk_notifier_call;
+2000-	clk_notifier_register(i2c_imx->clk, &i2c_imx->clk_change_nb);
+2001-	ret = i2c_imx_set_clk(i2c_imx, clk_get_rate(i2c_imx->clk));
+2002-	if (ret < 0) {
+2003-		dev_err(&pdev->dev, "can't get I2C clock\n");
+
+=== 3. BUS_BUSY 5.7 KOMPLETT ===
+static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+{
+	unsigned long orig_jiffies = jiffies;
+	unsigned int temp;
+
+	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+
+	while (1) {
+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+
+		/* check for arbitration lost */
+		if (temp & I2SR_IAL) {
+			temp &= ~I2SR_IAL;
+			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
+			return -EAGAIN;
+		}
+
+		if (for_busy && (temp & I2SR_IBB)) {
+			i2c_imx->stopped = 0;
+			break;
+		}
+		if (!for_busy && !(temp & I2SR_IBB)) {
+			i2c_imx->stopped = 1;
+			break;
+		}
+		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
+			dev_dbg(&i2c_imx->adapter.dev,
+				"<%s> I2C bus is busy\n", __func__);
+			return -ETIMEDOUT;
+		}
+		if (atomic)
+			udelay(100);
+		else
+			schedule();
+	}
+
+	return 0;
+}
+
+=== 4. BUS_BUSY 6.18 KOMPLETT ===
+static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+{
+	bool multi_master = i2c_imx->multi_master;
+	unsigned long orig_jiffies = jiffies;
+	unsigned int temp;
+
+	while (1) {
+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+
+		/* check for arbitration lost */
+		if (multi_master && (temp & I2SR_IAL)) {
+			dev_err(&i2c_imx->adapter.dev,
+				"NOVENA-I2C: arbitration lost in bus_busy, I2SR=0x%02x\n",
+				temp);
+
+			i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+			return -EAGAIN;
+		}
+
+		if (for_busy && (!multi_master || (temp & I2SR_IBB))) {
+			i2c_imx->stopped = 0;
+			break;
+		}
+		if (!for_busy && !(temp & I2SR_IBB)) {
+			i2c_imx->stopped = 1;
+			break;
+		}
+		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
+			dev_dbg(&i2c_imx->adapter.dev,
+				"<%s> I2C bus is busy\n", __func__);
+			return -ETIMEDOUT;
+		}
+		if (atomic)
+			udelay(100);
+		else
+			schedule();
+	}
+
+	return 0;
+}
+
+=== 5. START 5.7 KOMPLETT ===
+static int i2c_imx_start(struct imx_i2c_struct *i2c_imx, bool atomic)
+{
+	unsigned int temp = 0;
+	int result;
+
+	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+
+	imx_i2c_write_reg(i2c_imx->ifdr, i2c_imx, IMX_I2C_IFDR);
+	/* Enable I2C controller */
+	imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx, IMX_I2C_I2SR);
+	imx_i2c_write_reg(i2c_imx->hwdata->i2cr_ien_opcode, i2c_imx, IMX_I2C_I2CR);
+
+	/* Wait controller to be stable */
+	if (atomic)
+		udelay(50);
+	else
+		usleep_range(50, 150);
+
+	/* Start I2C transaction */
+	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+	temp |= I2CR_MSTA;
+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+	result = i2c_imx_bus_busy(i2c_imx, 1, atomic);
+	if (result)
+		return result;
+
+	temp |= I2CR_IIEN | I2CR_MTX | I2CR_TXAK;
+	if (atomic)
+		temp &= ~I2CR_IIEN; /* Disable interrupt */
+
+	temp &= ~I2CR_DMAEN;
+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+	return result;
+}
+
+=== 6. START 6.18 KOMPLETT ===
+static int i2c_imx_start(struct imx_i2c_struct *i2c_imx, bool atomic,
+			 bool trace_it6251)
+{
+	unsigned int temp = 0;
+	unsigned int i;
+	int result;
+
+	imx_i2c_write_reg(i2c_imx->ifdr, i2c_imx, IMX_I2C_IFDR);
+	/* Enable I2C controller */
+	imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx, IMX_I2C_I2SR);
+	imx_i2c_write_reg(i2c_imx->hwdata->i2cr_ien_opcode, i2c_imx, IMX_I2C_I2CR);
+
+	/* Wait controller to be stable */
+	if (atomic)
+		udelay(50);
+	else
+		usleep_range(50, 150);
+
+	i2c_imx->novena_trace_it6251 = trace_it6251;
+
+	if (trace_it6251) {
+		/* A: controller stable, immediately before requesting MSTA. */
+		i2c_imx->novena_i2sr_a =
+			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+		i2c_imx->novena_i2cr_a =
+			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+	}
+
+	/* Start I2C transaction */
+	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+	temp |= I2CR_MSTA;
+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+
+	if (trace_it6251) {
+		/*
+		 * Resolve the MSTA/START transition with a tight sequence of
+		 * ordered register reads. There are deliberately no delays,
+		 * logging calls or timestamp reads inside this window.
+		 */
+		for (i = 0; i < NOVENA_IT6251_START_SAMPLES; i++) {
+			i2c_imx->novena_start_i2sr[i] =
+				imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+			i2c_imx->novena_start_i2cr[i] =
+				imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+		}
+
+		/*
+		 * Preserve the existing B snapshot: M0 is the first
+		 * observation immediately after requesting master mode.
+		 */
+		i2c_imx->novena_i2sr_b = i2c_imx->novena_start_i2sr[0];
+		i2c_imx->novena_i2cr_b = i2c_imx->novena_start_i2cr[0];
+	}
+
+	result = i2c_imx_bus_busy(i2c_imx, 1, atomic);
+
+	if (trace_it6251) {
+		/* C: immediately after the bus-busy check. */
+		i2c_imx->novena_i2sr_c =
+			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+		i2c_imx->novena_i2cr_c =
+			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+	}
+
+	if (result) {
+		if (trace_it6251)
+			dev_err(&i2c_imx->adapter.dev,
+				"NOVENA-I2C: IT6251 START failure "
+				"A=%02x/%02x B=%02x/%02x C=%02x/%02x ret=%d\n",
+				i2c_imx->novena_i2sr_a, i2c_imx->novena_i2cr_a,
+				i2c_imx->novena_i2sr_b, i2c_imx->novena_i2cr_b,
+				i2c_imx->novena_i2sr_c, i2c_imx->novena_i2cr_c,
+				result);
+
+		if (trace_it6251)
+			i2c_imx_novena_dump_start_transition(i2c_imx);
+
+		return result;
+	}
+
+	temp |= I2CR_IIEN | I2CR_MTX | I2CR_TXAK;
+	if (atomic)
+		temp &= ~I2CR_IIEN; /* Disable interrupt */
+
+	temp &= ~I2CR_DMAEN;
+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+
+	if (trace_it6251) {
+		/* D: controller configured for the first address transfer. */
+		i2c_imx->novena_i2sr_d =
+			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+		i2c_imx->novena_i2cr_d =
+			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+	}
+
+	return result;
+}
+
+=== 7. XFER-COMMON: START UND RECOVERY 5.7 ===
+917-	}
+918-	return 0;
+919-}
+920-
+921-static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
+922-			       struct i2c_msg *msgs, int num, bool atomic)
+923-{
+924-	unsigned int i, temp;
+925-	int result;
+926-	bool is_lastmsg = false;
+927-	struct imx_i2c_struct *i2c_imx = i2c_get_adapdata(adapter);
+928-
+929-	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+930-
+931-	/* Start I2C transfer */
+932:	result = i2c_imx_start(i2c_imx, atomic);
+933-	if (result) {
+934-		/*
+935-		 * Bus recovery uses gpiod_get_value_cansleep() which is not
+936-		 * allowed within atomic context.
+937-		 */
+938-		if (!atomic && i2c_imx->adapter.bus_recovery_info) {
+939-			i2c_recover_bus(&i2c_imx->adapter);
+940:			result = i2c_imx_start(i2c_imx, atomic);
+941-		}
+942-	}
+943-
+944-	if (result)
+945-		goto fail0;
+946-
+947-	/* read/write data */
+948-	for (i = 0; i < num; i++) {
+949-		if (i == num - 1)
+950-			is_lastmsg = true;
+951-
+952-		if (i) {
+953-			dev_dbg(&i2c_imx->adapter.dev,
+954-				"<%s> repeated start\n", __func__);
+955-			temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+956-			temp |= I2CR_RSTA;
+957-			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+958-			result = i2c_imx_bus_busy(i2c_imx, 1, atomic);
+959-			if (result)
+960-				goto fail0;
+961-		}
+962-		dev_dbg(&i2c_imx->adapter.dev,
+963-			"<%s> transfer message: %d\n", __func__, i);
+964-		/* write/read data */
+965-#ifdef CONFIG_I2C_DEBUG_BUS
+966-		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+967-		dev_dbg(&i2c_imx->adapter.dev,
+968-			"<%s> CONTROL: IEN=%d, IIEN=%d, MSTA=%d, MTX=%d, TXAK=%d, RSTA=%d\n",
+969-			__func__,
+970-			(temp & I2CR_IEN ? 1 : 0), (temp & I2CR_IIEN ? 1 : 0),
+
+=== 8. XFER-COMMON: START UND RECOVERY 6.18 ===
+1737-	}
+1738-
+1739-	return ret;
+1740-}
+1741-
+1742-static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
+1743-			       struct i2c_msg *msgs, int num, bool atomic)
+1744-{
+1745-	unsigned int i, temp;
+1746-	int result;
+1747-	bool is_lastmsg = false;
+1748-	struct imx_i2c_struct *i2c_imx = i2c_get_adapdata(adapter);
+1749-	int use_dma = 0;
+1750-
+1751-	/* Start I2C transfer */
+1752:	result = i2c_imx_start(i2c_imx, atomic,
+1753-			       num > 0 && msgs[0].addr == 0x5c);
+1754-	if (result) {
+1755-		/*
+1756-		 * Bus recovery uses gpiod_get_value_cansleep() which is not
+1757-		 * allowed within atomic context.
+1758-		 */
+1759-		if (!atomic && i2c_imx->adapter.bus_recovery_info) {
+1760-			i2c_recover_bus(&i2c_imx->adapter);
+1761:			result = i2c_imx_start(i2c_imx, atomic,
+1762-			       num > 0 && msgs[0].addr == 0x5c);
+1763-		}
+1764-	}
+1765-
+1766-	if (result)
+1767-		goto fail0;
+1768-
+1769-	/* read/write data */
+1770-	for (i = 0; i < num; i++) {
+1771-		if (i == num - 1)
+1772-			is_lastmsg = true;
+1773-
+1774-		if (i) {
+1775-			dev_dbg(&i2c_imx->adapter.dev,
+1776-				"<%s> repeated start\n", __func__);
+1777-			temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+1778-			temp |= I2CR_RSTA;
+1779-			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+1780-			result = i2c_imx_bus_busy(i2c_imx, 1, atomic);
+1781-			if (result)
+1782-				goto fail0;
+1783-		}
+1784-		dev_dbg(&i2c_imx->adapter.dev,
+1785-			"<%s> transfer message: %d\n", __func__, i);
+1786-		/* write/read data */
+1787-#ifdef CONFIG_I2C_DEBUG_BUS
+1788-		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+1789-		dev_dbg(&i2c_imx->adapter.dev,
+1790-			"<%s> CONTROL: IEN=%d, IIEN=%d, MSTA=%d, MTX=%d, TXAK=%d, RSTA=%d\n",
+1791-			__func__,
+
+=== 9. SINGLE-MASTER / MULTI-MASTER DEVICE-TREE-PFAD 6.18 ===
+250-	unsigned int		cur_clk;
+251-	unsigned int		bitrate;
+252-	const struct imx_i2c_hwdata	*hwdata;
+253-	struct i2c_bus_recovery_info rinfo;
+254-
+255-	struct imx_i2c_dma	*dma;
+256-	struct i2c_client	*slave;
+257-	enum i2c_slave_event last_slave_event;
+258-
+259-	struct i2c_msg		*msg;
+260-	unsigned int		msg_buf_idx;
+261-	int			isr_result;
+262-	bool			is_lastmsg;
+263-	enum imx_i2c_state	state;
+264-
+265:	bool			multi_master;
+266-
+267-	/*
+268-	 * Novena IT6251 diagnostics.
+269-	 *
+270-	 * Capture I2SR/I2CR at selected points in the first transaction
+271-	 * without printing from the timing-sensitive start path. The
+272-	 * snapshots are emitted later from the already-instrumented ISR.
+273-	 */
+274-	bool			novena_trace_it6251;
+275-	unsigned int			novena_i2sr_a, novena_i2cr_a;
+276-	unsigned int			novena_i2sr_b, novena_i2cr_b;
+277-	unsigned int			novena_i2sr_c, novena_i2cr_c;
+278-	unsigned int			novena_i2sr_d, novena_i2cr_d;
+279-	unsigned int			novena_i2sr_e, novena_i2cr_e;
+280-	unsigned int			novena_start_i2sr[NOVENA_IT6251_START_SAMPLES];
+281-	unsigned int			novena_start_i2cr[NOVENA_IT6251_START_SAMPLES];
+282-
+283-	/* For checking slave events. */
+284-	spinlock_t     slave_lock;
+285-	struct hrtimer slave_timer;
+286-};
+287-
+288-static const struct imx_i2c_hwdata imx1_i2c_hwdata = {
+289-	.devtype		= IMX1_I2C,
+290-	.regshift		= IMX_I2C_REGSHIFT,
+--
+541-
+542-	dma->dma_buf = 0;
+543-	dma->dma_len = 0;
+544-
+545-	dma_release_channel(dma->chan_tx);
+546-	dma->chan_tx = NULL;
+547-
+548-	dma_release_channel(dma->chan_rx);
+549-	dma->chan_rx = NULL;
+550-
+551-	dma->chan_using = NULL;
+552-}
+553-
+554-static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+555-{
+556:	bool multi_master = i2c_imx->multi_master;
+557-	unsigned long orig_jiffies = jiffies;
+558-	unsigned int temp;
+559-
+560-	while (1) {
+561-		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+562-
+563-		/* check for arbitration lost */
+564:		if (multi_master && (temp & I2SR_IAL)) {
+565-			dev_err(&i2c_imx->adapter.dev,
+566-				"NOVENA-I2C: arbitration lost in bus_busy, I2SR=0x%02x\n",
+567-				temp);
+568-
+569-			i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+570-			return -EAGAIN;
+571-		}
+572-
+573:		if (for_busy && (!multi_master || (temp & I2SR_IBB))) {
+574-			i2c_imx->stopped = 0;
+575-			break;
+576-		}
+577-		if (!for_busy && !(temp & I2SR_IBB)) {
+578-			i2c_imx->stopped = 1;
+579-			break;
+580-		}
+581-		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
+582-			dev_dbg(&i2c_imx->adapter.dev,
+583-				"<%s> I2C bus is busy\n", __func__);
+584-			return -ETIMEDOUT;
+585-		}
+586-		if (atomic)
+587-			udelay(100);
+588-		else
+589-			schedule();
+590-	}
+591-
+592-	return 0;
+593-}
+594-
+595-static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx, bool atomic)
+596-{
+597-	if (atomic) {
+598-		void __iomem *addr = i2c_imx->base + (IMX_I2C_I2SR << i2c_imx->hwdata->regshift);
+--
+608-		 * turned out that the I2SR_IIF bit isn't set correctly within
+609-		 * the minimum timeout in polling mode.
+610-		 */
+611-		readb_poll_timeout_atomic(addr, regval, regval & I2SR_IIF, 5, 1000 + 100);
+612-		i2c_imx->i2csr = regval;
+613-		i2c_imx_clear_irq(i2c_imx, I2SR_IIF | I2SR_IAL);
+614-	} else {
+615-		wait_event_timeout(i2c_imx->queue, i2c_imx->i2csr & I2SR_IIF, HZ / 10);
+616-	}
+617-
+618-	if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
+619-		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
+620-		return -ETIMEDOUT;
+621-	}
+622-
+623:	/* In multi-master mode check for arbitration lost */
+624:	if (i2c_imx->multi_master && (i2c_imx->i2csr & I2SR_IAL)) {
+625-		dev_err(&i2c_imx->adapter.dev,
+626-			"NOVENA-I2C: arbitration lost in trx_complete, I2SR=0x%02x\n",
+627-			i2c_imx->i2csr);
+628-		i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+629-
+630-		i2c_imx->i2csr = 0;
+631-		return -EAGAIN;
+632-	}
+633-
+634-	dev_dbg(&i2c_imx->adapter.dev, "<%s> TRX complete\n", __func__);
+635-	i2c_imx->i2csr = 0;
+636-	return 0;
+637-}
+638-
+639-static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx)
+640-{
+641-	if (imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR) & I2SR_RXAK) {
+642-		dev_dbg(&i2c_imx->adapter.dev, "<%s> No ACK\n", __func__);
+643-		return -ENXIO;  /* No ACK */
+644-	}
+645-
+646-	dev_dbg(&i2c_imx->adapter.dev, "<%s> ACK received\n", __func__);
+647-	return 0;
+648-}
+649-
+--
+1973-	pm_runtime_enable(&pdev->dev);
+1974-
+1975-	ret = pm_runtime_get_sync(&pdev->dev);
+1976-	if (ret < 0)
+1977-		goto rpm_disable;
+1978-
+1979-	/* Request IRQ */
+1980-	ret = request_irq(irq, i2c_imx_isr, IRQF_SHARED | IRQF_NO_SUSPEND,
+1981-			  pdev->name, i2c_imx);
+1982-	if (ret) {
+1983-		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
+1984-		goto rpm_disable;
+1985-	}
+1986-
+1987-	/*
+1988:	 * We use the single-master property for backward compatibility.
+1989-	 * By default multi master mode is enabled.
+1990-	 */
+1991:	i2c_imx->multi_master = !of_property_read_bool(pdev->dev.of_node, "single-master");
+1992-
+1993-	/* Set up clock divider */
+1994-	i2c_imx->bitrate = I2C_MAX_STANDARD_MODE_FREQ;
+1995-	ret = of_property_read_u32(pdev->dev.of_node,
+1996-				   "clock-frequency", &i2c_imx->bitrate);
+1997-	if (ret < 0 && pdata && pdata->bitrate)
+1998-		i2c_imx->bitrate = pdata->bitrate;
+1999-	i2c_imx->clk_change_nb.notifier_call = i2c_imx_clk_notifier_call;
+2000-	clk_notifier_register(i2c_imx->clk, &i2c_imx->clk_change_nb);
+2001-	ret = i2c_imx_set_clk(i2c_imx, clk_get_rate(i2c_imx->clk));
+2002-	if (ret < 0) {
+2003-		dev_err(&pdev->dev, "can't get I2C clock\n");
+2004-		goto clk_notifier_unregister;
+2005-	}
+2006-
+2007-	i2c_imx_reset_regs(i2c_imx);
+2008-
+2009-	/* Init optional bus recovery function */
+2010-	ret = i2c_imx_init_recovery_info(i2c_imx, pdev);
+2011-	/* Give it another chance if pinctrl used is not ready yet */
+2012-	if (ret == -EPROBE_DEFER)
+2013-		goto clk_notifier_unregister;
+2014-
+2015-	/*
+2016-	 * DMA mode should be optional for I2C, when encountering DMA errors,
+
+=== 10. GIT-HISTORIE: MULTI_MASTER ===
+NEW_REPO_IST_KEIN_GIT_REPOSITORY
+
+=== 11. GIT-HISTORIE: SINGLE-MASTER ===
+NEW_REPO_IST_KEIN_GIT_REPOSITORY
+
+=== 12. GIT-HISTORIE: IAL-BEDINGUNG ===
+NEW_REPO_IST_KEIN_GIT_REPOSITORY
+
+=== 13. PROJEKTSTATUS ===
+?? research/02-historical-software/
+
+=== ENDE STEP 2.25f ===

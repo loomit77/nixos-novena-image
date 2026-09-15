@@ -1,0 +1,173 @@
+=== STEP 2.27a: VORHANDENE GIT-HISTORIE INVENTARISIEREN ===
+Di 15. Sep 13:01:31 CEST 2026
+
+=== 1. REPOSITORY ===
+## master...origin/master
+origin	https://github.com/novena-next/linux.git (fetch)
+origin	https://github.com/novena-next/linux.git (push)
+
+=== 2. SHALLOW-STATUS ===
+REPOSITORY_SHALLOW=NEIN
+
+=== 3. VORHANDENE REMOTE-REFS ===
+refs/remotes/origin/HEAD 18bf34080c4c3beb6699181986cc97dd712498fe
+refs/remotes/origin/linux-4.19.98-novena-wip3 f7c5b3505876d8df968bd4d47068e63d464f2c82
+refs/remotes/origin/linux-4.19.y ee809c7e08956d737cb66454f5b6ca32cc0d9f26
+refs/remotes/origin/linux-4.19.y-novena-wip1 4b3bf882f44bb05874bfcb61f9eb59d96116099f
+refs/remotes/origin/linux-4.19.y-novena-wip2 c441b59aff97c33c014e0c1c3731b18b61c5c279
+refs/remotes/origin/master 18bf34080c4c3beb6699181986cc97dd712498fe
+refs/remotes/origin/nvn_v5.7-rc2 1fda06deecb61538ca3d07d256eb7c43d4e3432a
+refs/remotes/origin/nvn_v6.6 62230169377ba41353d41806ae35cde734cb5cf0
+refs/remotes/origin/v4.4-novena d9d2e8b619f17e8394d62c08d60b4ea17154e9d6
+
+=== 4. VORHANDENE TAGS ===
+v4.19
+v4.19-rc1
+v4.19-rc2
+v4.19-rc3
+v4.19-rc4
+v4.19-rc5
+v4.19-rc6
+v4.19-rc7
+v4.19-rc8
+v4.19.y-novena-wip1
+v4.19.y-novena-wip2
+v4.20
+v4.20-rc1
+v4.20-rc2
+v4.20-rc3
+v4.20-rc4
+v4.20-rc5
+v4.20-rc6
+v4.20-rc7
+v5.0
+v5.0-rc1
+v5.0-rc2
+v5.0-rc3
+v5.0-rc4
+v5.0-rc5
+v5.0-rc6
+v5.0-rc7
+v5.0-rc8
+v5.1
+v5.1-rc1
+v5.1-rc2
+v5.1-rc3
+v5.1-rc4
+v5.1-rc5
+v5.1-rc6
+v5.1-rc7
+v5.2
+v5.2-rc1
+v5.2-rc2
+v5.2-rc3
+v5.2-rc4
+v5.2-rc5
+v5.2-rc6
+v5.2-rc7
+v5.3
+v5.3-rc1
+v5.3-rc2
+v5.3-rc3
+v5.3-rc4
+v5.3-rc5
+v5.3-rc6
+v5.3-rc7
+v5.3-rc8
+v5.4
+v5.4-rc1
+v5.4-rc2
+v5.4-rc3
+v5.4-rc4
+v5.4-rc5
+v5.4-rc6
+v5.4-rc7
+v5.4-rc8
+v5.5
+v5.5-rc1
+v5.5-rc2
+v5.5-rc3
+v5.5-rc4
+v5.5-rc5
+v5.5-rc6
+v5.5-rc7
+v5.6
+v5.6-rc1
+v5.6-rc2
+v5.6-rc3
+v5.6-rc4
+v5.6-rc5
+v5.6-rc6
+v5.6-rc7
+v5.7-rc1
+v5.7-rc2
+
+=== 5. VERSION DER WICHTIGEN BRANCHES ===
+
+--- refs/remotes/origin/nvn_v5.7-rc2 ---
+COMMIT 1fda06deecb61538ca3d07d256eb7c43d4e3432a
+DATE 2020-05-04T15:49:21+02:00
+SUBJECT FIXME: ITE workaround
+VERSION = 5
+PATCHLEVEL = 7
+SUBLEVEL = 0
+EXTRAVERSION = -rc2
+
+--- refs/remotes/origin/nvn_v6.6 ---
+COMMIT 62230169377ba41353d41806ae35cde734cb5cf0
+DATE 2023-12-22T11:34:48+01:00
+SUBJECT fixup! drm/bridge: Add ITE IT6251 bridge driver
+VERSION = 6
+PATCHLEVEL = 6
+SUBLEVEL = 6
+EXTRAVERSION =
+
+--- refs/remotes/origin/master ---
+COMMIT 18bf34080c4c3beb6699181986cc97dd712498fe
+DATE 2020-04-21T13:26:54-07:00
+SUBJECT Merge branch 'akpm' (patches from Andrew)
+VERSION = 5
+PATCHLEVEL = 7
+SUBLEVEL = 0
+EXTRAVERSION = -rc2
+
+=== 6. ALLE VORHANDENEN COMMITS MIT multi_master ===
+
+=== 7. ALLE VORHANDENEN COMMITS MIT single-master ===
+
+=== 8. OBJEKT FÜR UPSTREAM v6.18 PRÜFEN ===
+v6.18=NICHT_VORHANDEN
+v6.18.1=NICHT_VORHANDEN
+v6.18.49=NICHT_VORHANDEN
+
+=== 9. I2C-IMX-HISTORIE NACH 2023 IN VORHANDENEN REFS ===
+COMMIT c8930ed073951105bf42c4b1d3b9520aa83debfa
+DATE 2023-08-21T11:29:14+08:00
+SUBJECT i2c: Make return value check more accurate and explicit for devm_pinctrl_get()
+COMMIT 59738ab26644ecb9bd05378a948c4a6e036e4916
+DATE 2023-07-14T11:46:16-06:00
+SUBJECT I2C: Explicitly include correct DT includes
+COMMIT f5d5bc5fda5cfc127d258166e5d6d91cf17efd48
+DATE 2023-07-25T09:50:55+03:00
+SUBJECT i2c: imx: Clean up a call to request_irq()
+COMMIT e190a0c389e60178fba3d532abf936dcae223e7d
+DATE 2023-05-08T22:51:38+02:00
+SUBJECT i2c: Convert to platform remove callback returning void
+COMMIT 7da13023655d4625b72b09dd65f780804c7cc700
+DATE 2023-03-13T19:33:49+01:00
+SUBJECT i2c: imx: Simplify using devm_clk_get_enabled()
+
+=== 10. OBJEKTSTATISTIK ===
+count: 0
+size: 0 Byte
+in-pack: 9805419
+packs: 1
+size-pack: 4.87 GiB
+prune-packable: 0
+garbage: 0
+size-garbage: 0 Byte
+
+=== 11. PROJEKTSTATUS ===
+?? research/02-historical-software/
+
+=== ENDE STEP 2.27a ===

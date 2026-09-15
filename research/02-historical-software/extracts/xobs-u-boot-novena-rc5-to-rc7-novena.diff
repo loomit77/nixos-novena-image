@@ -1,0 +1,531 @@
+diff --git a/board/kosagi/novena/Makefile b/board/kosagi/novena/Makefile
+index 5ae541dc4e..4ee6032d83 100644
+--- a/board/kosagi/novena/Makefile
++++ b/board/kosagi/novena/Makefile
+@@ -1,11 +1,11 @@
+ #
+ # Copyright (C) 2014 Marek Vasut <marex@denx.de>
+ #
+ # SPDX-License-Identifier:	GPL-2.0+
+ #
+ 
+ ifdef CONFIG_SPL_BUILD
+ obj-y	:= novena_spl.o ddr3.o
+ else
+-obj-y	:= novena.o
++obj-y	:= novena.o eeprom.o
+ endif
+diff --git a/board/kosagi/novena/eeprom.c b/board/kosagi/novena/eeprom.c
+new file mode 100644
+index 0000000000..ebe047fdf1
+--- /dev/null
++++ b/board/kosagi/novena/eeprom.c
+@@ -0,0 +1,140 @@
++#include <common.h>
++#include <i2c.h>
++
++#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
++#include <libfdt.h>
++#include "novena-eeprom.h"
++
++#define EEPROM_ADDRESS (0xac >> 1)
++
++static int fdt_del_by_path(void *fdt, const char *path)
++{
++	int  nodeoffset;        /* node offset from libfdt */
++	int  err;
++
++	/*
++	 * Get the path.  The root node is an oddball, the offset
++	 * is zero and has no name.
++	 */
++	nodeoffset = fdt_path_offset (working_fdt, path);
++	if (nodeoffset < 0) {
++		/*
++		 * Not found or something else bad happened.
++		 */
++		printf ("libfdt fdt_path_offset() returned %s\n",
++			fdt_strerror(nodeoffset));
++		return 1;
++	}
++
++	err = fdt_del_node(working_fdt, nodeoffset);
++	if (err < 0) {
++		printf("libfdt fdt_del_by_path():  %s\n",
++		fdt_strerror(err));
++		return err;
++	}
++
++	return 0;
++}
++
++void ft_board_setup(void *blob, bd_t *bd)
++{
++	struct novena_eeprom_data_v2 data;
++	int ret;
++
++	i2c_set_bus_num(2);
++	ret = eeprom_read(EEPROM_ADDRESS, 0, (uint8_t *)&data, sizeof(data));
++	if (ret != 0) {
++		printf("Unable to read from EEPROM: %d\n", ret);
++		return;
++	}
++
++	/* Check EEPROM signature. */
++	if (memcmp(data.signature, NOVENA_SIGNATURE, sizeof(data.signature))) {
++		puts("Invalid I2C EEPROM signature.\n");
++		return;
++	}
++
++	/* Check which version */
++	if (data.version > 2) {
++		printf("Unsupported EEPROM version: %d\n", data.version);
++		return;
++	}
++
++	/* Set ethernet address from EEPROM (if one hasn't been set yet). */
++	if (!getenv("ethaddr"))
++		eth_setenv_enetaddr("ethaddr", data.mac);
++
++	if (getenv("rec")) {
++		puts("Detected recovery mode, leaving everything enabled\n");
++		return;
++	}
++
++	if (!(data.features & feature_es8328))
++		fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/es8328@11");
++	if (!(data.features & feature_senoko))
++		fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a0000/bq20z75@b");
++	if (!(data.features & feature_pcie))
++		fdt_del_by_path(blob, "/soc/pcie@0x01000000");
++
++	if (!(data.features & feature_gbit))
++		fdt_del_by_path(blob, "/soc/aips-bus@02100000/ethernet@02188000");
++
++	/* Boot from SATA if we're set up to do so */
++	if (!(data.features & feature_rootsrc_sata))
++		setenv("rootdev", "PARTUUID=4e6f7653-03"); /* "NovS" */
++
++	/* Older version had simpler panel selection */
++	if (data.version == 1) {
++		if (!(data.features & feature_hdmi))
++			fdt_del_by_path(blob, "/soc/aips-bus@02000000/hdmi@0120000");
++
++		if (!(data.features & feature_retina)) {
++			fdt_del_by_path(blob, "/soc/aips-bus@02000000/ldb@020e0008");
++			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@73");
++			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@73");
++		}
++	}
++
++	else if (data.version == 2) {
++		/* In version 2, this indicates whether an LVDS-to-eDP chip is present */
++		if (!(data.features & feature_retina))
++			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@73");
++
++		if (!(data.lvds1.flags & channel_present)) {
++			fdt_del_by_path(blob, "/soc/aips-bus@02000000/ldb@020e0008/lvds-channel@0");
++		}
++		else {
++			/* XXX Configure lvds1 display timings here */
++		}
++
++		if (!(data.lvds2.flags & channel_present) &&
++		    !(data.lvds2.flags & dual_channel)) {
++			fdt_del_by_path(blob, "/soc/aips-bus@02000000/ldb@020e0008/lvds-channel@1");
++		}
++		else {
++			/* XXX Configure lvds2 display timings here */
++		}
++
++		if (!(data.hdmi.flags & channel_present)) {
++			fdt_del_by_path(blob, "/soc/aips-bus@02000000/hdmi@0120000");
++		}
++		else if (data.hdmi.flags & ignore_settings) {
++			/* Do nothing, let the system auto-detect */
++			;
++		}
++		else {
++			/* XXX Configure hdmi display timings here */
++		}
++
++		if (!(data.features & feature_eepromoops))
++			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/eepromoops@56");
++		else {
++			/* XXX Configure eepromoops here */
++		}
++
++		if (data.features & feature_rootsrc_sata)
++			setenv("rootdev", "PARTUUID=4e6f7653-03"); /* NovS */ \
++	}
++}
++
++#endif
+diff --git a/board/kosagi/novena/novena-eeprom.h b/board/kosagi/novena/novena-eeprom.h
+new file mode 100644
+index 0000000000..ad69319fec
+--- /dev/null
++++ b/board/kosagi/novena/novena-eeprom.h
+@@ -0,0 +1,142 @@
++#ifndef __NOVENA_EEPROM_H__
++#define __NOVENA_EEPROM_H__
++
++#define NOVENA_SIGNATURE "Novena"
++
++/* Bitmask polarities used as flag */
++enum modesetting_flags {
++
++	/* If 0, this display device is not present */
++	channel_present	= 0x01,
++
++	/* If this is lvds1 and this bit is set, use dual-channel LVDS */
++	dual_channel	= 0x02,
++
++	vsync_polarity	= 0x04,
++	hsync_polarity	= 0x08,
++
++	/* For LVDS, a value of 0 means PSWG, a value of 1 means JEIDA */
++	mapping_jeida	= 0x10,
++
++	/* If 0, channel is either 6-bit (LVDS) or 10-bit (HDMI) */
++	data_width_8bit	= 0x20,
++
++	/* Channel is present, but ignore EEPROM values and auto-detect them */
++	ignore_settings	= 0x40,
++};
++
++struct modesetting {
++	uint32_t	frequency;
++	uint16_t	hactive;
++	uint16_t	vactive;
++	uint16_t	hback_porch;
++	uint16_t	hfront_porch;
++	uint16_t	hsync_len;
++	uint16_t	vback_porch;
++	uint16_t	vfront_porch;
++	uint16_t	vsync_len;
++	uint32_t	flags;		/* enum modesetting_flags mask */
++} __attribute__((__packed__));
++
++/*
++ * For structure documentation, see:
++ * http://www.kosagi.com/w/index.php?title=Novena/EEPROM
++ */
++struct novena_eeprom_data_v2 {
++	uint8_t		signature[6];	/* 'Novena' */
++	uint8_t		version;	/* always 2 */
++	uint8_t		page_size;	/* Size of EEPROM read/write page */
++	uint32_t	serial;		/* 32-bit serial number */
++	uint8_t		mac[6];		/* Gigabit MAC address */
++
++	/* Features present, from struct feature features[] below */
++	uint16_t	features;	/* Native byte order */
++
++	/* Describes default resolutions of various output devices */
++	struct modesetting	lvds1;
++	struct modesetting	lvds2;
++	struct modesetting	hdmi;
++
++	/* An indicator of how large this particular EEPROM is */
++	uint32_t	eeprom_size;
++
++	/* If eepromoops is present, describes eepromoops storage */
++	uint32_t	eepromoops_offset;
++	uint32_t	eepromoops_length;
++} __attribute__((__packed__));
++
++/* V1 is mostly a copy of v2, except the page size is a "reserved" field */
++struct novena_eeprom_data_v1 {
++	uint8_t		signature[6];	/* 'Novena' */
++	uint8_t		version;	/* always 1 */
++	uint8_t		reserved;
++	uint32_t	serial;		/* 32-bit serial number */
++	uint8_t		mac[6];		/* Gigabit MAC address */
++
++	/* Features present, from struct feature features[] below */
++	uint16_t	features;	/* Native byte order */
++} __attribute__((__packed__));
++
++enum feature_flags {
++	feature_es8328 		= 0x0001,
++	feature_senoko		= 0x0002,
++	feature_retina		= 0x0004,
++	feature_pixelqi		= 0x0008,
++	feature_pcie		= 0x0010,
++	feature_gbit		= 0x0020,
++	feature_hdmi		= 0x0040,
++	feature_eepromoops	= 0x0080,
++	feature_rootsrc_sata	= 0x0100,
++};
++
++#ifndef __cplusplus
++struct feature {
++	uint32_t	flags;
++	char		*name;
++	char		*descr;
++} features[] = {
++	{
++		.name	= "es8328",
++		.flags	= feature_es8328,
++		.descr	= "ES8328 audio codec",
++	},
++	{
++		.name	= "senoko",
++		.flags	= feature_senoko,
++		.descr	= "Senoko battery board",
++	},
++	{
++		.name	= "retina",
++		.flags	= feature_retina,
++		.descr	= "Retina-class dual-LVDS display (deprecated)",
++	},
++	{
++		.name	= "pixelqi",
++		.flags	= feature_pixelqi,
++		.descr	= "PixelQi LVDS display (deprecated)",
++	},
++	{
++		.name	= "pcie",
++		.flags	= feature_pcie,
++		.descr	= "PCI Express support",
++	},
++	{
++		.name	= "gbit",
++		.flags	= feature_gbit,
++		.descr	= "Gigabit Ethernet",
++	},
++	{
++		.name	= "hdmi",
++		.flags	= feature_hdmi,
++		.descr	= "HDMI Output (deprecated)",
++	},
++	{
++		.name	= "eepromoops",
++		.flags	= feature_eepromoops,
++		.descr	= "EEPROM Oops storage",
++	},
++	{} /* Sentinal */
++};
++#endif /* ! __cplusplus */
++
++#endif /* __NOVENA_EEPROM_H__ */
+diff --git a/include/configs/novena.h b/include/configs/novena.h
+index a820557eab..1e5aba8fa4 100644
+--- a/include/configs/novena.h
++++ b/include/configs/novena.h
+@@ -1,65 +1,66 @@
+ /*
+  * Configuration settings for the Novena U-boot.
+  *
+  * Copyright (C) 2014 Marek Vasut <marex@denx.de>
+  *
+  * SPDX-License-Identifier:	GPL-2.0+
+  */
+ 
+ #ifndef __CONFIG_H
+ #define __CONFIG_H
+ 
+ /* System configurations */
+ #define CONFIG_MX6
+ #define CONFIG_SYS_MX6_HCLK		24000000
+ #define CONFIG_SYS_MX6_CLK32		32768
+ #define CONFIG_BOARD_EARLY_INIT_F
+ #define CONFIG_MISC_INIT_R
+ #define CONFIG_DISPLAY_BOARDINFO
+ #define CONFIG_DISPLAY_CPUINFO
+ #define CONFIG_DOS_PARTITION
+ #define CONFIG_FAT_WRITE
+ #define CONFIG_FIT
+ #define CONFIG_KEYBOARD
+ #define CONFIG_MXC_GPIO
+ #define CONFIG_OF_LIBFDT
++#define CONFIG_OF_BOARD_SETUP
+ #define CONFIG_REGEX
+ #define CONFIG_SYS_GENERIC_BOARD
+ #define CONFIG_SYS_NO_FLASH
+ 
+ #include "configs/mx6_common.h"
+ #include <asm/arch/imx-regs.h>
+ #include <asm/imx-common/gpio.h>
+ #include <config_cmd_default.h>
+ 
+ /* U-Boot Commands */
+ #define CONFIG_CMD_ASKENV
+ #define CONFIG_CMD_BMODE
+ #define CONFIG_CMD_BOOTZ
+ #define CONFIG_CMD_CACHE
+ #define CONFIG_CMD_DHCP
+ #define CONFIG_CMD_EEPROM
+ #define CONFIG_CMD_EXT4
+ #define CONFIG_CMD_EXT4_WRITE
+ #define CONFIG_CMD_FAT
+ #define CONFIG_CMD_FS_GENERIC
+ #define CONFIG_CMD_I2C
+ #define CONFIG_CMD_FUSE
+ #define CONFIG_CMD_GPIO
+ #define CONFIG_CMD_MII
+ #define CONFIG_CMD_MMC
+ #define CONFIG_CMD_NET
+ #define CONFIG_CMD_PCI
+ #define CONFIG_CMD_PING
+ #define CONFIG_CMD_SATA
+ #define CONFIG_CMD_SETEXPR
+ #define CONFIG_CMD_TIME
+ #define CONFIG_CMD_USB
+ #define CONFIG_VIDEO
+ 
+ /* U-Boot general configurations */
+ #define CONFIG_SYS_LONGHELP
+ #define CONFIG_SYS_CBSIZE	1024		/* Console I/O buffer size */
+ #define CONFIG_SYS_PBSIZE	\
+ 	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
+ 						/* Print buffer size */
+@@ -220,143 +221,137 @@
+ #define CONFIG_MXC_USB_FLAGS		0
+ /* Gadget part */
+ #define CONFIG_CI_UDC
+ #define CONFIG_USBD_HS
+ #define CONFIG_USB_GADGET_DUALSPEED
+ #define CONFIG_USB_ETHER
+ #define CONFIG_USB_ETH_CDC
+ #define CONFIG_NETCONSOLE
+ #endif
+ 
+ /* Video output */
+ #ifdef CONFIG_VIDEO
+ #define CONFIG_VIDEO
+ #define CONFIG_VIDEO_IPUV3
+ #define CONFIG_CFB_CONSOLE
+ #define CONFIG_VGA_AS_SINGLE_DEVICE
+ #define CONFIG_SYS_CONSOLE_IS_IN_ENV
+ #define CONFIG_VIDEO_BMP_RLE8
+ #define CONFIG_SPLASH_SCREEN
+ #define CONFIG_BMP_16BPP
+ #define CONFIG_VIDEO_LOGO
+ #define CONFIG_IPUV3_CLK		260000000
+ #define CONFIG_CMD_HDMIDETECT
+ #define CONFIG_CONSOLE_MUX
+ #define CONFIG_IMX_HDMI
+ #define CONFIG_IMX_VIDEO_SKIP
+ #endif
+ 
+ /* Extra U-Boot environment. */
+ #define CONFIG_EXTRA_ENV_SETTINGS					\
+ 	"fdt_high=0xffffffff\0"						\
+ 	"initrd_high=0xffffffff\0"					\
+ 	"consdev=ttymxc1\0"						\
+ 	"baudrate=115200\0"						\
+ 	"bootdev=/dev/mmcblk0p1\0"					\
+ 	"rootdev=/dev/mmcblk0p2\0"					\
+ 	"netdev=eth0\0"							\
+ 	"rootpath=/opt/eldk-5.5/armv7a-hf/rootfs-qte-sdk\0"		\
+ 	"kernel_addr_r=0x12000000\0"					\
+ 	"fdt_addr_r=0x11ff0000\0"					\
++	"initrd_addr_r=-\0"						\
+ 	"addcons="							\
+ 		"setenv bootargs ${bootargs} "				\
+ 		"console=${consdev},${baudrate}\0"			\
+ 	"addip="							\
+ 		"setenv bootargs ${bootargs} "				\
+ 		"ip=${ipaddr}:${serverip}:${gatewayip}:"		\
+ 			"${netmask}:${hostname}:${netdev}:off\0"	\
+ 	"addmisc="							\
+ 		"setenv bootargs ${bootargs} ${miscargs}\0"		\
+ 	"addargs=run addcons addmisc\0"					\
+ 	"mmcload="							\
+ 		"mmc rescan ; "						\
+ 		"ext4load mmc 0:1 ${kernel_addr_r} ${bootfile}\0"	\
+ 	"netload="							\
+ 		"tftp ${kernel_addr_r} ${hostname}/${bootfile}\0"	\
+ 	"miscargs=nohlt panic=1\0"					\
+ 	"mmcargs=setenv bootargs root=${rootdev} rw rootwait\0"		\
+ 	"nfsargs="							\
+ 		"setenv bootargs root=/dev/nfs rw "			\
+ 			"nfsroot=${serverip}:${rootpath},v3,tcp\0"	\
+ 	"mmc_mmc="							\
+ 		"run mmcload mmcargs addargs ; "			\
+ 		"bootm ${kernel_addr_r}\0"				\
+ 	"mmc_nfs="							\
+ 		"run mmcload nfsargs addip addargs ; "			\
+ 		"bootm ${kernel_addr_r}\0"				\
+ 	"net_mmc="							\
+ 		"run netload mmcargs addargs ; "			\
+ 		"bootm ${kernel_addr_r}\0"				\
+ 	"net_nfs="							\
+ 		"run netload nfsargs addip addargs ; "			\
+ 		"bootm ${kernel_addr_r}\0"				\
+ 	"prephdmi=true"							\
+ 	"preplcd=true"							\
+ 	"prepethernet=true"						\
+ 	"prepmisc=true"							\
+ 	"bootenv=uEnv.txt\0"						\
+ 	"loadbootenv=load ${bootsrc} ${bootdev} ${loadaddr} ${bootenv}\0" \
+ 	"importbootenv="						\
+ 		"echo Importing environment from ${bootsrc} ... ; "	\
+                 "env import -t -r $loadaddr $filesize\0"		\
+ 	"novena_boot="							\
+ 		"setenv bootsrc mmc ; "					\
+ 		"setenv bootdev 0 ; "					\
+ 		"setenv rootdev PARTUUID=4e6f764d-03 ; " /* NovM */	\
+ 		"setenv bootargs init=/lib/systemd/systemd rootwait rw ; " \
+ 		"if run loadbootenv; then "				\
+ 			"echo Loaded environment from ${bootenv} ; "	\
+ 			"run importbootenv ; "				\
+ 		"else ; "						\
+ 			"echo To override boot, create a file on the internal MMC called ${bootenv} ; " \
+ 		"fi ; "							\
+ 		"if test -n $uenvcmd; then "				\
+ 			"echo Running uenvcmd ... ; "			\
+ 			"run uenvcmd ; "				\
+ 		"else ; "						\
+ 			"echo To hook boot process, add a variable called uenvcmd ; " \
+ 		"fi ; "							\
+-		"if sata init ; then " /* Switch to SATA if present */  \
+-			"echo SATA device detected. ; "			\
+-			"setenv rootdev PARTUUID=4e6f7653-03 ; " /* NovS */ \
+-		"else ; "						\
+-			"echo Will boot from internal MMC. ; "		\
+-		"fi ; "							\
+ 		"if gpio input 110 ; then " /* Test recovery button */  \
+ 			"echo Press Control-C to enter U-Boot shell, or wait to enter recovery mode ; " \
+ 			"if sleep 2 ; then true; else exit ; fi ; "	\
+ 			"echo Entering recovery mode... ; "		\
+ 			"setenv rec .recovery ;	"			\
+ 			"setenv bootargs ${bootargs} recovery ; "	\
+ 			"setenv rootdev PARTUUID=4e6f764d-03 ; " /* NovM */ \
+ 		"else ; "						\
+ 			"echo Hold recovery button to boot to recovery, or enter U-Boot shell. ; " \
+ 		"fi ; "							\
+ 		"if hdmidet ; then "					\
+ 			"echo HDMI monitor detected ; "		\
+ 			"setenv consdev tty0 ; "			\
+ 		"else ; "						\
+ 			"echo No video detected, using serial port ; "	\
+ 			"setenv consdev ${consdev},${baudrate} ; "	\
+ 		"fi ; "							\
+ 		"fatload ${bootsrc} ${bootdev} ${kernel_addr_r} zImage${rec} ; " \
+ 		"fatload ${bootsrc} ${bootdev} ${fdt_addr_r} novena${rec}.dtb ; " \
+-		"run prephdmi ; "					\
+-		"run preplcd ; "					\
+-		"run prepethernet ; "					\
+-		"run prepmisc ; "					\
++		"fdt addr ${fdt_addr_r} ; "				\
++		"fdt boardsetup ; "					\
+ 		"setenv bootargs ${bootargs} root=${rootdev} console=${consdev} ; " \
+-		"bootz ${kernel_addr_r} - ${fdt_addr_r} ; "		\
++		"run finalprep ; "					\
++		"bootz ${kernel_addr_r} ${initrd_addr_r} ${fdt_addr_r} ; " \
+ 		"\0"							\
+ 	"update_sd_spl_filename=SPL\0"					\
+ 	"update_sd_uboot_filename=u-boot.img\0"				\
+ 	"update_sd_firmware="	/* Update the SD firmware partition */	\
+ 		"if mmc rescan ; then "					\
+ 		"if dhcp ${update_sd_spl_filename} ; then "		\
+ 		"mmc write ${loadaddr} 2 0x200 ; "			\
+ 		"fi ; "							\
+ 		"if dhcp ${update_sd_uboot_filename} ; then "		\
+ 		"fatwrite mmc 0:1 ${loadaddr} u-boot.img ${filesize} ; "\
+ 		"fi ; "							\
+ 		"fi\0"							\
+ 
+ #endif				/* __CONFIG_H */

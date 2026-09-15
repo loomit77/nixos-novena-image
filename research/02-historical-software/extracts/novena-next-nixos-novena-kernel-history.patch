@@ -1,0 +1,222 @@
+commit 399f465d5ecd55386a0e4ba20ad31d37f30125b1
+Author: Richard Marko <srk@48.io>
+Date:   2020-08-01T13:38:25+02:00
+
+    kernel: ignoreConfigErrors = true
+    
+    Not sure why it is needed.
+
+diff --git a/kernel/default.nix b/kernel/default.nix
+index f5e1ca1..3521d23 100644
+--- a/kernel/default.nix
++++ b/kernel/default.nix
+@@ -18,6 +18,8 @@ in
+ (
+   buildLinux (args // rec {
+     version = "5.7.0-rc2";
++
++    ignoreConfigErrors = true;
+     #version = "5.6.0-rc1-next-20200214";
+ 
+     # branchVersion needs to be x.y
+
+commit 8608a75050c38e5e9dff0d7d1088b9107148f9a4
+Author: Richard Marko <srk@48.io>
+Date:   2020-05-04T16:19:18+02:00
+
+    update kernel to correct branch..
+
+diff --git a/kernel/default.nix b/kernel/default.nix
+index 1dd84f3..f5e1ca1 100644
+--- a/kernel/default.nix
++++ b/kernel/default.nix
+@@ -28,7 +28,7 @@ in
+       owner = "novena-next";
+       repo = "linux";
+       rev = "nvn_v5.7-rc2";
+-      sha256 = "0fyfk3z0ny42bzrajs6khcgx1zq39p6gd6fh54g04r3vbv4jzf0m";
++      sha256 = "1nfy5ywj1w9ibary8aamywksvwab84rlpsvz9r5v7lbd0y6bqcdg";
+     };
+ 
+     postInstall = (optionalString (args ? postInstall) args.postInstall) + ''
+
+commit dd077e17884563990b260689c2110e79c869c8c2
+Author: Richard Marko <srk@48.io>
+Date:   2020-05-04T16:13:47+02:00
+
+    update kernel
+
+diff --git a/kernel/default.nix b/kernel/default.nix
+index aba1821..1dd84f3 100644
+--- a/kernel/default.nix
++++ b/kernel/default.nix
+@@ -28,7 +28,7 @@ in
+       owner = "novena-next";
+       repo = "linux";
+       rev = "nvn_v5.7-rc2";
+-      sha256 = "0hhgw5lb3zzyvxry1zk68367bza6k6d9jq5af5mjmjizw8bd9zdm";
++      sha256 = "0fyfk3z0ny42bzrajs6khcgx1zq39p6gd6fh54g04r3vbv4jzf0m";
+     };
+ 
+     postInstall = (optionalString (args ? postInstall) args.postInstall) + ''
+
+commit d2348cd73441e4d6221475fec4d0bad885bdd036
+Author: Richard Marko <srk@48.io>
+Date:   2020-05-04T08:24:09+02:00
+
+    kernel: switch to structured config
+
+diff --git a/kernel/default.nix b/kernel/default.nix
+index 56aa00d..aba1821 100644
+--- a/kernel/default.nix
++++ b/kernel/default.nix
+@@ -36,21 +36,5 @@ in
+       cp -v "$buildRoot/.config" "$out/nix-support/build.config"
+     '';
+ 
+-    extraConfig = ''
+-      REGULATOR_PFUZE100 y
+-
+-      DRM_ETNAVIV y
+-      DRM_ETNAVIV_THERMAL y
+-      DRM_ITE_IT6251 y
+-
+-      NET_ETHERNET m
+-      USB_USBNET m
+-      USB_NET_AX8817X m
+-      SND_SOC_IMX_ES8328 m
+-
+-      USB_SERIAL_PL2303 m
+-      USB_SERIAL_CH341 m
+-    '';
+-
+   } // (args.argsOverride or {}))
+ )
+
+commit 95d86fa9781530cfa51aec3a90ef5706c22c6ccc
+Author: Richard Marko <srk@48.io>
+Date:   2020-05-03T15:34:36+02:00
+
+    move kernelExtraConfig to kernel/default.nix extraConfig
+
+diff --git a/kernel/default.nix b/kernel/default.nix
+index ed68cb1..56aa00d 100644
+--- a/kernel/default.nix
++++ b/kernel/default.nix
+@@ -35,5 +35,22 @@ in
+       mkdir -p "$out/nix-support"
+       cp -v "$buildRoot/.config" "$out/nix-support/build.config"
+     '';
++
++    extraConfig = ''
++      REGULATOR_PFUZE100 y
++
++      DRM_ETNAVIV y
++      DRM_ETNAVIV_THERMAL y
++      DRM_ITE_IT6251 y
++
++      NET_ETHERNET m
++      USB_USBNET m
++      USB_NET_AX8817X m
++      SND_SOC_IMX_ES8328 m
++
++      USB_SERIAL_PL2303 m
++      USB_SERIAL_CH341 m
++    '';
++
+   } // (args.argsOverride or {}))
+ )
+
+commit f0ab9a6bba556bbd68f6192ca50391f90017810f
+Author: Richard Marko <srk@48.io>
+Date:   2020-05-03T15:26:45+02:00
+
+    point the kernel to novena-next/linux nvn_v5.7-rc2
+
+diff --git a/kernel/default.nix b/kernel/default.nix
+index 69bae12..ed68cb1 100644
+--- a/kernel/default.nix
++++ b/kernel/default.nix
+@@ -1,6 +1,6 @@
+ { stdenv
+ , buildPackages
+-, fetchFromGitLab
++, fetchFromGitHub
+ , perl
+ , buildLinux
+ , modDirVersionArg ? null
+@@ -17,16 +17,19 @@ let
+ in
+ (
+   buildLinux (args // rec {
+-    #version = "5.6";
+-    version = "5.6.0-rc1-next-20200214";    
+-
+-    # modDirVersion needs to be x.y.z, will automatically add .0 if needed
+-    modDirVersion = if (modDirVersionArg == null) then concatStrings (intersperse "." (take 3 (splitString "." "${version}.0"))) else modDirVersionArg;
++    version = "5.7.0-rc2";
++    #version = "5.6.0-rc1-next-20200214";
+ 
+     # branchVersion needs to be x.y
+     extraMeta.branch = concatStrings (intersperse "." (take 2 (splitString "." version)));
+ 
+-    src = /etc/nixos/my.tar.gz;
++    # nix-prefetch-git  https://github.com/novena-next/linux --rev refs/heads/nvn_v5.7-rc2
++    src = fetchFromGitHub {
++      owner = "novena-next";
++      repo = "linux";
++      rev = "nvn_v5.7-rc2";
++      sha256 = "0hhgw5lb3zzyvxry1zk68367bza6k6d9jq5af5mjmjizw8bd9zdm";
++    };
+ 
+     postInstall = (optionalString (args ? postInstall) args.postInstall) + ''
+       mkdir -p "$out/nix-support"
+
+commit b4461ec48a912d61100179974c00c65081b7bf50
+Author: Richard Marko <srk@48.io>
+Date:   2020-04-29T18:57:31+02:00
+
+    init
+
+diff --git a/kernel/default.nix b/kernel/default.nix
+new file mode 100644
+index 0000000..69bae12
+--- /dev/null
++++ b/kernel/default.nix
+@@ -0,0 +1,36 @@
++{ stdenv
++, buildPackages
++, fetchFromGitLab
++, perl
++, buildLinux
++, modDirVersionArg ? null
++, ... } @ args:
++
++let
++  inherit (stdenv.lib)
++    concatStrings
++    intersperse
++    take
++    splitString
++    optionalString
++  ;
++in
++(
++  buildLinux (args // rec {
++    #version = "5.6";
++    version = "5.6.0-rc1-next-20200214";    
++
++    # modDirVersion needs to be x.y.z, will automatically add .0 if needed
++    modDirVersion = if (modDirVersionArg == null) then concatStrings (intersperse "." (take 3 (splitString "." "${version}.0"))) else modDirVersionArg;
++
++    # branchVersion needs to be x.y
++    extraMeta.branch = concatStrings (intersperse "." (take 2 (splitString "." version)));
++
++    src = /etc/nixos/my.tar.gz;
++
++    postInstall = (optionalString (args ? postInstall) args.postInstall) + ''
++      mkdir -p "$out/nix-support"
++      cp -v "$buildRoot/.config" "$out/nix-support/build.config"
++    '';
++  } // (args.argsOverride or {}))
++)

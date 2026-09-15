@@ -1,0 +1,21 @@
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/lib/board.c:158:	i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/m68k/lib/board.c:131:	i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/powerpc/cpu/mpc8xx/video.c:796:	i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/powerpc/lib/board.c:205:	i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/esd/pmc440/pmc440.c:65:		i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/b4860qds/spl.c:105:	i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/c29xpcie/spl.c:66:	i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/p1010rdb/spl.c:92:	i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/p1022ds/spl.c:106:	i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/p1_p2_rdb_pc/spl.c:103:	i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/t104xrdb/spl.c:115:	i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/t208xqds/spl.c:126:	i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/t208xrdb/spl.c:96:	i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/t4qds/spl.c:132:	i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:common/board_f.c:240:	i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:common/cmd_eeprom.c:395:	i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:common/stdio.c:248:	i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:239: * i2c_init_all():
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:246:void i2c_init_all(void)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:209: * i2c_init_all():
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:215:void i2c_init_all(void);

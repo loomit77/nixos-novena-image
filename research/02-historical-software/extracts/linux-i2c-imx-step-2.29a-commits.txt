@@ -1,0 +1,208 @@
+COMMIT 60a9f851f6bb9ea180b09e14cd461a14448f0b56
+DATE 2020-08-12T11:45:54+08:00
+AUTHOR Anson Huang <Anson.Huang@nxp.com>
+SUBJECT i2c: imx: Use dev_err_probe() to simplify error handling
+COMMIT e50e4f0b85be308a01b830c5fbdffc657e1a6dd0
+DATE 2020-09-20T23:12:38+02:00
+AUTHOR Krzysztof Kozlowski <krzk@kernel.org>
+SUBJECT i2c: imx: Fix external abort on interrupt in exit paths
+COMMIT 384a9565f70a876c2e78e58c5ca0bbf0547e4f6d
+DATE 2020-10-09T13:03:18+02:00
+AUTHOR Christian Eggers <ceggers@arri.de>
+SUBJECT i2c: imx: Fix reset of I2SR_IAL flag
+COMMIT 1de67a3dee7a279ebe4d892b359fe3696938ec15
+DATE 2020-10-09T13:03:19+02:00
+AUTHOR Christian Eggers <ceggers@arri.de>
+SUBJECT i2c: imx: Check for I2SR_IAL after every byte
+COMMIT 61e6fe59ede155881a622f5901551b1cc8748f6a
+DATE 2020-10-09T13:03:20+02:00
+AUTHOR Christian Eggers <ceggers@arri.de>
+SUBJECT i2c: imx: Don't generate STOP condition if arbitration has been lost
+COMMIT c610199cd392e6e2d41811ef83d85355c1b862b3
+DATE 2020-11-16T17:29:10-03:00
+AUTHOR Fabio Estevam <festevam@gmail.com>
+SUBJECT i2c: imx: Remove unused .id_table support
+COMMIT 1e04538c751bfc572bfa9995996c7f4af098a625
+DATE 2020-12-07T07:57:42+01:00
+AUTHOR Wolfram Sang <wsa@kernel.org>
+SUBJECT Merge branch 'i2c/for-current' into i2c/for-5.11
+COMMIT f7414cd6923fd7f78e57086fc964ba2dc25db5c1
+DATE 2020-11-11T19:32:55+08:00
+AUTHOR Biwen Li <biwen.li@nxp.com>
+SUBJECT i2c: imx: support slave mode for imx I2C driver
+COMMIT 9d64834b2a68b1c969f8c8d845471c0e91191549
+DATE 2020-12-22T21:31:31+08:00
+AUTHOR Zheng Yongjun <zhengyongjun3@huawei.com>
+SUBJECT i2c: use DIV_ROUND_UP macro to do calculation
+COMMIT a4166340a6e4d501c9e3aee81c20a269726ecde0
+DATE 2021-01-19T23:41:23-03:00
+AUTHOR Fabio Estevam <festevam@gmail.com>
+SUBJECT Revert "i2c: imx: Remove unused .id_table support"
+COMMIT 2e7f3db5d886701c2a31219530845f642fe700d9
+DATE 2021-01-28T10:03:25+01:00
+AUTHOR Wolfram Sang <wsa@kernel.org>
+SUBJECT Merge tag 'v5.11-rc5' into i2c/for-5.12
+COMMIT 05ae60bc24f765d0db6b7c6e5acabf22718b823d
+DATE 2020-12-22T11:48:50-08:00
+AUTHOR Kevin Paul Herbert <kph@platinasystems.com>
+SUBJECT i2c: imx: Synthesize end of transaction events without idle interrupts
+COMMIT 47ff617217ca6a13194fcb35c6c3a0c57c080693
+DATE 2020-12-01T17:31:41+08:00
+AUTHOR Qinglang Miao <miaoqinglang@huawei.com>
+SUBJECT i2c: imx: fix reference leak when pm_runtime_get_sync fails
+COMMIT c4b1fcc310e655fa8414696c38a84d36c00684c8
+DATE 2021-04-08T19:06:38+08:00
+AUTHOR Ye Weihua <yeweihua4@huawei.com>
+SUBJECT i2c: imx: Fix PM reference leak in i2c_imx_reg_slave()
+COMMIT 2f799b25dbaa75027041f55db49a14c59f3116aa
+DATE 2021-06-23T17:36:43+09:00
+AUTHOR Kwon Tae-young <tykwon@m2i.co.kr>
+SUBJECT i2c: imx: Fix some checkpatch warnings
+COMMIT 73a370cff4db1ad2c19340c38c7ee9a67bfc340d
+DATE 2021-06-23T11:59:36+02:00
+AUTHOR Wolfram Sang <wsa+renesas@sang-engineering.com>
+SUBJECT i2c: imx: : use proper DMAENGINE API for termination
+COMMIT f89bf95632b41695402996d96476c44c641d23d7
+DATE 2021-11-12T07:39:55-06:00
+AUTHOR Corey Minyard <minyard@acm.org>
+SUBJECT i2c: imx: Add timer for handling the stop condition
+COMMIT 39c025721d706eb4fa8a5a7a376c93a3162b71bc
+DATE 2022-04-08T19:15:24+02:00
+AUTHOR Marek Vasut <marex@denx.de>
+SUBJECT i2c: imx: Implement errata ERR007805 or e7805 bus frequency limit
+COMMIT 824a826e2e767ae1051a4c5c8ea44ec7a0c1dd26
+DATE 2022-07-15T15:42:18+02:00
+AUTHOR Flavio Suligoi <f.suligoi@asem.it>
+SUBJECT i2c: imx: fix typo in comment
+COMMIT d98bdd3a5b50446d8e010be5b04ce81c4eabf728
+DATE 2022-07-20T17:09:33+02:00
+AUTHOR Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+SUBJECT i2c: imx: Make sure to unregister adapter on remove()
+COMMIT 085aacaa73163f4b8a89dec24ecb32cfacd34017
+DATE 2022-09-12T15:20:40+02:00
+AUTHOR Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+SUBJECT i2c: imx: If pm_runtime_get_sync() returned 1 device access is possible
+COMMIT 8502bee5584235943c4d371597c740d6779991db
+DATE 2022-11-10T17:23:42+08:00
+AUTHOR Minghao Chi <chi.minghao@zte.com.cn>
+SUBJECT i2c: imx: use devm_platform_get_and_ioremap_resource()
+COMMIT d36678f7905cbd1dc55a8a96e066dafd749d4600
+DATE 2022-11-10T00:59:02+01:00
+AUTHOR Andrew Lunn <andrew@lunn.ch>
+SUBJECT i2c: imx: Only DMA messages with I2C_M_DMA_SAFE flag set
+COMMIT ec9187ecea142593c54cf7a73ef2e1a3d517495a
+DATE 2022-12-15T14:47:10-08:00
+AUTHOR Linus Torvalds <torvalds@linux-foundation.org>
+SUBJECT Merge tag 'i2c-for-6.2-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux
+COMMIT 7da13023655d4625b72b09dd65f780804c7cc700
+DATE 2023-03-13T19:33:49+01:00
+AUTHOR Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+SUBJECT i2c: imx: Simplify using devm_clk_get_enabled()
+COMMIT e190a0c389e60178fba3d532abf936dcae223e7d
+DATE 2023-05-08T22:51:38+02:00
+AUTHOR Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+SUBJECT i2c: Convert to platform remove callback returning void
+COMMIT f5d5bc5fda5cfc127d258166e5d6d91cf17efd48
+DATE 2023-07-25T09:50:55+03:00
+AUTHOR Dan Carpenter <dan.carpenter@linaro.org>
+SUBJECT i2c: imx: Clean up a call to request_irq()
+COMMIT 59738ab26644ecb9bd05378a948c4a6e036e4916
+DATE 2023-07-14T11:46:16-06:00
+AUTHOR Rob Herring <robh@kernel.org>
+SUBJECT I2C: Explicitly include correct DT includes
+COMMIT c8930ed073951105bf42c4b1d3b9520aa83debfa
+DATE 2023-08-21T11:29:14+08:00
+AUTHOR Jinjie Ruan <ruanjinjie@huawei.com>
+SUBJECT i2c: Make return value check more accurate and explicit for devm_pinctrl_get()
+COMMIT db63eacdf61d6bbcde783f15aaafbd8e66476e9a
+DATE 2023-11-30T10:57:51+01:00
+AUTHOR Alexander Stein <alexander.stein@ew.tq-group.com>
+SUBJECT i2c: imx: Make SDA actually optional for bus recovering
+COMMIT c0fcc4d9fc0784f8c11af0343092f8d945339431
+DATE 2024-01-25T14:56:36+01:00
+AUTHOR Esben Haabendal <esben@geanix.com>
+SUBJECT i2c: imx: move to generic GPIO recovery
+COMMIT 87aec499368d488c20292952d6d4be7cb9e49c5e
+DATE 2024-02-21T20:27:13+01:00
+AUTHOR Corey Minyard <minyard@acm.org>
+SUBJECT i2c: imx: when being a target, mark the last read as processed
+COMMIT c77756d3da0782cb90c1fbf6635db7aa480ad638
+DATE 2024-03-15T12:09:49-07:00
+AUTHOR Linus Torvalds <torvalds@linux-foundation.org>
+SUBJECT Merge tag 'i2c-for-6.9-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux
+COMMIT 2d30c638f98408c0d2ad5a8c3b2421328aa30213
+DATE 2024-08-07T15:14:56-03:00
+AUTHOR Fabio Estevam <festevam@denx.de>
+SUBJECT i2c: imx: Switch to RUNTIME_PM_OPS()
+COMMIT c9e8f5a553d05fcbb2bfa7635581ebcbcd2b234a
+DATE 2024-09-09T15:52:57+08:00
+AUTHOR Shen Lichuan <shenlichuan@vivo.com>
+SUBJECT i2c: imx: Convert comma to semicolon
+COMMIT 32a0a94aa09e7095fccec1ffc969911f492cc7b9
+DATE 2024-09-29T09:21:57+02:00
+AUTHOR Uwe Kleine-König <u.kleine-koenig@baylibre.com>
+SUBJECT i2c: Switch back to struct platform_driver::remove()
+COMMIT 6692694aca86ddf6831e2be86e5089258c2789bf
+DATE 2024-10-14T15:15:12+02:00
+AUTHOR Stefan Eichenberger <stefan.eichenberger@toradex.com>
+SUBJECT i2c: imx: do not poll for bus busy in single master mode
+COMMIT b460b15b3cc23ef3639cc51043bf8b2a70ca1878
+DATE 2024-10-14T15:15:13+02:00
+AUTHOR Stefan Eichenberger <stefan.eichenberger@toradex.com>
+SUBJECT i2c: imx: separate atomic, dma and non-dma use case
+COMMIT 5f5c2d4579ca6836f5604cca979debd68ecfe23f
+DATE 2024-10-14T15:15:14+02:00
+AUTHOR Stefan Eichenberger <stefan.eichenberger@toradex.com>
+SUBJECT i2c: imx: prevent rescheduling in non dma mode
+COMMIT 311499ee56bf120722a56981caeba14ce829bd1a
+DATE 2024-11-04T12:00:44+02:00
+AUTHOR Ciprian Marian Costea <ciprianmarian.costea@oss.nxp.com>
+SUBJECT i2c: imx: add support for S32G2/S32G3 SoCs
+COMMIT 768776dd4efc681cdca33a79e29bb508d6de9bc0
+DATE 2024-12-16T16:16:40+01:00
+AUTHOR Stefan Eichenberger <stefan.eichenberger@toradex.com>
+SUBJECT i2c: imx: fix missing stop condition in single-master mode
+COMMIT e0cec363197e41af870613e8e17b30bf0e3d41b5
+DATE 2024-12-18T12:42:38+08:00
+AUTHOR Carlos Song <carlos.song@nxp.com>
+SUBJECT i2c: imx: add imx7d compatible string for applying erratum ERR007805
+COMMIT cf30675e4d0631eac6634b2ae3f77b7b0eafe447
+DATE 2024-11-25T22:15:21+08:00
+AUTHOR Carlos Song <carlos.song@nxp.com>
+SUBJECT i2c: imx: fix divide by zero warning
+COMMIT 358025ac091e5a54f9819b33ee9c7cb07c55ee5d
+DATE 2024-11-25T22:21:08+08:00
+AUTHOR Carlos Song <carlos.song@nxp.com>
+SUBJECT i2c: imx: make controller available until system suspend_noirq() and from resume_noirq()
+COMMIT 576eba03c99435380d155e5f71d5d7603b9178f6
+DATE 2024-12-23T11:43:43+08:00
+AUTHOR Carlos Song <carlos.song@nxp.com>
+SUBJECT i2c: imx: switch different pinctrl state in different system power status
+COMMIT d9a13c08f88d696218a44658f290b1b433e787b6
+DATE 2024-12-26T14:25:21+08:00
+AUTHOR Carlos Song <carlos.song@nxp.com>
+SUBJECT i2c: imx: support DMA defer probing
+COMMIT f1061c1442c1eddd71a25fe86516ee346ff4b7aa
+DATE 2025-02-05T11:46:16+01:00
+AUTHOR Nam Cao <namcao@linutronix.de>
+SUBJECT i2c: Switch to use hrtimer_setup()
+COMMIT f4a5f881523196efee8c97ab292a30f295258fef
+DATE 2025-04-08T12:02:59+02:00
+AUTHOR Alexander Stein <alexander.stein@ew.tq-group.com>
+SUBJECT i2c: imx: add some dev_err_probe calls
+COMMIT 614b1c3cbfb0ecbafd40284d2f8e67c865818714
+DATE 2025-06-12T09:27:22+02:00
+AUTHOR Wolfram Sang <wsa+renesas@sang-engineering.com>
+SUBJECT i2c: use inclusive callbacks in struct i2c_algorithm
+COMMIT a5d0b9e32745277644cda8d7d334e7080bd339bf
+DATE 2025-05-20T14:22:52+02:00
+AUTHOR Lukasz Kucharczyk <lukasz.kucharczyk@leica-geosystems.com>
+SUBJECT i2c: imx: fix emulated smbus block read
+COMMIT 07e0e8ea6400673fe6eb40d3db2a64f1f2bce4ca
+DATE 2025-05-31T14:57:26+08:00
+AUTHOR Troy Mitchell <troymitchell988@gmail.com>
+SUBJECT i2c: imx: use guard to take spinlock
+COMMIT ae11e08c3d0c78d08dac4cea30bf39ede2130b03
+DATE 2025-07-04T10:54:15+03:00
+AUTHOR Sakari Ailus <sakari.ailus@linux.intel.com>
+SUBJECT i2c: Remove redundant pm_runtime_mark_last_busy() calls

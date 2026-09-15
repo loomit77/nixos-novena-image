@@ -1,0 +1,34 @@
+===== FILE: board/kosagi/novena/novena_spl.c =====
+    66	#define NOVENA_AUDIO_PWRON		IMX_GPIO_NR(5, 17)
+    67	#define NOVENA_FPGA_RESET_N_GPIO	IMX_GPIO_NR(5, 7)
+    69	#define NOVENA_PCIE_RESET_GPIO		IMX_GPIO_NR(3, 29)
+    75	 * Audio
+    77	static iomux_v3_cfg_t audio_pads[] = {
+    78		/* AUD_PWRON */
+    79		MX6_PAD_DISP0_DAT23__GPIO5_IO17 | MUX_PAD_CTRL(NO_PAD_CTRL),
+    82	static void novena_spl_setup_iomux_audio(void)
+    84		imx_iomux_v3_setup_multiple_pads(audio_pads, ARRAY_SIZE(audio_pads));
+    85		gpio_direction_output(NOVENA_AUDIO_PWRON, 1);
+   101		/* pin 35 - 1 (PHY_AD2) on reset */
+   142	 * FPGA
+   144	static iomux_v3_cfg_t fpga_pads[] = {
+   145		/* FPGA_RESET_N */
+   146		MX6_PAD_DISP0_DAT13__GPIO5_IO07 | MUX_PAD_CTRL(NO_PAD_CTRL),
+   149	static void novena_spl_setup_iomux_fpga(void)
+   151		imx_iomux_v3_setup_multiple_pads(fpga_pads, ARRAY_SIZE(fpga_pads));
+   152		gpio_direction_output(NOVENA_FPGA_RESET_N_GPIO, 0);
+   241		/* "Reset" pin */
+   258		/* Put the card into reset */
+   259		gpio_direction_output(NOVENA_PCIE_RESET_GPIO, 0);
+   365		MX6_PAD_EIM_A24__GPIO5_IO04 | MUX_PAD_CTRL(NO_PAD_CTRL),
+   400		/* SDCLK[0:1], CAS, RAS, Reset: Differential input, 40ohm */
+   405		.dram_reset		= 0x00000038,
+   535		novena_spl_setup_iomux_audio();
+   538		novena_spl_setup_iomux_fpga();
+   570	void reset_cpu(ulong addr)
+
+===== FILE: board/kosagi/novena/novena.c =====
+   240		/* Bring Ethernet PHY out of reset. */
+
+===== FILE: include/configs/novena.h =====
+

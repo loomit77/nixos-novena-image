@@ -1,0 +1,40 @@
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/lib/board.c:158:	i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/lib/board.c:160:	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/lib/board.c:223:	/* Record the board_init_f() bootstage (after arch_cpu_init()) */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/lib/board.c:263:void board_init_f(ulong bootflag)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/lib/crt0.S:20: * 1. Set up initial environment for calling board_init_f().
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/lib/crt0.S:27: * 2. Call board_init_f(). This function prepares the hardware for
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/lib/crt0.S:29: *    be available yet, , board_init_f() must use the current GD to
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/lib/crt0.S:37: *    ones allocated by board_init_f() in system RAM, but BSS and
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/lib/crt0.S:42: *    board_init_f().
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/lib/crt0.S:47: *    RAM. GD has retained values set by board_init_f(). Some CPUs
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/lib/crt0.S:61: * Set up initial C runtime environment and call board_init_f(0).
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/lib/crt0_64.S:25: * 1. Set up initial environment for calling board_init_f().
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/lib/crt0_64.S:32: * 2. Call board_init_f(). This function prepares the hardware for
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/lib/crt0_64.S:34: *    be available yet, , board_init_f() must use the current GD to
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/lib/crt0_64.S:42: *    ones allocated by board_init_f() in system RAM, but BSS and
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/lib/crt0_64.S:47: *    board_init_f().
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/lib/crt0_64.S:52: *    RAM. GD has retained values set by board_init_f(). Some CPUs
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/lib/crt0_64.S:62: * Set up initial C runtime environment and call board_init_f(0).
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/lib/spl.c:26:void __weak board_init_f(ulong dummy)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:common/board_f.c:240:	i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:common/board_f.c:242:	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:common/board_f.c:782:/* Record the board_init_f() bootstage (after arch_cpu_init()) */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:common/board_f.c:1006:void board_init_f(ulong boot_flags)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:common/cmd_eeprom.c:395:	i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:common/cmd_eeprom.c:397:	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:common/cmd_i2c.c:1524:	i2c_init(I2C_ADAP->speed, I2C_ADAP->slaveaddr);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:common/cmd_i2c.c:1526:	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:common/stdio.c:248:	i2c_init_all();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/common.h:280:void	board_init_f(ulong);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/cm5200.h:47:#define CONFIG_SILENT_CONSOLE	1	/* needed to silence i2c_init() */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/km/km_arm.h:315:/* Do early setups now in board_init_f() */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/tam3517-common.h:368:	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE); \
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/cros_ec.h:238:int cros_ec_i2c_init(struct cros_ec_dev *dev, const void *blob);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:181:void i2c_init(int speed, int slaveaddr);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:209: * i2c_init_all():
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:215:void i2c_init_all(void);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:315:	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:331:	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:426:extern int multi_i2c_init(void);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:435:void board_i2c_init(const void *blob);

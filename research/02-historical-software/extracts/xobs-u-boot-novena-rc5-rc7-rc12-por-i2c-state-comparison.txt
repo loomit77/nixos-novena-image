@@ -1,0 +1,148 @@
+================================================================
+=== RC5 ===
+================================================================
+COMMIT=9402489e9a3e52a9df5464b4ce3c792cee2ba3a5
+DATE=2014-10-11T21:18:50+08:00
+SUBJECT=novena: Change config to add hdmi, lcd hooks
+
+--- SPL: FPGA / AUDIO / I2C / LVDS / BACKLIGHT ---
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/imx-common/i2c-mxv7.c:14:static int force_idle_bus(void *priv)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/imx-common/i2c-mxv7.c:72:void setup_i2c(unsigned i2c_index, int speed, int slave_addr,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/imx-common/i2c-mxv7.c:80:	force_idle_bus(p);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/imx-common/i2c-mxv7.c:82:			force_idle_bus, p);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:66:#define NOVENA_AUDIO_PWRON		IMX_GPIO_NR(5, 17)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:67:#define NOVENA_FPGA_RESET_N_GPIO	IMX_GPIO_NR(5, 7)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:82:static void novena_spl_setup_iomux_audio(void)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:85:	gpio_direction_output(NOVENA_AUDIO_PWRON, 1);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:149:static void novena_spl_setup_iomux_fpga(void)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:152:	gpio_direction_output(NOVENA_FPGA_RESET_N_GPIO, 0);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:229:static void novena_spl_setup_iomux_i2c(void)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:231:	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info0);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:232:	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:233:	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:368:static void novena_spl_setup_iomux_video(void)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:374:static inline void novena_spl_setup_iomux_video(void) {}
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:535:	novena_spl_setup_iomux_audio();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:538:	novena_spl_setup_iomux_fpga();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:539:	novena_spl_setup_iomux_i2c();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:544:	novena_spl_setup_iomux_video();
+
+--- I2C3 / EEPROM / IT6251 ---
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:320:	ret = i2c_set_bus_num(2);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:326:	/* EEPROM is at address 0x56. */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:327:	ret = eeprom_read(0x56, 0, datap, sizeof(data));
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:212: *  0x11 ... ES8283
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:214: *  0x56 ... EEPROM
+
+--- BOOTCOMMAND / novena_boot ---
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/novena.h:98:#define CONFIG_BOOTCOMMAND		"run novena_boot"
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/novena.h:301:	"novena_boot="							\
+
+================================================================
+=== RC7 ===
+================================================================
+COMMIT=4330c957155183eec60537071cc595d39d9b5872
+DATE=2014-10-14T17:57:42+08:00
+SUBJECT=novena: eeprom: Fixup parsing of es8328, sata, eeprom flags
+
+--- SPL: FPGA / AUDIO / I2C / LVDS / BACKLIGHT ---
+4330c957155183eec60537071cc595d39d9b5872:arch/arm/imx-common/i2c-mxv7.c:14:static int force_idle_bus(void *priv)
+4330c957155183eec60537071cc595d39d9b5872:arch/arm/imx-common/i2c-mxv7.c:72:void setup_i2c(unsigned i2c_index, int speed, int slave_addr,
+4330c957155183eec60537071cc595d39d9b5872:arch/arm/imx-common/i2c-mxv7.c:80:	force_idle_bus(p);
+4330c957155183eec60537071cc595d39d9b5872:arch/arm/imx-common/i2c-mxv7.c:82:			force_idle_bus, p);
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena_spl.c:66:#define NOVENA_AUDIO_PWRON		IMX_GPIO_NR(5, 17)
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena_spl.c:67:#define NOVENA_FPGA_RESET_N_GPIO	IMX_GPIO_NR(5, 7)
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena_spl.c:82:static void novena_spl_setup_iomux_audio(void)
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena_spl.c:85:	gpio_direction_output(NOVENA_AUDIO_PWRON, 1);
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena_spl.c:149:static void novena_spl_setup_iomux_fpga(void)
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena_spl.c:152:	gpio_direction_output(NOVENA_FPGA_RESET_N_GPIO, 0);
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena_spl.c:229:static void novena_spl_setup_iomux_i2c(void)
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena_spl.c:231:	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info0);
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena_spl.c:232:	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena_spl.c:233:	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena_spl.c:368:static void novena_spl_setup_iomux_video(void)
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena_spl.c:374:static inline void novena_spl_setup_iomux_video(void) {}
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena_spl.c:535:	novena_spl_setup_iomux_audio();
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena_spl.c:538:	novena_spl_setup_iomux_fpga();
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena_spl.c:539:	novena_spl_setup_iomux_i2c();
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena_spl.c:544:	novena_spl_setup_iomux_video();
+
+--- I2C3 / EEPROM / IT6251 ---
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/eeprom.c:44:	i2c_set_bus_num(2);
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/eeprom.c:45:	ret = eeprom_read(EEPROM_ADDRESS, 0, (uint8_t *)&data, sizeof(data));
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/eeprom.c:72:	if (!(data.features & feature_es8328))
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/eeprom.c:73:		fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/es8328@11");
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/eeprom.c:93:			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@73");
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/eeprom.c:94:			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@73");
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/eeprom.c:101:			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@73");
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena-eeprom.h:81:	feature_es8328 		= 0x0001,
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena-eeprom.h:99:		.name	= "es8328",
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena-eeprom.h:100:		.flags	= feature_es8328,
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena-eeprom.h:101:		.descr	= "ES8328 audio codec",
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena.c:320:	ret = i2c_set_bus_num(2);
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena.c:326:	/* EEPROM is at address 0x56. */
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena.c:327:	ret = eeprom_read(0x56, 0, datap, sizeof(data));
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena_spl.c:212: *  0x11 ... ES8283
+4330c957155183eec60537071cc595d39d9b5872:board/kosagi/novena/novena_spl.c:214: *  0x56 ... EEPROM
+
+--- BOOTCOMMAND / novena_boot ---
+4330c957155183eec60537071cc595d39d9b5872:include/configs/novena.h:99:#define CONFIG_BOOTCOMMAND		"run novena_boot"
+4330c957155183eec60537071cc595d39d9b5872:include/configs/novena.h:303:	"novena_boot="							\
+
+================================================================
+=== RC12 ===
+================================================================
+COMMIT=c5efeadb913c8246be372054adcd6106ad4fe067
+DATE=2014-10-17T18:50:23+08:00
+SUBJECT=novena: Parse EEPROM early, and boot to SATA if requested
+
+--- SPL: FPGA / AUDIO / I2C / LVDS / BACKLIGHT ---
+c5efeadb913c8246be372054adcd6106ad4fe067:arch/arm/imx-common/i2c-mxv7.c:14:static int force_idle_bus(void *priv)
+c5efeadb913c8246be372054adcd6106ad4fe067:arch/arm/imx-common/i2c-mxv7.c:72:void setup_i2c(unsigned i2c_index, int speed, int slave_addr,
+c5efeadb913c8246be372054adcd6106ad4fe067:arch/arm/imx-common/i2c-mxv7.c:80:	force_idle_bus(p);
+c5efeadb913c8246be372054adcd6106ad4fe067:arch/arm/imx-common/i2c-mxv7.c:82:			force_idle_bus, p);
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:66:#define NOVENA_AUDIO_PWRON		IMX_GPIO_NR(5, 17)
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:67:#define NOVENA_FPGA_RESET_N_GPIO	IMX_GPIO_NR(5, 7)
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:73:#define NOVENA_LVDS_PWRON		IMX_GPIO_NR(5, 28)
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:74:#define NOVENA_BACKLIGHT_PWRON		IMX_GPIO_NR(4, 15)
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:142:static void novena_spl_setup_iomux_audio(void)
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:145:	gpio_direction_output(NOVENA_AUDIO_PWRON, 1);
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:209:static void novena_spl_setup_iomux_fpga(void)
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:212:	gpio_direction_output(NOVENA_FPGA_RESET_N_GPIO, 0);
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:289:static void novena_spl_setup_iomux_i2c(void)
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:291:	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info0);
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:292:	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:293:	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:436:static void novena_spl_setup_iomux_video(void)
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:442:	gpio_direction_output(NOVENA_LVDS_PWRON, 1);
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:443:	gpio_direction_output(NOVENA_BACKLIGHT_PWRON, 1);
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:446:static inline void novena_spl_setup_iomux_video(void) {}
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:632:	novena_spl_setup_iomux_audio();
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:635:	novena_spl_setup_iomux_fpga();
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:636:	novena_spl_setup_iomux_i2c();
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:641:	novena_spl_setup_iomux_video();
+
+--- I2C3 / EEPROM / IT6251 ---
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/eeprom.c:44:	i2c_set_bus_num(2);
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/eeprom.c:45:	ret = eeprom_read(EEPROM_ADDRESS, 0, (uint8_t *)&data, sizeof(data));
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/eeprom.c:72:	if (!(data.features & feature_es8328))
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/eeprom.c:73:		fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/es8328@11");
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/eeprom.c:89:			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@5c");
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/eeprom.c:96:			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@5c");
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena-eeprom.h:81:	feature_es8328 		= 0x0001,
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena-eeprom.h:99:		.name	= "es8328",
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena-eeprom.h:100:		.flags	= feature_es8328,
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena-eeprom.h:101:		.descr	= "ES8328 audio codec",
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena.c:380:	ret = i2c_set_bus_num(2);
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena.c:386:	/* EEPROM is at address 0x56. */
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena.c:387:	ret = eeprom_read(0x56, 0, (void *)&eeprom_data, sizeof(eeprom_data));
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:272: *  0x11 ... ES8283
+c5efeadb913c8246be372054adcd6106ad4fe067:board/kosagi/novena/novena_spl.c:274: *  0x56 ... EEPROM
+c5efeadb913c8246be372054adcd6106ad4fe067:include/configs/novena.h:322:		"i2c dev 2 ; "						\
+c5efeadb913c8246be372054adcd6106ad4fe067:include/configs/novena.h:326:		"elif i2c md 0x5c 0 1 ; then "				\
+c5efeadb913c8246be372054adcd6106ad4fe067:include/configs/novena.h:327:			"echo IT6251 bridge chip detected ; "		\
+
+--- BOOTCOMMAND / novena_boot ---
+c5efeadb913c8246be372054adcd6106ad4fe067:include/configs/novena.h:99:#define CONFIG_BOOTCOMMAND		"run novena_boot"
+c5efeadb913c8246be372054adcd6106ad4fe067:include/configs/novena.h:298:	"novena_boot="							\
+

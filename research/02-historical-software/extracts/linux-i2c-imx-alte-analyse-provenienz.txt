@@ -1,0 +1,43 @@
+Historische Zwischenfassung der Linux-i2c-imx-Analyse
+
+Im Forschungsverzeichnis existierten zwei deutschsprachige Fassungen derselben Analyse:
+
+  notes/linux-i2c-imx-5.7-vs-6.18-analysis.md
+  notes/linux-i2c-imx-5.7-vs-6.18-analyse.md
+
+Die Datei mit dem Namen „analysis.md“ war eine ältere Zwischenfassung.
+Sie umfasste 360 Zeilen und 11335 Bytes.
+Ihr SHA-256 lautete:
+
+  3b9217b67ecfdefd12234fa46e487301d65676567bea3e10623482ec9c10d8fe
+
+Die fortgeführte und maßgebliche Datei „analyse.md“ umfasste zum Zeitpunkt
+dieser Bereinigung 727 Zeilen und 24155 Bytes.
+Ihr SHA-256 lautete:
+
+  6d4598f498a02d6db1d8c3487a293313c99320cdff6349697e46b3b02adf82d0
+
+Die ältere Zwischenfassung endete vor den späteren Untersuchungen zur
+Single-/Multi-Master-Historie, zur Arbitration-Loss-Serie sowie zu
+Runtime-PM, Pinctrl und Controller-Lebenszyklus.
+
+Sie wurde deshalb nicht als zweite aktuelle Forschungsnotiz beibehalten.
+Die maßgebliche fortgeführte Fassung ist:
+
+  notes/linux-i2c-imx-5.7-vs-6.18-analyse.md
+
+Der vor der Bereinigung erzeugte Unified Diff zwischen alter und aktueller
+Fassung hatte den SHA-256:
+
+  6f01859b8690f97011a2152da60f2211a3d3ca924fff61d031160d2d64a5a3bf
+
+Zusätzlich wurde geprüft, ob das lokal untersuchte Repository
+novena-next/nixos-novena am Commit
+
+  a189b83d439720b6e209ca257ea43bdb3335ccde
+
+ein Verzeichnis „docs/“ enthält.
+
+An diesem verifizierten Repository-Stand existiert kein solches Verzeichnis.
+Eine zuvor vorgesehene separate Auswertung von novena-next/docs ist daher
+für diesen Stand nicht möglich und stellt keinen noch offenen Analyseschritt dar.

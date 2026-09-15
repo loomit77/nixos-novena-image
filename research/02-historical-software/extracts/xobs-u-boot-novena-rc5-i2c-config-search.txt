@@ -1,0 +1,8 @@
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:816:	i2c_init(CONFIG_SYS_I2C_SPEED, 0);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:231:	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info0);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:232:	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:233:	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/novena.h:147:#define CONFIG_SYS_I2C
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/novena.h:148:#define CONFIG_SYS_I2C_MXC
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/novena.h:151:#define CONFIG_SYS_I2C_SPEED		100000
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/novena.h:155:#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2

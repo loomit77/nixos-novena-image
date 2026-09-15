@@ -1,0 +1,129 @@
+   215			     MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET);
+   216	
+   217		writel(IOMUXC_GPR2_BGREF_RRMODE_EXTERNAL_RES |
+   218		       IOMUXC_GPR2_DI1_VS_POLARITY_ACTIVE_HIGH |
+   219		       IOMUXC_GPR2_DI0_VS_POLARITY_ACTIVE_LOW |
+   220		       IOMUXC_GPR2_BIT_MAPPING_CH1_SPWG |
+   221		       IOMUXC_GPR2_DATA_WIDTH_CH1_18BIT |
+   222		       IOMUXC_GPR2_BIT_MAPPING_CH0_SPWG |
+   223		       IOMUXC_GPR2_DATA_WIDTH_CH0_18BIT |
+   224		       IOMUXC_GPR2_LVDS_CH1_MODE_DISABLED |
+   225		       IOMUXC_GPR2_LVDS_CH0_MODE_ENABLED_DI0,
+   226		       &iomux->gpr[2]);
+   227	
+   228		clrsetbits_le32(&iomux->gpr[3], IOMUXC_GPR3_LVDS0_MUX_CTL_MASK,
+   229				IOMUXC_GPR3_MUX_SRC_IPU1_DI0 <<
+   230				IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET);
+   231	}
+   232	#endif
+   233	
+   234	int board_early_init_f(void)
+   235	{
+   236	#if defined(CONFIG_VIDEO_IPUV3)
+   237		setup_display();
+   238	#endif
+   239	
+   240		/* Bring Ethernet PHY out of reset. */
+   241		gpio_set_value(IMX_GPIO_NR(3, 23), 1);
+   242	
+   243		return 0;
+   244	}
+   245	
+   246	int board_init(void)
+   247	{
+   248		/* address of boot parameters */
+   249		gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
+   250	
+   251	#ifdef CONFIG_CMD_SATA
+   252		setup_sata();
+   253	#endif
+   254	
+   255		return 0;
+   256	}
+   257	
+   258	int checkboard(void)
+   259	{
+   260		puts("Board: Novena 4x\n");
+   261		return 0;
+   262	}
+   263	
+   264	int dram_init(void)
+   265	{
+   266		gd->ram_size = imx_ddr_size();
+   267		return 0;
+   268	}
+   269	
+   270	/* setup board specific PMIC */
+   271	int power_init_board(void)
+   272	{
+   273		struct pmic *p;
+   274		u32 reg;
+   275		int ret;
+   276	
+   277		power_pfuze100_init(1);
+   278		p = pmic_get("PFUZE100");
+   279		if (!p)
+   280			return -EINVAL;
+   281	
+   282		ret = pmic_probe(p);
+   283		if (ret)
+   284			return ret;
+   285	
+   286		pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
+   287		printf("PMIC:  PFUZE100 ID=0x%02x\n", reg);
+   288	
+   289		/* Set SWBST to 5.0V and enable (for USB) */
+   290		pmic_reg_read(p, PFUZE100_SWBSTCON1, &reg);
+   291		reg &= ~(SWBST_MODE_MASK | SWBST_VOL_MASK);
+   292		reg |= (SWBST_5_00V | SWBST_MODE_AUTO);
+   293		pmic_reg_write(p, PFUZE100_SWBSTCON1, reg);
+   294	
+   295		return 0;
+   296	}
+   297	
+   298	/* EEPROM configuration data */
+   299	struct novena_eeprom_data {
+   300		uint8_t		signature[6];
+   301		uint8_t		version;
+   302		uint8_t		reserved;
+   303		uint32_t	serial;
+   304		uint8_t		mac[6];
+   305		uint16_t	features;
+   306	};
+   307	
+   308	int misc_init_r(void)
+   309	{
+   310		struct novena_eeprom_data data;
+   311		uchar *datap = (uchar *)&data;
+   312		const char *signature = "Novena";
+   313		int ret;
+   314	
+   315		/* If 'ethaddr' is already set, do nothing. */
+   316		if (getenv("ethaddr"))
+   317			return 0;
+   318	
+   319		/* EEPROM is at bus 2. */
+   320		ret = i2c_set_bus_num(2);
+   321		if (ret) {
+   322			puts("Cannot select EEPROM I2C bus.\n");
+   323			return 0;
+   324		}
+   325	
+   326		/* EEPROM is at address 0x56. */
+   327		ret = eeprom_read(0x56, 0, datap, sizeof(data));
+   328		if (ret) {
+   329			puts("Cannot read I2C EEPROM.\n");
+   330			return 0;
+   331		}
+   332	
+   333		/* Check EEPROM signature. */
+   334		if (memcmp(data.signature, signature, 6)) {
+   335			puts("Invalid I2C EEPROM signature.\n");
+   336			return 0;
+   337		}
+   338	
+   339		/* Set ethernet address from EEPROM. */
+   340		eth_setenv_enetaddr("ethaddr", data.mac);
+   341	
+   342		return ret;
+   343	}

@@ -1,0 +1,1050 @@
+=== SCHRITT 2.10 – VOLLSTAENDIGE NEUAUFNAHME ===
+Zeitpunkt: 2026-09-15T11:47:20+02:00
+
+=== 1. AUSGANGSZUSTAND ===
+## main...origin/main
+?? research/02-historical-software/
+
+=== 2. HISTORISCHEN CLONE PRUEFEN ===
+## novena-r2...origin/novena-r2
+
+=== 3. RC5 VERIFIZIEREN ===
+RC5=9402489e9a3e52a9df5464b4ce3c792cee2ba3a5
+
+=== 4. ALLE NOVENA-I2C-ZUGRIFFE ===
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:816:	i2c_init(CONFIG_SYS_I2C_SPEED, 0);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:818:	ret = i2c_read(chip, addr, alen, (uint8_t *)&spd, sizeof(spd));
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:320:	ret = i2c_set_bus_num(2);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:327:	ret = eeprom_read(0x56, 0, datap, sizeof(data));
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:231:	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info0);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:232:	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:233:	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
+
+=== 5. I2C3 / BUS 2 / ADRESSEN ===
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/Makefile:4:# SPDX-License-Identifier:	GPL-2.0+
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:35:#include <ddr_spd.h>
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:805:uint32_t novena_read_spd(struct mx6_ddr_sysinfo *sysinfo,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:808:	struct ddr3_spd_eeprom_s spd;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:810:	int chip   = 0x50;	/* Address of the SPD I2C device */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:811:	int addr   = 0x0;	/* Start of SPD address */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:818:	ret = i2c_read(chip, addr, alen, (uint8_t *)&spd, sizeof(spd));
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:820:		printf("Error reading SPD on DDR3.\n");
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:824:	switch (spd.tck_min) {
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:844:		if (spd.tck_min <= 0xf) {
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:861:	cfg->density = (256 * (1 << (spd.density_banks & 0xf))) / 1024;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:864:	cfg->width = (1 << (spd.organization & 0x7)) * 4;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:867:	if ((spd.density_banks & 0x30) != 0) {
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:874:	cfg->rowaddr = ((spd.addressing >> 3) & 0x7) + 12;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:875:	cfg->coladdr = (spd.addressing & 0x7) + 9;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:881:	sysinfo->ncs = ((spd.organization >> 3) & 0x7) + 1;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:889:	if (spd.bus_width != 0x3) {
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:903:	mtb_scale = (spd.mtb_dividend * 100) / spd.mtb_divisor;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:905:	cfg->trcd = spd.trcd_min + 1;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:909:	cfg->trcmin = (((spd.tras_trc_ext & 0xf0) << 4) | spd.trc_min_lsb) + 1;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:913:	cfg->trasmin = (((spd.tras_trc_ext & 0xf) << 8) | spd.tras_min_lsb) + 1;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/ddr3.c:919:	if ((spd.therm_ref_opt & 0x1) && !(spd.therm_ref_opt & 0x2))
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:6: * SPDX-License-Identifier:	GPL-2.0+
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:298:/* EEPROM configuration data */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:299:struct novena_eeprom_data {
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:310:	struct novena_eeprom_data data;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:319:	/* EEPROM is at bus 2. */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:322:		puts("Cannot select EEPROM I2C bus.\n");
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:326:	/* EEPROM is at address 0x56. */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:327:	ret = eeprom_read(0x56, 0, datap, sizeof(data));
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:329:		puts("Cannot read I2C EEPROM.\n");
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:333:	/* Check EEPROM signature. */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:335:		puts("Invalid I2C EEPROM signature.\n");
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:339:	/* Set ethernet address from EEPROM. */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:6: * SPDX-License-Identifier:     GPL-2.0+
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:176: *  0x50 ... SO-DIMM ID
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:195: *  0x50 ... HDMI DCC
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:211: * I2C3:
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:212: *  0x11 ... ES8283
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:213: *  0x50 ... LCD EDID
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:214: *  0x56 ... EEPROM
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:218:		.i2c_mode	= MX6_PAD_EIM_D17__I2C3_SCL | PC,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:223:		.i2c_mode	= MX6_PAD_EIM_D18__I2C3_SDA | PC,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:508:uint32_t novena_read_spd(struct mx6_ddr_sysinfo *sysinfo,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:551:	novena_read_spd(&novena_ddr_info, &novena_ddr3_cfg);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/setup.cfg:4: * SPDX-License-Identifier:	GPL-2.0+
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/novena.h:6: * SPDX-License-Identifier:	GPL-2.0+
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/novena.h:41:#define CONFIG_CMD_EEPROM
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/novena.h:153:/* I2C EEPROM */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/novena.h:154:#ifdef CONFIG_CMD_EEPROM
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/novena.h:155:#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/novena.h:156:#define CONFIG_SYS_SPD_BUS_NUM		2
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/novena.h:259:	"fdt_addr_r=0x11ff0000\0"					\
+
+=== 6. FPGA-RESET UND AUDIO-POWER ===
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6dl_pins.h:173:MX6_PAD_DECL(DISP0_DAT13__GPIO5_IO07,	0x03D8, 0x00C4, 5, 0x0000, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6dl_pins.h:232:MX6_PAD_DECL(DISP0_DAT23__GPIO5_IO17,	0x0404, 0x00F0, 5, 0x0000, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6q_pins.h:465:MX6_PAD_DECL(DISP0_DAT13__GPIO5_IO07,	0x04B8, 0x01A4, 5, 0x0000, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6q_pins.h:520:MX6_PAD_DECL(DISP0_DAT23__GPIO5_IO17,	0x04E0, 0x01CC, 5, 0x0000, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:66:#define NOVENA_AUDIO_PWRON		IMX_GPIO_NR(5, 17)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:67:#define NOVENA_FPGA_RESET_N_GPIO	IMX_GPIO_NR(5, 7)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:79:	MX6_PAD_DISP0_DAT23__GPIO5_IO17 | MUX_PAD_CTRL(NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:85:	gpio_direction_output(NOVENA_AUDIO_PWRON, 1);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:146:	MX6_PAD_DISP0_DAT13__GPIO5_IO07 | MUX_PAD_CTRL(NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:152:	gpio_direction_output(NOVENA_FPGA_RESET_N_GPIO, 0);
+
+=== 7. setup_i2c IMPLEMENTIERUNG ===
+     1	/*
+     2	 * Copyright (C) 2012 Boundary Devices Inc.
+     3	 *
+     4	 * SPDX-License-Identifier:	GPL-2.0+
+     5	 */
+     6	#include <common.h>
+     7	#include <asm/arch/clock.h>
+     8	#include <asm/arch/imx-regs.h>
+     9	#include <asm/errno.h>
+    10	#include <asm/gpio.h>
+    11	#include <asm/imx-common/mxc_i2c.h>
+    12	#include <watchdog.h>
+    13	
+    14	static int force_idle_bus(void *priv)
+    15	{
+    16		int i;
+    17		int sda, scl;
+    18		ulong elapsed, start_time;
+    19		struct i2c_pads_info *p = (struct i2c_pads_info *)priv;
+    20		int ret = 0;
+    21	
+    22		gpio_direction_input(p->sda.gp);
+    23		gpio_direction_input(p->scl.gp);
+    24	
+    25		imx_iomux_v3_setup_pad(p->sda.gpio_mode);
+    26		imx_iomux_v3_setup_pad(p->scl.gpio_mode);
+    27	
+    28		sda = gpio_get_value(p->sda.gp);
+    29		scl = gpio_get_value(p->scl.gp);
+    30		if ((sda & scl) == 1)
+    31			goto exit;		/* Bus is idle already */
+    32	
+    33		printf("%s: sda=%d scl=%d sda.gp=0x%x scl.gp=0x%x\n", __func__,
+    34			sda, scl, p->sda.gp, p->scl.gp);
+    35		/* Send high and low on the SCL line */
+    36		for (i = 0; i < 9; i++) {
+    37			gpio_direction_output(p->scl.gp, 0);
+    38			udelay(50);
+    39			gpio_direction_input(p->scl.gp);
+    40			udelay(50);
+    41		}
+    42		start_time = get_timer(0);
+    43		for (;;) {
+    44			sda = gpio_get_value(p->sda.gp);
+    45			scl = gpio_get_value(p->scl.gp);
+    46			if ((sda & scl) == 1)
+    47				break;
+    48			WATCHDOG_RESET();
+    49			elapsed = get_timer(start_time);
+    50			if (elapsed > (CONFIG_SYS_HZ / 5)) {	/* .2 seconds */
+    51				ret = -EBUSY;
+    52				printf("%s: failed to clear bus, sda=%d scl=%d\n",
+    53						__func__, sda, scl);
+    54				break;
+    55			}
+    56		}
+    57	exit:
+    58		imx_iomux_v3_setup_pad(p->sda.i2c_mode);
+    59		imx_iomux_v3_setup_pad(p->scl.i2c_mode);
+    60		return ret;
+    61	}
+    62	
+    63	static void * const i2c_bases[] = {
+    64		(void *)I2C1_BASE_ADDR,
+    65		(void *)I2C2_BASE_ADDR,
+    66	#ifdef I2C3_BASE_ADDR
+    67		(void *)I2C3_BASE_ADDR,
+    68	#endif
+    69	};
+    70	
+    71	/* i2c_index can be from 0 - 2 */
+    72	void setup_i2c(unsigned i2c_index, int speed, int slave_addr,
+    73			struct i2c_pads_info *p)
+    74	{
+    75		if (i2c_index >= ARRAY_SIZE(i2c_bases))
+    76			return;
+    77		/* Enable i2c clock */
+    78		enable_i2c_clk(1, i2c_index);
+    79		/* Make sure bus is idle */
+    80		force_idle_bus(p);
+    81		bus_i2c_init(i2c_bases[i2c_index], speed, slave_addr,
+    82				force_idle_bus, p);
+    83	}
+
+=== 8. MXC-I2C TRANSFERPFAD ===
+   140			(struct clock_control_regs *)CCM_BASE;
+   141	
+   142		/* start the required I2C clock */
+   143		writel(readl(&sc_regs->cgr0) | (3 << CONFIG_SYS_I2C_CLK_OFFSET),
+   144			&sc_regs->cgr0);
+   145	#endif
+   146	
+   147		/* Divider value calculation */
+   148		i2c_clk_rate = mxc_get_clock(MXC_I2C_CLK);
+   149		div = (i2c_clk_rate + rate - 1) / rate;
+   150		if (div < i2c_clk_div[0][0])
+   151			clk_div = 0;
+   152		else if (div > i2c_clk_div[ARRAY_SIZE(i2c_clk_div) - 1][0])
+   153			clk_div = ARRAY_SIZE(i2c_clk_div) - 1;
+   154		else
+   155			for (clk_div = 0; i2c_clk_div[clk_div][0] < div; clk_div++)
+   156				;
+   157	
+   158		/* Store divider value */
+   159		return clk_div;
+   160	}
+   161	
+   162	/*
+   163	 * Set I2C Bus speed
+   164	 */
+   165	static int bus_i2c_set_bus_speed(void *base, int speed)
+   166	{
+   167		struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)base;
+   168		u8 clk_idx = i2c_imx_get_clk(speed);
+   169		u8 idx = i2c_clk_div[clk_idx][1];
+   170	
+   171		/* Store divider value */
+   172		writeb(idx, &i2c_regs->ifdr);
+   173	
+   174		/* Reset module */
+   175		writeb(I2CR_IDIS, &i2c_regs->i2cr);
+   176		writeb(0, &i2c_regs->i2sr);
+   177		return 0;
+   178	}
+   179	
+   180	#define ST_BUS_IDLE (0 | (I2SR_IBB << 8))
+   181	#define ST_BUS_BUSY (I2SR_IBB | (I2SR_IBB << 8))
+   182	#define ST_IIF (I2SR_IIF | (I2SR_IIF << 8))
+   183	
+   184	static int wait_for_sr_state(struct mxc_i2c_regs *i2c_regs, unsigned state)
+   185	{
+   186		unsigned sr;
+   187		ulong elapsed;
+   188		ulong start_time = get_timer(0);
+   189		for (;;) {
+   190			sr = readb(&i2c_regs->i2sr);
+   191			if (sr & I2SR_IAL) {
+   192	#ifdef I2C_QUIRK_REG
+   193				writeb(sr | I2SR_IAL, &i2c_regs->i2sr);
+   194	#else
+   195				writeb(sr & ~I2SR_IAL, &i2c_regs->i2sr);
+   196	#endif
+   197				printf("%s: Arbitration lost sr=%x cr=%x state=%x\n",
+   198					__func__, sr, readb(&i2c_regs->i2cr), state);
+   199				return -ERESTART;
+   200			}
+   201			if ((sr & (state >> 8)) == (unsigned char)state)
+   202				return sr;
+   203			WATCHDOG_RESET();
+   204			elapsed = get_timer(start_time);
+   205			if (elapsed > (CONFIG_SYS_HZ / 10))	/* .1 seconds */
+   206				break;
+   207		}
+   208		printf("%s: failed sr=%x cr=%x state=%x\n", __func__,
+   209				sr, readb(&i2c_regs->i2cr), state);
+   210		return -ETIMEDOUT;
+   211	}
+   212	
+   213	static int tx_byte(struct mxc_i2c_regs *i2c_regs, u8 byte)
+   214	{
+   215		int ret;
+   216	
+   217		writeb(I2SR_IIF_CLEAR, &i2c_regs->i2sr);
+   218		writeb(byte, &i2c_regs->i2dr);
+   219		ret = wait_for_sr_state(i2c_regs, ST_IIF);
+   220		if (ret < 0)
+   221			return ret;
+   222		if (ret & I2SR_RX_NO_AK)
+   223			return -ENODEV;
+   224		return 0;
+   225	}
+   226	
+   227	/*
+   228	 * Stop I2C transaction
+   229	 */
+   230	static void i2c_imx_stop(struct mxc_i2c_regs *i2c_regs)
+   231	{
+   232		int ret;
+   233		unsigned int temp = readb(&i2c_regs->i2cr);
+   234	
+   235		temp &= ~(I2CR_MSTA | I2CR_MTX);
+   236		writeb(temp, &i2c_regs->i2cr);
+   237		ret = wait_for_sr_state(i2c_regs, ST_BUS_IDLE);
+   238		if (ret < 0)
+   239			printf("%s:trigger stop failed\n", __func__);
+   240	}
+   241	
+   242	/*
+   243	 * Send start signal, chip address and
+   244	 * write register address
+   245	 */
+   246	static int i2c_init_transfer_(struct mxc_i2c_regs *i2c_regs,
+   247			uchar chip, uint addr, int alen)
+   248	{
+   249		unsigned int temp;
+   250		int ret;
+   251	
+   252		/* Enable I2C controller */
+   253	#ifdef I2C_QUIRK_REG
+   254		if (readb(&i2c_regs->i2cr) & I2CR_IDIS) {
+   255	#else
+   256		if (!(readb(&i2c_regs->i2cr) & I2CR_IEN)) {
+   257	#endif
+   258			writeb(I2CR_IEN, &i2c_regs->i2cr);
+   259			/* Wait for controller to be stable */
+   260			udelay(50);
+   261		}
+   262		if (readb(&i2c_regs->iadr) == (chip << 1))
+   263			writeb((chip << 1) ^ 2, &i2c_regs->iadr);
+   264		writeb(I2SR_IIF_CLEAR, &i2c_regs->i2sr);
+   265		ret = wait_for_sr_state(i2c_regs, ST_BUS_IDLE);
+   266		if (ret < 0)
+   267			return ret;
+   268	
+   269		/* Start I2C transaction */
+   270		temp = readb(&i2c_regs->i2cr);
+   271		temp |= I2CR_MSTA;
+   272		writeb(temp, &i2c_regs->i2cr);
+   273	
+   274		ret = wait_for_sr_state(i2c_regs, ST_BUS_BUSY);
+   275		if (ret < 0)
+   276			return ret;
+   277	
+   278		temp |= I2CR_MTX | I2CR_TX_NO_AK;
+   279		writeb(temp, &i2c_regs->i2cr);
+   280	
+   281		/* write slave address */
+   282		ret = tx_byte(i2c_regs, chip << 1);
+   283		if (ret < 0)
+   284			return ret;
+   285	
+   286		while (alen--) {
+   287			ret = tx_byte(i2c_regs, (addr >> (alen * 8)) & 0xff);
+   288			if (ret < 0)
+   289				return ret;
+   290		}
+   291		return 0;
+   292	}
+   293	
+   294	static int i2c_idle_bus(void *base);
+   295	
+   296	static int i2c_init_transfer(struct mxc_i2c_regs *i2c_regs,
+   297			uchar chip, uint addr, int alen)
+   298	{
+   299		int retry;
+   300		int ret;
+   301		for (retry = 0; retry < 3; retry++) {
+   302			ret = i2c_init_transfer_(i2c_regs, chip, addr, alen);
+   303			if (ret >= 0)
+   304				return 0;
+   305			i2c_imx_stop(i2c_regs);
+   306			if (ret == -ENODEV)
+   307				return ret;
+   308	
+   309			printf("%s: failed for chip 0x%x retry=%d\n", __func__, chip,
+   310					retry);
+   311			if (ret != -ERESTART)
+   312				/* Disable controller */
+   313				writeb(I2CR_IDIS, &i2c_regs->i2cr);
+   314			udelay(100);
+   315			if (i2c_idle_bus(i2c_regs) < 0)
+   316				break;
+   317		}
+   318		printf("%s: give up i2c_regs=%p\n", __func__, i2c_regs);
+   319		return ret;
+   320	}
+   321	
+   322	/*
+   323	 * Read data from I2C device
+   324	 */
+   325	int bus_i2c_read(void *base, uchar chip, uint addr, int alen, uchar *buf,
+   326			int len)
+   327	{
+   328		int ret;
+   329		unsigned int temp;
+   330		int i;
+   331		struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)base;
+   332	
+   333		ret = i2c_init_transfer(i2c_regs, chip, addr, alen);
+   334		if (ret < 0)
+   335			return ret;
+   336	
+   337		temp = readb(&i2c_regs->i2cr);
+   338		temp |= I2CR_RSTA;
+   339		writeb(temp, &i2c_regs->i2cr);
+   340	
+   341		ret = tx_byte(i2c_regs, (chip << 1) | 1);
+   342		if (ret < 0) {
+   343			i2c_imx_stop(i2c_regs);
+   344			return ret;
+   345		}
+   346	
+   347		/* setup bus to read data */
+   348		temp = readb(&i2c_regs->i2cr);
+   349		temp &= ~(I2CR_MTX | I2CR_TX_NO_AK);
+   350		if (len == 1)
+   351			temp |= I2CR_TX_NO_AK;
+   352		writeb(temp, &i2c_regs->i2cr);
+   353		writeb(I2SR_IIF_CLEAR, &i2c_regs->i2sr);
+   354		readb(&i2c_regs->i2dr);		/* dummy read to clear ICF */
+   355	
+   356		/* read data */
+   357		for (i = 0; i < len; i++) {
+   358			ret = wait_for_sr_state(i2c_regs, ST_IIF);
+   359			if (ret < 0) {
+   360				i2c_imx_stop(i2c_regs);
+   361				return ret;
+   362			}
+   363	
+   364			/*
+   365			 * It must generate STOP before read I2DR to prevent
+   366			 * controller from generating another clock cycle
+   367			 */
+   368			if (i == (len - 1)) {
+   369				i2c_imx_stop(i2c_regs);
+   370			} else if (i == (len - 2)) {
+   371				temp = readb(&i2c_regs->i2cr);
+   372				temp |= I2CR_TX_NO_AK;
+   373				writeb(temp, &i2c_regs->i2cr);
+   374			}
+   375			writeb(I2SR_IIF_CLEAR, &i2c_regs->i2sr);
+   376			buf[i] = readb(&i2c_regs->i2dr);
+   377		}
+   378		i2c_imx_stop(i2c_regs);
+   379		return 0;
+   380	}
+   381	
+   382	/*
+   383	 * Write data to I2C device
+   384	 */
+   385	int bus_i2c_write(void *base, uchar chip, uint addr, int alen,
+   386			const uchar *buf, int len)
+   387	{
+   388		int ret;
+   389		int i;
+   390		struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)base;
+   391	
+   392		ret = i2c_init_transfer(i2c_regs, chip, addr, alen);
+   393		if (ret < 0)
+   394			return ret;
+   395	
+   396		for (i = 0; i < len; i++) {
+   397			ret = tx_byte(i2c_regs, buf[i]);
+   398			if (ret < 0)
+   399				break;
+   400		}
+   401		i2c_imx_stop(i2c_regs);
+   402		return ret;
+   403	}
+   404	
+   405	struct i2c_parms {
+   406		void *base;
+   407		void *idle_bus_data;
+   408		int (*idle_bus_fn)(void *p);
+   409	};
+   410	
+   411	struct sram_data {
+   412		unsigned curr_i2c_bus;
+   413		struct i2c_parms i2c_data[3];
+   414	};
+   415	
+   416	static void * const i2c_bases[] = {
+   417	#if defined(CONFIG_MX25)
+   418		(void *)IMX_I2C_BASE,
+   419		(void *)IMX_I2C2_BASE,
+   420		(void *)IMX_I2C3_BASE
+   421	#elif defined(CONFIG_MX27)
+   422		(void *)IMX_I2C1_BASE,
+   423		(void *)IMX_I2C2_BASE
+   424	#elif defined(CONFIG_MX31) || defined(CONFIG_MX35) || \
+   425		defined(CONFIG_MX51) || defined(CONFIG_MX53) ||	\
+   426		defined(CONFIG_MX6) || defined(CONFIG_LS102XA)
+   427		(void *)I2C1_BASE_ADDR,
+   428		(void *)I2C2_BASE_ADDR,
+   429		(void *)I2C3_BASE_ADDR
+   430	#elif defined(CONFIG_VF610)
+
+=== 9. I2C-CORE BUSWAHL ===
+   170				if (ret != 0)
+   171					return ret;
+   172			}
+   173		}
+   174		return 0;
+   175	}
+   176	
+   177	static int i2c_mux_disconnet_all(void)
+   178	{
+   179		struct	i2c_bus_hose *i2c_bus_tmp = &i2c_bus[I2C_BUS];
+   180		int	i;
+   181		uint8_t	buf;
+   182	
+   183		if (I2C_ADAP->init_done == 0)
+   184			return 0;
+   185	
+   186		/* Disconnect current bus (turn off muxes if any) */
+   187		if ((i2c_bus_tmp->next_hop[0].chip != 0) &&
+   188		    (I2C_ADAP->init_done != 0)) {
+   189			i = CONFIG_SYS_I2C_MAX_HOPS;
+   190			do {
+   191				uint8_t	chip;
+   192				int ret;
+   193	
+   194				chip = i2c_bus_tmp->next_hop[--i].chip;
+   195				if (chip == 0)
+   196					continue;
+   197	
+   198				ret = I2C_ADAP->write(I2C_ADAP, chip, 0, 0, &buf, 1);
+   199				if (ret != 0) {
+   200					printf("i2c: mux diconnect error\n");
+   201					return ret;
+   202				}
+   203			} while (i > 0);
+   204		}
+   205	
+   206		return 0;
+   207	}
+   208	#endif
+   209	
+   210	/*
+   211	 * i2c_init_bus():
+   212	 * ---------------
+   213	 *
+   214	 * Initializes one bus. Will initialize the parent adapter. No current bus
+   215	 * changes, no mux (if any) setup.
+   216	 */
+   217	static void i2c_init_bus(unsigned int bus_no, int speed, int slaveaddr)
+   218	{
+   219		if (bus_no >= CONFIG_SYS_NUM_I2C_BUSES)
+   220			return;
+   221	
+   222		I2C_ADAP->init(I2C_ADAP, speed, slaveaddr);
+   223	
+   224		if (gd->flags & GD_FLG_RELOC) {
+   225			I2C_ADAP->init_done = 1;
+   226			I2C_ADAP->speed = speed;
+   227			I2C_ADAP->slaveaddr = slaveaddr;
+   228		}
+   229	}
+   230	
+   231	/* implement possible board specific board init */
+   232	static void __def_i2c_init_board(void)
+   233	{
+   234	}
+   235	void i2c_init_board(void)
+   236		__attribute__((weak, alias("__def_i2c_init_board")));
+   237	
+   238	/*
+   239	 * i2c_init_all():
+   240	 *
+   241	 * not longer needed, will deleted. Actual init the SPD_BUS
+   242	 * for compatibility.
+   243	 * i2c_adap[] must be initialized beforehead with function pointers and
+   244	 * data, including speed and slaveaddr.
+   245	 */
+   246	void i2c_init_all(void)
+   247	{
+   248		i2c_init_board();
+   249		i2c_set_bus_num(CONFIG_SYS_SPD_BUS_NUM);
+   250		return;
+   251	}
+   252	
+   253	/*
+   254	 * i2c_get_bus_num():
+   255	 * ------------------
+   256	 *
+   257	 *  Returns index of currently active I2C bus.  Zero-based.
+   258	 */
+   259	unsigned int i2c_get_bus_num(void)
+   260	{
+   261		return gd->cur_i2c_bus;
+   262	}
+   263	
+   264	/*
+   265	 * i2c_set_bus_num():
+   266	 * ------------------
+   267	 *
+   268	 *  Change the active I2C bus. Subsequent read/write calls will
+   269	 *  go to this one. Sets all of the muxes in a proper condition
+   270	 *  if that bus is behind muxes.
+   271	 *  If previously selected bus is behind the muxes turns off all the
+   272	 *  muxes along the path to that bus.
+   273	 *
+   274	 *	bus - bus index, zero based
+   275	 *
+   276	 *	Returns: 0 on success, not 0 on failure
+   277	 */
+   278	int i2c_set_bus_num(unsigned int bus)
+   279	{
+   280		int max;
+   281	
+   282		if ((bus == I2C_BUS) && (I2C_ADAP->init_done > 0))
+   283			return 0;
+   284	
+   285	#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+   286		if (bus >= CONFIG_SYS_NUM_I2C_BUSES)
+   287			return -1;
+   288	#endif
+   289	
+   290		max = ll_entry_count(struct i2c_adapter, i2c);
+   291		if (I2C_ADAPTER(bus) >= max) {
+   292			printf("Error, wrong i2c adapter %d max %d possible\n",
+   293			       I2C_ADAPTER(bus), max);
+   294			return -2;
+   295		}
+   296	
+   297	#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+   298		i2c_mux_disconnet_all();
+   299	#endif
+   300	
+   301		gd->cur_i2c_bus = bus;
+   302		if (I2C_ADAP->init_done == 0)
+   303			i2c_init_bus(bus, I2C_ADAP->speed, I2C_ADAP->slaveaddr);
+   304	
+   305	#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+   306		i2c_mux_set_all();
+   307	#endif
+   308		return 0;
+   309	}
+   310	
+   311	/*
+   312	 * Probe the given I2C chip address.  Returns 0 if a chip responded,
+   313	 * not 0 on failure.
+   314	 */
+   315	int i2c_probe(uint8_t chip)
+   316	{
+   317		return I2C_ADAP->probe(I2C_ADAP, chip);
+   318	}
+   319	
+   320	/*
+   321	 * Read/Write interface:
+   322	 *   chip:    I2C chip address, range 0..127
+   323	 *   addr:    Memory (register) address within the chip
+   324	 *   alen:    Number of bytes to use for addr (typically 1, 2 for larger
+   325	 *              memories, 0 for register type devices with only one
+   326	 *              register)
+   327	 *   buffer:  Where to read/write the data
+   328	 *   len:     How many bytes to read/write
+   329	 *
+   330	 *   Returns: 0 on success, not 0 on failure
+   331	 */
+   332	int i2c_read(uint8_t chip, unsigned int addr, int alen,
+   333					uint8_t *buffer, int len)
+   334	{
+   335		return I2C_ADAP->read(I2C_ADAP, chip, addr, alen, buffer, len);
+   336	}
+   337	
+   338	int i2c_write(uint8_t chip, unsigned int addr, int alen,
+   339					uint8_t *buffer, int len)
+   340	{
+
+=== 10. SPL INITIALISIERUNGSREIHENFOLGE ===
+    60		(PAD_CTL_PKE | PAD_CTL_PUE |				\
+    61		PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED   |		\
+    62		PAD_CTL_DSE_40ohm   | PAD_CTL_HYS)
+    63	
+    64	#define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
+    65	
+    66	#define NOVENA_AUDIO_PWRON		IMX_GPIO_NR(5, 17)
+    67	#define NOVENA_FPGA_RESET_N_GPIO	IMX_GPIO_NR(5, 7)
+    68	#define NOVENA_HDMI_GHOST_HPD		IMX_GPIO_NR(5, 4)
+    69	#define NOVENA_PCIE_RESET_GPIO		IMX_GPIO_NR(3, 29)
+    70	#define NOVENA_PCIE_POWER_ON_GPIO	IMX_GPIO_NR(7, 12)
+    71	#define NOVENA_PCIE_WAKE_UP_GPIO	IMX_GPIO_NR(3, 22)
+    72	#define NOVENA_PCIE_DISABLE_GPIO	IMX_GPIO_NR(2, 16)
+    73	
+    74	/*
+    75	 * Audio
+    76	 */
+    77	static iomux_v3_cfg_t audio_pads[] = {
+    78		/* AUD_PWRON */
+    79		MX6_PAD_DISP0_DAT23__GPIO5_IO17 | MUX_PAD_CTRL(NO_PAD_CTRL),
+    80	};
+    81	
+    82	static void novena_spl_setup_iomux_audio(void)
+    83	{
+    84		imx_iomux_v3_setup_multiple_pads(audio_pads, ARRAY_SIZE(audio_pads));
+    85		gpio_direction_output(NOVENA_AUDIO_PWRON, 1);
+    86	}
+    87	
+    88	/*
+    89	 * ENET
+    90	 */
+    91	static iomux_v3_cfg_t enet_pads1[] = {
+    92		MX6_PAD_ENET_MDIO__ENET_MDIO		| MUX_PAD_CTRL(ENET_PAD_CTRL),
+    93		MX6_PAD_ENET_MDC__ENET_MDC		| MUX_PAD_CTRL(ENET_PAD_CTRL),
+    94		MX6_PAD_RGMII_TXC__RGMII_TXC		| MUX_PAD_CTRL(RGMII_PAD_CTRL),
+    95		MX6_PAD_RGMII_TD0__RGMII_TD0		| MUX_PAD_CTRL(RGMII_PAD_CTRL),
+    96		MX6_PAD_RGMII_TD1__RGMII_TD1		| MUX_PAD_CTRL(RGMII_PAD_CTRL),
+    97		MX6_PAD_RGMII_TD2__RGMII_TD2		| MUX_PAD_CTRL(RGMII_PAD_CTRL),
+    98		MX6_PAD_RGMII_TD3__RGMII_TD3		| MUX_PAD_CTRL(RGMII_PAD_CTRL),
+    99		MX6_PAD_RGMII_TX_CTL__RGMII_TX_CTL	| MUX_PAD_CTRL(RGMII_PAD_CTRL),
+   100		MX6_PAD_ENET_REF_CLK__ENET_TX_CLK	| MUX_PAD_CTRL(ENET_PAD_CTRL),
+   101		/* pin 35 - 1 (PHY_AD2) on reset */
+   102		MX6_PAD_RGMII_RXC__GPIO6_IO30		| MUX_PAD_CTRL(NO_PAD_CTRL),
+   103		/* pin 32 - 1 - (MODE0) all */
+   104		MX6_PAD_RGMII_RD0__GPIO6_IO25		| MUX_PAD_CTRL(NO_PAD_CTRL),
+   105		/* pin 31 - 1 - (MODE1) all */
+   106		MX6_PAD_RGMII_RD1__GPIO6_IO27		| MUX_PAD_CTRL(NO_PAD_CTRL),
+   107		/* pin 28 - 1 - (MODE2) all */
+   108		MX6_PAD_RGMII_RD2__GPIO6_IO28		| MUX_PAD_CTRL(NO_PAD_CTRL),
+   109		/* pin 27 - 1 - (MODE3) all */
+   110		MX6_PAD_RGMII_RD3__GPIO6_IO29		| MUX_PAD_CTRL(NO_PAD_CTRL),
+   111		/* pin 33 - 1 - (CLK125_EN) 125Mhz clockout enabled */
+   112		MX6_PAD_RGMII_RX_CTL__GPIO6_IO24	| MUX_PAD_CTRL(NO_PAD_CTRL),
+   113		/* pin 42 PHY nRST */
+   114		MX6_PAD_EIM_D23__GPIO3_IO23		| MUX_PAD_CTRL(NO_PAD_CTRL),
+   115	};
+   116	
+   117	static iomux_v3_cfg_t enet_pads2[] = {
+   118		MX6_PAD_RGMII_RXC__RGMII_RXC		| MUX_PAD_CTRL(RGMII_PAD_CTRL),
+   119		MX6_PAD_RGMII_RD0__RGMII_RD0		| MUX_PAD_CTRL(RGMII_PAD_CTRL),
+   120		MX6_PAD_RGMII_RD1__RGMII_RD1		| MUX_PAD_CTRL(RGMII_PAD_CTRL),
+   121		MX6_PAD_RGMII_RD2__RGMII_RD2		| MUX_PAD_CTRL(RGMII_PAD_CTRL),
+   122		MX6_PAD_RGMII_RD3__RGMII_RD3		| MUX_PAD_CTRL(RGMII_PAD_CTRL),
+   123		MX6_PAD_RGMII_RX_CTL__RGMII_RX_CTL	| MUX_PAD_CTRL(RGMII_PAD_CTRL),
+   124	};
+   125	
+   126	static void novena_spl_setup_iomux_enet(void)
+   127	{
+   128		imx_iomux_v3_setup_multiple_pads(enet_pads1, ARRAY_SIZE(enet_pads1));
+   129	
+   130		gpio_direction_output(IMX_GPIO_NR(3, 23), 0);
+   131		gpio_direction_output(IMX_GPIO_NR(6, 30), 1);
+   132		gpio_direction_output(IMX_GPIO_NR(6, 25), 1);
+   133		gpio_direction_output(IMX_GPIO_NR(6, 27), 1);
+   134		gpio_direction_output(IMX_GPIO_NR(6, 28), 1);
+   135		gpio_direction_output(IMX_GPIO_NR(6, 29), 1);
+   136		gpio_direction_output(IMX_GPIO_NR(6, 24), 1);
+   137	
+   138		imx_iomux_v3_setup_multiple_pads(enet_pads2, ARRAY_SIZE(enet_pads2));
+   139	}
+   140	
+   141	/*
+   142	 * FPGA
+   143	 */
+   144	static iomux_v3_cfg_t fpga_pads[] = {
+   145		/* FPGA_RESET_N */
+   146		MX6_PAD_DISP0_DAT13__GPIO5_IO07 | MUX_PAD_CTRL(NO_PAD_CTRL),
+   147	};
+   148	
+   149	static void novena_spl_setup_iomux_fpga(void)
+   150	{
+   151		imx_iomux_v3_setup_multiple_pads(fpga_pads, ARRAY_SIZE(fpga_pads));
+   152		gpio_direction_output(NOVENA_FPGA_RESET_N_GPIO, 0);
+   153	}
+   154	
+   155	/*
+   156	 * GPIO Button
+   157	 */
+   158	static iomux_v3_cfg_t button_pads[] = {
+   159		/* Debug */
+   160		MX6_PAD_KEY_COL4__GPIO4_IO14 | MUX_PAD_CTRL(BUTTON_PAD_CTRL),
+   161	};
+   162	
+   163	static void novena_spl_setup_iomux_buttons(void)
+   164	{
+   165		imx_iomux_v3_setup_multiple_pads(button_pads, ARRAY_SIZE(button_pads));
+   166	}
+   167	
+   168	/*
+   169	 * I2C
+   170	 */
+   171	/*
+   172	 * I2C1:
+   173	 *  0x1d ... MMA7455L
+   174	 *  0x30 ... SO-DIMM temp sensor
+   175	 *  0x44 ... STMPE610
+   176	 *  0x50 ... SO-DIMM ID
+   177	 */
+   178	struct i2c_pads_info i2c_pad_info0 = {
+   179		.scl = {
+   180			.i2c_mode	= MX6_PAD_EIM_D21__I2C1_SCL | PC,
+   181			.gpio_mode	= MX6_PAD_EIM_D21__GPIO3_IO21 | PC,
+   182			.gp		= IMX_GPIO_NR(3, 21)
+   183		},
+   184		.sda = {
+   185			.i2c_mode	= MX6_PAD_EIM_D28__I2C1_SDA | PC,
+   186			.gpio_mode	= MX6_PAD_EIM_D28__GPIO3_IO28 | PC,
+   187			.gp		= IMX_GPIO_NR(3, 28)
+   188		}
+   189	};
+   190	
+   191	/*
+   192	 * I2C2:
+   193	 *  0x08 ... PMIC
+   194	 *  0x3a ... HDMI DCC
+   195	 *  0x50 ... HDMI DCC
+   196	 */
+   197	static struct i2c_pads_info i2c_pad_info1 = {
+   198		.scl = {
+   199			.i2c_mode	= MX6_PAD_EIM_EB2__I2C2_SCL | PC,
+   200			.gpio_mode	= MX6_PAD_EIM_EB2__GPIO2_IO30 | PC,
+   201			.gp		= IMX_GPIO_NR(2, 30)
+   202		},
+   203		.sda = {
+   204			.i2c_mode	= MX6_PAD_EIM_D16__I2C2_SDA | PC,
+   205			.gpio_mode	= MX6_PAD_EIM_D16__GPIO3_IO16 | PC,
+   206			.gp		= IMX_GPIO_NR(3, 16)
+   207		}
+   208	};
+   209	
+   210	/*
+   211	 * I2C3:
+   212	 *  0x11 ... ES8283
+   213	 *  0x50 ... LCD EDID
+   214	 *  0x56 ... EEPROM
+   215	 */
+   216	static struct i2c_pads_info i2c_pad_info2 = {
+   217		.scl = {
+   218			.i2c_mode	= MX6_PAD_EIM_D17__I2C3_SCL | PC,
+   219			.gpio_mode	= MX6_PAD_EIM_D17__GPIO3_IO17 | PC,
+   220			.gp		= IMX_GPIO_NR(3, 17)
+   221		},
+   222		.sda = {
+   223			.i2c_mode	= MX6_PAD_EIM_D18__I2C3_SDA | PC,
+   224			.gpio_mode	= MX6_PAD_EIM_D18__GPIO3_IO18 | PC,
+   225			.gp		= IMX_GPIO_NR(3, 18)
+   226		}
+   227	};
+   228	
+   229	static void novena_spl_setup_iomux_i2c(void)
+   230	{
+   231		setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info0);
+   232		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+   233		setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
+   234	}
+   235	
+   236	/*
+   237	 * PCI express
+   238	 */
+   239	#ifdef CONFIG_CMD_PCI
+   240	static iomux_v3_cfg_t pcie_pads[] = {
+   510	int do_write_level_calibration(void);
+   511	int do_dqs_calibration(void);
+   512	int novena_memory_test(void);
+   513	
+   514	/*
+   515	 * called from C runtime startup code (arch/arm/lib/crt0.S:_main)
+   516	 * - we have a stack and a place to store GD, both in SRAM
+   517	 * - no variable global data is available
+   518	 */
+   519	void board_init_f(ulong dummy)
+   520	{
+   521		/* setup AIPS and disable watchdog */
+   522		arch_cpu_init();
+   523	
+   524		/* setup GP timer */
+   525		timer_init();
+   526	
+   527	#ifdef CONFIG_BOARD_POSTCLK_INIT
+   528		board_postclk_init();
+   529	#endif
+   530	#ifdef CONFIG_FSL_ESDHC
+   531		get_clocks();
+   532	#endif
+   533	
+   534		/* Setup IOMUX and configure basics. */
+   535		novena_spl_setup_iomux_audio();
+   536		novena_spl_setup_iomux_buttons();
+   537		novena_spl_setup_iomux_enet();
+   538		novena_spl_setup_iomux_fpga();
+   539		novena_spl_setup_iomux_i2c();
+   540		novena_spl_setup_iomux_pcie();
+   541		novena_spl_setup_iomux_sdhc();
+   542		novena_spl_setup_iomux_spi();
+   543		novena_spl_setup_iomux_uart();
+   544		novena_spl_setup_iomux_video();
+   545	
+   546		/* UART clocks enabled and gd valid - init serial console */
+   547		preloader_console_init();
+   548	
+   549		/* Start the DDR DRAM */
+   550	
+   551		novena_read_spd(&novena_ddr_info, &novena_ddr3_cfg);
+   552		mx6dq_dram_iocfg(novena_ddr3_cfg.width,
+   553				 &novena_ddr_ioregs, &novena_grp_ioregs);
+   554		mx6_dram_cfg(&novena_ddr_info, &novena_mmdc_calib, &novena_ddr3_cfg);
+   555		do_write_level_calibration();
+   556		do_dqs_calibration();
+   557		printf("Running post-config memory test... ");
+   558		if (novena_memory_test())
+   559			printf("Fail!\n");
+   560		else
+   561			printf("Pass\n");
+   562	
+   563		/* Clear the BSS. */
+   564		memset(__bss_start, 0, __bss_end - __bss_start);
+   565	
+   566		/* load/boot image from boot device */
+   567		board_init_r(NULL, 0);
+   568	}
+   569	
+   570	void reset_cpu(ulong addr)
+
+=== 11. MAIN U-BOOT EEPROM-PFAD ===
+   230				IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET);
+   231	}
+   232	#endif
+   233	
+   234	int board_early_init_f(void)
+   235	{
+   236	#if defined(CONFIG_VIDEO_IPUV3)
+   237		setup_display();
+   238	#endif
+   239	
+   240		/* Bring Ethernet PHY out of reset. */
+   241		gpio_set_value(IMX_GPIO_NR(3, 23), 1);
+   242	
+   243		return 0;
+   244	}
+   245	
+   246	int board_init(void)
+   247	{
+   248		/* address of boot parameters */
+   249		gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
+   250	
+   251	#ifdef CONFIG_CMD_SATA
+   252		setup_sata();
+   253	#endif
+   254	
+   255		return 0;
+   256	}
+   257	
+   258	int checkboard(void)
+   259	{
+   260		puts("Board: Novena 4x\n");
+   261		return 0;
+   262	}
+   263	
+   264	int dram_init(void)
+   265	{
+   266		gd->ram_size = imx_ddr_size();
+   267		return 0;
+   268	}
+   269	
+   270	/* setup board specific PMIC */
+   271	int power_init_board(void)
+   272	{
+   273		struct pmic *p;
+   274		u32 reg;
+   275		int ret;
+   276	
+   277		power_pfuze100_init(1);
+   278		p = pmic_get("PFUZE100");
+   279		if (!p)
+   280			return -EINVAL;
+   281	
+   282		ret = pmic_probe(p);
+   283		if (ret)
+   284			return ret;
+   285	
+   286		pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
+   287		printf("PMIC:  PFUZE100 ID=0x%02x\n", reg);
+   288	
+   289		/* Set SWBST to 5.0V and enable (for USB) */
+   290		pmic_reg_read(p, PFUZE100_SWBSTCON1, &reg);
+   291		reg &= ~(SWBST_MODE_MASK | SWBST_VOL_MASK);
+   292		reg |= (SWBST_5_00V | SWBST_MODE_AUTO);
+   293		pmic_reg_write(p, PFUZE100_SWBSTCON1, reg);
+   294	
+   295		return 0;
+   296	}
+   297	
+   298	/* EEPROM configuration data */
+   299	struct novena_eeprom_data {
+   300		uint8_t		signature[6];
+   301		uint8_t		version;
+   302		uint8_t		reserved;
+   303		uint32_t	serial;
+   304		uint8_t		mac[6];
+   305		uint16_t	features;
+   306	};
+   307	
+   308	int misc_init_r(void)
+   309	{
+   310		struct novena_eeprom_data data;
+   311		uchar *datap = (uchar *)&data;
+   312		const char *signature = "Novena";
+   313		int ret;
+   314	
+   315		/* If 'ethaddr' is already set, do nothing. */
+   316		if (getenv("ethaddr"))
+   317			return 0;
+   318	
+   319		/* EEPROM is at bus 2. */
+   320		ret = i2c_set_bus_num(2);
+   321		if (ret) {
+   322			puts("Cannot select EEPROM I2C bus.\n");
+   323			return 0;
+   324		}
+   325	
+   326		/* EEPROM is at address 0x56. */
+   327		ret = eeprom_read(0x56, 0, datap, sizeof(data));
+   328		if (ret) {
+   329			puts("Cannot read I2C EEPROM.\n");
+   330			return 0;
+   331		}
+   332	
+   333		/* Check EEPROM signature. */
+   334		if (memcmp(data.signature, signature, 6)) {
+   335			puts("Invalid I2C EEPROM signature.\n");
+   336			return 0;
+   337		}
+   338	
+   339		/* Set ethernet address from EEPROM. */
+   340		eth_setenv_enetaddr("ethaddr", data.mac);
+   341	
+   342		return ret;
+   343	}
+
+=== 12. NOVENA I2C-KONFIGURATION ===
+   135	#define CONFIG_MII
+   136	#define IMX_FEC_BASE			ENET_BASE_ADDR
+   137	#define CONFIG_FEC_XCV_TYPE		RGMII
+   138	#define CONFIG_ETHPRIME			"FEC"
+   139	#define CONFIG_FEC_MXC_PHYADDR		0x7
+   140	#define CONFIG_PHYLIB
+   141	#define CONFIG_PHY_MICREL
+   142	#define CONFIG_PHY_MICREL_KSZ9021
+   143	#define CONFIG_ARP_TIMEOUT		200UL
+   144	#endif
+   145	
+   146	/* I2C */
+   147	#define CONFIG_SYS_I2C
+   148	#define CONFIG_SYS_I2C_MXC
+   149	#define CONFIG_I2C_MULTI_BUS
+   150	#define CONFIG_I2C_MXC
+   151	#define CONFIG_SYS_I2C_SPEED		100000
+   152	
+   153	/* I2C EEPROM */
+   154	#ifdef CONFIG_CMD_EEPROM
+   155	#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
+   156	#define CONFIG_SYS_SPD_BUS_NUM		2
+   157	#endif
+   158	
+   159	/* MMC Configs */
+   160	#ifdef CONFIG_CMD_MMC
+   161	#define CONFIG_MMC
+   162	#define CONFIG_GENERIC_MMC
+   163	#define CONFIG_BOUNCE_BUFFER
+   164	#define CONFIG_FSL_ESDHC
+   165	#define CONFIG_FSL_USDHC
+
+=== 13. IT6251 / ES8328 IM RC5-NOVENA-CODE ===
+--- IT6251 ---
+--- it6251 ---
+--- ES8328 ---
+--- es8328 ---
+
+=== 14. ABSCHLUSSSTATUS HISTORISCHER CLONE ===
+## novena-r2...origin/novena-r2
+
+=== 15. ABSCHLUSSSTATUS PROJEKT ===
+## main...origin/main
+?? research/02-historical-software/
+
+=== 16. LOGDATEI ===
+ 1047 37540 /tmp/novena-block2-step-2.10-full.log
+
+=== 17. SHA-256 ===

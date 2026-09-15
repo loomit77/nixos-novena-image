@@ -1,0 +1,64 @@
+   340	{
+   341		return I2C_ADAP->write(I2C_ADAP, chip, addr, alen, buffer, len);
+   342	}
+   343	
+   344	unsigned int i2c_set_bus_speed(unsigned int speed)
+   345	{
+   346		unsigned int ret;
+   347	
+   348		if (I2C_ADAP->set_bus_speed == NULL)
+   349			return 0;
+   350		ret = I2C_ADAP->set_bus_speed(I2C_ADAP, speed);
+   351		if (gd->flags & GD_FLG_RELOC)
+   352			I2C_ADAP->speed = (ret == 0) ? speed : 0;
+   353	
+   354		return ret;
+   355	}
+   356	
+   357	unsigned int i2c_get_bus_speed(void)
+   358	{
+   359		struct i2c_adapter *cur = I2C_ADAP;
+   360		return cur->speed;
+   361	}
+   362	
+   363	uint8_t i2c_reg_read(uint8_t addr, uint8_t reg)
+   364	{
+   365		uint8_t buf;
+   366	
+   367	#ifdef CONFIG_8xx
+   368		/* MPC8xx needs this.  Maybe one day we can get rid of it. */
+   369		/* maybe it is now the time for it ... */
+   370		i2c_set_bus_num(i2c_get_bus_num());
+   371	#endif
+   372		i2c_read(addr, reg, 1, &buf, 1);
+   373	
+   374	#ifdef DEBUG
+   375		printf("%s: bus=%d addr=0x%02x, reg=0x%02x, val=0x%02x\n",
+   376		       __func__, i2c_get_bus_num(), addr, reg, buf);
+   377	#endif
+   378	
+   379		return buf;
+   380	}
+   381	
+   382	void i2c_reg_write(uint8_t addr, uint8_t reg, uint8_t val)
+   383	{
+   384	#ifdef CONFIG_8xx
+   385		/* MPC8xx needs this.  Maybe one day we can get rid of it. */
+   386		/* maybe it is now the time for it ... */
+   387		i2c_set_bus_num(i2c_get_bus_num());
+   388	#endif
+   389	
+   390	#ifdef DEBUG
+   391		printf("%s: bus=%d addr=0x%02x, reg=0x%02x, val=0x%02x\n",
+   392		       __func__, i2c_get_bus_num(), addr, reg, val);
+   393	#endif
+   394	
+   395		i2c_write(addr, reg, 1, &val, 1);
+   396	}
+   397	
+   398	void __i2c_init(int speed, int slaveaddr)
+   399	{
+   400		i2c_init_bus(i2c_get_bus_num(), speed, slaveaddr);
+   401	}
+   402	void i2c_init(int speed, int slaveaddr)
+   403		__attribute__((weak, alias("__i2c_init")));

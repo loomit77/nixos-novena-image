@@ -1,0 +1,101 @@
+   450		int i = 0;
+   451		struct i2c_parms *p = srdata->i2c_data;
+   452		while (i < ARRAY_SIZE(srdata->i2c_data)) {
+   453			if (p->base == base)
+   454				return p;
+   455			p++;
+   456			i++;
+   457		}
+   458		printf("Invalid I2C base: %p\n", base);
+   459		return NULL;
+   460	}
+   461	
+   462	static int i2c_idle_bus(void *base)
+   463	{
+   464		struct i2c_parms *p = i2c_get_parms(base);
+   465		if (p && p->idle_bus_fn)
+   466			return p->idle_bus_fn(p->idle_bus_data);
+   467		return 0;
+   468	}
+   469	
+   470	static int mxc_i2c_read(struct i2c_adapter *adap, uint8_t chip,
+   471					uint addr, int alen, uint8_t *buffer,
+   472					int len)
+   473	{
+   474		return bus_i2c_read(i2c_get_base(adap), chip, addr, alen, buffer, len);
+   475	}
+   476	
+   477	static int mxc_i2c_write(struct i2c_adapter *adap, uint8_t chip,
+   478					uint addr, int alen, uint8_t *buffer,
+   479					int len)
+   480	{
+   481		return bus_i2c_write(i2c_get_base(adap), chip, addr, alen, buffer, len);
+   482	}
+   483	
+   484	/*
+   485	 * Test if a chip at a given address responds (probe the chip)
+   486	 */
+   487	static int mxc_i2c_probe(struct i2c_adapter *adap, uint8_t chip)
+   488	{
+   489		return bus_i2c_write(i2c_get_base(adap), chip, 0, 0, NULL, 0);
+   490	}
+   491	
+   492	void bus_i2c_init(void *base, int speed, int unused,
+   493			int (*idle_bus_fn)(void *p), void *idle_bus_data)
+   494	{
+   495		struct sram_data *srdata = (void *)gd->srdata;
+   496		int i = 0;
+   497		struct i2c_parms *p = srdata->i2c_data;
+   498		if (!base)
+   499			return;
+   500		for (;;) {
+   501			if (!p->base || (p->base == base)) {
+   502				p->base = base;
+   503				if (idle_bus_fn) {
+   504					p->idle_bus_fn = idle_bus_fn;
+   505					p->idle_bus_data = idle_bus_data;
+   506				}
+   507				break;
+   508			}
+   509			p++;
+   510			i++;
+   511			if (i >= ARRAY_SIZE(srdata->i2c_data))
+   512				return;
+   513		}
+   514		bus_i2c_set_bus_speed(base, speed);
+   515	}
+   516	
+   517	/*
+   518	 * Init I2C Bus
+   519	 */
+   520	static void mxc_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
+   521	{
+   522		bus_i2c_init(i2c_get_base(adap), speed, slaveaddr, NULL, NULL);
+   523	}
+   524	
+   525	/*
+   526	 * Set I2C Speed
+   527	 */
+   528	static uint mxc_i2c_set_bus_speed(struct i2c_adapter *adap, uint speed)
+   529	{
+   530		return bus_i2c_set_bus_speed(i2c_get_base(adap), speed);
+   531	}
+   532	
+   533	/*
+   534	 * Register mxc i2c adapters
+   535	 */
+   536	U_BOOT_I2C_ADAP_COMPLETE(mxc0, mxc_i2c_init, mxc_i2c_probe,
+   537				 mxc_i2c_read, mxc_i2c_write,
+   538				 mxc_i2c_set_bus_speed,
+   539				 CONFIG_SYS_MXC_I2C1_SPEED,
+   540				 CONFIG_SYS_MXC_I2C1_SLAVE, 0)
+   541	U_BOOT_I2C_ADAP_COMPLETE(mxc1, mxc_i2c_init, mxc_i2c_probe,
+   542				 mxc_i2c_read, mxc_i2c_write,
+   543				 mxc_i2c_set_bus_speed,
+   544				 CONFIG_SYS_MXC_I2C2_SPEED,
+   545				 CONFIG_SYS_MXC_I2C2_SLAVE, 1)
+   546	#if defined(CONFIG_MX31) || defined(CONFIG_MX35) ||\
+   547		defined(CONFIG_MX51) || defined(CONFIG_MX53) ||\
+   548		defined(CONFIG_MX6) || defined(CONFIG_LS102XA)
+   549	U_BOOT_I2C_ADAP_COMPLETE(mxc2, mxc_i2c_init, mxc_i2c_probe,
+   550				 mxc_i2c_read, mxc_i2c_write,

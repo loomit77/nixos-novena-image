@@ -1,0 +1,83 @@
+     1	/*
+     2	 * Copyright (C) 2012 Boundary Devices Inc.
+     3	 *
+     4	 * SPDX-License-Identifier:	GPL-2.0+
+     5	 */
+     6	#include <common.h>
+     7	#include <asm/arch/clock.h>
+     8	#include <asm/arch/imx-regs.h>
+     9	#include <asm/errno.h>
+    10	#include <asm/gpio.h>
+    11	#include <asm/imx-common/mxc_i2c.h>
+    12	#include <watchdog.h>
+    13	
+    14	static int force_idle_bus(void *priv)
+    15	{
+    16		int i;
+    17		int sda, scl;
+    18		ulong elapsed, start_time;
+    19		struct i2c_pads_info *p = (struct i2c_pads_info *)priv;
+    20		int ret = 0;
+    21	
+    22		gpio_direction_input(p->sda.gp);
+    23		gpio_direction_input(p->scl.gp);
+    24	
+    25		imx_iomux_v3_setup_pad(p->sda.gpio_mode);
+    26		imx_iomux_v3_setup_pad(p->scl.gpio_mode);
+    27	
+    28		sda = gpio_get_value(p->sda.gp);
+    29		scl = gpio_get_value(p->scl.gp);
+    30		if ((sda & scl) == 1)
+    31			goto exit;		/* Bus is idle already */
+    32	
+    33		printf("%s: sda=%d scl=%d sda.gp=0x%x scl.gp=0x%x\n", __func__,
+    34			sda, scl, p->sda.gp, p->scl.gp);
+    35		/* Send high and low on the SCL line */
+    36		for (i = 0; i < 9; i++) {
+    37			gpio_direction_output(p->scl.gp, 0);
+    38			udelay(50);
+    39			gpio_direction_input(p->scl.gp);
+    40			udelay(50);
+    41		}
+    42		start_time = get_timer(0);
+    43		for (;;) {
+    44			sda = gpio_get_value(p->sda.gp);
+    45			scl = gpio_get_value(p->scl.gp);
+    46			if ((sda & scl) == 1)
+    47				break;
+    48			WATCHDOG_RESET();
+    49			elapsed = get_timer(start_time);
+    50			if (elapsed > (CONFIG_SYS_HZ / 5)) {	/* .2 seconds */
+    51				ret = -EBUSY;
+    52				printf("%s: failed to clear bus, sda=%d scl=%d\n",
+    53						__func__, sda, scl);
+    54				break;
+    55			}
+    56		}
+    57	exit:
+    58		imx_iomux_v3_setup_pad(p->sda.i2c_mode);
+    59		imx_iomux_v3_setup_pad(p->scl.i2c_mode);
+    60		return ret;
+    61	}
+    62	
+    63	static void * const i2c_bases[] = {
+    64		(void *)I2C1_BASE_ADDR,
+    65		(void *)I2C2_BASE_ADDR,
+    66	#ifdef I2C3_BASE_ADDR
+    67		(void *)I2C3_BASE_ADDR,
+    68	#endif
+    69	};
+    70	
+    71	/* i2c_index can be from 0 - 2 */
+    72	void setup_i2c(unsigned i2c_index, int speed, int slave_addr,
+    73			struct i2c_pads_info *p)
+    74	{
+    75		if (i2c_index >= ARRAY_SIZE(i2c_bases))
+    76			return;
+    77		/* Enable i2c clock */
+    78		enable_i2c_clk(1, i2c_index);
+    79		/* Make sure bus is idle */
+    80		force_idle_bus(p);
+    81		bus_i2c_init(i2c_bases[i2c_index], speed, slave_addr,
+    82				force_idle_bus, p);
+    83	}

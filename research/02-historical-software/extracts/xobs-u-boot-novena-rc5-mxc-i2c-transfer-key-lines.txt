@@ -1,0 +1,58 @@
+26:   165	static int bus_i2c_set_bus_speed(void *base, int speed)
+33:   172		writeb(idx, &i2c_regs->ifdr);
+36:   175		writeb(I2CR_IDIS, &i2c_regs->i2cr);
+37:   176		writeb(0, &i2c_regs->i2sr);
+41:   180	#define ST_BUS_IDLE (0 | (I2SR_IBB << 8))
+42:   181	#define ST_BUS_BUSY (I2SR_IBB | (I2SR_IBB << 8))
+43:   182	#define ST_IIF (I2SR_IIF | (I2SR_IIF << 8))
+51:   190			sr = readb(&i2c_regs->i2sr);
+52:   191			if (sr & I2SR_IAL) {
+54:   193				writeb(sr | I2SR_IAL, &i2c_regs->i2sr);
+56:   195				writeb(sr & ~I2SR_IAL, &i2c_regs->i2sr);
+59:   198					__func__, sr, readb(&i2c_regs->i2cr), state);
+70:   209				sr, readb(&i2c_regs->i2cr), state);
+78:   217		writeb(I2SR_IIF_CLEAR, &i2c_regs->i2sr);
+79:   218		writeb(byte, &i2c_regs->i2dr);
+80:   219		ret = wait_for_sr_state(i2c_regs, ST_IIF);
+83:   222		if (ret & I2SR_RX_NO_AK)
+94:   233		unsigned int temp = readb(&i2c_regs->i2cr);
+96:   235		temp &= ~(I2CR_MSTA | I2CR_MTX);
+97:   236		writeb(temp, &i2c_regs->i2cr);
+107:   246	static int i2c_init_transfer_(struct mxc_i2c_regs *i2c_regs,
+115:   254		if (readb(&i2c_regs->i2cr) & I2CR_IDIS) {
+117:   256		if (!(readb(&i2c_regs->i2cr) & I2CR_IEN)) {
+119:   258			writeb(I2CR_IEN, &i2c_regs->i2cr);
+121:   260			udelay(50);
+123:   262		if (readb(&i2c_regs->iadr) == (chip << 1))
+124:   263			writeb((chip << 1) ^ 2, &i2c_regs->iadr);
+125:   264		writeb(I2SR_IIF_CLEAR, &i2c_regs->i2sr);
+131:   270		temp = readb(&i2c_regs->i2cr);
+132:   271		temp |= I2CR_MSTA;
+133:   272		writeb(temp, &i2c_regs->i2cr);
+139:   278		temp |= I2CR_MTX | I2CR_TX_NO_AK;
+140:   279		writeb(temp, &i2c_regs->i2cr);
+155:   294	static int i2c_idle_bus(void *base);
+157:   296	static int i2c_init_transfer(struct mxc_i2c_regs *i2c_regs,
+163:   302			ret = i2c_init_transfer_(i2c_regs, chip, addr, alen);
+174:   313				writeb(I2CR_IDIS, &i2c_regs->i2cr);
+175:   314			udelay(100);
+176:   315			if (i2c_idle_bus(i2c_regs) < 0)
+194:   333		ret = i2c_init_transfer(i2c_regs, chip, addr, alen);
+198:   337		temp = readb(&i2c_regs->i2cr);
+199:   338		temp |= I2CR_RSTA;
+200:   339		writeb(temp, &i2c_regs->i2cr);
+209:   348		temp = readb(&i2c_regs->i2cr);
+210:   349		temp &= ~(I2CR_MTX | I2CR_TX_NO_AK);
+212:   351			temp |= I2CR_TX_NO_AK;
+213:   352		writeb(temp, &i2c_regs->i2cr);
+214:   353		writeb(I2SR_IIF_CLEAR, &i2c_regs->i2sr);
+215:   354		readb(&i2c_regs->i2dr);		/* dummy read to clear ICF */
+219:   358			ret = wait_for_sr_state(i2c_regs, ST_IIF);
+232:   371				temp = readb(&i2c_regs->i2cr);
+233:   372				temp |= I2CR_TX_NO_AK;
+234:   373				writeb(temp, &i2c_regs->i2cr);
+236:   375			writeb(I2SR_IIF_CLEAR, &i2c_regs->i2sr);
+237:   376			buf[i] = readb(&i2c_regs->i2dr);
+253:   392		ret = i2c_init_transfer(i2c_regs, chip, addr, alen);
+268:   407		void *idle_bus_data;
+269:   408		int (*idle_bus_fn)(void *p);

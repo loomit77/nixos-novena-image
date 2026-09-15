@@ -1,0 +1,13 @@
+board/kosagi/novena/Kconfig
+board/kosagi/novena/Makefile
+board/kosagi/novena/ddr3.c
+board/kosagi/novena/novena.c
+board/kosagi/novena/novena_spl.c
+board/kosagi/novena/setup.cfg
+configs/novena_defconfig
+debian/novena-install-spl
+debian/novena-install-spl.8
+debian/novena-kernel-install-postinst
+debian/u-boot-novena.install
+debian/u-boot-novena.lintian-overrides
+include/configs/novena.h

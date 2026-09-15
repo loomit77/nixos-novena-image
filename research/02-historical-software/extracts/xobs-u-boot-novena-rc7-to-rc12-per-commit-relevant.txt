@@ -1,0 +1,196 @@
+
+================================================================
+COMMIT afe595630f335c73ec41a49f41d9728017dec0e8
+PARENTS 4330c957155183eec60537071cc595d39d9b5872
+DATE 2014-10-15T17:34:22+08:00
+AUTHOR Sean Cross <xobs@kosagi.com>
+SUBJECT novena: it6251: Check if the IT6251 is connected
+--- FILES ---
+M	board/kosagi/novena/novena_spl.c
+M	include/configs/novena.h
+--- RELEVANTE ZEILEN ---
+6: #define NOVENA_PCIE_POWER_ON_GPIO	IMX_GPIO_NR(7, 12)
+9:+#define NOVENA_LVDS_PWRON		IMX_GPIO_NR(5, 28)
+10:+#define NOVENA_BACKLIGHT_PWRON		IMX_GPIO_NR(4, 15)
+18:+static iomux_v3_cfg_t lvds_pads[] = {
+19:+	/* Entire display subsystem power */
+22:+	/* Backlight pin */
+26: static void novena_spl_setup_iomux_video(void)
+31:+	imx_iomux_v3_setup_multiple_pads(lvds_pads, ARRAY_SIZE(lvds_pads));
+32:+	gpio_direction_output(NOVENA_LVDS_PWRON, 1);
+33:+	gpio_direction_output(NOVENA_BACKLIGHT_PWRON, 1);
+36: static inline void novena_spl_setup_iomux_video(void) {}
+72:+		"i2c dev 2 ; "						\
+77:+		"elif i2c md 0x5c 0 1 ; then "				\
+78:+			"echo IT6251 bridge chip detected ; "		\
+81: 			"echo No video detected, using serial port ; "	\
+
+================================================================
+COMMIT 65fea36ba8924767d37703d35c232be05c1c83ff
+PARENTS afe595630f335c73ec41a49f41d9728017dec0e8
+DATE 2014-10-15T17:36:46+08:00
+AUTHOR Sean Cross <xobs@kosagi.com>
+SUBJECT debian: Update to -r8
+--- FILES ---
+--- RELEVANTE ZEILEN ---
+
+================================================================
+COMMIT b5a15faf85a52789308f3f59898693b005532833
+PARENTS 65fea36ba8924767d37703d35c232be05c1c83ff
+DATE 2014-10-15T19:47:46+08:00
+AUTHOR Sean Cross <xobs@kosagi.com>
+SUBJECT novena-spl: Add support for booting from external SD
+--- FILES ---
+M	board/kosagi/novena/novena_spl.c
+--- RELEVANTE ZEILEN ---
+6: #define NOVENA_LVDS_PWRON		IMX_GPIO_NR(5, 28)
+7: #define NOVENA_BACKLIGHT_PWRON		IMX_GPIO_NR(4, 15)
+18:+	MX6_I2C_BOOT,
+43:+			return MX6_I2C_BOOT;
+70:@@ -392,10 +450,14 @@ static inline void novena_spl_setup_iomux_video(void) {}
+
+================================================================
+COMMIT 4facac7043bd45f57956b5a0084cb02aaea59bae
+PARENTS b5a15faf85a52789308f3f59898693b005532833
+DATE 2014-10-15T19:55:10+08:00
+AUTHOR Sean Cross <xobs@kosagi.com>
+SUBJECT novena: Support booting off of the external SD card
+--- FILES ---
+M	board/kosagi/novena/novena.c
+M	include/configs/novena.h
+--- RELEVANTE ZEILEN ---
+18:+	MX6_I2C_BOOT,
+43:+			return MX6_I2C_BOOT;
+71: 	/* Set ethernet address from EEPROM. */
+
+================================================================
+COMMIT f4a0c349263e84e233da7fa92ebe76baa633684a
+PARENTS 4facac7043bd45f57956b5a0084cb02aaea59bae
+DATE 2014-10-15T19:56:40+08:00
+AUTHOR Sean Cross <xobs@kosagi.com>
+SUBJECT debian: Add changelog for r8
+--- FILES ---
+--- RELEVANTE ZEILEN ---
+
+================================================================
+COMMIT 9a7992777c08a2fcec7d69be365f95cb092af5d0
+PARENTS f4a0c349263e84e233da7fa92ebe76baa633684a
+DATE 2014-10-16T15:55:19+08:00
+AUTHOR Sean Cross <xobs@kosagi.com>
+SUBJECT eeprom: Fix feature turnoff
+--- FILES ---
+M	board/kosagi/novena/eeprom.c
+M	include/configs/novena.h
+--- RELEVANTE ZEILEN ---
+1:diff --git a/board/kosagi/novena/eeprom.c b/board/kosagi/novena/eeprom.c
+3:--- a/board/kosagi/novena/eeprom.c
+4:+++ b/board/kosagi/novena/eeprom.c
+15: 	if (!(data.features & feature_es8328))
+16: 		fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/es8328@11");
+18:-		fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a0000/bq20z75@b");
+19:+		fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a0000/bq20z75@0b");
+37:-			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@73");
+38:-			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@73");
+39:+			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@5c");
+44: 		/* In version 2, this indicates whether an LVDS-to-eDP chip is present */
+46:-			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@73");
+47:+			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@5c");
+49: 		if (!(data.lvds1.flags & channel_present)) {
+50: 			fdt_del_by_path(blob, "/soc/aips-bus@02000000/ldb@020e0008/lvds-channel@0");
+62: 		"i2c dev 2 ; "						\
+
+================================================================
+COMMIT 2930a7548227dd73a4f9f0e1789a2679d41e217b
+PARENTS 9a7992777c08a2fcec7d69be365f95cb092af5d0
+DATE 2014-10-16T15:56:11+08:00
+AUTHOR Sean Cross <xobs@kosagi.com>
+SUBJECT debian: Update to -rc10
+--- FILES ---
+--- RELEVANTE ZEILEN ---
+
+================================================================
+COMMIT 5de5c69bc37a8e272240ec82244e5f7137f28c5b
+PARENTS 2930a7548227dd73a4f9f0e1789a2679d41e217b
+DATE 2014-10-17T12:18:05+08:00
+AUTHOR Sean Cross <xobs@kosagi.com>
+SUBJECT board: novena: Set boot device even when EEPROM is blank
+--- FILES ---
+M	board/kosagi/novena/novena.c
+--- RELEVANTE ZEILEN ---
+5:@@ -363,7 +363,7 @@ struct novena_eeprom_data {
+12: 	struct novena_eeprom_data data;
+15: 	ret = i2c_set_bus_num(2);
+17: 		puts("Cannot select EEPROM I2C bus.\n");
+22: 	/* EEPROM is at address 0x56. */
+23: 	ret = eeprom_read(0x56, 0, datap, sizeof(data));
+25: 		puts("Cannot read I2C EEPROM.\n");
+30: 	/* Check EEPROM signature. */
+32: 		puts("Invalid I2C EEPROM signature.\n");
+37: 	/* Set ethernet address from EEPROM. */
+
+================================================================
+COMMIT 77655d148b8d3e2f95ac46b8c9cc00af395b15d6
+PARENTS 5de5c69bc37a8e272240ec82244e5f7137f28c5b
+DATE 2014-10-17T12:20:23+08:00
+AUTHOR Sean Cross <xobs@kosagi.com>
+SUBJECT debian: Update to rc11
+--- FILES ---
+M	board/kosagi/novena/novena.c
+--- RELEVANTE ZEILEN ---
+16: 	/* Check EEPROM signature. */
+18: 		puts("Invalid I2C EEPROM signature.\n");
+23: 	/* Set ethernet address from EEPROM. */
+
+================================================================
+COMMIT 2ab1217f8c70cc266f0157bf9baec86e34e56805
+PARENTS 77655d148b8d3e2f95ac46b8c9cc00af395b15d6
+DATE 2014-10-17T17:56:14+08:00
+AUTHOR Sean Cross <xobs@kosagi.com>
+SUBJECT novena: ddr3: Properly decode page size
+--- FILES ---
+M	board/kosagi/novena/ddr3.c
+--- RELEVANTE ZEILEN ---
+
+================================================================
+COMMIT 43ded6eb7299e8e71327de2d2208e43c66a0c3b8
+PARENTS 2ab1217f8c70cc266f0157bf9baec86e34e56805
+DATE 2014-10-17T17:57:23+08:00
+AUTHOR Sean Cross <xobs@kosagi.com>
+SUBJECT debian: Update to r12
+--- FILES ---
+--- RELEVANTE ZEILEN ---
+
+================================================================
+COMMIT c5efeadb913c8246be372054adcd6106ad4fe067
+PARENTS 43ded6eb7299e8e71327de2d2208e43c66a0c3b8
+DATE 2014-10-17T18:50:23+08:00
+AUTHOR Sean Cross <xobs@kosagi.com>
+SUBJECT novena: Parse EEPROM early, and boot to SATA if requested
+--- FILES ---
+M	board/kosagi/novena/novena.c
+M	include/configs/novena.h
+--- RELEVANTE ZEILEN ---
+5:@@ -355,25 +355,26 @@ int power_init_board(void)
+8: /* EEPROM configuration data */
+9:-struct novena_eeprom_data {
+10:+static struct novena_eeprom_data {
+18:+} eeprom_data;
+21:+static int is_valid_eeprom_data(void)
+23:-	struct novena_eeprom_data data;
+31:+	/* Check EEPROM signature. */
+32:+	return !memcmp(eeprom_data.signature, signature, 6);
+35:+static int read_eeprom(void)
+39: 	/* EEPROM is at bus 2. */
+40: 	ret = i2c_set_bus_num(2);
+44: 	/* EEPROM is at address 0x56. */
+45:-	ret = eeprom_read(0x56, 0, datap, sizeof(data));
+46:+	ret = eeprom_read(0x56, 0, (void *)&eeprom_data, sizeof(eeprom_data));
+48: 		puts("Cannot read I2C EEPROM.\n");
+52:-	/* Check EEPROM signature. */
+54:-		puts("Invalid I2C EEPROM signature.\n");
+55:+	return is_valid_eeprom_data();
+65: 	/* Set ethernet address from EEPROM. */
+67:+	if (is_valid_eeprom_data())
+68:+		eth_setenv_enetaddr("ethaddr", eeprom_data.mac);
+84:+	if (is_valid_eeprom_data() && (eeprom_data.features & 0x100))
+96:+	read_eeprom();

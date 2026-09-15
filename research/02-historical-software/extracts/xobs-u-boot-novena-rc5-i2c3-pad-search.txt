@@ -1,0 +1,11 @@
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx5/iomux-mx53.h:483:	MX53_PAD_EIM_D17__I2C3_SCL			= IOMUX_PAD(0x464, 0x11C, 5 | IOMUX_CONFIG_SION, 0x824, 0, NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx5/iomux-mx53.h:489:	MX53_PAD_EIM_D18__I2C3_SDA			= IOMUX_PAD(0x468, 0x120, 5 | IOMUX_CONFIG_SION, 0x828, 0, NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6dl_pins.h:358:MX6_PAD_DECL(EIM_D17__I2C3_SCL,	0x0518, 0x0148, 6 | IOMUX_CONFIG_SION, 0x0878, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6dl_pins.h:366:MX6_PAD_DECL(EIM_D18__I2C3_SDA,	0x051C, 0x014C, 6 | IOMUX_CONFIG_SION, 0x087C, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6q_pins.h:96:MX6_PAD_DECL(EIM_D17__I2C3_SCL,	0x03A8, 0x0094, 22, 0x08A8, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6q_pins.h:103:MX6_PAD_DECL(EIM_D18__I2C3_SDA,	0x03AC, 0x0098, 22, 0x08AC, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/aristainetos/aristainetos.c:89:		.i2c_mode = MX6_PAD_EIM_D17__I2C3_SCL | PC,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/aristainetos/aristainetos.c:94:		.i2c_mode = MX6_PAD_EIM_D18__I2C3_SDA | PC,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/mx6qsabreauto/mx6qsabreauto.c:101:		.i2c_mode = MX6_PAD_EIM_D18__I2C3_SDA | PC,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:218:		.i2c_mode	= MX6_PAD_EIM_D17__I2C3_SCL | PC,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:223:		.i2c_mode	= MX6_PAD_EIM_D18__I2C3_SDA | PC,

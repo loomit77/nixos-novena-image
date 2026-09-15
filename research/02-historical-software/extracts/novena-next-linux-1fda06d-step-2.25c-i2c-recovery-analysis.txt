@@ -1,0 +1,719 @@
+=== STEP 2.25c: HISTORICAL I2C-IMX BUS RECOVERY ===
+
+Di 15. Sep 12:48:52 CEST 2026
+
+=== 1. QUELLDATEI VERIFIZIEREN ===
+ 1337 37845 /tmp/novena-1fda06d-i2c-imx.c
+0f5f281102fc70cbf54e1dee07634d4b731a153771e0fdd2e51e0042fafcd467  /tmp/novena-1fda06d-i2c-imx.c
+
+=== 2. ALLE RECOVERY-TREFFER ===
+43:#include <linux/pinctrl/consumer.h>
+197:	struct i2c_bus_recovery_info rinfo;
+199:	struct pinctrl *pinctrl;
+200:	struct pinctrl_state *pinctrl_pins_default;
+201:	struct pinctrl_state *pinctrl_pins_gpio;
+935:		 * Bus recovery uses gpiod_get_value_cansleep() which is not
+938:		if (!atomic && i2c_imx->adapter.bus_recovery_info) {
+939:			i2c_recover_bus(&i2c_imx->adapter);
+1040:static void i2c_imx_prepare_recovery(struct i2c_adapter *adap)
+1046:	pinctrl_select_state(i2c_imx->pinctrl, i2c_imx->pinctrl_pins_gpio);
+1049:static void i2c_imx_unprepare_recovery(struct i2c_adapter *adap)
+1055:	pinctrl_select_state(i2c_imx->pinctrl, i2c_imx->pinctrl_pins_default);
+1060: * for bus recovery. These alternative pinmux settings can be
+1061: * described in the device tree by a separate pinctrl state "gpio". If
+1063: * that we can't do bus recovery.
+1065:static int i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
+1068:	struct i2c_bus_recovery_info *rinfo = &i2c_imx->rinfo;
+1070:	i2c_imx->pinctrl = devm_pinctrl_get(&pdev->dev);
+1071:	if (!i2c_imx->pinctrl || IS_ERR(i2c_imx->pinctrl)) {
+1072:		dev_info(&pdev->dev, "can't get pinctrl, bus recovery not supported\n");
+1073:		return PTR_ERR(i2c_imx->pinctrl);
+1076:	i2c_imx->pinctrl_pins_default = pinctrl_lookup_state(i2c_imx->pinctrl,
+1078:	i2c_imx->pinctrl_pins_gpio = pinctrl_lookup_state(i2c_imx->pinctrl,
+1080:	rinfo->sda_gpiod = devm_gpiod_get(&pdev->dev, "sda", GPIOD_IN);
+1081:	rinfo->scl_gpiod = devm_gpiod_get(&pdev->dev, "scl", GPIOD_OUT_HIGH_OPEN_DRAIN);
+1083:	if (PTR_ERR(rinfo->sda_gpiod) == -EPROBE_DEFER ||
+1084:	    PTR_ERR(rinfo->scl_gpiod) == -EPROBE_DEFER) {
+1086:	} else if (IS_ERR(rinfo->sda_gpiod) ||
+1087:		   IS_ERR(rinfo->scl_gpiod) ||
+1088:		   IS_ERR(i2c_imx->pinctrl_pins_default) ||
+1089:		   IS_ERR(i2c_imx->pinctrl_pins_gpio)) {
+1090:		dev_dbg(&pdev->dev, "recovery information incomplete\n");
+1094:	dev_dbg(&pdev->dev, "using scl%s for recovery\n",
+1095:		rinfo->sda_gpiod ? ",sda" : "");
+1097:	rinfo->prepare_recovery = i2c_imx_prepare_recovery;
+1098:	rinfo->unprepare_recovery = i2c_imx_unprepare_recovery;
+1099:	rinfo->recover_bus = i2c_generic_scl_recovery;
+1100:	i2c_imx->adapter.bus_recovery_info = rinfo;
+1215:	/* Init optional bus recovery function */
+1216:	ret = i2c_imx_init_recovery_info(i2c_imx, pdev);
+1217:	/* Give it another chance if pinctrl used is not ready yet */
+
+=== 3. i2c_imx_init_recovery_info KOMPLETT ===
+   985				if (!atomic &&
+   986				    i2c_imx->dma && msgs[i].len >= DMA_THRESHOLD)
+   987					result = i2c_imx_dma_write(i2c_imx, &msgs[i]);
+   988				else
+   989					result = i2c_imx_write(i2c_imx, &msgs[i], atomic);
+   990			}
+   991			if (result)
+   992				goto fail0;
+   993		}
+   994	
+   995	fail0:
+   996		/* Stop I2C transfer */
+   997		i2c_imx_stop(i2c_imx, atomic);
+   998	
+   999		dev_dbg(&i2c_imx->adapter.dev, "<%s> exit with: %s: %d\n", __func__,
+  1000			(result < 0) ? "error" : "success msg",
+  1001				(result < 0) ? result : num);
+  1002		return (result < 0) ? result : num;
+  1003	}
+  1004	
+  1005	static int i2c_imx_xfer(struct i2c_adapter *adapter,
+  1006				struct i2c_msg *msgs, int num)
+  1007	{
+  1008		struct imx_i2c_struct *i2c_imx = i2c_get_adapdata(adapter);
+  1009		int result;
+  1010	
+  1011		result = pm_runtime_get_sync(i2c_imx->adapter.dev.parent);
+  1012		if (result < 0)
+  1013			return result;
+  1014	
+  1015		result = i2c_imx_xfer_common(adapter, msgs, num, false);
+  1016	
+  1017		pm_runtime_mark_last_busy(i2c_imx->adapter.dev.parent);
+  1018		pm_runtime_put_autosuspend(i2c_imx->adapter.dev.parent);
+  1019	
+  1020		return result;
+  1021	}
+  1022	
+  1023	static int i2c_imx_xfer_atomic(struct i2c_adapter *adapter,
+  1024				       struct i2c_msg *msgs, int num)
+  1025	{
+  1026		struct imx_i2c_struct *i2c_imx = i2c_get_adapdata(adapter);
+  1027		int result;
+  1028	
+  1029		result = clk_enable(i2c_imx->clk);
+  1030		if (result)
+  1031			return result;
+  1032	
+  1033		result = i2c_imx_xfer_common(adapter, msgs, num, true);
+  1034	
+  1035		clk_disable(i2c_imx->clk);
+  1036	
+  1037		return result;
+  1038	}
+  1039	
+  1040	static void i2c_imx_prepare_recovery(struct i2c_adapter *adap)
+  1041	{
+  1042		struct imx_i2c_struct *i2c_imx;
+  1043	
+  1044		i2c_imx = container_of(adap, struct imx_i2c_struct, adapter);
+  1045	
+  1046		pinctrl_select_state(i2c_imx->pinctrl, i2c_imx->pinctrl_pins_gpio);
+  1047	}
+  1048	
+  1049	static void i2c_imx_unprepare_recovery(struct i2c_adapter *adap)
+  1050	{
+  1051		struct imx_i2c_struct *i2c_imx;
+  1052	
+  1053		i2c_imx = container_of(adap, struct imx_i2c_struct, adapter);
+  1054	
+  1055		pinctrl_select_state(i2c_imx->pinctrl, i2c_imx->pinctrl_pins_default);
+  1056	}
+  1057	
+  1058	/*
+  1059	 * We switch SCL and SDA to their GPIO function and do some bitbanging
+  1060	 * for bus recovery. These alternative pinmux settings can be
+  1061	 * described in the device tree by a separate pinctrl state "gpio". If
+  1062	 * this is missing this is not a big problem, the only implication is
+  1063	 * that we can't do bus recovery.
+  1064	 */
+  1065	static int i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
+  1066			struct platform_device *pdev)
+  1067	{
+  1068		struct i2c_bus_recovery_info *rinfo = &i2c_imx->rinfo;
+  1069	
+  1070		i2c_imx->pinctrl = devm_pinctrl_get(&pdev->dev);
+  1071		if (!i2c_imx->pinctrl || IS_ERR(i2c_imx->pinctrl)) {
+  1072			dev_info(&pdev->dev, "can't get pinctrl, bus recovery not supported\n");
+  1073			return PTR_ERR(i2c_imx->pinctrl);
+  1074		}
+  1075	
+  1076		i2c_imx->pinctrl_pins_default = pinctrl_lookup_state(i2c_imx->pinctrl,
+  1077				PINCTRL_STATE_DEFAULT);
+  1078		i2c_imx->pinctrl_pins_gpio = pinctrl_lookup_state(i2c_imx->pinctrl,
+  1079				"gpio");
+  1080		rinfo->sda_gpiod = devm_gpiod_get(&pdev->dev, "sda", GPIOD_IN);
+  1081		rinfo->scl_gpiod = devm_gpiod_get(&pdev->dev, "scl", GPIOD_OUT_HIGH_OPEN_DRAIN);
+  1082	
+  1083		if (PTR_ERR(rinfo->sda_gpiod) == -EPROBE_DEFER ||
+  1084		    PTR_ERR(rinfo->scl_gpiod) == -EPROBE_DEFER) {
+  1085			return -EPROBE_DEFER;
+  1086		} else if (IS_ERR(rinfo->sda_gpiod) ||
+  1087			   IS_ERR(rinfo->scl_gpiod) ||
+  1088			   IS_ERR(i2c_imx->pinctrl_pins_default) ||
+  1089			   IS_ERR(i2c_imx->pinctrl_pins_gpio)) {
+  1090			dev_dbg(&pdev->dev, "recovery information incomplete\n");
+  1091			return 0;
+  1092		}
+  1093	
+  1094		dev_dbg(&pdev->dev, "using scl%s for recovery\n",
+  1095			rinfo->sda_gpiod ? ",sda" : "");
+  1096	
+  1097		rinfo->prepare_recovery = i2c_imx_prepare_recovery;
+  1098		rinfo->unprepare_recovery = i2c_imx_unprepare_recovery;
+  1099		rinfo->recover_bus = i2c_generic_scl_recovery;
+  1100		i2c_imx->adapter.bus_recovery_info = rinfo;
+  1101	
+  1102		return 0;
+  1103	}
+  1104	
+  1105	static u32 i2c_imx_func(struct i2c_adapter *adapter)
+  1106	{
+  1107		return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
+  1108			| I2C_FUNC_SMBUS_READ_BLOCK_DATA;
+  1109	}
+  1110	
+  1111	static const struct i2c_algorithm i2c_imx_algo = {
+  1112		.master_xfer = i2c_imx_xfer,
+  1113		.master_xfer_atomic = i2c_imx_xfer_atomic,
+  1114		.functionality = i2c_imx_func,
+  1115	};
+  1116	
+  1117	static int i2c_imx_probe(struct platform_device *pdev)
+  1118	{
+  1119		struct imx_i2c_struct *i2c_imx;
+  1120		struct resource *res;
+  1121		struct imxi2c_platform_data *pdata = dev_get_platdata(&pdev->dev);
+  1122		void __iomem *base;
+  1123		int irq, ret;
+  1124		dma_addr_t phy_addr;
+  1125		const struct imx_i2c_hwdata *match;
+  1126	
+  1127		dev_dbg(&pdev->dev, "<%s>\n", __func__);
+  1128	
+  1129		irq = platform_get_irq(pdev, 0);
+  1130		if (irq < 0)
+  1131			return irq;
+  1132	
+  1133		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+  1134		base = devm_ioremap_resource(&pdev->dev, res);
+  1135		if (IS_ERR(base))
+  1136			return PTR_ERR(base);
+  1137	
+  1138		phy_addr = (dma_addr_t)res->start;
+  1139		i2c_imx = devm_kzalloc(&pdev->dev, sizeof(*i2c_imx), GFP_KERNEL);
+  1140		if (!i2c_imx)
+  1141			return -ENOMEM;
+  1142	
+  1143		match = device_get_match_data(&pdev->dev);
+  1144		if (match)
+  1145			i2c_imx->hwdata = match;
+  1146		else
+  1147			i2c_imx->hwdata = (struct imx_i2c_hwdata *)
+  1148					platform_get_device_id(pdev)->driver_data;
+  1149	
+  1150		/* Setup i2c_imx driver structure */
+  1151		strlcpy(i2c_imx->adapter.name, pdev->name, sizeof(i2c_imx->adapter.name));
+  1152		i2c_imx->adapter.owner		= THIS_MODULE;
+  1153		i2c_imx->adapter.algo		= &i2c_imx_algo;
+  1154		i2c_imx->adapter.dev.parent	= &pdev->dev;
+  1155		i2c_imx->adapter.nr		= pdev->id;
+  1156		i2c_imx->adapter.dev.of_node	= pdev->dev.of_node;
+  1157		i2c_imx->base			= base;
+  1158		ACPI_COMPANION_SET(&i2c_imx->adapter.dev, ACPI_COMPANION(&pdev->dev));
+  1159	
+  1160		/* Get I2C clock */
+  1161		i2c_imx->clk = devm_clk_get(&pdev->dev, NULL);
+  1162		if (IS_ERR(i2c_imx->clk)) {
+  1163			if (PTR_ERR(i2c_imx->clk) != -EPROBE_DEFER)
+  1164				dev_err(&pdev->dev, "can't get I2C clock\n");
+  1165			return PTR_ERR(i2c_imx->clk);
+  1166		}
+  1167	
+  1168		ret = clk_prepare_enable(i2c_imx->clk);
+  1169		if (ret) {
+  1170			dev_err(&pdev->dev, "can't enable I2C clock, ret=%d\n", ret);
+  1171			return ret;
+  1172		}
+  1173	
+  1174		/* Request IRQ */
+  1175		ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, IRQF_SHARED,
+  1176					pdev->name, i2c_imx);
+  1177		if (ret) {
+  1178			dev_err(&pdev->dev, "can't claim irq %d\n", irq);
+  1179			goto clk_disable;
+  1180		}
+  1181	
+  1182		/* Init queue */
+  1183		init_waitqueue_head(&i2c_imx->queue);
+  1184	
+  1185		/* Set up adapter data */
+  1186		i2c_set_adapdata(&i2c_imx->adapter, i2c_imx);
+  1187	
+  1188		/* Set up platform driver data */
+  1189		platform_set_drvdata(pdev, i2c_imx);
+  1190	
+  1191		pm_runtime_set_autosuspend_delay(&pdev->dev, I2C_PM_TIMEOUT);
+  1192		pm_runtime_use_autosuspend(&pdev->dev);
+  1193		pm_runtime_set_active(&pdev->dev);
+  1194		pm_runtime_enable(&pdev->dev);
+  1195	
+  1196		ret = pm_runtime_get_sync(&pdev->dev);
+  1197		if (ret < 0)
+  1198			goto rpm_disable;
+  1199	
+  1200		/* Set up clock divider */
+  1201		i2c_imx->bitrate = I2C_MAX_STANDARD_MODE_FREQ;
+  1202		ret = of_property_read_u32(pdev->dev.of_node,
+  1203					   "clock-frequency", &i2c_imx->bitrate);
+  1204		if (ret < 0 && pdata && pdata->bitrate)
+  1205			i2c_imx->bitrate = pdata->bitrate;
+  1206		i2c_imx->clk_change_nb.notifier_call = i2c_imx_clk_notifier_call;
+  1207		clk_notifier_register(i2c_imx->clk, &i2c_imx->clk_change_nb);
+  1208		i2c_imx_set_clk(i2c_imx, clk_get_rate(i2c_imx->clk));
+  1209	
+  1210		/* Set up chip registers to defaults */
+  1211		imx_i2c_write_reg(i2c_imx->hwdata->i2cr_ien_opcode ^ I2CR_IEN,
+  1212				i2c_imx, IMX_I2C_I2CR);
+  1213		imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx, IMX_I2C_I2SR);
+  1214	
+  1215		/* Init optional bus recovery function */
+  1216		ret = i2c_imx_init_recovery_info(i2c_imx, pdev);
+  1217		/* Give it another chance if pinctrl used is not ready yet */
+  1218		if (ret == -EPROBE_DEFER)
+  1219			goto clk_notifier_unregister;
+  1220	
+  1221		/* Add I2C adapter */
+  1222		ret = i2c_add_numbered_adapter(&i2c_imx->adapter);
+  1223		if (ret < 0)
+  1224			goto clk_notifier_unregister;
+  1225	
+  1226		pm_runtime_mark_last_busy(&pdev->dev);
+  1227		pm_runtime_put_autosuspend(&pdev->dev);
+  1228	
+  1229		dev_dbg(&i2c_imx->adapter.dev, "claimed irq %d\n", irq);
+  1230		dev_dbg(&i2c_imx->adapter.dev, "device resources: %pR\n", res);
+  1231		dev_dbg(&i2c_imx->adapter.dev, "adapter name: \"%s\"\n",
+  1232			i2c_imx->adapter.name);
+  1233		dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
+  1234	
+  1235		/* Init DMA config if supported */
+  1236		i2c_imx_dma_request(i2c_imx, phy_addr);
+  1237	
+  1238		return 0;   /* Return OK */
+  1239	
+  1240	clk_notifier_unregister:
+  1241		clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
+  1242	rpm_disable:
+  1243		pm_runtime_put_noidle(&pdev->dev);
+  1244		pm_runtime_disable(&pdev->dev);
+  1245		pm_runtime_set_suspended(&pdev->dev);
+
+=== 4. BUS_RECOVERY_INFO ZUWEISUNGEN ===
+167-	struct imx_i2c_clk_pair	*clk_div;
+168-	unsigned		ndivs;
+169-	unsigned		i2sr_clr_opcode;
+170-	unsigned		i2cr_ien_opcode;
+171-};
+172-
+173-struct imx_i2c_dma {
+174-	struct dma_chan		*chan_tx;
+175-	struct dma_chan		*chan_rx;
+176-	struct dma_chan		*chan_using;
+177-	struct completion	cmd_complete;
+178-	dma_addr_t		dma_buf;
+179-	unsigned int		dma_len;
+180-	enum dma_transfer_direction dma_transfer_dir;
+181-	enum dma_data_direction dma_data_dir;
+182-};
+183-
+184-struct imx_i2c_struct {
+185-	struct i2c_adapter	adapter;
+186-	struct clk		*clk;
+187-	struct notifier_block	clk_change_nb;
+188-	void __iomem		*base;
+189-	wait_queue_head_t	queue;
+190-	unsigned long		i2csr;
+191-	unsigned int		disable_delay;
+192-	int			stopped;
+193-	unsigned int		ifdr; /* IMX_I2C_IFDR */
+194-	unsigned int		cur_clk;
+195-	unsigned int		bitrate;
+196-	const struct imx_i2c_hwdata	*hwdata;
+197:	struct i2c_bus_recovery_info rinfo;
+198-
+199-	struct pinctrl *pinctrl;
+200-	struct pinctrl_state *pinctrl_pins_default;
+201-	struct pinctrl_state *pinctrl_pins_gpio;
+202-
+203-	struct imx_i2c_dma	*dma;
+204-};
+205-
+206-static const struct imx_i2c_hwdata imx1_i2c_hwdata = {
+207-	.devtype		= IMX1_I2C,
+208-	.regshift		= IMX_I2C_REGSHIFT,
+209-	.clk_div		= imx_i2c_clk_div,
+210-	.ndivs			= ARRAY_SIZE(imx_i2c_clk_div),
+211-	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W0C,
+212-	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_1,
+213-
+214-};
+215-
+216-static const struct imx_i2c_hwdata imx21_i2c_hwdata = {
+217-	.devtype		= IMX21_I2C,
+218-	.regshift		= IMX_I2C_REGSHIFT,
+219-	.clk_div		= imx_i2c_clk_div,
+220-	.ndivs			= ARRAY_SIZE(imx_i2c_clk_div),
+221-	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W0C,
+222-	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_1,
+223-
+224-};
+225-
+226-static struct imx_i2c_hwdata vf610_i2c_hwdata = {
+227-	.devtype		= VF610_I2C,
+228-	.regshift		= VF610_I2C_REGSHIFT,
+229-	.clk_div		= vf610_i2c_clk_div,
+230-	.ndivs			= ARRAY_SIZE(vf610_i2c_clk_div),
+231-	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W1C,
+232-	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_0,
+233-
+234-};
+235-
+236-static const struct platform_device_id imx_i2c_devtype[] = {
+237-	{
+238-		.name = "imx1-i2c",
+239-		.driver_data = (kernel_ulong_t)&imx1_i2c_hwdata,
+240-	}, {
+241-		.name = "imx21-i2c",
+242-		.driver_data = (kernel_ulong_t)&imx21_i2c_hwdata,
+243-	}, {
+244-		/* sentinel */
+245-	}
+246-};
+247-MODULE_DEVICE_TABLE(platform, imx_i2c_devtype);
+--
+908-			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+909-		}
+910-		if ((!i) && block_data)
+911-			msgs->buf[0] = len;
+912-		else
+913-			msgs->buf[i] = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
+914-		dev_dbg(&i2c_imx->adapter.dev,
+915-			"<%s> read byte: B%d=0x%X\n",
+916-			__func__, i, msgs->buf[i]);
+917-	}
+918-	return 0;
+919-}
+920-
+921-static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
+922-			       struct i2c_msg *msgs, int num, bool atomic)
+923-{
+924-	unsigned int i, temp;
+925-	int result;
+926-	bool is_lastmsg = false;
+927-	struct imx_i2c_struct *i2c_imx = i2c_get_adapdata(adapter);
+928-
+929-	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+930-
+931-	/* Start I2C transfer */
+932-	result = i2c_imx_start(i2c_imx, atomic);
+933-	if (result) {
+934-		/*
+935-		 * Bus recovery uses gpiod_get_value_cansleep() which is not
+936-		 * allowed within atomic context.
+937-		 */
+938:		if (!atomic && i2c_imx->adapter.bus_recovery_info) {
+939:			i2c_recover_bus(&i2c_imx->adapter);
+940-			result = i2c_imx_start(i2c_imx, atomic);
+941-		}
+942-	}
+943-
+944-	if (result)
+945-		goto fail0;
+946-
+947-	/* read/write data */
+948-	for (i = 0; i < num; i++) {
+949-		if (i == num - 1)
+950-			is_lastmsg = true;
+951-
+952-		if (i) {
+953-			dev_dbg(&i2c_imx->adapter.dev,
+954-				"<%s> repeated start\n", __func__);
+955-			temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+956-			temp |= I2CR_RSTA;
+957-			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+958-			result = i2c_imx_bus_busy(i2c_imx, 1, atomic);
+959-			if (result)
+960-				goto fail0;
+961-		}
+962-		dev_dbg(&i2c_imx->adapter.dev,
+963-			"<%s> transfer message: %d\n", __func__, i);
+964-		/* write/read data */
+965-#ifdef CONFIG_I2C_DEBUG_BUS
+966-		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+967-		dev_dbg(&i2c_imx->adapter.dev,
+968-			"<%s> CONTROL: IEN=%d, IIEN=%d, MSTA=%d, MTX=%d, TXAK=%d, RSTA=%d\n",
+969-			__func__,
+970-			(temp & I2CR_IEN ? 1 : 0), (temp & I2CR_IIEN ? 1 : 0),
+971-			(temp & I2CR_MSTA ? 1 : 0), (temp & I2CR_MTX ? 1 : 0),
+972-			(temp & I2CR_TXAK ? 1 : 0), (temp & I2CR_RSTA ? 1 : 0));
+973-		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+974-		dev_dbg(&i2c_imx->adapter.dev,
+975-			"<%s> STATUS: ICF=%d, IAAS=%d, IBB=%d, IAL=%d, SRW=%d, IIF=%d, RXAK=%d\n",
+976-			__func__,
+977-			(temp & I2SR_ICF ? 1 : 0), (temp & I2SR_IAAS ? 1 : 0),
+978-			(temp & I2SR_IBB ? 1 : 0), (temp & I2SR_IAL ? 1 : 0),
+979-			(temp & I2SR_SRW ? 1 : 0), (temp & I2SR_IIF ? 1 : 0),
+980-			(temp & I2SR_RXAK ? 1 : 0));
+981-#endif
+982-		if (msgs[i].flags & I2C_M_RD) {
+983-			result = i2c_imx_read(i2c_imx, &msgs[i], is_lastmsg, atomic);
+984-		} else {
+985-			if (!atomic &&
+986-			    i2c_imx->dma && msgs[i].len >= DMA_THRESHOLD)
+987-				result = i2c_imx_dma_write(i2c_imx, &msgs[i]);
+988-			else
+989-				result = i2c_imx_write(i2c_imx, &msgs[i], atomic);
+--
+1010-
+1011-	result = pm_runtime_get_sync(i2c_imx->adapter.dev.parent);
+1012-	if (result < 0)
+1013-		return result;
+1014-
+1015-	result = i2c_imx_xfer_common(adapter, msgs, num, false);
+1016-
+1017-	pm_runtime_mark_last_busy(i2c_imx->adapter.dev.parent);
+1018-	pm_runtime_put_autosuspend(i2c_imx->adapter.dev.parent);
+1019-
+1020-	return result;
+1021-}
+1022-
+1023-static int i2c_imx_xfer_atomic(struct i2c_adapter *adapter,
+1024-			       struct i2c_msg *msgs, int num)
+1025-{
+1026-	struct imx_i2c_struct *i2c_imx = i2c_get_adapdata(adapter);
+1027-	int result;
+1028-
+1029-	result = clk_enable(i2c_imx->clk);
+1030-	if (result)
+1031-		return result;
+1032-
+1033-	result = i2c_imx_xfer_common(adapter, msgs, num, true);
+1034-
+1035-	clk_disable(i2c_imx->clk);
+1036-
+1037-	return result;
+1038-}
+1039-
+1040:static void i2c_imx_prepare_recovery(struct i2c_adapter *adap)
+1041-{
+1042-	struct imx_i2c_struct *i2c_imx;
+1043-
+1044-	i2c_imx = container_of(adap, struct imx_i2c_struct, adapter);
+1045-
+1046-	pinctrl_select_state(i2c_imx->pinctrl, i2c_imx->pinctrl_pins_gpio);
+1047-}
+1048-
+1049:static void i2c_imx_unprepare_recovery(struct i2c_adapter *adap)
+1050-{
+1051-	struct imx_i2c_struct *i2c_imx;
+1052-
+1053-	i2c_imx = container_of(adap, struct imx_i2c_struct, adapter);
+1054-
+1055-	pinctrl_select_state(i2c_imx->pinctrl, i2c_imx->pinctrl_pins_default);
+1056-}
+1057-
+1058-/*
+1059- * We switch SCL and SDA to their GPIO function and do some bitbanging
+1060- * for bus recovery. These alternative pinmux settings can be
+1061- * described in the device tree by a separate pinctrl state "gpio". If
+1062- * this is missing this is not a big problem, the only implication is
+1063- * that we can't do bus recovery.
+1064- */
+1065-static int i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
+1066-		struct platform_device *pdev)
+1067-{
+1068:	struct i2c_bus_recovery_info *rinfo = &i2c_imx->rinfo;
+1069-
+1070-	i2c_imx->pinctrl = devm_pinctrl_get(&pdev->dev);
+1071-	if (!i2c_imx->pinctrl || IS_ERR(i2c_imx->pinctrl)) {
+1072-		dev_info(&pdev->dev, "can't get pinctrl, bus recovery not supported\n");
+1073-		return PTR_ERR(i2c_imx->pinctrl);
+1074-	}
+1075-
+1076-	i2c_imx->pinctrl_pins_default = pinctrl_lookup_state(i2c_imx->pinctrl,
+1077-			PINCTRL_STATE_DEFAULT);
+1078-	i2c_imx->pinctrl_pins_gpio = pinctrl_lookup_state(i2c_imx->pinctrl,
+1079-			"gpio");
+1080-	rinfo->sda_gpiod = devm_gpiod_get(&pdev->dev, "sda", GPIOD_IN);
+1081-	rinfo->scl_gpiod = devm_gpiod_get(&pdev->dev, "scl", GPIOD_OUT_HIGH_OPEN_DRAIN);
+1082-
+1083-	if (PTR_ERR(rinfo->sda_gpiod) == -EPROBE_DEFER ||
+1084-	    PTR_ERR(rinfo->scl_gpiod) == -EPROBE_DEFER) {
+1085-		return -EPROBE_DEFER;
+1086-	} else if (IS_ERR(rinfo->sda_gpiod) ||
+1087-		   IS_ERR(rinfo->scl_gpiod) ||
+1088-		   IS_ERR(i2c_imx->pinctrl_pins_default) ||
+1089-		   IS_ERR(i2c_imx->pinctrl_pins_gpio)) {
+1090-		dev_dbg(&pdev->dev, "recovery information incomplete\n");
+1091-		return 0;
+1092-	}
+1093-
+1094-	dev_dbg(&pdev->dev, "using scl%s for recovery\n",
+1095-		rinfo->sda_gpiod ? ",sda" : "");
+1096-
+1097:	rinfo->prepare_recovery = i2c_imx_prepare_recovery;
+1098:	rinfo->unprepare_recovery = i2c_imx_unprepare_recovery;
+1099:	rinfo->recover_bus = i2c_generic_scl_recovery;
+1100:	i2c_imx->adapter.bus_recovery_info = rinfo;
+1101-
+1102-	return 0;
+1103-}
+1104-
+1105-static u32 i2c_imx_func(struct i2c_adapter *adapter)
+1106-{
+1107-	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
+1108-		| I2C_FUNC_SMBUS_READ_BLOCK_DATA;
+1109-}
+1110-
+1111-static const struct i2c_algorithm i2c_imx_algo = {
+1112-	.master_xfer = i2c_imx_xfer,
+1113-	.master_xfer_atomic = i2c_imx_xfer_atomic,
+1114-	.functionality = i2c_imx_func,
+1115-};
+1116-
+1117-static int i2c_imx_probe(struct platform_device *pdev)
+1118-{
+1119-	struct imx_i2c_struct *i2c_imx;
+1120-	struct resource *res;
+1121-	struct imxi2c_platform_data *pdata = dev_get_platdata(&pdev->dev);
+1122-	void __iomem *base;
+1123-	int irq, ret;
+1124-	dma_addr_t phy_addr;
+1125-	const struct imx_i2c_hwdata *match;
+1126-
+1127-	dev_dbg(&pdev->dev, "<%s>\n", __func__);
+1128-
+1129-	irq = platform_get_irq(pdev, 0);
+1130-	if (irq < 0)
+1131-		return irq;
+1132-
+1133-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+1134-	base = devm_ioremap_resource(&pdev->dev, res);
+1135-	if (IS_ERR(base))
+1136-		return PTR_ERR(base);
+1137-
+1138-	phy_addr = (dma_addr_t)res->start;
+1139-	i2c_imx = devm_kzalloc(&pdev->dev, sizeof(*i2c_imx), GFP_KERNEL);
+1140-	if (!i2c_imx)
+1141-		return -ENOMEM;
+1142-
+1143-	match = device_get_match_data(&pdev->dev);
+1144-	if (match)
+1145-		i2c_imx->hwdata = match;
+1146-	else
+1147-		i2c_imx->hwdata = (struct imx_i2c_hwdata *)
+1148-				platform_get_device_id(pdev)->driver_data;
+1149-
+1150-	/* Setup i2c_imx driver structure */
+
+=== 5. GENERISCHE I2C-RECOVERY-IMPLEMENTIERUNG ===
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-aspeed.c:174:static int aspeed_i2c_recover_bus(struct aspeed_i2c_bus *bus)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-aspeed.c:671:		ret = aspeed_i2c_recover_bus(bus);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-aspeed.c:697:			aspeed_i2c_recover_bus(bus);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-at91-master.c:647:		i2c_recover_bus(&dev->adapter);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-at91-master.c:875:	rinfo->prepare_recovery = at91_prepare_twi_recovery;
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-at91-master.c:876:	rinfo->unprepare_recovery = at91_unprepare_twi_recovery;
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-at91-master.c:877:	rinfo->recover_bus = i2c_generic_scl_recovery;
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-axxia.c:514:		i2c_recover_bus(&idev->adapter);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-axxia.c:588:		i2c_recover_bus(&idev->adapter);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-axxia.c:661:	.recover_bus = i2c_generic_scl_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-davinci.c:291: * This routine does i2c bus recovery by using i2c_generic_scl_recovery
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-davinci.c:294:static void davinci_i2c_prepare_recovery(struct i2c_adapter *adap)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-davinci.c:305:static void davinci_i2c_unprepare_recovery(struct i2c_adapter *adap)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-davinci.c:313:	.recover_bus = i2c_generic_scl_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-davinci.c:314:	.prepare_recovery = davinci_i2c_prepare_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-davinci.c:315:	.unprepare_recovery = davinci_i2c_unprepare_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-davinci.c:350:static void davinci_i2c_scl_prepare_recovery(struct i2c_adapter *adap)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-davinci.c:354:	davinci_i2c_prepare_recovery(adap);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-davinci.c:364:static void davinci_i2c_scl_unprepare_recovery(struct i2c_adapter *adap)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-davinci.c:371:	davinci_i2c_unprepare_recovery(adap);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-davinci.c:375:	.recover_bus = i2c_generic_scl_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-davinci.c:379:	.prepare_recovery = davinci_i2c_scl_prepare_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-davinci.c:380:	.unprepare_recovery = davinci_i2c_scl_unprepare_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-davinci.c:397:	i2c_recover_bus(&dev->adapter);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-davinci.c:493:		i2c_recover_bus(adap);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-designware-common.c:311:			i2c_recover_bus(&dev->adapter);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-designware-master.c:460:		i2c_recover_bus(&dev->adapter);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-designware-master.c:635:static void i2c_dw_prepare_recovery(struct i2c_adapter *adap)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-designware-master.c:644:static void i2c_dw_unprepare_recovery(struct i2c_adapter *adap)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-designware-master.c:670:	rinfo->recover_bus = i2c_generic_scl_recovery;
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-designware-master.c:671:	rinfo->prepare_recovery = i2c_dw_prepare_recovery;
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-designware-master.c:672:	rinfo->unprepare_recovery = i2c_dw_unprepare_recovery;
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-fsi.c:375:static void fsi_i2c_prepare_recovery(struct i2c_adapter *adap)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-fsi.c:390:static void fsi_i2c_unprepare_recovery(struct i2c_adapter *adap)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-fsi.c:412:	i2c_recover_bus(&port->adapter);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-fsi.c:647:	.recover_bus = i2c_generic_scl_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-fsi.c:652:	.prepare_recovery = fsi_i2c_prepare_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-fsi.c:653:	.unprepare_recovery = fsi_i2c_unprepare_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-imx.c:939:			i2c_recover_bus(&i2c_imx->adapter);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-imx.c:1040:static void i2c_imx_prepare_recovery(struct i2c_adapter *adap)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-imx.c:1049:static void i2c_imx_unprepare_recovery(struct i2c_adapter *adap)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-imx.c:1097:	rinfo->prepare_recovery = i2c_imx_prepare_recovery;
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-imx.c:1098:	rinfo->unprepare_recovery = i2c_imx_unprepare_recovery;
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-imx.c:1099:	rinfo->recover_bus = i2c_generic_scl_recovery;
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-octeon-core.c:252:	ret = i2c_recover_bus(&i2c->adap);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-octeon-core.c:751:static void octeon_i2c_prepare_recovery(struct i2c_adapter *adap)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-octeon-core.c:769:static void octeon_i2c_unprepare_recovery(struct i2c_adapter *adap)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-octeon-core.c:786:	.recover_bus = i2c_generic_scl_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-octeon-core.c:790:	.prepare_recovery = octeon_i2c_prepare_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-octeon-core.c:791:	.unprepare_recovery = octeon_i2c_unprepare_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-omap.c:485:static int omap_i2c_recover_bus(struct omap_i2c_dev *omap)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-omap.c:495:	return i2c_recover_bus(&omap->adapter);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-omap.c:508:			return omap_i2c_recover_bus(omap);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-omap.c:595:			return omap_i2c_recover_bus(omap);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-omap.c:1313:static void omap_i2c_prepare_recovery(struct i2c_adapter *adap)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-omap.c:1330:static void omap_i2c_unprepare_recovery(struct i2c_adapter *adap)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-omap.c:1348:	.prepare_recovery	= omap_i2c_prepare_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-omap.c:1349:	.unprepare_recovery	= omap_i2c_unprepare_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-omap.c:1350:	.recover_bus		= i2c_generic_scl_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-rcar.c:206:	.recover_bus = i2c_generic_scl_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-rcar.c:235:	return i2c_recover_bus(&priv->adap);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-st.c:337:static int st_i2c_recover_bus(struct i2c_adapter *i2c_adap)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-st.c:384:	ret = i2c_recover_bus(&i2c_dev->adap);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-st.c:782:	.recover_bus = st_i2c_recover_bus,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-tegra.c:1274:			return i2c_recover_bus(&i2c_dev->adapter);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-uniphier-f.c:310:	i2c_recover_bus(&priv->adap);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-uniphier-f.c:466:static void uniphier_fi2c_unprepare_recovery(struct i2c_adapter *adap)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-uniphier-f.c:472:	.recover_bus = i2c_generic_scl_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-uniphier-f.c:476:	.unprepare_recovery = uniphier_fi2c_unprepare_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-uniphier.c:189:		i2c_recover_bus(adap);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-uniphier.c:205:			i2c_recover_bus(adap);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-uniphier.c:280:static void uniphier_i2c_unprepare_recovery(struct i2c_adapter *adap)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-uniphier.c:286:	.recover_bus = i2c_generic_scl_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/busses/i2c-uniphier.c:290:	.unprepare_recovery = uniphier_i2c_unprepare_recovery,
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/i2c-core-base.c:177:int i2c_generic_scl_recovery(struct i2c_adapter *adap)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/i2c-core-base.c:182:	if (bri->prepare_recovery)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/i2c-core-base.c:183:		bri->prepare_recovery(adap);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/i2c-core-base.c:237:	if (bri->unprepare_recovery)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/i2c-core-base.c:238:		bri->unprepare_recovery(adap);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/i2c-core-base.c:242:EXPORT_SYMBOL_GPL(i2c_generic_scl_recovery);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/i2c-core-base.c:244:int i2c_recover_bus(struct i2c_adapter *adap)
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/i2c-core-base.c:252:EXPORT_SYMBOL_GPL(i2c_recover_bus);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/i2c-core-base.c:267:	if (bri->scl_gpiod && bri->recover_bus == i2c_generic_scl_recovery) {
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:drivers/i2c/i2c-core-base.c:279:	if (bri->recover_bus == i2c_generic_scl_recovery) {
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:include/linux/i2c.h:595: *	i2c_generic_scl_recovery().
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:include/linux/i2c.h:608: * @prepare_recovery: This will be called before starting recovery. Platform may
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:include/linux/i2c.h:610: * @unprepare_recovery: This will be called after completing recovery. Platform
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:include/linux/i2c.h:624:	void (*prepare_recovery)(struct i2c_adapter *adap);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:include/linux/i2c.h:625:	void (*unprepare_recovery)(struct i2c_adapter *adap);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:include/linux/i2c.h:632:int i2c_recover_bus(struct i2c_adapter *adap);
+1fda06deecb61538ca3d07d256eb7c43d4e3432a:include/linux/i2c.h:635:int i2c_generic_scl_recovery(struct i2c_adapter *adap);
+
+=== 6. PROJEKTSTATUS ===
+?? research/02-historical-software/
+
+=== ENDE STEP 2.25c ===

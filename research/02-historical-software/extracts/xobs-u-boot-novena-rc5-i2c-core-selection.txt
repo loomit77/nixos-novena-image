@@ -1,0 +1,62 @@
+     7	 * Multibus/multiadapter I2C core functions (wrappers)
+    14	struct i2c_adapter *i2c_get_adapter(int index)
+    16		struct i2c_adapter *i2c_adap_p = ll_entry_start(struct i2c_adapter,
+    18		int max = ll_entry_count(struct i2c_adapter, i2c);
+    22			printf("Error, wrong i2c adapter %d max %d possible\n",
+    35	#if !defined(CONFIG_SYS_I2C_DIRECT_BUS)
+    45		struct i2c_adapter *i2c_adap_p = ll_entry_start(struct i2c_adapter,
+    47		struct i2c_adapter *tmp = i2c_adap_p;
+    48		int max = ll_entry_count(struct i2c_adapter, i2c);
+    56			/* i2c_init() */
+    86	#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+    92	 * a given I2C adapter directly or via other multiplexers. In the latter
+    94	 * with the one connected directly to the adapter. When disabling a chain
+    96	 * farthest from the adapter.
+   103	static int i2c_mux_set(struct i2c_adapter *adap, int mux_id, int chip,
+   166				ret = i2c_mux_set(I2C_ADAP,
+   183		if (I2C_ADAP->init_done == 0)
+   188		    (I2C_ADAP->init_done != 0)) {
+   198				ret = I2C_ADAP->write(I2C_ADAP, chip, 0, 0, &buf, 1);
+   211	 * i2c_init_bus():
+   214	 * Initializes one bus. Will initialize the parent adapter. No current bus
+   217	static void i2c_init_bus(unsigned int bus_no, int speed, int slaveaddr)
+   222		I2C_ADAP->init(I2C_ADAP, speed, slaveaddr);
+   225			I2C_ADAP->init_done = 1;
+   226			I2C_ADAP->speed = speed;
+   227			I2C_ADAP->slaveaddr = slaveaddr;
+   232	static void __def_i2c_init_board(void)
+   235	void i2c_init_board(void)
+   236		__attribute__((weak, alias("__def_i2c_init_board")));
+   239	 * i2c_init_all():
+   246	void i2c_init_all(void)
+   248		i2c_init_board();
+   249		i2c_set_bus_num(CONFIG_SYS_SPD_BUS_NUM);
+   254	 * i2c_get_bus_num():
+   259	unsigned int i2c_get_bus_num(void)
+   265	 * i2c_set_bus_num():
+   278	int i2c_set_bus_num(unsigned int bus)
+   282		if ((bus == I2C_BUS) && (I2C_ADAP->init_done > 0))
+   285	#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+   290		max = ll_entry_count(struct i2c_adapter, i2c);
+   291		if (I2C_ADAPTER(bus) >= max) {
+   292			printf("Error, wrong i2c adapter %d max %d possible\n",
+   293			       I2C_ADAPTER(bus), max);
+   297	#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+   302		if (I2C_ADAP->init_done == 0)
+   303			i2c_init_bus(bus, I2C_ADAP->speed, I2C_ADAP->slaveaddr);
+   305	#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+   317		return I2C_ADAP->probe(I2C_ADAP, chip);
+   335		return I2C_ADAP->read(I2C_ADAP, chip, addr, alen, buffer, len);
+   341		return I2C_ADAP->write(I2C_ADAP, chip, addr, alen, buffer, len);
+   348		if (I2C_ADAP->set_bus_speed == NULL)
+   350		ret = I2C_ADAP->set_bus_speed(I2C_ADAP, speed);
+   352			I2C_ADAP->speed = (ret == 0) ? speed : 0;
+   359		struct i2c_adapter *cur = I2C_ADAP;
+   370		i2c_set_bus_num(i2c_get_bus_num());
+   376		       __func__, i2c_get_bus_num(), addr, reg, buf);
+   387		i2c_set_bus_num(i2c_get_bus_num());
+   392		       __func__, i2c_get_bus_num(), addr, reg, val);
+   398	void __i2c_init(int speed, int slaveaddr)
+   400		i2c_init_bus(i2c_get_bus_num(), speed, slaveaddr);
+   402	void i2c_init(int speed, int slaveaddr)
+   403		__attribute__((weak, alias("__i2c_init")));

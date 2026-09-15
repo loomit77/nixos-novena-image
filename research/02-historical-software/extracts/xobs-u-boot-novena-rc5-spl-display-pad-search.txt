@@ -1,0 +1,12 @@
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:79:	MX6_PAD_DISP0_DAT23__GPIO5_IO17 | MUX_PAD_CTRL(NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:146:	MX6_PAD_DISP0_DAT13__GPIO5_IO07 | MUX_PAD_CTRL(NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:310:	MX6_PAD_DISP0_DAT1__ECSPI3_MOSI | MUX_PAD_CTRL(SPI_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:311:	MX6_PAD_DISP0_DAT2__ECSPI3_MISO | MUX_PAD_CTRL(SPI_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:312:	MX6_PAD_DISP0_DAT0__ECSPI3_SCLK | MUX_PAD_CTRL(SPI_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:313:	MX6_PAD_DISP0_DAT3__GPIO4_IO24 | MUX_PAD_CTRL(SPI_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:314:	MX6_PAD_DISP0_DAT4__GPIO4_IO25 | MUX_PAD_CTRL(SPI_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:315:	MX6_PAD_DISP0_DAT5__GPIO4_IO26 | MUX_PAD_CTRL(SPI_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:316:	MX6_PAD_DISP0_DAT7__ECSPI3_RDY | MUX_PAD_CTRL(SPI_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:323:	gpio_direction_output(MX6_PAD_DISP0_DAT3__GPIO4_IO24, 1);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:324:	gpio_direction_output(MX6_PAD_DISP0_DAT4__GPIO4_IO25, 1);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:325:	gpio_direction_output(MX6_PAD_DISP0_DAT5__GPIO4_IO26, 1);

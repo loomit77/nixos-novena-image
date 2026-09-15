@@ -1,0 +1,28 @@
+   165	static int bus_i2c_set_bus_speed(void *base, int speed)
+   246	static int i2c_init_transfer_(struct mxc_i2c_regs *i2c_regs,
+   296	static int i2c_init_transfer(struct mxc_i2c_regs *i2c_regs,
+   302			ret = i2c_init_transfer_(i2c_regs, chip, addr, alen);
+   333		ret = i2c_init_transfer(i2c_regs, chip, addr, alen);
+   392		ret = i2c_init_transfer(i2c_regs, chip, addr, alen);
+   427		(void *)I2C1_BASE_ADDR,
+   428		(void *)I2C2_BASE_ADDR,
+   429		(void *)I2C3_BASE_ADDR
+   433		(void *)I2C1_BASE_ADDR,
+   434		(void *)I2C2_BASE_ADDR,
+   435		(void *)I2C3_BASE_ADDR,
+   442	void *i2c_get_base(struct i2c_adapter *adap)
+   474		return bus_i2c_read(i2c_get_base(adap), chip, addr, alen, buffer, len);
+   481		return bus_i2c_write(i2c_get_base(adap), chip, addr, alen, buffer, len);
+   489		return bus_i2c_write(i2c_get_base(adap), chip, 0, 0, NULL, 0);
+   492	void bus_i2c_init(void *base, int speed, int unused,
+   514		bus_i2c_set_bus_speed(base, speed);
+   520	static void mxc_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
+   522		bus_i2c_init(i2c_get_base(adap), speed, slaveaddr, NULL, NULL);
+   528	static uint mxc_i2c_set_bus_speed(struct i2c_adapter *adap, uint speed)
+   530		return bus_i2c_set_bus_speed(i2c_get_base(adap), speed);
+   536	U_BOOT_I2C_ADAP_COMPLETE(mxc0, mxc_i2c_init, mxc_i2c_probe,
+   538				 mxc_i2c_set_bus_speed,
+   541	U_BOOT_I2C_ADAP_COMPLETE(mxc1, mxc_i2c_init, mxc_i2c_probe,
+   543				 mxc_i2c_set_bus_speed,
+   549	U_BOOT_I2C_ADAP_COMPLETE(mxc2, mxc_i2c_init, mxc_i2c_probe,
+   551				 mxc_i2c_set_bus_speed,

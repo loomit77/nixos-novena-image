@@ -1,0 +1,7 @@
+board/kosagi/novena/ddr3.c
+board/kosagi/novena/Kconfig
+board/kosagi/novena/Makefile
+board/kosagi/novena/novena.c
+board/kosagi/novena/novena_spl.c
+board/kosagi/novena/setup.cfg
+include/configs/novena.h

@@ -1,0 +1,84 @@
+* da65dfe4eb (HEAD -> novena-r2, origin/novena-r2, origin/HEAD) Merge pull request #5 from clinew/novena-r2
+* b983333369 (tag: v2014.10.r8-novena) debian: update changelog to v2014.10.r8-novena.1
+* bd5c7d3290 (tag: v2014.10.r7-novena) debian: Update to v2014.10.r7-novena.1
+* 68e1f997bf (tag: 2014.10.r6-novena) debian: Update to 2014.10.r6-novena
+* fa7eb10b3d (tag: 2014.10.r5-novena) debian: Update to 2014.10.r5-novena.1
+* 0e39e8c312 (tag: v2014.10.r4-novena) debian: Update package to 2014.10.r4-novena
+* 7f573ae22a (tag: v2014.10.r3-novena) debian: Update package to v2014.10.r3-novena
+* 26178067b0 (tag: v2014.10-novena-r2-rc17) debian: Update to 2014.10-novena-r2-rc17
+* 42ae9d5a76 (tag: 2014.10-novena-rc17) debian: Update to 2014.10-novena-rc17
+* 1f2e753c25 (tag: v2014.10-novena-rc16) debian: update to v2014.10-novena-rc16
+| * 0d2388cb62 (tag: v2014.10-novena-rc15) novena: Configure PCIe rfkill and reset lines
+| * da1a7110c2 (tag: 2014.10-novena-rc11) configs: novena: Add production config scripts
+|/  
+| * 3d26413e65 (tag: v2014.10-novena-rc14, origin/master) debian: Update to rc14
+| * 5edf38000e (tag: v2014.10-novena-rc13) board: kosagi: eeprom: Disable Senoko if flag is missing
+| * 5f5757ffba (tag: v2014-10-novena-rc13) debian: Update version to -rc13
+| * c5efeadb91 (tag: v2014.10-novena-rc12) novena: Parse EEPROM early, and boot to SATA if requested
+| * 77655d148b (tag: v2014.10-novena-rc11) debian: Update to rc11
+| * 2930a75482 (tag: v2014.10-novena-rc10) debian: Update to -rc10
+| * f4a0c34926 (tag: v2014.10-novena-rc9) debian: Add changelog for r8
+| * 65fea36ba8 (tag: v2014.10-novena-rc8) debian: Update to -r8
+| * 4330c95715 (tag: v2014.10-novena-rc7) novena: eeprom: Fixup parsing of es8328, sata, eeprom flags
+| * e38c3f9849 (tag: v2014.10-novena-rc6) debian: Improve novena-install-spl script
+| * 9402489e9a (tag: v2014.10-novena-rc5) novena: Change config to add hdmi, lcd hooks
+| * 4607e64ce2 (tag: v2014.10-novena-rc4) debian: Add support script and manpage
+|/  
+| * 4f5d22903e (tag: v2014.10-novena-rc3) debian: Update changelog for -rc3
+| * 35e251e18a (tag: v2014.10-novena-rc2) debian: Configure new kernel on installation
+| * b3795c4dc7 (tag: v2014.10-novena-rc1) debian: Add debian build files
+|/  
+* 742de9076e (tag: v2014.10-rc3) Prepare v2014.10-rc3
+* d6c1ffc7d2 (tag: v2014.10-rc2) Prepare v2014.10-rc2
+* e76b933e02 (tag: v2014.10-rc1) Prepare v2014.10-rc1
+* 524123a707 (tag: v2014.07) Prepare v2014.07
+* a176ff0705 (tag: v2014.07-rc4) Prepare v2014.07-rc4
+* 76b21026ce (tag: v2014.07-rc3) Prepare v2014.07-rc3
+* 0116f40bbc (tag: v2014.07-rc2) Prepare v2014.07-rc2
+* 3e41c54ad8 (tag: v2014.07-rc1) Prepare v2014.07-rc1
+* dda0dbfc69 (tag: v2014.04) Prepare v2014.04
+* c494eaf409 (tag: v2014.04-rc3) Prepare v2014.04-rc3
+* 8ee950dd27 (tag: v2014.04-rc2) Prepare v2014.04-rc2
+* 0a8e823ad0 (tag: v2014.04-rc1) Prepare v2014.04-rc1
+* b44bd2c73c (tag: v2014.01) Prepare v2014.01
+* cddb6b8304 (tag: v2014.01-rc3) Prepare v2014.01-rc3
+* fd44194945 (tag: v2014.01-rc2) Prepare v2014.01-rc2
+* d19ad726bc (tag: v2014.01-rc1) Prepare v2014.01-rc1
+* 183acb7003 (tag: v2013.10) Prepare v2013.10
+* 0c5274e6f3 (tag: v2013.10-rc4) Prepare v2013.04-rc4
+* 46ef4faed1 (tag: v2013.10-rc3) Prepare v2013.10-rc3
+* fb18fa95a1 (tag: v2013.10-rc2) Prepare v2013.10-rc2
+* 40a60c6e8b (tag: v2013.10-rc1) Prepare v2013.10-rc1
+* 62c175fbb8 (tag: v2013.07) Prepare v2013.07
+* 68c517eafc (tag: v2013.07-rc3) Prepare v2013.07-rc3
+* e6bf18dba2 (tag: v2013.07-rc2) Prepare v2013.07-rc2
+* 216a793cc1 (tag: v2013.07-rc1) Prepare v2013.07-rc1
+* d10f68ae47 (tag: v2013.04) Prepare v2013.04
+* cba6494f24 (tag: v2013.04-rc3) Prepare v2013.04-rc3
+* c8142633e1 (tag: v2013.04-rc2) Prepare v2013.04-rc2
+* 2536850d7c (tag: v2013.04-rc1) Prepare v2013.04-rc1
+| * e8ae0fa5ed (tag: v2013.01.01) Prepare v2013.01.01
+|/  
+* 3a9d879f6f (tag: v2013.01) Prepare v2013.01
+* 6fb4d74e59 (tag: v2013.01-rc3) Prepare v2013.01-rc3
+* ebbf0d20aa (tag: v2013.01-rc2) Prepare v2013.01-rc2
+* 3ae7b240ad (tag: v2013.01-rc1) Prepare v2013.01-rc1
+* 6528ff0109 (tag: v2012.10) Prepare v2012.10
+* c7c6322143 (tag: v2012.10-rc3) Prepare v2012.10-rc3
+* 221953d41d (tag: v2012.10-rc2) Prepare v2012.10-rc2
+* ee1f4caaa2 (tag: v2012.10-rc1) Prepare v2012.10-rc1
+* 190649fb43 (tag: v2012.07) Prepare v2012.07
+* c627faf637 (tag: v2012.07-rc3) Prepare v2012.07-rc3
+* 8b10652d6d (tag: v2012.07-rc2) Prepare v2012.07-rc2
+* 211e47549b (tag: v2012.07-rc1) Prepare v2012.07-rc1
+* 415d386877 (tag: v2012.04.01) Prepare v2012.04.01
+* 2790bf69dc (tag: v2012.04) Prepare v2012.04
+* fb14b6b2f6 (tag: v2012.04-rc3) Prepare v2012.04-rc3
+* f5cdc11775 (tag: v2012.04-rc2) Prepare v2012.04-rc2; minor Coding Style cleanup
+* c008b6f6dd (tag: v2012.04-rc1) Prepare v2012.04-rc1
+* cba9a894fd (tag: v2011.12) Prepare v2011.12
+* be662e9a6b (tag: v2011.12-rc3) Prepare v2011.12-rc3
+* 901de79a37 (tag: v2011.12-rc2) Prepare v2011.12-rc2
+* 5738946be4 (tag: v2011.12-rc1) Prepare v2011.12-rc1
+* 1d5e7fb403 (tag: v2011.09) Prepare v2011.09
+* bc196029f5 (tag: v2011.09-rc2) Prepare v2011.09-rc2

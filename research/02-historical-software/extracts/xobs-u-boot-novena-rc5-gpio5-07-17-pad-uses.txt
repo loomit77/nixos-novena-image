@@ -1,0 +1,41 @@
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx5/iomux-mx53.h:233:	MX53_PAD_DISP0_DAT13__IPU_DISP0_DAT_13		= IOMUX_PAD(0x3C0, 0x094, 0, __NA_, 0, NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx5/iomux-mx53.h:234:	MX53_PAD_DISP0_DAT13__GPIO5_7			= IOMUX_PAD(0x3C0, 0x094, 1, __NA_, 0, NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx5/iomux-mx53.h:235:	MX53_PAD_DISP0_DAT13__AUDMUX_AUD5_RXFS		= IOMUX_PAD(0x3C0, 0x094, 3, 0x754, 0, NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx5/iomux-mx53.h:236:	MX53_PAD_DISP0_DAT13__SDMA_DEBUG_EVT_CHN_LINES_0
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx5/iomux-mx53.h:238:	MX53_PAD_DISP0_DAT13__EMI_EMI_DEBUG_18		= IOMUX_PAD(0x3C0, 0x094, 6, __NA_, 0, NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx5/iomux-mx53.h:239:	MX53_PAD_DISP0_DAT13__USBPHY2_VSTATUS_4		= IOMUX_PAD(0x3C0, 0x094, 7, __NA_, 0, NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx5/iomux-mx53.h:312:	MX53_PAD_DISP0_DAT23__IPU_DISP0_DAT_23		= IOMUX_PAD(0x3E8, 0x0BC, 0, __NA_, 0, NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx5/iomux-mx53.h:313:	MX53_PAD_DISP0_DAT23__GPIO5_17			= IOMUX_PAD(0x3E8, 0x0BC, 1, __NA_, 0, NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx5/iomux-mx53.h:314:	MX53_PAD_DISP0_DAT23__ECSPI1_SS0		= IOMUX_PAD(0x3E8, 0x0BC, 2, 0x7A8, 1, NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx5/iomux-mx53.h:315:	MX53_PAD_DISP0_DAT23__AUDMUX_AUD4_RXD		= IOMUX_PAD(0x3E8, 0x0BC, 3, 0x730, 0, NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx5/iomux-mx53.h:316:	MX53_PAD_DISP0_DAT23__SDMA_DEBUG_BUS_DEVICE_2	= IOMUX_PAD(0x3E8, 0x0BC, 5, __NA_, 0, NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx5/iomux-mx53.h:317:	MX53_PAD_DISP0_DAT23__EMI_EMI_DEBUG_28		= IOMUX_PAD(0x3E8, 0x0BC, 6, __NA_, 0, NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx5/iomux-mx53.h:318:	MX53_PAD_DISP0_DAT23__SATA_PHY_TMS		= IOMUX_PAD(0x3E8, 0x0BC, 7, __NA_, 0, NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6dl_pins.h:170:MX6_PAD_DECL(DISP0_DAT13__IPU1_DISP0_DATA13,	0x03D8, 0x00C4, 0, 0x0000, 0, PAD_CTL_DSE_120ohm)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6dl_pins.h:171:MX6_PAD_DECL(DISP0_DAT13__LCD_DATA13,	0x03D8, 0x00C4, 1, 0x0000, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6dl_pins.h:172:MX6_PAD_DECL(DISP0_DAT13__AUD5_RXFS,	0x03D8, 0x00C4, 3, 0x07BC, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6dl_pins.h:173:MX6_PAD_DECL(DISP0_DAT13__GPIO5_IO07,	0x03D8, 0x00C4, 5, 0x0000, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6dl_pins.h:228:MX6_PAD_DECL(DISP0_DAT23__IPU1_DISP0_DATA23,	0x0404, 0x00F0, 0, 0x0000, 0, PAD_CTL_DSE_120ohm)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6dl_pins.h:229:MX6_PAD_DECL(DISP0_DAT23__LCD_DATA23,	0x0404, 0x00F0, 1, 0x0000, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6dl_pins.h:230:MX6_PAD_DECL(DISP0_DAT23__ECSPI1_SS0,	0x0404, 0x00F0, 2, 0x07E4, 1, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6dl_pins.h:231:MX6_PAD_DECL(DISP0_DAT23__AUD4_RXD,	0x0404, 0x00F0, 3, 0x0798, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6dl_pins.h:232:MX6_PAD_DECL(DISP0_DAT23__GPIO5_IO17,	0x0404, 0x00F0, 5, 0x0000, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6q_pins.h:462:MX6_PAD_DECL(DISP0_DAT13__IPU1_DISP0_DATA13,	0x04B8, 0x01A4, 0, 0x0000, 0, PAD_CTL_DSE_120ohm)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6q_pins.h:463:MX6_PAD_DECL(DISP0_DAT13__IPU2_DISP0_DATA13,	0x04B8, 0x01A4, 1, 0x0000, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6q_pins.h:464:MX6_PAD_DECL(DISP0_DAT13__AUD5_RXFS,	0x04B8, 0x01A4, 3, 0x07D8, 1, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6q_pins.h:465:MX6_PAD_DECL(DISP0_DAT13__GPIO5_IO07,	0x04B8, 0x01A4, 5, 0x0000, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6q_pins.h:516:MX6_PAD_DECL(DISP0_DAT23__IPU1_DISP0_DATA23,	0x04E0, 0x01CC, 0, 0x0000, 0, PAD_CTL_DSE_120ohm)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6q_pins.h:517:MX6_PAD_DECL(DISP0_DAT23__IPU2_DISP0_DATA23,	0x04E0, 0x01CC, 1, 0x0000, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6q_pins.h:518:MX6_PAD_DECL(DISP0_DAT23__ECSPI1_SS0,	0x04E0, 0x01CC, 2, 0x0800, 1, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6q_pins.h:519:MX6_PAD_DECL(DISP0_DAT23__AUD4_RXD,	0x04E0, 0x01CC, 3, 0x07B4, 1, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6q_pins.h:520:MX6_PAD_DECL(DISP0_DAT23__GPIO5_IO17,	0x04E0, 0x01CC, 5, 0x0000, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/aristainetos/aristainetos.c:214:	MX6_PAD_DISP0_DAT13__IPU1_DISP0_DATA13,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/aristainetos/aristainetos.c:224:	MX6_PAD_DISP0_DAT23__IPU1_DISP0_DATA23,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/boundary/nitrogen6x/nitrogen6x.c:440:	MX6_PAD_DISP0_DAT13__IPU1_DISP0_DATA13,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/boundary/nitrogen6x/nitrogen6x.c:450:	MX6_PAD_DISP0_DAT23__IPU1_DISP0_DATA23,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/mx53loco/mx53loco_video.c:68:		MX53_PAD_DISP0_DAT13__IPU_DISP0_DAT_13,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/mx53loco/mx53loco_video.c:78:		MX53_PAD_DISP0_DAT23__IPU_DISP0_DAT_23,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/gateworks/gw_ventana/gw_ventana.c:667:	IOMUX_PADS(PAD_DISP0_DAT23__GPIO5_IO17 | DIO_PAD_CFG),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:79:	MX6_PAD_DISP0_DAT23__GPIO5_IO17 | MUX_PAD_CTRL(NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:146:	MX6_PAD_DISP0_DAT13__GPIO5_IO07 | MUX_PAD_CTRL(NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/wandboard/wandboard.c:257:	MX6_PAD_DISP0_DAT13__IPU1_DISP0_DATA13,

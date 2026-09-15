@@ -1,0 +1,7 @@
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6dl_pins.h:173:MX6_PAD_DECL(DISP0_DAT13__GPIO5_IO07,	0x03D8, 0x00C4, 5, 0x0000, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6q_pins.h:465:MX6_PAD_DECL(DISP0_DAT13__GPIO5_IO07,	0x04B8, 0x01A4, 5, 0x0000, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/gdsys/405ep/iocon.c:90:	MCFPGA_RESET_N = 1 << 4,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:67:#define NOVENA_FPGA_RESET_N_GPIO	IMX_GPIO_NR(5, 7)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:145:	/* FPGA_RESET_N */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:146:	MX6_PAD_DISP0_DAT13__GPIO5_IO07 | MUX_PAD_CTRL(NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:152:	gpio_direction_output(NOVENA_FPGA_RESET_N_GPIO, 0);

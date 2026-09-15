@@ -1,0 +1,1 @@
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:67:#define NOVENA_FPGA_RESET_N_GPIO	IMX_GPIO_NR(5, 7)

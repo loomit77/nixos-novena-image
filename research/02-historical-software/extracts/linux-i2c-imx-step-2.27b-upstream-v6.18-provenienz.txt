@@ -1,0 +1,233 @@
+=== STEP 2.27b: UPSTREAM v6.18 GEZIELT NACHLADEN ===
+Di 15. Sep 13:03:23 CEST 2026
+
+=== 1. AUSGANGSZUSTAND ===
+## master...origin/master
+count: 0
+size: 0 Byte
+in-pack: 9805419
+packs: 1
+size-pack: 4.87 GiB
+prune-packable: 0
+garbage: 0
+size-garbage: 0 Byte
+
+=== 2. OFFIZIELLEN UPSTREAM-REF v6.18 ABFRAGEN ===
+f7b88edb52c8dd01b7e576390d658ae6eef0e134	refs/tags/v6.18
+7d0a66e4bb9081d75c82ec4957c50034cb0ea449	refs/tags/v6.18^{}
+
+=== 3. NUR v6.18 FETCHEN ===
+Von https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux
+ * [neues Tag]                 v6.18      -> upstream-v6.18
+
+=== 4. GELADENEN STAND PRÜFEN ===
+tag v6.18
+Tagger: Linus Torvalds <torvalds@linux-foundation.org>
+
+Linux 6.18
+-----BEGIN PGP SIGNATURE-----
+
+iQFSBAABCgA8FiEEq68RxlopcLEwq+PEeb4+QwBBGIYFAmksyEIeHHRvcnZhbGRz
+QGxpbnV4LWZvdW5kYXRpb24ub3JnAAoJEHm+PkMAQRiGuRUH/i5oyGqw5tJmyAKa
+N+RZ1zU/d9NnuYVhHylRFXxIQY+ZqjQMF82meEJP3zZn7c73LDQEtcSuygrmtbmm
+66TpfU3KJSK5YCYFT9kL9D3IAMpHoOk5smyp1KxVNIfLO5qT7fiWFlEvvWjjb+7/
+oJAa3iX6uFtoeBHuGBUU/r6etoL8rE6H3uGZloA09+AMc+CF36vHloW5Mq7++51p
+HFfge8mAqKXF5ZayCG9+I+6nwK277MfVmgcz4PIvHQQhPUa9CMvy96CWnObQo8lP
+GpNlLf92A/C5S5DsMgVjFDf4MBSsE1hiFLxu3kKPzl8L41uvg/aiMIJqc1BIeZjw
+/Okl7wo=
+=lz6b
+-----END PGP SIGNATURE-----
+COMMIT 7d0a66e4bb9081d75c82ec4957c50034cb0ea449
+PARENT e69c7c175115c51c7f95394fc55425a395b3af59
+DATE 2025-11-30T14:42:10-08:00
+SUBJECT Linux 6.18
+
+=== 5. KERNELVERSION ===
+VERSION = 6
+PATCHLEVEL = 18
+SUBLEVEL = 0
+EXTRAVERSION =
+
+=== 6. multi_master IM GELADENEN v6.18 ===
+255-	enum i2c_slave_event last_slave_event;
+256-
+257-	struct i2c_msg		*msg;
+258-	unsigned int		msg_buf_idx;
+259-	int			isr_result;
+260-	bool			is_lastmsg;
+261-	enum imx_i2c_state	state;
+262-
+263:	bool			multi_master;
+264-
+265-	/* For checking slave events. */
+266-	spinlock_t     slave_lock;
+267-	struct hrtimer slave_timer;
+268-};
+269-
+270-static const struct imx_i2c_hwdata imx1_i2c_hwdata = {
+271-	.devtype		= IMX1_I2C,
+272-	.regshift		= IMX_I2C_REGSHIFT,
+273-	.clk_div		= imx_i2c_clk_div,
+274-	.ndivs			= ARRAY_SIZE(imx_i2c_clk_div),
+275-	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W0C,
+--
+530-	dma_release_channel(dma->chan_rx);
+531-	dma->chan_rx = NULL;
+532-
+533-	dma->chan_using = NULL;
+534-}
+535-
+536-static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+537-{
+538:	bool multi_master = i2c_imx->multi_master;
+539-	unsigned long orig_jiffies = jiffies;
+540-	unsigned int temp;
+541-
+542-	while (1) {
+543-		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+544-
+545-		/* check for arbitration lost */
+546:		if (multi_master && (temp & I2SR_IAL)) {
+547-			i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+548-			return -EAGAIN;
+549-		}
+550-
+551:		if (for_busy && (!multi_master || (temp & I2SR_IBB))) {
+552-			i2c_imx->stopped = 0;
+553-			break;
+554-		}
+555-		if (!for_busy && !(temp & I2SR_IBB)) {
+556-			i2c_imx->stopped = 1;
+557-			break;
+558-		}
+559-		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
+560-			dev_dbg(&i2c_imx->adapter.dev,
+561-				"<%s> I2C bus is busy\n", __func__);
+562-			return -ETIMEDOUT;
+563-		}
+--
+594-	}
+595-
+596-	if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
+597-		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
+598-		return -ETIMEDOUT;
+599-	}
+600-
+601-	/* In multi-master mode check for arbitration lost */
+602:	if (i2c_imx->multi_master && (i2c_imx->i2csr & I2SR_IAL)) {
+603-		dev_dbg(&i2c_imx->adapter.dev, "<%s> Arbitration lost\n", __func__);
+604-		i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+605-
+606-		i2c_imx->i2csr = 0;
+607-		return -EAGAIN;
+608-	}
+609-
+610-	dev_dbg(&i2c_imx->adapter.dev, "<%s> TRX complete\n", __func__);
+611-	i2c_imx->i2csr = 0;
+612-	return 0;
+613-}
+614-
+--
+1769-		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
+1770-		goto rpm_disable;
+1771-	}
+1772-
+1773-	/*
+1774-	 * We use the single-master property for backward compatibility.
+1775-	 * By default multi master mode is enabled.
+1776-	 */
+1777:	i2c_imx->multi_master = !of_property_read_bool(pdev->dev.of_node, "single-master");
+1778-
+1779-	/* Set up clock divider */
+1780-	i2c_imx->bitrate = I2C_MAX_STANDARD_MODE_FREQ;
+1781-	ret = of_property_read_u32(pdev->dev.of_node,
+1782-				   "clock-frequency", &i2c_imx->bitrate);
+1783-	if (ret < 0 && pdata && pdata->bitrate)
+1784-		i2c_imx->bitrate = pdata->bitrate;
+1785-	i2c_imx->clk_change_nb.notifier_call = i2c_imx_clk_notifier_call;
+1786-	clk_notifier_register(i2c_imx->clk, &i2c_imx->clk_change_nb);
+1787-	ret = i2c_imx_set_clk(i2c_imx, clk_get_rate(i2c_imx->clk));
+1788-	if (ret < 0) {
+1789-		dev_err(&pdev->dev, "can't get I2C clock\n");
+
+=== 7. single-master IM GELADENEN v6.18 ===
+1762-	if (ret < 0)
+1763-		goto rpm_disable;
+1764-
+1765-	/* Request IRQ */
+1766-	ret = request_irq(irq, i2c_imx_isr, IRQF_SHARED | IRQF_NO_SUSPEND,
+1767-			  pdev->name, i2c_imx);
+1768-	if (ret) {
+1769-		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
+1770-		goto rpm_disable;
+1771-	}
+1772-
+1773-	/*
+1774:	 * We use the single-master property for backward compatibility.
+1775-	 * By default multi master mode is enabled.
+1776-	 */
+1777:	i2c_imx->multi_master = !of_property_read_bool(pdev->dev.of_node, "single-master");
+1778-
+1779-	/* Set up clock divider */
+1780-	i2c_imx->bitrate = I2C_MAX_STANDARD_MODE_FREQ;
+1781-	ret = of_property_read_u32(pdev->dev.of_node,
+1782-				   "clock-frequency", &i2c_imx->bitrate);
+1783-	if (ret < 0 && pdata && pdata->bitrate)
+1784-		i2c_imx->bitrate = pdata->bitrate;
+1785-	i2c_imx->clk_change_nb.notifier_call = i2c_imx_clk_notifier_call;
+1786-	clk_notifier_register(i2c_imx->clk, &i2c_imx->clk_change_nb);
+1787-	ret = i2c_imx_set_clk(i2c_imx, clk_get_rate(i2c_imx->clk));
+1788-	if (ret < 0) {
+1789-		dev_err(&pdev->dev, "can't get I2C clock\n");
+1790-		goto clk_notifier_unregister;
+1791-	}
+1792-
+1793-	i2c_imx_reset_regs(i2c_imx);
+1794-
+1795-	/* Init optional bus recovery function */
+1796-	ret = i2c_imx_init_recovery_info(i2c_imx, pdev);
+1797-	/* Give it another chance if pinctrl used is not ready yet */
+
+=== 8. EINFÜHRUNGS-COMMIT multi_master ===
+COMMIT 768776dd4efc681cdca33a79e29bb508d6de9bc0
+PARENT 4bbf9020becbfd8fc2c3da790855b7042fad455b
+DATE 2024-12-16T16:16:40+01:00
+AUTHOR Stefan Eichenberger <stefan.eichenberger@toradex.com>
+SUBJECT i2c: imx: fix missing stop condition in single-master mode
+COMMIT 6692694aca86ddf6831e2be86e5089258c2789bf
+PARENT 6816ce57c479653122145793bb45ff58e0805a56
+DATE 2024-10-14T15:15:12+02:00
+AUTHOR Stefan Eichenberger <stefan.eichenberger@toradex.com>
+SUBJECT i2c: imx: do not poll for bus busy in single master mode
+
+=== 9. EINFÜHRUNGS-COMMIT single-master ===
+COMMIT 6692694aca86ddf6831e2be86e5089258c2789bf
+PARENT 6816ce57c479653122145793bb45ff58e0805a56
+DATE 2024-10-14T15:15:12+02:00
+AUTHOR Stefan Eichenberger <stefan.eichenberger@toradex.com>
+SUBJECT i2c: imx: do not poll for bus busy in single master mode
+
+=== 10. EXAKTE IAL-BEDINGUNG ===
+COMMIT 768776dd4efc681cdca33a79e29bb508d6de9bc0
+PARENT 4bbf9020becbfd8fc2c3da790855b7042fad455b
+DATE 2024-12-16T16:16:40+01:00
+AUTHOR Stefan Eichenberger <stefan.eichenberger@toradex.com>
+SUBJECT i2c: imx: fix missing stop condition in single-master mode
+
+=== 11. OBJEKTSTATISTIK NACH FETCH ===
+count: 0
+size: 0 Byte
+in-pack: 11283440
+packs: 2
+size-pack: 5.65 GiB
+prune-packable: 0
+garbage: 0
+size-garbage: 0 Byte
+
+=== 12. REPOSITORY-ZUSTAND ===
+## master...origin/master
+
+=== 13. PROJEKTSTATUS ===
+?? research/02-historical-software/
+
+=== ENDE STEP 2.27b ===

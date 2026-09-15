@@ -1,0 +1,37 @@
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:36:struct i2c_bus_hose i2c_bus[CONFIG_SYS_NUM_I2C_BUSES] =
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:37:			CONFIG_SYS_I2C_BUSES;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:154:	struct i2c_bus_hose *i2c_bus_tmp = &i2c_bus[I2C_BUS];
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:166:			ret = i2c_mux_set(I2C_ADAP,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:179:	struct	i2c_bus_hose *i2c_bus_tmp = &i2c_bus[I2C_BUS];
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:183:	if (I2C_ADAP->init_done == 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:188:	    (I2C_ADAP->init_done != 0)) {
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:198:			ret = I2C_ADAP->write(I2C_ADAP, chip, 0, 0, &buf, 1);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:219:	if (bus_no >= CONFIG_SYS_NUM_I2C_BUSES)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:222:	I2C_ADAP->init(I2C_ADAP, speed, slaveaddr);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:225:		I2C_ADAP->init_done = 1;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:226:		I2C_ADAP->speed = speed;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:227:		I2C_ADAP->slaveaddr = slaveaddr;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:282:	if ((bus == I2C_BUS) && (I2C_ADAP->init_done > 0))
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:286:	if (bus >= CONFIG_SYS_NUM_I2C_BUSES)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:291:	if (I2C_ADAPTER(bus) >= max) {
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:293:		       I2C_ADAPTER(bus), max);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:302:	if (I2C_ADAP->init_done == 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:303:		i2c_init_bus(bus, I2C_ADAP->speed, I2C_ADAP->slaveaddr);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:317:	return I2C_ADAP->probe(I2C_ADAP, chip);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:335:	return I2C_ADAP->read(I2C_ADAP, chip, addr, alen, buffer, len);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:341:	return I2C_ADAP->write(I2C_ADAP, chip, addr, alen, buffer, len);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:348:	if (I2C_ADAP->set_bus_speed == NULL)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:350:	ret = I2C_ADAP->set_bus_speed(I2C_ADAP, speed);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:352:		I2C_ADAP->speed = (ret == 0) ? speed : 0;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:359:	struct i2c_adapter *cur = I2C_ADAP;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:41:#define CONFIG_SYS_NUM_I2C_BUSES	ll_entry_count(struct i2c_adapter, i2c)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:93:#define U_BOOT_I2C_ADAP_COMPLETE(_name, _init, _probe, _read, _write, \
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:120:#define I2C_ADAPTER(bus)	i2c_bus[bus].adapter
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:122:#define I2C_ADAPTER(bus)	bus
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:124:#define	I2C_BUS			gd->cur_i2c_bus
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:126:#define	I2C_ADAP_NR(bus)	i2c_get_adapter(I2C_ADAPTER(bus))
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:127:#define	I2C_ADAP		I2C_ADAP_NR(gd->cur_i2c_bus)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:128:#define I2C_ADAP_HWNR		(I2C_ADAP->hwadapnr)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:393:# if !defined(CONFIG_SYS_MAX_I2C_BUS)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:394:#  define CONFIG_SYS_MAX_I2C_BUS		2
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:398:# define CONFIG_SYS_MAX_I2C_BUS		1

@@ -1,0 +1,218 @@
+===== FILE: board/kosagi/novena/ddr3.c =====
+29:#include <asm/gpio.h>
+211:static void reset_read_data_fifos(void)
+213:	 /* Read data FIFOs reset1.  */
+218:	/* Read data FIFOs reset2 */
+295:	/* disable DDR logic power down timer */
+298:	/* disable Adopt power down timer */
+402:	/* enable DDR logic power down timer: */
+405:	/* Enable Adopt power down timer: */
+431:	/* disable DDR logic power down timer: */
+434:	/* disable Adopt power down timer: */
+533:	 * Reset the read data FIFOs (two resets); only need to issue reset
+534:	 * to PHY0 since in x64 mode, the reset will also go to PHY1.
+536:	reset_read_data_fifos();
+602:	reset_read_data_fifos();
+665:	reset_read_data_fifos();
+729:	reset_read_data_fifos();
+731:	/* Enable DDR logic power down timer: */
+734:	/* Enable Adopt power down timer: */
+808:	struct ddr3_spd_eeprom_s spd;
+
+===== FILE: board/kosagi/novena/Kconfig =====
+
+===== FILE: board/kosagi/novena/Makefile =====
+
+===== FILE: board/kosagi/novena/novena.c =====
+11:#include <asm/gpio.h>
+17:#include <asm/arch/mxc_hdmi.h>
+23:#include <asm/imx-common/video.h>
+35:#include <power/pmic.h>
+36:#include <power/pfuze100_pmic.h>
+41:#define NOVENA_BUTTON_GPIO	IMX_GPIO_NR(4, 14)
+42:#define NOVENA_SD_WP		IMX_GPIO_NR(1, 2)
+43:#define NOVENA_SD_CD		IMX_GPIO_NR(1, 4)
+46: * GPIO button
+51:static int novena_gpio_button_read_keys(struct input_config *input)
+54:	if (gpio_get_value(NOVENA_BUTTON_GPIO))
+60:static int novena_gpio_button_getc(struct stdio_dev *dev)
+65:static int novena_gpio_button_tstc(struct stdio_dev *dev)
+70:static int novena_gpio_button_init(struct stdio_dev *dev)
+72:	gpio_direction_input(NOVENA_BUTTON_GPIO);
+83:		.start	= novena_gpio_button_init,
+84:		.getc	= novena_gpio_button_getc,
+85:		.tstc	= novena_gpio_button_tstc,
+93:	button_input.read_keys = novena_gpio_button_read_keys;
+120:		return !gpio_get_value(NOVENA_SD_CD);
+131:		return gpio_get_value(NOVENA_SD_WP);
+144:	gpio_direction_input(NOVENA_SD_WP);
+145:	gpio_direction_input(NOVENA_SD_CD);
+158: * Video over HDMI
+160:#if defined(CONFIG_VIDEO_IPUV3)
+161:static void enable_hdmi(struct display_info_t const *dev)
+163:	imx_enable_hdmi_phy();
+166:struct display_info_t const displays[] = {
+168:		/* HDMI Output */
+172:		.detect	= detect_hdmi,
+173:		.enable	= enable_hdmi,
+175:			.name           = "HDMI",
+192:size_t display_count = ARRAY_SIZE(displays);
+194:static void setup_display(void)
+200:	imx_setup_hdmi();
+236:#if defined(CONFIG_VIDEO_IPUV3)
+237:	setup_display();
+240:	/* Bring Ethernet PHY out of reset. */
+241:	gpio_set_value(IMX_GPIO_NR(3, 23), 1);
+271:int power_init_board(void)
+277:	power_pfuze100_init(1);
+298:/* EEPROM configuration data */
+299:struct novena_eeprom_data {
+310:	struct novena_eeprom_data data;
+319:	/* EEPROM is at bus 2. */
+322:		puts("Cannot select EEPROM I2C bus.\n");
+326:	/* EEPROM is at address 0x56. */
+327:	ret = eeprom_read(0x56, 0, datap, sizeof(data));
+329:		puts("Cannot read I2C EEPROM.\n");
+333:	/* Check EEPROM signature. */
+335:		puts("Invalid I2C EEPROM signature.\n");
+339:	/* Set ethernet address from EEPROM. */
+
+===== FILE: board/kosagi/novena/novena_spl.c =====
+16:#include <asm/gpio.h>
+66:#define NOVENA_AUDIO_PWRON		IMX_GPIO_NR(5, 17)
+67:#define NOVENA_FPGA_RESET_N_GPIO	IMX_GPIO_NR(5, 7)
+68:#define NOVENA_HDMI_GHOST_HPD		IMX_GPIO_NR(5, 4)
+69:#define NOVENA_PCIE_RESET_GPIO		IMX_GPIO_NR(3, 29)
+70:#define NOVENA_PCIE_POWER_ON_GPIO	IMX_GPIO_NR(7, 12)
+71:#define NOVENA_PCIE_WAKE_UP_GPIO	IMX_GPIO_NR(3, 22)
+72:#define NOVENA_PCIE_DISABLE_GPIO	IMX_GPIO_NR(2, 16)
+79:	MX6_PAD_DISP0_DAT23__GPIO5_IO17 | MUX_PAD_CTRL(NO_PAD_CTRL),
+85:	gpio_direction_output(NOVENA_AUDIO_PWRON, 1);
+101:	/* pin 35 - 1 (PHY_AD2) on reset */
+102:	MX6_PAD_RGMII_RXC__GPIO6_IO30		| MUX_PAD_CTRL(NO_PAD_CTRL),
+104:	MX6_PAD_RGMII_RD0__GPIO6_IO25		| MUX_PAD_CTRL(NO_PAD_CTRL),
+106:	MX6_PAD_RGMII_RD1__GPIO6_IO27		| MUX_PAD_CTRL(NO_PAD_CTRL),
+108:	MX6_PAD_RGMII_RD2__GPIO6_IO28		| MUX_PAD_CTRL(NO_PAD_CTRL),
+110:	MX6_PAD_RGMII_RD3__GPIO6_IO29		| MUX_PAD_CTRL(NO_PAD_CTRL),
+112:	MX6_PAD_RGMII_RX_CTL__GPIO6_IO24	| MUX_PAD_CTRL(NO_PAD_CTRL),
+114:	MX6_PAD_EIM_D23__GPIO3_IO23		| MUX_PAD_CTRL(NO_PAD_CTRL),
+130:	gpio_direction_output(IMX_GPIO_NR(3, 23), 0);
+131:	gpio_direction_output(IMX_GPIO_NR(6, 30), 1);
+132:	gpio_direction_output(IMX_GPIO_NR(6, 25), 1);
+133:	gpio_direction_output(IMX_GPIO_NR(6, 27), 1);
+134:	gpio_direction_output(IMX_GPIO_NR(6, 28), 1);
+135:	gpio_direction_output(IMX_GPIO_NR(6, 29), 1);
+136:	gpio_direction_output(IMX_GPIO_NR(6, 24), 1);
+145:	/* FPGA_RESET_N */
+146:	MX6_PAD_DISP0_DAT13__GPIO5_IO07 | MUX_PAD_CTRL(NO_PAD_CTRL),
+152:	gpio_direction_output(NOVENA_FPGA_RESET_N_GPIO, 0);
+156: * GPIO Button
+160:	MX6_PAD_KEY_COL4__GPIO4_IO14 | MUX_PAD_CTRL(BUTTON_PAD_CTRL),
+172: * I2C1:
+179:	.scl = {
+180:		.i2c_mode	= MX6_PAD_EIM_D21__I2C1_SCL | PC,
+181:		.gpio_mode	= MX6_PAD_EIM_D21__GPIO3_IO21 | PC,
+182:		.gp		= IMX_GPIO_NR(3, 21)
+184:	.sda = {
+185:		.i2c_mode	= MX6_PAD_EIM_D28__I2C1_SDA | PC,
+186:		.gpio_mode	= MX6_PAD_EIM_D28__GPIO3_IO28 | PC,
+187:		.gp		= IMX_GPIO_NR(3, 28)
+192: * I2C2:
+194: *  0x3a ... HDMI DCC
+195: *  0x50 ... HDMI DCC
+198:	.scl = {
+199:		.i2c_mode	= MX6_PAD_EIM_EB2__I2C2_SCL | PC,
+200:		.gpio_mode	= MX6_PAD_EIM_EB2__GPIO2_IO30 | PC,
+201:		.gp		= IMX_GPIO_NR(2, 30)
+203:	.sda = {
+204:		.i2c_mode	= MX6_PAD_EIM_D16__I2C2_SDA | PC,
+205:		.gpio_mode	= MX6_PAD_EIM_D16__GPIO3_IO16 | PC,
+206:		.gp		= IMX_GPIO_NR(3, 16)
+211: * I2C3:
+213: *  0x50 ... LCD EDID
+214: *  0x56 ... EEPROM
+217:	.scl = {
+218:		.i2c_mode	= MX6_PAD_EIM_D17__I2C3_SCL | PC,
+219:		.gpio_mode	= MX6_PAD_EIM_D17__GPIO3_IO17 | PC,
+220:		.gp		= IMX_GPIO_NR(3, 17)
+222:	.sda = {
+223:		.i2c_mode	= MX6_PAD_EIM_D18__I2C3_SDA | PC,
+224:		.gpio_mode	= MX6_PAD_EIM_D18__GPIO3_IO18 | PC,
+225:		.gp		= IMX_GPIO_NR(3, 18)
+231:	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info0);
+232:	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+233:	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
+241:	/* "Reset" pin */
+242:	MX6_PAD_EIM_D29__GPIO3_IO29 | MUX_PAD_CTRL(NO_PAD_CTRL),
+243:	/* "Power on" pin */
+244:	MX6_PAD_GPIO_17__GPIO7_IO12 | MUX_PAD_CTRL(NO_PAD_CTRL),
+246:	MX6_PAD_EIM_D22__GPIO3_IO22 | MUX_PAD_CTRL(NO_PAD_CTRL),
+248:	MX6_PAD_EIM_A22__GPIO2_IO16 | MUX_PAD_CTRL(NO_PAD_CTRL),
+255:	/* Ensure PCIe is powered down */
+256:	gpio_direction_output(NOVENA_PCIE_POWER_ON_GPIO, 0);
+258:	/* Put the card into reset */
+259:	gpio_direction_output(NOVENA_PCIE_RESET_GPIO, 0);
+262:	gpio_direction_input(NOVENA_PCIE_WAKE_UP_GPIO);
+265:	gpio_direction_output(NOVENA_PCIE_DISABLE_GPIO, 1);
+281:	MX6_PAD_GPIO_2__GPIO1_IO02  | MUX_PAD_CTRL(NO_PAD_CTRL), /* WP */
+282:	MX6_PAD_GPIO_4__GPIO1_IO04  | MUX_PAD_CTRL(NO_PAD_CTRL), /* CD */
+300:	gpio_direction_input(IMX_GPIO_NR(1, 2));
+301:	gpio_direction_input(IMX_GPIO_NR(1, 4));
+312:	MX6_PAD_DISP0_DAT0__ECSPI3_SCLK | MUX_PAD_CTRL(SPI_PAD_CTRL),
+313:	MX6_PAD_DISP0_DAT3__GPIO4_IO24 | MUX_PAD_CTRL(SPI_PAD_CTRL),
+314:	MX6_PAD_DISP0_DAT4__GPIO4_IO25 | MUX_PAD_CTRL(SPI_PAD_CTRL),
+315:	MX6_PAD_DISP0_DAT5__GPIO4_IO26 | MUX_PAD_CTRL(SPI_PAD_CTRL),
+323:	gpio_direction_output(MX6_PAD_DISP0_DAT3__GPIO4_IO24, 1);
+324:	gpio_direction_output(MX6_PAD_DISP0_DAT4__GPIO4_IO25, 1);
+325:	gpio_direction_output(MX6_PAD_DISP0_DAT5__GPIO4_IO26, 1);
+360: * Video
+362:#ifdef CONFIG_VIDEO
+363:static iomux_v3_cfg_t hdmi_pads[] = {
+365:	MX6_PAD_EIM_A24__GPIO5_IO04 | MUX_PAD_CTRL(NO_PAD_CTRL),
+368:static void novena_spl_setup_iomux_video(void)
+370:	imx_iomux_v3_setup_multiple_pads(hdmi_pads, ARRAY_SIZE(hdmi_pads));
+371:	gpio_direction_input(NOVENA_HDMI_GHOST_HPD);
+374:static inline void novena_spl_setup_iomux_video(void) {}
+400:	/* SDCLK[0:1], CAS, RAS, Reset: Differential input, 40ohm */
+405:	.dram_reset		= 0x00000038,
+544:	novena_spl_setup_iomux_video();
+570:void reset_cpu(ulong addr)
+
+===== FILE: board/kosagi/novena/setup.cfg =====
+23:/* set the default clock gate to save power */
+
+===== FILE: include/configs/novena.h =====
+18:#define CONFIG_DISPLAY_BOARDINFO
+19:#define CONFIG_DISPLAY_CPUINFO
+24:#define CONFIG_MXC_GPIO
+32:#include <asm/imx-common/gpio.h>
+41:#define CONFIG_CMD_EEPROM
+48:#define CONFIG_CMD_GPIO
+58:#define CONFIG_VIDEO
+153:/* I2C EEPROM */
+154:#ifdef CONFIG_CMD_EEPROM
+155:#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
+182:#define CONFIG_PCIE_IMX_PERST_GPIO	IMX_GPIO_NR(3, 29)
+183:#define CONFIG_PCIE_IMX_POWER_GPIO	IMX_GPIO_NR(7, 12)
+187:#define CONFIG_POWER
+188:#define CONFIG_POWER_I2C
+189:#define CONFIG_POWER_PFUZE100
+190:#define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
+230:/* Video output */
+231:#ifdef CONFIG_VIDEO
+232:#define CONFIG_VIDEO
+233:#define CONFIG_VIDEO_IPUV3
+237:#define CONFIG_VIDEO_BMP_RLE8
+240:#define CONFIG_VIDEO_LOGO
+242:#define CONFIG_CMD_HDMIDETECT
+244:#define CONFIG_IMX_HDMI
+245:#define CONFIG_IMX_VIDEO_SKIP
+292:	"prephdmi=true"							\
+293:	"preplcd=true"							\
+324:		"if gpio input 110 ; then " /* Test recovery button */  \
+334:		"if hdmidet ; then "					\
+335:			"echo HDMI monitor detected ; "		\
+338:			"echo No video detected, using serial port ; "	\
+343:		"run prephdmi ; "					\
+344:		"run preplcd ; "					\
+

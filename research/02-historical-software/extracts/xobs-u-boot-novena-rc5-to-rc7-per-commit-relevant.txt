@@ -1,0 +1,154 @@
+
+================================================================
+COMMIT 4957ffe323b580ca14d28e9ae9deb89b48e87d64
+PARENTS 9402489e9a3e52a9df5464b4ce3c792cee2ba3a5
+DATE 2014-10-13T18:22:13+08:00
+AUTHOR Sean Cross <xobs@kosagi.com>
+SUBJECT novena: Add support for reading EEPROM file
+--- FILES ---
+M	board/kosagi/novena/Makefile
+A	board/kosagi/novena/eeprom.c
+A	board/kosagi/novena/novena-eeprom.h
+M	include/configs/novena.h
+--- RELEVANTE ZEILEN ---
+10:+obj-y	:= novena.o eeprom.o
+12:diff --git a/board/kosagi/novena/eeprom.c b/board/kosagi/novena/eeprom.c
+16:+++ b/board/kosagi/novena/eeprom.c
+19:+#include <i2c.h>
+23:+#include "novena-eeprom.h"
+25:+#define EEPROM_ADDRESS (0xac >> 1)
+58:+	struct novena_eeprom_data_v2 data;
+61:+	i2c_set_bus_num(2);
+62:+	ret = eeprom_read(EEPROM_ADDRESS, 0, (uint8_t *)&data, sizeof(data));
+64:+		printf("Unable to read from EEPROM: %d\n", ret);
+68:+	/* Check EEPROM signature. */
+70:+		puts("Invalid I2C EEPROM signature.\n");
+76:+		printf("Unsupported EEPROM version: %d\n", data.version);
+80:+	/* Set ethernet address from EEPROM (if one hasn't been set yet). */
+84:+	if ((data.features & feature_es8328))
+85:+		fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/es8328@11");
+87:+		fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a0000/bq20z75@b");
+105:+			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@73");
+110:+		if (!(data.lvds1.flags & channel_present)) {
+111:+			fdt_del_by_path(blob, "/soc/aips-bus@02000000/ldb@020e0008/lvds-channel@0");
+114:+			/* XXX Configure lvds1 display timings here */
+117:+		if (!(data.lvds2.flags & channel_present) &&
+118:+		    !(data.lvds2.flags & dual_channel)) {
+119:+			fdt_del_by_path(blob, "/soc/aips-bus@02000000/ldb@020e0008/lvds-channel@1");
+122:+			/* XXX Configure lvds2 display timings here */
+133:+			/* XXX Configure hdmi display timings here */
+137:+			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/eepromoops@56");
+139:+			/* XXX Configure eepromoops here */
+145:diff --git a/board/kosagi/novena/novena-eeprom.h b/board/kosagi/novena/novena-eeprom.h
+149:+++ b/board/kosagi/novena/novena-eeprom.h
+151:+#ifndef __NOVENA_EEPROM_H__
+152:+#define __NOVENA_EEPROM_H__
+159:+	/* If 0, this display device is not present */
+162:+	/* If this is lvds1 and this bit is set, use dual-channel LVDS */
+168:+	/* For LVDS, a value of 0 means PSWG, a value of 1 means JEIDA */
+171:+	/* If 0, channel is either 6-bit (LVDS) or 10-bit (HDMI) */
+174:+	/* Channel is present, but ignore EEPROM values and auto-detect them */
+193:+ * http://www.kosagi.com/w/index.php?title=Novena/EEPROM
+195:+struct novena_eeprom_data_v2 {
+198:+	uint8_t		page_size;	/* Size of EEPROM read/write page */
+206:+	struct modesetting	lvds1;
+207:+	struct modesetting	lvds2;
+210:+	/* An indicator of how large this particular EEPROM is */
+211:+	uint32_t	eeprom_size;
+213:+	/* If eepromoops is present, describes eepromoops storage */
+214:+	uint32_t	eepromoops_offset;
+215:+	uint32_t	eepromoops_length;
+219:+struct novena_eeprom_data_v1 {
+231:+	feature_es8328 		= 0x0001,
+238:+	feature_eepromoops	= 0x0080,
+249:+		.name	= "es8328",
+250:+		.flags	= feature_es8328,
+251:+		.descr	= "ES8328 audio codec",
+261:+		.descr	= "Retina-class dual-LVDS display (deprecated)",
+266:+		.descr	= "PixelQi LVDS display (deprecated)",
+284:+		.name	= "eepromoops",
+285:+		.flags	= feature_eepromoops,
+286:+		.descr	= "EEPROM Oops storage",
+292:+#endif /* __NOVENA_EEPROM_H__ */
+
+================================================================
+COMMIT 156d8726c09adaabbfadf50fec44bb23b10d5952
+PARENTS 4957ffe323b580ca14d28e9ae9deb89b48e87d64
+DATE 2014-10-13T18:23:40+08:00
+AUTHOR Sean Cross <xobs@kosagi.com>
+SUBJECT debian: Update changelog
+--- FILES ---
+--- RELEVANTE ZEILEN ---
+
+================================================================
+COMMIT a3955368908ec167dbe4718bab04d252c705db9f
+PARENTS 156d8726c09adaabbfadf50fec44bb23b10d5952
+DATE 2014-10-13T18:38:54+08:00
+AUTHOR Sean Cross <xobs@kosagi.com>
+SUBJECT eeprom: Treat feature_retina as it6251-present on v2
+--- FILES ---
+M	board/kosagi/novena/eeprom.c
+--- RELEVANTE ZEILEN ---
+1:diff --git a/board/kosagi/novena/eeprom.c b/board/kosagi/novena/eeprom.c
+3:--- a/board/kosagi/novena/eeprom.c
+4:+++ b/board/kosagi/novena/eeprom.c
+8: 			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@73");
+9:+			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@73");
+14:+		/* In version 2, this indicates whether an LVDS-to-eDP chip is present */
+16:+			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@73");
+18: 		if (!(data.lvds1.flags & channel_present)) {
+19: 			fdt_del_by_path(blob, "/soc/aips-bus@02000000/ldb@020e0008/lvds-channel@0");
+
+================================================================
+COMMIT ffc4bc0bf3e68ce18ec08b59e1f171002c1fc5cb
+PARENTS a3955368908ec167dbe4718bab04d252c705db9f
+DATE 2014-10-13T19:06:58+08:00
+AUTHOR Sean Cross <xobs@kosagi.com>
+SUBJECT novena: eeprom: Don't disable features in recovery mode
+--- FILES ---
+M	board/kosagi/novena/eeprom.c
+--- RELEVANTE ZEILEN ---
+1:diff --git a/board/kosagi/novena/eeprom.c b/board/kosagi/novena/eeprom.c
+3:--- a/board/kosagi/novena/eeprom.c
+4:+++ b/board/kosagi/novena/eeprom.c
+14: 	if ((data.features & feature_es8328))
+15: 		fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/es8328@11");
+
+================================================================
+COMMIT a6ac9e000cc2ae11a74f8754b9192bf7e624ac93
+PARENTS ffc4bc0bf3e68ce18ec08b59e1f171002c1fc5cb
+DATE 2014-10-13T19:15:04+08:00
+AUTHOR Sean Cross <xobs@kosagi.com>
+SUBJECT debian: Update debian control version
+--- FILES ---
+--- RELEVANTE ZEILEN ---
+
+================================================================
+COMMIT e38c3f9849aae6245278a10e73f54d1208c56408
+PARENTS a6ac9e000cc2ae11a74f8754b9192bf7e624ac93
+DATE 2014-10-14T10:06:41+08:00
+AUTHOR Sean Cross <xobs@kosagi.com>
+SUBJECT debian: Improve novena-install-spl script
+--- FILES ---
+--- RELEVANTE ZEILEN ---
+
+================================================================
+COMMIT 4330c957155183eec60537071cc595d39d9b5872
+PARENTS e38c3f9849aae6245278a10e73f54d1208c56408
+DATE 2014-10-14T17:57:42+08:00
+AUTHOR Sean Cross <xobs@kosagi.com>
+SUBJECT novena: eeprom: Fixup parsing of es8328, sata, eeprom flags
+--- FILES ---
+M	board/kosagi/novena/eeprom.c
+--- RELEVANTE ZEILEN ---
+1:diff --git a/board/kosagi/novena/eeprom.c b/board/kosagi/novena/eeprom.c
+3:--- a/board/kosagi/novena/eeprom.c
+4:+++ b/board/kosagi/novena/eeprom.c
+9:-	if ((data.features & feature_es8328))
+10:+	if (!(data.features & feature_es8328))
+11: 		fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/es8328@11");
+13: 		fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a0000/bq20z75@b");
+15: 			/* XXX Configure hdmi display timings here */
+19:+		if (!(data.features & feature_eepromoops))
+20: 			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/eepromoops@56");
+22: 			/* XXX Configure eepromoops here */

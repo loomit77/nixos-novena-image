@@ -1,0 +1,12 @@
+afe595630f335c73ec41a49f41d9728017dec0e8	4330c957155183eec60537071cc595d39d9b5872	2014-10-15T17:34:22+08:00	Sean Cross <xobs@kosagi.com>	novena: it6251: Check if the IT6251 is connected
+65fea36ba8924767d37703d35c232be05c1c83ff	afe595630f335c73ec41a49f41d9728017dec0e8	2014-10-15T17:36:46+08:00	Sean Cross <xobs@kosagi.com>	debian: Update to -r8
+b5a15faf85a52789308f3f59898693b005532833	65fea36ba8924767d37703d35c232be05c1c83ff	2014-10-15T19:47:46+08:00	Sean Cross <xobs@kosagi.com>	novena-spl: Add support for booting from external SD
+4facac7043bd45f57956b5a0084cb02aaea59bae	b5a15faf85a52789308f3f59898693b005532833	2014-10-15T19:55:10+08:00	Sean Cross <xobs@kosagi.com>	novena: Support booting off of the external SD card
+f4a0c349263e84e233da7fa92ebe76baa633684a	4facac7043bd45f57956b5a0084cb02aaea59bae	2014-10-15T19:56:40+08:00	Sean Cross <xobs@kosagi.com>	debian: Add changelog for r8
+9a7992777c08a2fcec7d69be365f95cb092af5d0	f4a0c349263e84e233da7fa92ebe76baa633684a	2014-10-16T15:55:19+08:00	Sean Cross <xobs@kosagi.com>	eeprom: Fix feature turnoff
+2930a7548227dd73a4f9f0e1789a2679d41e217b	9a7992777c08a2fcec7d69be365f95cb092af5d0	2014-10-16T15:56:11+08:00	Sean Cross <xobs@kosagi.com>	debian: Update to -rc10
+5de5c69bc37a8e272240ec82244e5f7137f28c5b	2930a7548227dd73a4f9f0e1789a2679d41e217b	2014-10-17T12:18:05+08:00	Sean Cross <xobs@kosagi.com>	board: novena: Set boot device even when EEPROM is blank
+77655d148b8d3e2f95ac46b8c9cc00af395b15d6	5de5c69bc37a8e272240ec82244e5f7137f28c5b	2014-10-17T12:20:23+08:00	Sean Cross <xobs@kosagi.com>	debian: Update to rc11
+2ab1217f8c70cc266f0157bf9baec86e34e56805	77655d148b8d3e2f95ac46b8c9cc00af395b15d6	2014-10-17T17:56:14+08:00	Sean Cross <xobs@kosagi.com>	novena: ddr3: Properly decode page size
+43ded6eb7299e8e71327de2d2208e43c66a0c3b8	2ab1217f8c70cc266f0157bf9baec86e34e56805	2014-10-17T17:57:23+08:00	Sean Cross <xobs@kosagi.com>	debian: Update to r12
+c5efeadb913c8246be372054adcd6106ad4fe067	43ded6eb7299e8e71327de2d2208e43c66a0c3b8	2014-10-17T18:50:23+08:00	Sean Cross <xobs@kosagi.com>	novena: Parse EEPROM early, and boot to SATA if requested

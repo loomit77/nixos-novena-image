@@ -1,0 +1,419 @@
+=== STEP 2.31a: NORMALER RUNTIME-PM-PFAD 5.7 BIS 6.18 ===
+Di 15. Sep 13:59:53 CEST 2026
+
+=== 1. RUNTIME-SUSPEND IN LINUX 5.7-RC2 ===
+
+=== 2. RUNTIME-RESUME IN LINUX 5.7-RC2 ===
+
+=== 3. RUNTIME-SUSPEND IN LINUX 6.18 ===
+static int i2c_imx_runtime_suspend(struct device *dev)
+{
+	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
+
+	clk_disable(i2c_imx->clk);
+	return pinctrl_pm_select_sleep_state(dev);
+}
+
+=== 4. RUNTIME-RESUME IN LINUX 6.18 ===
+static int i2c_imx_runtime_resume(struct device *dev)
+{
+	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
+	int ret;
+
+	ret = pinctrl_pm_select_default_state(dev);
+	if (ret)
+		return ret;
+
+	ret = clk_enable(i2c_imx->clk);
+	if (ret)
+		dev_err(dev, "can't enable I2C clock, ret=%d\n", ret);
+
+	return ret;
+}
+
+=== 5. FUNKTIONSHISTORIE RUNTIME-SUSPEND ===
+COMMIT aa11e38ce6fe8846fec046a95cecd5d4690c48cd
+DATE 2009-01-30T10:32:28+02:00
+SUBJECT i2c: iMX/MXC support
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+new file mode 100644
+index 000000000000..22cf200ecb3e
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -0,0 +589,3 @@
++	return 0;
++}
++
+COMMIT 588eb93ea49f672cb3ff55d0a5c34df3e1afa7ec
+DATE 2015-12-11T10:24:09+08:00
+SUBJECT i2c: imx: add runtime pm support to improve the performance
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index d4d853680ae4..3ffdcf4d7b61 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1168,3 +1205,10 @@ static int i2c_imx_probe(struct platform_device *pdev)
++#ifdef CONFIG_PM
++static int i2c_imx_runtime_suspend(struct device *dev)
++{
++	struct imx_i2c_struct *i2c_imx  = dev_get_drvdata(dev);
++
++	clk_disable_unprepare(i2c_imx->clk);
++
+ 	return 0;
+ }
+ 
+COMMIT 3bf58bb5da86d0a9e20f108a2f5163c4ce1a60dc
+DATE 2016-01-25T15:48:32+03:00
+SUBJECT i2c: imx: remove extra spaces.
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index a2b132cef717..1ca7ef2314f7 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1192,10 +1192,10 @@ static int i2c_imx_remove(struct platform_device *pdev)
+ #ifdef CONFIG_PM
+ static int i2c_imx_runtime_suspend(struct device *dev)
+ {
+-	struct imx_i2c_struct *i2c_imx  = dev_get_drvdata(dev);
++	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
+ 
+ 	clk_disable_unprepare(i2c_imx->clk);
+ 
+ 	return 0;
+ }
+ 
+COMMIT d9a22d713acb484f9d60861598a71e28129c0afa
+DATE 2018-03-08T14:25:18+01:00
+SUBJECT i2c: imx: avoid taking clk_prepare mutex in PM callbacks
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index c9632b2f0eaa..d7267dd9c7bf 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1224,10 +1224,10 @@ static int i2c_imx_remove(struct platform_device *pdev)
+ #ifdef CONFIG_PM
+ static int i2c_imx_runtime_suspend(struct device *dev)
+ {
+ 	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
+ 
+-	clk_disable_unprepare(i2c_imx->clk);
++	clk_disable(i2c_imx->clk);
+ 
+ 	return 0;
+ }
+ 
+COMMIT a4b5363a51fc78fad89368ae5b7c504bcb10f66d
+DATE 2019-05-05T03:31:55Z
+SUBJECT i2c: imx: Use __maybe_unused instead of #if CONFIG_PM
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index fd70b110e8f4..b1b8b938d7f4 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1223,11 +1223,9 @@ static int i2c_imx_remove(struct platform_device *pdev)
+-#ifdef CONFIG_PM
+-static int i2c_imx_runtime_suspend(struct device *dev)
++static int __maybe_unused i2c_imx_runtime_suspend(struct device *dev)
+ {
+ 	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
+ 
+ 	clk_disable(i2c_imx->clk);
+ 
+ 	return 0;
+ }
+ 
+-static int i2c_imx_runtime_resume(struct device *dev)
+COMMIT 2d30c638f98408c0d2ad5a8c3b2421328aa30213
+DATE 2024-08-07T15:14:56-03:00
+SUBJECT i2c: imx: Switch to RUNTIME_PM_OPS()
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 3842e527116b..d68b575e5d18 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1552,10 +1552,9 @@ static void i2c_imx_remove(struct platform_device *pdev)
+-static int __maybe_unused i2c_imx_runtime_suspend(struct device *dev)
++static int i2c_imx_runtime_suspend(struct device *dev)
+ {
+ 	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
+ 
+ 	clk_disable(i2c_imx->clk);
+ 
+ 	return 0;
+ }
+ 
+-static int __maybe_unused i2c_imx_runtime_resume(struct device *dev)
+COMMIT 576eba03c99435380d155e5f71d5d7603b9178f6
+DATE 2024-12-23T11:43:43+08:00
+SUBJECT i2c: imx: switch different pinctrl state in different system power status
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 167985f60d27..1f441227bfdc 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1868,9 +1868,8 @@ static void i2c_imx_remove(struct platform_device *pdev)
+ static int i2c_imx_runtime_suspend(struct device *dev)
+ {
+ 	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
+ 
+ 	clk_disable(i2c_imx->clk);
+-
+-	return 0;
++	return pinctrl_pm_select_sleep_state(dev);
+ }
+ 
+
+=== 6. FUNKTIONSHISTORIE RUNTIME-RESUME ===
+COMMIT 588eb93ea49f672cb3ff55d0a5c34df3e1afa7ec
+DATE 2015-12-11T10:24:09+08:00
+SUBJECT i2c: imx: add runtime pm support to improve the performance
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index d4d853680ae4..3ffdcf4d7b61 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1171,0 +1215,12 @@ static int i2c_imx_probe(struct platform_device *pdev)
++static int i2c_imx_runtime_resume(struct device *dev)
++{
++	struct imx_i2c_struct *i2c_imx  = dev_get_drvdata(dev);
++	int ret;
++
++	ret = clk_prepare_enable(i2c_imx->clk);
++	if (ret)
++		dev_err(dev, "can't enable I2C clock, ret=%d\n", ret);
++
++	return ret;
++}
++
+COMMIT 3bf58bb5da86d0a9e20f108a2f5163c4ce1a60dc
+DATE 2016-01-25T15:48:32+03:00
+SUBJECT i2c: imx: remove extra spaces.
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index a2b132cef717..1ca7ef2314f7 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1202,12 +1202,12 @@ static int i2c_imx_remove(struct platform_device *pdev)
+ static int i2c_imx_runtime_resume(struct device *dev)
+ {
+-	struct imx_i2c_struct *i2c_imx  = dev_get_drvdata(dev);
++	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
+ 	int ret;
+ 
+ 	ret = clk_prepare_enable(i2c_imx->clk);
+ 	if (ret)
+ 		dev_err(dev, "can't enable I2C clock, ret=%d\n", ret);
+ 
+ 	return ret;
+ }
+ 
+COMMIT d9a22d713acb484f9d60861598a71e28129c0afa
+DATE 2018-03-08T14:25:18+01:00
+SUBJECT i2c: imx: avoid taking clk_prepare mutex in PM callbacks
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index c9632b2f0eaa..d7267dd9c7bf 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1234,12 +1234,12 @@ static int i2c_imx_remove(struct platform_device *pdev)
+ static int i2c_imx_runtime_resume(struct device *dev)
+ {
+ 	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
+ 	int ret;
+ 
+-	ret = clk_prepare_enable(i2c_imx->clk);
++	ret = clk_enable(i2c_imx->clk);
+ 	if (ret)
+ 		dev_err(dev, "can't enable I2C clock, ret=%d\n", ret);
+ 
+ 	return ret;
+ }
+ 
+COMMIT a4b5363a51fc78fad89368ae5b7c504bcb10f66d
+DATE 2019-05-05T03:31:55Z
+SUBJECT i2c: imx: Use __maybe_unused instead of #if CONFIG_PM
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index fd70b110e8f4..b1b8b938d7f4 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1233,12 +1232,12 @@ static int i2c_imx_remove(struct platform_device *pdev)
+-static int i2c_imx_runtime_resume(struct device *dev)
++static int __maybe_unused i2c_imx_runtime_resume(struct device *dev)
+ {
+ 	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
+ 	int ret;
+ 
+ 	ret = clk_enable(i2c_imx->clk);
+ 	if (ret)
+ 		dev_err(dev, "can't enable I2C clock, ret=%d\n", ret);
+ 
+ 	return ret;
+ }
+ 
+COMMIT 2d30c638f98408c0d2ad5a8c3b2421328aa30213
+DATE 2024-08-07T15:14:56-03:00
+SUBJECT i2c: imx: Switch to RUNTIME_PM_OPS()
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 3842e527116b..d68b575e5d18 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1561,12 +1561,12 @@ static void i2c_imx_remove(struct platform_device *pdev)
+-static int __maybe_unused i2c_imx_runtime_resume(struct device *dev)
++static int i2c_imx_runtime_resume(struct device *dev)
+ {
+ 	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
+ 	int ret;
+ 
+ 	ret = clk_enable(i2c_imx->clk);
+ 	if (ret)
+ 		dev_err(dev, "can't enable I2C clock, ret=%d\n", ret);
+ 
+ 	return ret;
+ }
+ 
+COMMIT 576eba03c99435380d155e5f71d5d7603b9178f6
+DATE 2024-12-23T11:43:43+08:00
+SUBJECT i2c: imx: switch different pinctrl state in different system power status
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 167985f60d27..1f441227bfdc 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1877,12 +1876,16 @@ static void i2c_imx_remove(struct platform_device *pdev)
+ static int i2c_imx_runtime_resume(struct device *dev)
+ {
+ 	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
+ 	int ret;
+ 
++	ret = pinctrl_pm_select_default_state(dev);
++	if (ret)
++		return ret;
++
+ 	ret = clk_enable(i2c_imx->clk);
+ 	if (ret)
+ 		dev_err(dev, "can't enable I2C clock, ret=%d\n", ret);
+ 
+ 	return ret;
+ }
+ 
+
+=== 7. COMMITS 5.7 BIS 6.18 MIT AENDERUNG DER RUNTIME-FUNKTIONEN ===
+COMMIT e190a0c389e60178fba3d532abf936dcae223e7d
+DATE 2023-05-08T22:51:38+02:00
+SUBJECT i2c: Convert to platform remove callback returning void
+
+COMMIT 2d30c638f98408c0d2ad5a8c3b2421328aa30213
+DATE 2024-08-07T15:14:56-03:00
+SUBJECT i2c: imx: Switch to RUNTIME_PM_OPS()
+
+COMMIT 32a0a94aa09e7095fccec1ffc969911f492cc7b9
+DATE 2024-09-29T09:21:57+02:00
+SUBJECT i2c: Switch back to struct platform_driver::remove()
+
+COMMIT 358025ac091e5a54f9819b33ee9c7cb07c55ee5d
+DATE 2024-11-25T22:21:08+08:00
+SUBJECT i2c: imx: make controller available until system suspend_noirq() and from resume_noirq()
+
+COMMIT 576eba03c99435380d155e5f71d5d7603b9178f6
+DATE 2024-12-23T11:43:43+08:00
+SUBJECT i2c: imx: switch different pinctrl state in different system power status
+
+
+=== 8. EXAKTE CODEAENDERUNGEN DIESER COMMITS ===
+------------------------------------------------------------
+COMMIT e190a0c389e60178fba3d532abf936dcae223e7d
+DATE 2023-05-08
+SUBJECT i2c: Convert to platform remove callback returning void
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c index 42189a5f2905..65128a73e8a3 100644 --- a/drivers/i2c/busses/i2c-imx.c +++ b/drivers/i2c/busses/i2c-imx.c @@ -1559,11 +1559,11 @@ static int i2c_imx_probe(struct platform_device *pdev)  	pm_runtime_set_suspended(&pdev->dev);  	pm_runtime_dont_use_autosuspend(&pdev->dev);  	return ret;  }   -static int i2c_imx_remove(struct platform_device *pdev) +static void i2c_imx_remove(struct platform_device *pdev)  {  	struct imx_i2c_struct *i2c_imx = platform_get_drvdata(pdev);  	int irq, ret;    	ret = pm_runtime_get_sync(&pdev->dev); @@ -1590,12 +1590,10 @@ static int i2c_imx_remove(struct platform_device *pdev)  	if (irq >= 0)  		free_irq(irq, i2c_imx);    	pm_runtime_put_noidle(&pdev->dev);  	pm_runtime_disable(&pdev->dev); - -	return 0;  }    static int __maybe_unused i2c_imx_runtime_suspend(struct device *dev)  {  	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev); @@ -1622,11 +1620,11 @@ static const struct dev_pm_ops i2c_imx_pm_ops = {  			   i2c_imx_runtime_resume, NULL)  };    static struct platform_driver i2c_imx_driver = {  	.probe = i2c_imx_probe, -	.remove = i2c_imx_remove, +	.remove_new = i2c_imx_remove,  	.driver = {  		.name = DRIVER_NAME,  		.pm = &i2c_imx_pm_ops,  		.of_match_table = i2c_imx_dt_ids,  		.acpi_match_table = i2c_imx_acpi_ids,
+------------------------------------------------------------
+COMMIT 2d30c638f98408c0d2ad5a8c3b2421328aa30213
+DATE 2024-08-07
+SUBJECT i2c: imx: Switch to RUNTIME_PM_OPS()
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c index 3842e527116b..d68b575e5d18 100644 --- a/drivers/i2c/busses/i2c-imx.c +++ b/drivers/i2c/busses/i2c-imx.c @@ -1547,20 +1547,20 @@ static void i2c_imx_remove(struct platform_device *pdev)    	pm_runtime_put_noidle(&pdev->dev);  	pm_runtime_disable(&pdev->dev);  }   -static int __maybe_unused i2c_imx_runtime_suspend(struct device *dev) +static int i2c_imx_runtime_suspend(struct device *dev)  {  	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);    	clk_disable(i2c_imx->clk);    	return 0;  }   -static int __maybe_unused i2c_imx_runtime_resume(struct device *dev) +static int i2c_imx_runtime_resume(struct device *dev)  {  	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);  	int ret;    	ret = clk_enable(i2c_imx->clk); @@ -1569,20 +1569,19 @@ static int __maybe_unused i2c_imx_runtime_resume(struct device *dev)    	return ret;  }    static const struct dev_pm_ops i2c_imx_pm_ops = { -	SET_RUNTIME_PM_OPS(i2c_imx_runtime_suspend, -			   i2c_imx_runtime_resume, NULL) +	RUNTIME_PM_OPS(i2c_imx_runtime_suspend, i2c_imx_runtime_resume, NULL)  };    static struct platform_driver i2c_imx_driver = {  	.probe = i2c_imx_probe,  	.remove_new = i2c_imx_remove,  	.driver = {  		.name = DRIVER_NAME, -		.pm = &i2c_imx_pm_ops, +		.pm = pm_ptr(&i2c_imx_pm_ops),  		.of_match_table = i2c_imx_dt_ids,  		.acpi_match_table = i2c_imx_acpi_ids,  	},  	.id_table = imx_i2c_devtype,  };
+------------------------------------------------------------
+COMMIT 32a0a94aa09e7095fccec1ffc969911f492cc7b9
+DATE 2024-09-29
+SUBJECT i2c: Switch back to struct platform_driver::remove()
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c index 98539313cbc9..c2358356a8ff 100644 --- a/drivers/i2c/busses/i2c-imx.c +++ b/drivers/i2c/busses/i2c-imx.c @@ -1574,11 +1574,11 @@ static const struct dev_pm_ops i2c_imx_pm_ops = {  	RUNTIME_PM_OPS(i2c_imx_runtime_suspend, i2c_imx_runtime_resume, NULL)  };    static struct platform_driver i2c_imx_driver = {  	.probe = i2c_imx_probe, -	.remove_new = i2c_imx_remove, +	.remove = i2c_imx_remove,  	.driver = {  		.name = DRIVER_NAME,  		.pm = pm_ptr(&i2c_imx_pm_ops),  		.of_match_table = i2c_imx_dt_ids,  		.acpi_match_table = i2c_imx_acpi_ids,
+------------------------------------------------------------
+COMMIT 358025ac091e5a54f9819b33ee9c7cb07c55ee5d
+DATE 2024-11-25
+SUBJECT i2c: imx: make controller available until system suspend_noirq() and from resume_noirq()
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c index da77ba5ee579..167985f60d27 100644 --- a/drivers/i2c/busses/i2c-imx.c +++ b/drivers/i2c/busses/i2c-imx.c @@ -1765,11 +1765,12 @@ static int i2c_imx_probe(struct platform_device *pdev)  	ret = pm_runtime_get_sync(&pdev->dev);  	if (ret < 0)  		goto rpm_disable;    	/* Request IRQ */ -	ret = request_irq(irq, i2c_imx_isr, IRQF_SHARED, pdev->name, i2c_imx); +	ret = request_irq(irq, i2c_imx_isr, IRQF_SHARED | IRQF_NO_SUSPEND, +			  pdev->name, i2c_imx);  	if (ret) {  		dev_err(&pdev->dev, "can't claim irq %d\n", irq);  		goto rpm_disable;  	}   @@ -1883,11 +1884,47 @@ static int i2c_imx_runtime_resume(struct device *dev)  		dev_err(dev, "can't enable I2C clock, ret=%d\n", ret);    	return ret;  }   +static int i2c_imx_suspend(struct device *dev) +{ +	/* +	 * Some I2C devices may need the I2C controller to remain active +	 * during resume_noirq() or suspend_noirq(). If the controller is +	 * autosuspended, there is no way to wake it up once runtime PM is +	 * disabled (in suspend_late()). +	 * +	 * During system resume, the I2C controller will be available only +	 * after runtime PM is re-enabled (in resume_early()). However, this +	 * may be too late for some devices. +	 * +	 * Wake up the controller in the suspend() callback while runtime PM +	 * is still enabled. The I2C controller will remain available until +	 * the suspend_noirq() callback (pm_runtime_force_suspend()) is +	 * called. During resume, the I2C controller can be restored by the +	 * resume_noirq() callback (pm_runtime_force_resume()). +	 * +	 * Finally, the resume() callback re-enables autosuspend, ensuring +	 * the I2C controller remains available until the system enters +	 * suspend_noirq() and from resume_noirq(). +	 */ +	return pm_runtime_resume_and_get(dev); +} + +static int i2c_imx_resume(struct device *dev) +{ +	pm_runtime_mark_last_busy(dev); +	pm_runtime_put_autosuspend(dev); + +	return 0; +} +  static const struct dev_pm_ops i2c_imx_pm_ops = { +	NOIRQ_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend, +				  pm_runtime_force_resume) +	SYSTEM_SLEEP_PM_OPS(i2c_imx_suspend, i2c_imx_resume)  	RUNTIME_PM_OPS(i2c_imx_runtime_suspend, i2c_imx_runtime_resume, NULL)  };    static struct platform_driver i2c_imx_driver = {  	.probe = i2c_imx_probe,
+------------------------------------------------------------
+COMMIT 576eba03c99435380d155e5f71d5d7603b9178f6
+DATE 2024-12-23
+SUBJECT i2c: imx: switch different pinctrl state in different system power status
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c index 167985f60d27..1f441227bfdc 100644 --- a/drivers/i2c/busses/i2c-imx.c +++ b/drivers/i2c/busses/i2c-imx.c @@ -1868,19 +1868,22 @@ static void i2c_imx_remove(struct platform_device *pdev)  static int i2c_imx_runtime_suspend(struct device *dev)  {  	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);    	clk_disable(i2c_imx->clk); - -	return 0; +	return pinctrl_pm_select_sleep_state(dev);  }    static int i2c_imx_runtime_resume(struct device *dev)  {  	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);  	int ret;   +	ret = pinctrl_pm_select_default_state(dev); +	if (ret) +		return ret; +  	ret = clk_enable(i2c_imx->clk);  	if (ret)  		dev_err(dev, "can't enable I2C clock, ret=%d\n", ret);    	return ret;
+
+=== 9. CLOCK-AKTIONEN IN RUNTIME-SUSPEND/RESUME 5.7 ===
+
+=== 10. CLOCK-AKTIONEN IN RUNTIME-SUSPEND/RESUME 6.18 ===
+1:static int i2c_imx_runtime_suspend(struct device *dev)
+5:	clk_disable(i2c_imx->clk);
+6:	return pinctrl_pm_select_sleep_state(dev);
+9:static int i2c_imx_runtime_resume(struct device *dev)
+14:	ret = pinctrl_pm_select_default_state(dev);
+16:		return ret;
+18:	ret = clk_enable(i2c_imx->clk);
+20:		dev_err(dev, "can't enable I2C clock, ret=%d\n", ret);
+22:	return ret;
+47:	return pm_runtime_resume_and_get(dev);
+54:	return 0;
+
+=== 11. REGISTERZUGRIFFE IN RUNTIME-SUSPEND/RESUME 5.7 ===
+KEINE_REGISTERZUGRIFFE_5.7
+
+=== 12. REGISTERZUGRIFFE IN RUNTIME-SUSPEND/RESUME 6.18 ===
+KEINE_REGISTERZUGRIFFE_6.18
+
+=== 13. MASTER_XFER PM-EINTRITT 5.7 ===
+1-static int i2c_imx_xfer(struct i2c_adapter *adapter,
+2-			struct i2c_msg *msgs, int num)
+3-{
+4-	struct imx_i2c_struct *i2c_imx = i2c_get_adapdata(adapter);
+5-	int result;
+6-
+7:	result = pm_runtime_get_sync(i2c_imx->adapter.dev.parent);
+8-	if (result < 0)
+9-		return result;
+10-
+11-	result = i2c_imx_xfer_common(adapter, msgs, num, false);
+12-
+13:	pm_runtime_mark_last_busy(i2c_imx->adapter.dev.parent);
+14:	pm_runtime_put_autosuspend(i2c_imx->adapter.dev.parent);
+15-
+16-	return result;
+17-}
+
+=== 14. MASTER_XFER PM-EINTRITT 6.18 ===
+1-static int i2c_imx_xfer(struct i2c_adapter *adapter,
+2-			struct i2c_msg *msgs, int num)
+3-{
+4-	struct imx_i2c_struct *i2c_imx = i2c_get_adapdata(adapter);
+5-	int result;
+6-
+7:	result = pm_runtime_resume_and_get(i2c_imx->adapter.dev.parent);
+8-	if (result < 0)
+9-		return result;
+10-
+11-	result = i2c_imx_xfer_common(adapter, msgs, num, false);
+12-
+13:	pm_runtime_put_autosuspend(i2c_imx->adapter.dev.parent);
+14-
+15-	return result;
+16-}
+
+=== 15. PROJEKTSTATUS ===
+?? research/02-historical-software/
+
+=== ENDE STEP 2.31a ===

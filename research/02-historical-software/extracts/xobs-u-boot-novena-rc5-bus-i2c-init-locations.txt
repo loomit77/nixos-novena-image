@@ -1,0 +1,4 @@
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/imx-common/i2c-mxv7.c:81:	bus_i2c_init(i2c_bases[i2c_index], speed, slave_addr,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/imx-common/mxc_i2c.h:57:void bus_i2c_init(void *base, int speed, int slave_addr,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/mxc_i2c.c:492:void bus_i2c_init(void *base, int speed, int unused,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/mxc_i2c.c:522:	bus_i2c_init(i2c_get_base(adap), speed, slaveaddr, NULL, NULL);

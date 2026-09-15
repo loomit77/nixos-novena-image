@@ -1,0 +1,147 @@
+commit afe595630f335c73ec41a49f41d9728017dec0e8
+Author:     Sean Cross <xobs@kosagi.com>
+AuthorDate: Wed Oct 15 17:34:22 2014 +0800
+Commit:     Sean Cross <xobs@kosagi.com>
+CommitDate: Wed Oct 15 17:36:06 2014 +0800
+
+    novena: it6251: Check if the IT6251 is connected
+    
+    We enable the backlight and bridge regulators, then check to see if
+    device 0x5c responds.  If so, we assume there is an IT6251 present.
+    
+    Signed-off-by: Sean Cross <xobs@kosagi.com>
+---
+ board/kosagi/novena/novena_spl.c | 14 ++++++++++++++
+ common/cmd_i2c.c                 |  8 +++++---
+ include/configs/novena.h         | 25 +++++++++++++++----------
+ 3 files changed, 34 insertions(+), 13 deletions(-)
+
+diff --git a/board/kosagi/novena/novena_spl.c b/board/kosagi/novena/novena_spl.c
+index ccb66037e5..03546e9709 100644
+--- a/board/kosagi/novena/novena_spl.c
++++ b/board/kosagi/novena/novena_spl.c
+@@ -70,6 +70,8 @@ DECLARE_GLOBAL_DATA_PTR;
+ #define NOVENA_PCIE_POWER_ON_GPIO	IMX_GPIO_NR(7, 12)
+ #define NOVENA_PCIE_WAKE_UP_GPIO	IMX_GPIO_NR(3, 22)
+ #define NOVENA_PCIE_DISABLE_GPIO	IMX_GPIO_NR(2, 16)
++#define NOVENA_LVDS_PWRON		IMX_GPIO_NR(5, 28)
++#define NOVENA_BACKLIGHT_PWRON		IMX_GPIO_NR(4, 15)
+ 
+ /*
+  * Audio
+@@ -365,10 +367,22 @@ static iomux_v3_cfg_t hdmi_pads[] = {
+ 	MX6_PAD_EIM_A24__GPIO5_IO04 | MUX_PAD_CTRL(NO_PAD_CTRL),
+ };
+ 
++static iomux_v3_cfg_t lvds_pads[] = {
++	/* Entire display subsystem power */
++	MX6_PAD_CSI0_DAT10__GPIO5_IO28 | MUX_PAD_CTRL(NO_PAD_CTRL),
++
++	/* Backlight pin */
++	MX6_PAD_KEY_ROW4__GPIO4_IO15 | MUX_PAD_CTRL(NO_PAD_CTRL),
++};
++
+ static void novena_spl_setup_iomux_video(void)
+ {
+ 	imx_iomux_v3_setup_multiple_pads(hdmi_pads, ARRAY_SIZE(hdmi_pads));
+ 	gpio_direction_input(NOVENA_HDMI_GHOST_HPD);
++
++	imx_iomux_v3_setup_multiple_pads(lvds_pads, ARRAY_SIZE(lvds_pads));
++	gpio_direction_output(NOVENA_LVDS_PWRON, 1);
++	gpio_direction_output(NOVENA_BACKLIGHT_PWRON, 1);
+ }
+ #else
+ static inline void novena_spl_setup_iomux_video(void) {}
+diff --git a/common/cmd_i2c.c b/common/cmd_i2c.c
+index 3a75f94ea1..b5524a8981 100644
+--- a/common/cmd_i2c.c
++++ b/common/cmd_i2c.c
+@@ -317,6 +317,7 @@ static int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
+ 	u_char	chip;
+ 	uint	addr, alen, length;
+ 	int	j, nbytes, linebytes;
++	int	errors = 0;
+ 
+ 	/* We use the last specified parameters, unless new ones are
+ 	 * entered.
+@@ -369,9 +370,10 @@ static int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
+ 
+ 		linebytes = (nbytes > DISP_LINE_LEN) ? DISP_LINE_LEN : nbytes;
+ 
+-		if (i2c_read(chip, addr, alen, linebuf, linebytes) != 0)
++		if (i2c_read(chip, addr, alen, linebuf, linebytes) != 0) {
+ 			puts ("Error reading the chip.\n");
+-		else {
++			errors++;
++		} else {
+ 			printf("%04x:", addr);
+ 			cp = linebuf;
+ 			for (j=0; j<linebytes; j++) {
+@@ -397,7 +399,7 @@ static int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
+ 	i2c_dp_last_alen   = alen;
+ 	i2c_dp_last_length = length;
+ 
+-	return 0;
++	return errors;
+ }
+ 
+ /**
+diff --git a/include/configs/novena.h b/include/configs/novena.h
+index 1e5aba8fa4..905e72ce06 100644
+--- a/include/configs/novena.h
++++ b/include/configs/novena.h
+@@ -291,10 +291,6 @@
+ 	"net_nfs="							\
+ 		"run netload nfsargs addip addargs ; "			\
+ 		"bootm ${kernel_addr_r}\0"				\
+-	"prephdmi=true"							\
+-	"preplcd=true"							\
+-	"prepethernet=true"						\
+-	"prepmisc=true"							\
+ 	"bootenv=uEnv.txt\0"						\
+ 	"loadbootenv=load ${bootsrc} ${bootdev} ${loadaddr} ${bootenv}\0" \
+ 	"importbootenv="						\
+@@ -311,11 +307,11 @@
+ 		"else ; "						\
+ 			"echo To override boot, create a file on the internal MMC called ${bootenv} ; " \
+ 		"fi ; "							\
+-		"if test -n $uenvcmd; then "				\
+-			"echo Running uenvcmd ... ; "			\
+-			"run uenvcmd ; "				\
++		"if test -n $earlyhook; then "				\
++			"echo Running earlyhook ... ; "			\
++			"run earlyhook ; "				\
+ 		"else ; "						\
+-			"echo To hook boot process, add a variable called uenvcmd ; " \
++			"echo To hook early boot process, add a variable called earlyhook ; " \
+ 		"fi ; "							\
+ 		"if gpio input 110 ; then " /* Test recovery button */  \
+ 			"echo Press Control-C to enter U-Boot shell, or wait to enter recovery mode ; " \
+@@ -327,8 +323,12 @@
+ 		"else ; "						\
+ 			"echo Hold recovery button to boot to recovery, or enter U-Boot shell. ; " \
+ 		"fi ; "							\
++		"i2c dev 2 ; "						\
+ 		"if hdmidet ; then "					\
+-			"echo HDMI monitor detected ; "		\
++			"echo HDMI monitor detected ; "			\
++			"setenv consdev tty0 ; "			\
++		"elif i2c md 0x5c 0 1 ; then "				\
++			"echo IT6251 bridge chip detected ; "		\
+ 			"setenv consdev tty0 ; "			\
+ 		"else ; "						\
+ 			"echo No video detected, using serial port ; "	\
+@@ -339,7 +339,12 @@
+ 		"fdt addr ${fdt_addr_r} ; "				\
+ 		"fdt boardsetup ; "					\
+ 		"setenv bootargs ${bootargs} root=${rootdev} console=${consdev} ; " \
+-		"run finalprep ; "					\
++		"if test -n $finalhook; then "				\
++			"echo Running finalhook ... ; "			\
++			"run finalhook ; "				\
++		"else ; "						\
++			"echo To hook late boot process, add a variable called finalhook ; " \
++		"fi ; "							\
+ 		"bootz ${kernel_addr_r} ${initrd_addr_r} ${fdt_addr_r} ; " \
+ 		"\0"							\
+ 	"update_sd_spl_filename=SPL\0"					\

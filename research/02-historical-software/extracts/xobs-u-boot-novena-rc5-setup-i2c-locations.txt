@@ -1,0 +1,43 @@
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/imx-common/i2c-mxv7.c:72:void setup_i2c(unsigned i2c_index, int speed, int slave_addr,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/imx-common/mxc_i2c.h:55:void setup_i2c(unsigned i2c_index, int speed, int slave_addr,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/aristainetos/aristainetos.c:451:	setup_i2c(0, CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/aristainetos/aristainetos.c:453:	setup_i2c(1, CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/aristainetos/aristainetos.c:455:	setup_i2c(2, CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/barco/titanium/titanium.c:284:	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info0);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/barco/titanium/titanium.c:285:	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/boundary/nitrogen6x/nitrogen6x.c:666:	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info0);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/boundary/nitrogen6x/nitrogen6x.c:667:	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/boundary/nitrogen6x/nitrogen6x.c:668:	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/compulab/cm_fx6/cm_fx6.c:144:static void cm_fx6_setup_i2c(void)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/compulab/cm_fx6/cm_fx6.c:146:	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, I2C_PADS_INFO(i2c0_pads));
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/compulab/cm_fx6/cm_fx6.c:147:	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, I2C_PADS_INFO(i2c1_pads));
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/compulab/cm_fx6/cm_fx6.c:148:	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, I2C_PADS_INFO(i2c2_pads));
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/compulab/cm_fx6/cm_fx6.c:151:static void cm_fx6_setup_i2c(void) { }
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/compulab/cm_fx6/cm_fx6.c:414:	cm_fx6_setup_i2c();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/embest/mx6boards/mx6boards.c:559:	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/embest/mx6boards/mx6boards.c:561:	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/embest/mx6boards/mx6boards.c:563:	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info3);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/mx53evk/mx53evk.c:51:static void setup_i2c(unsigned int port_number)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/mx53evk/mx53evk.c:253:	setup_i2c(1);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/mx6qsabreauto/mx6qsabreauto.c:250:	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/mx6qsabreauto/mx6qsabreauto.c:254:	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/mx6sabresd/mx6sabresd.c:454:	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/mx6sxsabresd/mx6sxsabresd.c:246:	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/gateworks/gw_ventana/gw_ventana.c:1261:		setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6q_i2c_pad_info0);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/gateworks/gw_ventana/gw_ventana.c:1262:		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6q_i2c_pad_info1);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/gateworks/gw_ventana/gw_ventana.c:1263:		setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6q_i2c_pad_info2);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/gateworks/gw_ventana/gw_ventana.c:1265:		setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6dl_i2c_pad_info0);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/gateworks/gw_ventana/gw_ventana.c:1266:		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6dl_i2c_pad_info1);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/gateworks/gw_ventana/gw_ventana.c:1267:		setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6dl_i2c_pad_info2);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/gateworks/gw_ventana/gw_ventana_spl.c:64:		setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6q_i2c_pad_info0);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/gateworks/gw_ventana/gw_ventana_spl.c:66:		setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6dl_i2c_pad_info0);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:231:	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info0);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:232:	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:233:	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/tqc/tqma6/tqma6.c:173:static void tqma6_setup_i2c(void)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/tqc/tqma6/tqma6.c:176:	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &tqma6_i2c3_pads);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/tqc/tqma6/tqma6.c:190:	tqma6_setup_i2c();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/tqc/tqma6/tqma6_mba6.c:225:static void mba6_setup_i2c(void)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/tqc/tqma6/tqma6_mba6.c:228:	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &mba6_i2c1_pads);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/tqc/tqma6/tqma6_mba6.c:335:	mba6_setup_i2c();
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/wandboard/wandboard.c:400:	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c2_pad_info);

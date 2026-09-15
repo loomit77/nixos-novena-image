@@ -1,0 +1,487 @@
+=== STEP 2.27c: SINGLE-/MULTI-MASTER-COMMITS ===
+Di 15. Sep 13:05:49 CEST 2026
+
+=== 1. COMMIT 6692694: METADATEN UND NACHRICHT ===
+commit 6692694aca86ddf6831e2be86e5089258c2789bf
+Author:     Stefan Eichenberger <stefan.eichenberger@toradex.com>
+AuthorDate: Mon Oct 14 15:15:12 2024 +0200
+Commit:     Andi Shyti <andi.shyti@kernel.org>
+CommitDate: Sun Nov 17 11:58:14 2024 +0100
+
+    i2c: imx: do not poll for bus busy in single master mode
+    
+    According to the i.MX8M Mini reference manual chapter "16.1.4.2
+    Generation of Start" it is only necessary to poll for bus busy and
+    arbitration lost in multi master mode. This helps to avoid rescheduling
+    while the i2c bus is busy and avoids SMBus devices to timeout. For
+    backward compatibility, the single-master property needs to be
+    explicitly set to disable the bus busy polling.
+    
+    Signed-off-by: Stefan Eichenberger <stefan.eichenberger@toradex.com>
+    Reviewed-by: Frank Li <Frank.Li@nxp.com>
+    Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+    Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
+
+=== 2. COMMIT 6692694: DATEILISTE ===
+M	drivers/i2c/busses/i2c-imx.c
+
+=== 3. COMMIT 6692694: PATCHSTATISTIK ===
+  70 2621 /tmp/novena-step-2.27c-6692694.patch
+7655bf12bb48f7fe83e5f4d23110a33024c7d4da5a792c7f568cbcb9ffdc718d  /tmp/novena-step-2.27c-6692694.patch
+6692694aca86 i2c: imx: do not poll for bus busy in single master mode
+ drivers/i2c/busses/i2c-imx.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+=== 4. COMMIT 6692694: I2C-IMX-DIFF ===
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index c2358356a8ff..b39c37acd30e 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -216,6 +216,8 @@ struct imx_i2c_struct {
+ 	struct i2c_client	*slave;
+ 	enum i2c_slave_event last_slave_event;
+ 
++	bool			multi_master;
++
+ 	/* For checking slave events. */
+ 	spinlock_t     slave_lock;
+ 	struct hrtimer slave_timer;
+@@ -481,6 +483,9 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool a
+ 	unsigned long orig_jiffies = jiffies;
+ 	unsigned int temp;
+ 
++	if (!i2c_imx->multi_master)
++		return 0;
++
+ 	while (1) {
+ 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+ 
+@@ -540,8 +545,8 @@ static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx, bool atomic)
+ 		return -ETIMEDOUT;
+ 	}
+ 
+-	/* check for arbitration lost */
+-	if (i2c_imx->i2csr & I2SR_IAL) {
++	/* In multi-master mode check for arbitration lost */
++	if (i2c_imx->multi_master && (i2c_imx->i2csr & I2SR_IAL)) {
+ 		dev_dbg(&i2c_imx->adapter.dev, "<%s> Arbitration lost\n", __func__);
+ 		i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+ 
+@@ -1468,6 +1473,12 @@ static int i2c_imx_probe(struct platform_device *pdev)
+ 		goto rpm_disable;
+ 	}
+ 
++	/*
++	 * We use the single-master property for backward compatibility.
++	 * By default multi master mode is enabled.
++	 */
++	i2c_imx->multi_master = !of_property_read_bool(pdev->dev.of_node, "single-master");
++
+ 	/* Set up clock divider */
+ 	i2c_imx->bitrate = I2C_MAX_STANDARD_MODE_FREQ;
+ 	ret = of_property_read_u32(pdev->dev.of_node,
+
+=== 5. COMMIT 768776d: METADATEN UND NACHRICHT ===
+commit 768776dd4efc681cdca33a79e29bb508d6de9bc0
+Author:     Stefan Eichenberger <stefan.eichenberger@toradex.com>
+AuthorDate: Mon Dec 16 16:16:40 2024 +0100
+Commit:     Andi Shyti <andi.shyti@kernel.org>
+CommitDate: Wed Dec 25 23:45:04 2024 +0100
+
+    i2c: imx: fix missing stop condition in single-master mode
+    
+    A regression was introduced with the implementation of single-master
+    mode, preventing proper stop conditions from being generated. Devices
+    that require a valid stop condition, such as EEPROMs, fail to function
+    correctly as a result.
+    
+    The issue only affects devices with the single-master property enabled.
+    
+    This commit resolves the issue by re-enabling I2C bus busy bit (IBB)
+    polling for single-master mode when generating a stop condition. The fix
+    further ensures that the i2c_imx->stopped flag is cleared at the start
+    of each transfer, allowing the stop condition to be correctly generated
+    in i2c_imx_stop().
+    
+    According to the reference manual (IMX8MMRM, Rev. 2, 09/2019, page
+    5270), polling the IBB bit to determine if the bus is free is only
+    necessary in multi-master mode. Consequently, the IBB bit is not polled
+    for the start condition in single-master mode.
+    
+    Fixes: 6692694aca86 ("i2c: imx: do not poll for bus busy in single master mode")
+    Signed-off-by: Stefan Eichenberger <stefan.eichenberger@toradex.com>
+    Reviewed-by: Frank Li <Frank.Li@nxp.com>
+    Reviewed-by: Francesco Dolcini <francesco.dolcini@toradex.com>
+    Link: https://lore.kernel.org/r/20241216151829.74056-1-eichest@gmail.com
+    Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
+
+=== 6. COMMIT 768776d: DATEILISTE ===
+M	drivers/i2c/busses/i2c-imx.c
+
+=== 7. COMMIT 768776d: PATCHSTATISTIK ===
+  66 2647 /tmp/novena-step-2.27c-768776d.patch
+1c66bf3b0e7e8a7fc1ab2b0ea468fcd79bd9eee0e894ad437c90fdf6a89be5c0  /tmp/novena-step-2.27c-768776d.patch
+768776dd4efc i2c: imx: fix missing stop condition in single-master mode
+ drivers/i2c/busses/i2c-imx.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+=== 8. COMMIT 768776d: I2C-IMX-DIFF ===
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index f751d231ded8..488ee3511314 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -532,22 +532,20 @@ static void i2c_imx_dma_free(struct imx_i2c_struct *i2c_imx)
+ 
+ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+ {
++	bool multi_master = i2c_imx->multi_master;
+ 	unsigned long orig_jiffies = jiffies;
+ 	unsigned int temp;
+ 
+-	if (!i2c_imx->multi_master)
+-		return 0;
+-
+ 	while (1) {
+ 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+ 
+ 		/* check for arbitration lost */
+-		if (temp & I2SR_IAL) {
++		if (multi_master && (temp & I2SR_IAL)) {
+ 			i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+ 			return -EAGAIN;
+ 		}
+ 
+-		if (for_busy && (temp & I2SR_IBB)) {
++		if (for_busy && (!multi_master || (temp & I2SR_IBB))) {
+ 			i2c_imx->stopped = 0;
+ 			break;
+ 		}
+
+=== 9. ZUSTAND VOR 6692694: BUS_BUSY ===
+static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+{
+	unsigned long orig_jiffies = jiffies;
+	unsigned int temp;
+
+	while (1) {
+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+
+		/* check for arbitration lost */
+		if (temp & I2SR_IAL) {
+			i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+			return -EAGAIN;
+		}
+
+		if (for_busy && (temp & I2SR_IBB)) {
+			i2c_imx->stopped = 0;
+			break;
+		}
+		if (!for_busy && !(temp & I2SR_IBB)) {
+			i2c_imx->stopped = 1;
+			break;
+		}
+		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
+			dev_dbg(&i2c_imx->adapter.dev,
+				"<%s> I2C bus is busy\n", __func__);
+			return -ETIMEDOUT;
+		}
+		if (atomic)
+			udelay(100);
+		else
+			schedule();
+	}
+
+	return 0;
+}
+
+=== 10. ZUSTAND NACH 6692694: BUS_BUSY ===
+static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+{
+	unsigned long orig_jiffies = jiffies;
+	unsigned int temp;
+
+	if (!i2c_imx->multi_master)
+		return 0;
+
+	while (1) {
+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+
+		/* check for arbitration lost */
+		if (temp & I2SR_IAL) {
+			i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+			return -EAGAIN;
+		}
+
+		if (for_busy && (temp & I2SR_IBB)) {
+			i2c_imx->stopped = 0;
+			break;
+		}
+		if (!for_busy && !(temp & I2SR_IBB)) {
+			i2c_imx->stopped = 1;
+			break;
+		}
+		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
+			dev_dbg(&i2c_imx->adapter.dev,
+				"<%s> I2C bus is busy\n", __func__);
+			return -ETIMEDOUT;
+		}
+		if (atomic)
+			udelay(100);
+		else
+			schedule();
+	}
+
+	return 0;
+}
+
+=== 11. ZUSTAND NACH 768776d: BUS_BUSY ===
+static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+{
+	bool multi_master = i2c_imx->multi_master;
+	unsigned long orig_jiffies = jiffies;
+	unsigned int temp;
+
+	while (1) {
+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+
+		/* check for arbitration lost */
+		if (multi_master && (temp & I2SR_IAL)) {
+			i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+			return -EAGAIN;
+		}
+
+		if (for_busy && (!multi_master || (temp & I2SR_IBB))) {
+			i2c_imx->stopped = 0;
+			break;
+		}
+		if (!for_busy && !(temp & I2SR_IBB)) {
+			i2c_imx->stopped = 1;
+			break;
+		}
+		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
+			dev_dbg(&i2c_imx->adapter.dev,
+				"<%s> I2C bus is busy\n", __func__);
+			return -ETIMEDOUT;
+		}
+		if (atomic)
+			udelay(100);
+		else
+			schedule();
+	}
+
+	return 0;
+}
+
+=== 12. ZUSTAND NACH 768776d: START ===
+static int i2c_imx_start(struct imx_i2c_struct *i2c_imx, bool atomic)
+{
+	unsigned int temp = 0;
+	int result;
+
+	imx_i2c_write_reg(i2c_imx->ifdr, i2c_imx, IMX_I2C_IFDR);
+	/* Enable I2C controller */
+	imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx, IMX_I2C_I2SR);
+	imx_i2c_write_reg(i2c_imx->hwdata->i2cr_ien_opcode, i2c_imx, IMX_I2C_I2CR);
+
+	/* Wait controller to be stable */
+	if (atomic)
+		udelay(50);
+	else
+		usleep_range(50, 150);
+
+	/* Start I2C transaction */
+	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+	temp |= I2CR_MSTA;
+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+	result = i2c_imx_bus_busy(i2c_imx, 1, atomic);
+	if (result)
+		return result;
+
+	temp |= I2CR_IIEN | I2CR_MTX | I2CR_TXAK;
+	if (atomic)
+		temp &= ~I2CR_IIEN; /* Disable interrupt */
+
+	temp &= ~I2CR_DMAEN;
+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+	return result;
+}
+
+=== 13. ZUSTAND NACH 768776d: STOP ===
+static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx, bool atomic)
+{
+	unsigned int temp = 0;
+
+	if (!i2c_imx->stopped) {
+		/* Stop I2C transaction */
+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+		if (!(temp & I2CR_MSTA))
+			i2c_imx->stopped = 1;
+		temp &= ~(I2CR_MSTA | I2CR_MTX);
+		if (i2c_imx->dma)
+			temp &= ~I2CR_DMAEN;
+		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+	}
+	if (is_imx1_i2c(i2c_imx)) {
+		/*
+		 * This delay caused by an i.MXL hardware bug.
+		 * If no (or too short) delay, no "STOP" bit will be generated.
+		 */
+		udelay(i2c_imx->disable_delay);
+	}
+
+	if (!i2c_imx->stopped)
+		i2c_imx_bus_busy(i2c_imx, 0, atomic);
+
+	/* Disable I2C controller */
+	temp = i2c_imx->hwdata->i2cr_ien_opcode ^ I2CR_IEN;
+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+}
+
+=== 14. SINGLE-/MULTI-MASTER-TREFFER NACH 768776d ===
+252-	struct imx_i2c_dma	*dma;
+253-	struct i2c_client	*slave;
+254-	enum i2c_slave_event last_slave_event;
+255-
+256-	struct i2c_msg		*msg;
+257-	unsigned int		msg_buf_idx;
+258-	int			isr_result;
+259-	bool			is_lastmsg;
+260-	enum imx_i2c_state	state;
+261-
+262:	bool			multi_master;
+263-
+264-	/* For checking slave events. */
+265-	spinlock_t     slave_lock;
+266-	struct hrtimer slave_timer;
+267-};
+268-
+269-static const struct imx_i2c_hwdata imx1_i2c_hwdata = {
+270-	.devtype		= IMX1_I2C,
+271-	.regshift		= IMX_I2C_REGSHIFT,
+272-	.clk_div		= imx_i2c_clk_div,
+273-	.ndivs			= ARRAY_SIZE(imx_i2c_clk_div),
+274-	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W0C,
+275-	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_1,
+276-
+277-};
+278-
+279-static const struct imx_i2c_hwdata imx21_i2c_hwdata = {
+280-	.devtype		= IMX21_I2C,
+--
+525-	dma->chan_tx = NULL;
+526-
+527-	dma_release_channel(dma->chan_rx);
+528-	dma->chan_rx = NULL;
+529-
+530-	dma->chan_using = NULL;
+531-}
+532-
+533-static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+534-{
+535:	bool multi_master = i2c_imx->multi_master;
+536-	unsigned long orig_jiffies = jiffies;
+537-	unsigned int temp;
+538-
+539-	while (1) {
+540-		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+541-
+542-		/* check for arbitration lost */
+543:		if (multi_master && (temp & I2SR_IAL)) {
+544-			i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+545-			return -EAGAIN;
+546-		}
+547-
+548:		if (for_busy && (!multi_master || (temp & I2SR_IBB))) {
+549-			i2c_imx->stopped = 0;
+550-			break;
+551-		}
+552-		if (!for_busy && !(temp & I2SR_IBB)) {
+553-			i2c_imx->stopped = 1;
+554-			break;
+555-		}
+556-		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
+557-			dev_dbg(&i2c_imx->adapter.dev,
+558-				"<%s> I2C bus is busy\n", __func__);
+559-			return -ETIMEDOUT;
+560-		}
+561-		if (atomic)
+562-			udelay(100);
+563-		else
+564-			schedule();
+565-	}
+566-
+--
+589-	} else {
+590-		wait_event_timeout(i2c_imx->queue, i2c_imx->i2csr & I2SR_IIF, HZ / 10);
+591-	}
+592-
+593-	if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
+594-		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
+595-		return -ETIMEDOUT;
+596-	}
+597-
+598-	/* In multi-master mode check for arbitration lost */
+599:	if (i2c_imx->multi_master && (i2c_imx->i2csr & I2SR_IAL)) {
+600-		dev_dbg(&i2c_imx->adapter.dev, "<%s> Arbitration lost\n", __func__);
+601-		i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+602-
+603-		i2c_imx->i2csr = 0;
+604-		return -EAGAIN;
+605-	}
+606-
+607-	dev_dbg(&i2c_imx->adapter.dev, "<%s> TRX complete\n", __func__);
+608-	i2c_imx->i2csr = 0;
+609-	return 0;
+610-}
+611-
+612-static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx)
+613-{
+614-	if (imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR) & I2SR_RXAK) {
+615-		dev_dbg(&i2c_imx->adapter.dev, "<%s> No ACK\n", __func__);
+616-		return -ENXIO;  /* No ACK */
+617-	}
+--
+1759-		goto rpm_disable;
+1760-
+1761-	/* Request IRQ */
+1762-	ret = request_irq(irq, i2c_imx_isr, IRQF_SHARED, pdev->name, i2c_imx);
+1763-	if (ret) {
+1764-		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
+1765-		goto rpm_disable;
+1766-	}
+1767-
+1768-	/*
+1769:	 * We use the single-master property for backward compatibility.
+1770-	 * By default multi master mode is enabled.
+1771-	 */
+1772:	i2c_imx->multi_master = !of_property_read_bool(pdev->dev.of_node, "single-master");
+1773-
+1774-	/* Set up clock divider */
+1775-	i2c_imx->bitrate = I2C_MAX_STANDARD_MODE_FREQ;
+1776-	ret = of_property_read_u32(pdev->dev.of_node,
+1777-				   "clock-frequency", &i2c_imx->bitrate);
+1778-	if (ret < 0 && pdata && pdata->bitrate)
+1779-		i2c_imx->bitrate = pdata->bitrate;
+1780-	i2c_imx->clk_change_nb.notifier_call = i2c_imx_clk_notifier_call;
+1781-	clk_notifier_register(i2c_imx->clk, &i2c_imx->clk_change_nb);
+1782-	i2c_imx_set_clk(i2c_imx, clk_get_rate(i2c_imx->clk));
+1783-
+1784-	i2c_imx_reset_regs(i2c_imx);
+1785-
+1786-	/* Init optional bus recovery function */
+1787-	ret = i2c_imx_init_recovery_info(i2c_imx, pdev);
+1788-	/* Give it another chance if pinctrl used is not ready yet */
+1789-	if (ret == -EPROBE_DEFER)
+1790-		goto clk_notifier_unregister;
+
+=== 15. ANCESTRY ZU v6.18 ===
+6692694_IN_v6.18=JA
+768776d_IN_v6.18=JA
+
+=== 16. REPOSITORY-ZUSTAND ===
+## master...origin/master
+
+=== 17. PROJEKTSTATUS ===
+?? research/02-historical-software/
+
+=== ENDE STEP 2.27c ===

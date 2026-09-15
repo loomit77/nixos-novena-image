@@ -1,0 +1,5 @@
+M	board/kosagi/novena/ddr3.c
+M	board/kosagi/novena/eeprom.c
+M	board/kosagi/novena/novena.c
+M	board/kosagi/novena/novena_spl.c
+M	include/configs/novena.h

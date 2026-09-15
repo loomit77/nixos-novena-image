@@ -1,0 +1,330 @@
+     1	/*
+     2	 * Copyright (C) 2009 Sergey Kubushyn <ksi@koi8.net>
+     3	 *
+     4	 * (C) Copyright 2012
+     5	 * Heiko Schocher, DENX Software Engineering, hs@denx.de.
+     6	 *
+     7	 * Multibus/multiadapter I2C core functions (wrappers)
+     8	 *
+     9	 * SPDX-License-Identifier:	GPL-2.0+
+    10	 */
+    11	#include <common.h>
+    12	#include <i2c.h>
+    13	
+    14	struct i2c_adapter *i2c_get_adapter(int index)
+    15	{
+    16		struct i2c_adapter *i2c_adap_p = ll_entry_start(struct i2c_adapter,
+    17							i2c);
+    18		int max = ll_entry_count(struct i2c_adapter, i2c);
+    19		int i;
+    20	
+    21		if (index >= max) {
+    22			printf("Error, wrong i2c adapter %d max %d possible\n",
+    23			       index, max);
+    24			return i2c_adap_p;
+    25		}
+    26		if (index == 0)
+    27			return i2c_adap_p;
+    28	
+    29		for (i = 0; i < index; i++)
+    30			i2c_adap_p++;
+    31	
+    32		return i2c_adap_p;
+    33	}
+    34	
+    35	#if !defined(CONFIG_SYS_I2C_DIRECT_BUS)
+    36	struct i2c_bus_hose i2c_bus[CONFIG_SYS_NUM_I2C_BUSES] =
+    37				CONFIG_SYS_I2C_BUSES;
+    38	#endif
+    39	
+    40	DECLARE_GLOBAL_DATA_PTR;
+    41	
+    42	void i2c_reloc_fixup(void)
+    43	{
+    44	#if defined(CONFIG_NEEDS_MANUAL_RELOC)
+    45		struct i2c_adapter *i2c_adap_p = ll_entry_start(struct i2c_adapter,
+    46							i2c);
+    47		struct i2c_adapter *tmp = i2c_adap_p;
+    48		int max = ll_entry_count(struct i2c_adapter, i2c);
+    49		int		i;
+    50		unsigned long	addr;
+    51	
+    52		if (gd->reloc_off == 0)
+    53			return;
+    54	
+    55		for (i = 0; i < max; i++) {
+    56			/* i2c_init() */
+    57			addr = (unsigned long)i2c_adap_p->init;
+    58			addr += gd->reloc_off;
+    59			i2c_adap_p->init = (void *)addr;
+    60			/* i2c_probe() */
+    61			addr = (unsigned long)i2c_adap_p->probe;
+    62			addr += gd->reloc_off;
+    63			i2c_adap_p->probe = (void *)addr;
+    64			/* i2c_read() */
+    65			addr = (unsigned long)i2c_adap_p->read;
+    66			addr += gd->reloc_off;
+    67			i2c_adap_p->read = (void *)addr;
+    68			/* i2c_write() */
+    69			addr = (unsigned long)i2c_adap_p->write;
+    70			addr += gd->reloc_off;
+    71			i2c_adap_p->write = (void *)addr;
+    72			/* i2c_set_bus_speed() */
+    73			addr = (unsigned long)i2c_adap_p->set_bus_speed;
+    74			addr += gd->reloc_off;
+    75			i2c_adap_p->set_bus_speed = (void *)addr;
+    76			/* name */
+    77			addr = (unsigned long)i2c_adap_p->name;
+    78			addr += gd->reloc_off;
+    79			i2c_adap_p->name = (char *)addr;
+    80			tmp++;
+    81			i2c_adap_p = tmp;
+    82		}
+    83	#endif
+    84	}
+    85	
+    86	#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+    87	/*
+    88	 * i2c_mux_set()
+    89	 * -------------
+    90	 *
+    91	 * This turns on the given channel on I2C multiplexer chip connected to
+    92	 * a given I2C adapter directly or via other multiplexers. In the latter
+    93	 * case the entire multiplexer chain must be initialized first starting
+    94	 * with the one connected directly to the adapter. When disabling a chain
+    95	 * muxes must be programmed in reverse order, starting with the one
+    96	 * farthest from the adapter.
+    97	 *
+    98	 * mux_id is the multiplexer chip type from defined in i2c.h. So far only
+    99	 * NXP (Philips) PCA954x multiplexers are supported. Switches are NOT
+   100	 * supported (anybody uses them?)
+   101	 */
+   102	
+   103	static int i2c_mux_set(struct i2c_adapter *adap, int mux_id, int chip,
+   104				int channel)
+   105	{
+   106		uint8_t	buf;
+   107		int ret;
+   108	
+   109		/* channel < 0 - turn off the mux */
+   110		if (channel < 0) {
+   111			buf = 0;
+   112			ret = adap->write(adap, chip, 0, 0, &buf, 1);
+   113			if (ret)
+   114				printf("%s: Could not turn off the mux.\n", __func__);
+   115			return ret;
+   116		}
+   117	
+   118		switch (mux_id) {
+   119		case I2C_MUX_PCA9540_ID:
+   120		case I2C_MUX_PCA9542_ID:
+   121			if (channel > 1)
+   122				return -1;
+   123			buf = (uint8_t)((channel & 0x01) | (1 << 2));
+   124			break;
+   125		case I2C_MUX_PCA9544_ID:
+   126			if (channel > 3)
+   127				return -1;
+   128			buf = (uint8_t)((channel & 0x03) | (1 << 2));
+   129			break;
+   130		case I2C_MUX_PCA9547_ID:
+   131			if (channel > 7)
+   132				return -1;
+   133			buf = (uint8_t)((channel & 0x07) | (1 << 3));
+   134			break;
+   135		case I2C_MUX_PCA9548_ID:
+   136			if (channel > 7)
+   137				return -1;
+   138			buf = (uint8_t)(0x01 << channel);
+   139			break;
+   140		default:
+   141			printf("%s: wrong mux id: %d\n", __func__, mux_id);
+   142			return -1;
+   143		}
+   144	
+   145		ret = adap->write(adap, chip, 0, 0, &buf, 1);
+   146		if (ret)
+   147			printf("%s: could not set mux: id: %d chip: %x channel: %d\n",
+   148			       __func__, mux_id, chip, channel);
+   149		return ret;
+   150	}
+   151	
+   152	static int i2c_mux_set_all(void)
+   153	{
+   154		struct i2c_bus_hose *i2c_bus_tmp = &i2c_bus[I2C_BUS];
+   155		int i;
+   156	
+   157		/* Connect requested bus if behind muxes */
+   158		if (i2c_bus_tmp->next_hop[0].chip != 0) {
+   159			/* Set all muxes along the path to that bus */
+   160			for (i = 0; i < CONFIG_SYS_I2C_MAX_HOPS; i++) {
+   161				int	ret;
+   162	
+   163				if (i2c_bus_tmp->next_hop[i].chip == 0)
+   164					break;
+   165	
+   166				ret = i2c_mux_set(I2C_ADAP,
+   167						i2c_bus_tmp->next_hop[i].mux.id,
+   168						i2c_bus_tmp->next_hop[i].chip,
+   169						i2c_bus_tmp->next_hop[i].channel);
+   170				if (ret != 0)
+   171					return ret;
+   172			}
+   173		}
+   174		return 0;
+   175	}
+   176	
+   177	static int i2c_mux_disconnet_all(void)
+   178	{
+   179		struct	i2c_bus_hose *i2c_bus_tmp = &i2c_bus[I2C_BUS];
+   180		int	i;
+   181		uint8_t	buf;
+   182	
+   183		if (I2C_ADAP->init_done == 0)
+   184			return 0;
+   185	
+   186		/* Disconnect current bus (turn off muxes if any) */
+   187		if ((i2c_bus_tmp->next_hop[0].chip != 0) &&
+   188		    (I2C_ADAP->init_done != 0)) {
+   189			i = CONFIG_SYS_I2C_MAX_HOPS;
+   190			do {
+   191				uint8_t	chip;
+   192				int ret;
+   193	
+   194				chip = i2c_bus_tmp->next_hop[--i].chip;
+   195				if (chip == 0)
+   196					continue;
+   197	
+   198				ret = I2C_ADAP->write(I2C_ADAP, chip, 0, 0, &buf, 1);
+   199				if (ret != 0) {
+   200					printf("i2c: mux diconnect error\n");
+   201					return ret;
+   202				}
+   203			} while (i > 0);
+   204		}
+   205	
+   206		return 0;
+   207	}
+   208	#endif
+   209	
+   210	/*
+   211	 * i2c_init_bus():
+   212	 * ---------------
+   213	 *
+   214	 * Initializes one bus. Will initialize the parent adapter. No current bus
+   215	 * changes, no mux (if any) setup.
+   216	 */
+   217	static void i2c_init_bus(unsigned int bus_no, int speed, int slaveaddr)
+   218	{
+   219		if (bus_no >= CONFIG_SYS_NUM_I2C_BUSES)
+   220			return;
+   221	
+   222		I2C_ADAP->init(I2C_ADAP, speed, slaveaddr);
+   223	
+   224		if (gd->flags & GD_FLG_RELOC) {
+   225			I2C_ADAP->init_done = 1;
+   226			I2C_ADAP->speed = speed;
+   227			I2C_ADAP->slaveaddr = slaveaddr;
+   228		}
+   229	}
+   230	
+   231	/* implement possible board specific board init */
+   232	static void __def_i2c_init_board(void)
+   233	{
+   234	}
+   235	void i2c_init_board(void)
+   236		__attribute__((weak, alias("__def_i2c_init_board")));
+   237	
+   238	/*
+   239	 * i2c_init_all():
+   240	 *
+   241	 * not longer needed, will deleted. Actual init the SPD_BUS
+   242	 * for compatibility.
+   243	 * i2c_adap[] must be initialized beforehead with function pointers and
+   244	 * data, including speed and slaveaddr.
+   245	 */
+   246	void i2c_init_all(void)
+   247	{
+   248		i2c_init_board();
+   249		i2c_set_bus_num(CONFIG_SYS_SPD_BUS_NUM);
+   250		return;
+   251	}
+   252	
+   253	/*
+   254	 * i2c_get_bus_num():
+   255	 * ------------------
+   256	 *
+   257	 *  Returns index of currently active I2C bus.  Zero-based.
+   258	 */
+   259	unsigned int i2c_get_bus_num(void)
+   260	{
+   261		return gd->cur_i2c_bus;
+   262	}
+   263	
+   264	/*
+   265	 * i2c_set_bus_num():
+   266	 * ------------------
+   267	 *
+   268	 *  Change the active I2C bus. Subsequent read/write calls will
+   269	 *  go to this one. Sets all of the muxes in a proper condition
+   270	 *  if that bus is behind muxes.
+   271	 *  If previously selected bus is behind the muxes turns off all the
+   272	 *  muxes along the path to that bus.
+   273	 *
+   274	 *	bus - bus index, zero based
+   275	 *
+   276	 *	Returns: 0 on success, not 0 on failure
+   277	 */
+   278	int i2c_set_bus_num(unsigned int bus)
+   279	{
+   280		int max;
+   281	
+   282		if ((bus == I2C_BUS) && (I2C_ADAP->init_done > 0))
+   283			return 0;
+   284	
+   285	#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+   286		if (bus >= CONFIG_SYS_NUM_I2C_BUSES)
+   287			return -1;
+   288	#endif
+   289	
+   290		max = ll_entry_count(struct i2c_adapter, i2c);
+   291		if (I2C_ADAPTER(bus) >= max) {
+   292			printf("Error, wrong i2c adapter %d max %d possible\n",
+   293			       I2C_ADAPTER(bus), max);
+   294			return -2;
+   295		}
+   296	
+   297	#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+   298		i2c_mux_disconnet_all();
+   299	#endif
+   300	
+   301		gd->cur_i2c_bus = bus;
+   302		if (I2C_ADAP->init_done == 0)
+   303			i2c_init_bus(bus, I2C_ADAP->speed, I2C_ADAP->slaveaddr);
+   304	
+   305	#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+   306		i2c_mux_set_all();
+   307	#endif
+   308		return 0;
+   309	}
+   310	
+   311	/*
+   312	 * Probe the given I2C chip address.  Returns 0 if a chip responded,
+   313	 * not 0 on failure.
+   314	 */
+   315	int i2c_probe(uint8_t chip)
+   316	{
+   317		return I2C_ADAP->probe(I2C_ADAP, chip);
+   318	}
+   319	
+   320	/*
+   321	 * Read/Write interface:
+   322	 *   chip:    I2C chip address, range 0..127
+   323	 *   addr:    Memory (register) address within the chip
+   324	 *   alen:    Number of bytes to use for addr (typically 1, 2 for larger
+   325	 *              memories, 0 for register type devices with only one
+   326	 *              register)
+   327	 *   buffer:  Where to read/write the data
+   328	 *   len:     How many bytes to read/write
+   329	 *
+   330	 *   Returns: 0 on success, not 0 on failure

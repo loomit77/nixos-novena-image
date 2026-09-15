@@ -1,0 +1,219 @@
+=== STEP 2.25d: NOVENA 5.7 VS UPSTREAM 5.7-RC2 ===
+Di 15. Sep 12:50:21 CEST 2026
+
+=== 1. COMMITS VERIFIZIEREN ===
+NOVENA 1fda06deecb61538ca3d07d256eb7c43d4e3432a
+PARENT bf31b26ec4d21ff438f0dd9cfd36a04647dcb17e
+DATE 2020-05-04T15:49:21+02:00
+SUBJECT FIXME: ITE workaround
+
+UPSTREAM ae83d0b416db002fe95601e7f97f64b59514d936
+PARENT dadbd85f2afc8ccd1dd1f0131781c740c91edd96
+DATE 2020-04-19T14:35:30-07:00
+SUBJECT Linux 5.7-rc2
+
+=== 2. I2C-IMX BYTEVERGLEICH ===
+0f5f281102fc70cbf54e1dee07634d4b731a153771e0fdd2e51e0042fafcd467  -
+0f5f281102fc70cbf54e1dee07634d4b731a153771e0fdd2e51e0042fafcd467  -
+I2C_IMX_DIFF=IDENTISCH
+
+=== 3. I2C-CORE BYTEVERGLEICH ===
+17c41c9b4a734c4d3ede9674305603f8c0a20abf6a648b153c3014de1c3a3145  -
+17c41c9b4a734c4d3ede9674305603f8c0a20abf6a648b153c3014de1c3a3145  -
+I2C_CORE_DIFF=IDENTISCH
+
+=== 4. NOVENA-DTS BYTEVERGLEICH ===
+a26b29487f204a9b2e32909441c27a37f2d95f3bb5a1ec93659178285adc8cee  -
+aefc6241b2414c126ebda766ba874c5938e6173b214a3787ed80b0ac98a331e7  -
+NOVENA_DTS_DIFF=UNTERSCHIEDLICH
+ arch/arm/boot/dts/imx6q-novena.dts | 57 +++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 56 insertions(+), 1 deletion(-)
+
+=== 5. NUR I2C3-BLOCK BEIDER DTS-STÄNDE ===
+--- UPSTREAM v5.7-rc2 ---
+&i2c3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_i2c3_novena>;
+	status = "okay";
+
+	codec: es8328@11 {
+		compatible = "everest,es8328";
+		reg = <0x11>;
+		DVDD-supply = <&reg_audio_codec>;
+		AVDD-supply = <&reg_audio_codec>;
+		PVDD-supply = <&reg_audio_codec>;
+		HPVDD-supply = <&reg_audio_codec>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_sound_novena>;
+		clocks = <&clks IMX6QDL_CLK_CKO1>;
+		assigned-clocks = <&clks IMX6QDL_CLK_CKO>,
+				  <&clks IMX6QDL_CLK_CKO1_SEL>,
+				  <&clks IMX6QDL_CLK_PLL4_AUDIO>,
+				  <&clks IMX6QDL_CLK_CKO1>;
+		assigned-clock-parents = <&clks IMX6QDL_CLK_CKO1>,
+					 <&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,
+					 <&clks IMX6QDL_CLK_OSC>,
+					 <&clks IMX6QDL_CLK_CKO1_PODF>;
+		assigned-clock-rates = <0 0 722534400 22579200>;
+	};
+};
+
+--- NOVENA 1fda06d ---
+&i2c3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_i2c3_novena>;
+	status = "okay";
+
+	codec: es8328@11 {
+		compatible = "everest,es8328";
+		reg = <0x11>;
+		DVDD-supply = <&reg_audio_codec>;
+		AVDD-supply = <&reg_audio_codec>;
+		PVDD-supply = <&reg_audio_codec>;
+		HPVDD-supply = <&reg_audio_codec>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_sound_novena>;
+		clocks = <&clks IMX6QDL_CLK_CKO1>;
+		assigned-clocks = <&clks IMX6QDL_CLK_CKO>,
+				  <&clks IMX6QDL_CLK_CKO1_SEL>,
+				  <&clks IMX6QDL_CLK_PLL4_AUDIO>,
+				  <&clks IMX6QDL_CLK_CKO1>;
+		assigned-clock-parents = <&clks IMX6QDL_CLK_CKO1>,
+					 <&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,
+					 <&clks IMX6QDL_CLK_OSC>,
+					 <&clks IMX6QDL_CLK_CKO1_PODF>;
+		assigned-clock-rates = <0 0 722534400 22579200>;
+	};
+
+	it6251@5c {
+		compatible = "ite,it6251";
+		reg = <0x5c>, <0x5e>;
+		reg-names = "bridge", "lvds";
+		power-supply = <&reg_display>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_lvdsbridge_novena>;
+
+		ports {
+			port@0 {
+				bridge_out_edp0: endpoint {
+					remote-endpoint = <&panel_in_edp0>;
+				};
+			};
+
+			port@1 {
+				bridge_in_lvds0: endpoint {
+					remote-endpoint = <&lvds0_out>;
+				};
+			};
+		};
+	};
+};
+
+=== 6. I2C3 PINCTRL-/GPIO-RECOVERY-TREFFER ===
+--- UPSTREAM ---
+71:		pinctrl-names = "default";
+72:		pinctrl-0 = <&pinctrl_backlight_novena>;
+80:		pinctrl-names = "default";
+81:		pinctrl-0 = <&pinctrl_gpio_keys_novena>;
+99:		pinctrl-names = "default";
+100:		pinctrl-0 = <&pinctrl_leds_novena>;
+210:	pinctrl-names = "default";
+211:	pinctrl-0 = <&pinctrl_audmux_novena>;
+216:	pinctrl-names = "default";
+217:	pinctrl-0 = <&pinctrl_ecspi3_novena>;
+222:	pinctrl-names = "default";
+223:	pinctrl-0 = <&pinctrl_enet_novena>;
+242:	pinctrl-names = "default";
+243:	pinctrl-0 = <&pinctrl_hdmi_novena>;
+249:	pinctrl-names = "default";
+250:	pinctrl-0 = <&pinctrl_i2c1_novena>;
+276:		pinctrl-names = "default";
+277:		pinctrl-0 = <&pinctrl_stmpe_novena>;
+297:	pinctrl-names = "default";
+298:	pinctrl-0 = <&pinctrl_i2c2_novena>;
+401:&i2c3 {
+402:	pinctrl-names = "default";
+403:	pinctrl-0 = <&pinctrl_i2c3_novena>;
+413:		pinctrl-names = "default";
+414:		pinctrl-0 = <&pinctrl_sound_novena>;
+429:	pinctrl-names = "default";
+430:	pinctrl-0 = <&pinctrl_kpp_novena>;
+450:	pinctrl-names = "default";
+451:	pinctrl-0 = <&pinctrl_pcie_novena>;
+474:	pinctrl-names = "default";
+475:	pinctrl-0 = <&pinctrl_uart2_novena>;
+480:	pinctrl-names = "default";
+481:	pinctrl-0 = <&pinctrl_uart3_novena>;
+486:	pinctrl-names = "default";
+487:	pinctrl-0 = <&pinctrl_uart4_novena>;
+494:	pinctrl-names = "default";
+495:	pinctrl-0 = <&pinctrl_usbotg_novena>;
+506:	pinctrl-names = "default";
+507:	pinctrl-0 = <&pinctrl_usdhc2_novena>;
+515:	pinctrl-names = "default";
+516:	pinctrl-0 = <&pinctrl_usdhc3_novena>;
+675:	pinctrl_i2c3_novena: i2c3grp-novena {
+
+--- NOVENA ---
+71:		pinctrl-names = "default";
+72:		pinctrl-0 = <&pinctrl_backlight_novena>;
+80:		pinctrl-names = "default";
+81:		pinctrl-0 = <&pinctrl_gpio_keys_novena>;
+99:		pinctrl-names = "default";
+100:		pinctrl-0 = <&pinctrl_leds_novena>;
+218:	pinctrl-names = "default";
+219:	pinctrl-0 = <&pinctrl_audmux_novena>;
+235:	pinctrl-names = "default";
+236:	pinctrl-0 = <&pinctrl_ecspi3_novena>;
+241:	pinctrl-names = "default";
+242:	pinctrl-0 = <&pinctrl_enet_novena>;
+261:	pinctrl-names = "default";
+262:	pinctrl-0 = <&pinctrl_hdmi_novena>;
+268:	pinctrl-names = "default";
+269:	pinctrl-0 = <&pinctrl_i2c1_novena>;
+295:		pinctrl-names = "default";
+296:		pinctrl-0 = <&pinctrl_stmpe_novena>;
+316:	pinctrl-names = "default";
+317:	pinctrl-0 = <&pinctrl_i2c2_novena>;
+420:&i2c3 {
+421:	pinctrl-names = "default";
+422:	pinctrl-0 = <&pinctrl_i2c3_novena>;
+432:		pinctrl-names = "default";
+433:		pinctrl-0 = <&pinctrl_sound_novena>;
+451:		pinctrl-names = "default";
+452:		pinctrl-0 = <&pinctrl_lvdsbridge_novena>;
+471:	pinctrl-names = "default";
+472:	pinctrl-0 = <&pinctrl_kpp_novena>;
+500:	pinctrl-names = "default";
+501:	pinctrl-0 = <&pinctrl_pcie_novena>;
+524:	pinctrl-names = "default";
+525:	pinctrl-0 = <&pinctrl_uart2_novena>;
+530:	pinctrl-names = "default";
+531:	pinctrl-0 = <&pinctrl_uart3_novena>;
+536:	pinctrl-names = "default";
+537:	pinctrl-0 = <&pinctrl_uart4_novena>;
+544:	pinctrl-names = "default";
+545:	pinctrl-0 = <&pinctrl_usbotg_novena>;
+556:	pinctrl-names = "default";
+557:	pinctrl-0 = <&pinctrl_usdhc2_novena>;
+565:	pinctrl-names = "default";
+566:	pinctrl-0 = <&pinctrl_usdhc3_novena>;
+730:	pinctrl_i2c3_novena: i2c3grp-novena {
+
+=== 7. NOVENA-SPEZIFISCHE COMMITS, DIE I2C-IMX ÄNDERN ===
+
+=== 8. NOVENA-SPEZIFISCHE COMMITS, DIE I2C-CORE ÄNDERN ===
+
+=== 9. NOVENA-SPEZIFISCHE COMMITS AM NOVENA-DTS ===
+COMMIT bf31b26ec4d21ff438f0dd9cfd36a04647dcb17e
+DATE 2020-05-04T15:49:21+02:00
+AUTHOR Marek Vasut <marex@denx.de>
+SUBJECT ARM: dts: novena: Add LVDS-to-eDP bridge bindings
+
+=== 10. REPOSITORY-ZUSTAND ===
+## master...origin/master
+
+=== 11. PROJEKTSTATUS ===
+?? research/02-historical-software/
+
+=== ENDE STEP 2.25d ===

@@ -1,0 +1,33 @@
+Repository:
+origin	https://github.com/xobs/it6251-dump-dptx.git (fetch)
+origin	https://github.com/xobs/it6251-dump-dptx.git (push)
+
+HEAD:
+70b07efbf2621cba7f791a8a44abc80d0e447012
+
+Commit:
+commit 70b07efbf2621cba7f791a8a44abc80d0e447012
+Merge: 7820969 f8f8fbf
+Author:     Sean Cross <sean@xobs.io>
+AuthorDate: Wed Jul 26 15:16:02 2017 +0800
+Commit:     GitHub <noreply@github.com>
+CommitDate: Wed Jul 26 15:16:02 2017 +0800
+
+    Merge pull request #2 from akil/hotfix/libi2c
+    
+    fix: libi2c
+
+Tree:
+e6fda812b65db8ba77e122cdf61ca2d7760993b4
+
+Refs:
+70b07efbf2621cba7f791a8a44abc80d0e447012 refs/heads/master
+70b07efbf2621cba7f791a8a44abc80d0e447012 refs/remotes/origin/HEAD
+70b07efbf2621cba7f791a8a44abc80d0e447012 refs/remotes/origin/master
+
+History:
+70b07efbf2621cba7f791a8a44abc80d0e447012 782096934543927469f629d41f6a153c9a7c5c0c f8f8fbfe162a1e4def43d30395149cea2e49fbfe 2017-07-26T15:16:02+08:00 Sean Cross <sean@xobs.io> Merge pull request #2 from akil/hotfix/libi2c
+f8f8fbfe162a1e4def43d30395149cea2e49fbfe 782096934543927469f629d41f6a153c9a7c5c0c 2017-07-26T06:09:11+01:00 akil <akil@nanotek.info> fix: libi2c
+782096934543927469f629d41f6a153c9a7c5c0c d44d53bcd52c3b6254065ab33f60599cd8a412d0 2015-10-28T14:23:50+08:00 Sean Cross <xobs@kosagi.com> it6251-dump-dptx: Add binary
+d44d53bcd52c3b6254065ab33f60599cd8a412d0 078f80469fa3619c202abf1577a86a0f8e9adda3 2015-10-28T14:23:17+08:00 Sean Cross <xobs@kosagi.com> it6251-dump-dptx: Fix build on base system
+078f80469fa3619c202abf1577a86a0f8e9adda3  2015-10-16T12:05:51+08:00 Sean Cross <xobs@kosagi.com> Initial commit

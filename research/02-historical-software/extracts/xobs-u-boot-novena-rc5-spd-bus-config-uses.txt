@@ -1,0 +1,56 @@
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:README:2570:		CONFIG_SYS_SPD_BUS_NUM
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:README:4731:- CONFIG_SYS_SPD_BUS_NUM
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/powerpc/cpu/mpc5xxx/i2c.c:27:						CONFIG_SYS_SPD_BUS_NUM;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/powerpc/cpu/ppc4xx/40x_spd_sdram.c:141:		i2c_set_bus_num(CONFIG_SYS_SPD_BUS_NUM);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/powerpc/cpu/ppc4xx/44x_spd_ddr.c:151:	i2c_set_bus_num(CONFIG_SYS_SPD_BUS_NUM);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/powerpc/cpu/ppc4xx/44x_spd_ddr2.c:441:	i2c_set_bus_num(CONFIG_SYS_SPD_BUS_NUM);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/powerpc/cpu/ppc4xx/denali_spd_ddr2.c:1027:	i2c_set_bus_num(CONFIG_SYS_SPD_BUS_NUM);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/common/sys_eeprom.c:517: * Also, we assume that CONFIG_SYS_EEPROM_BUS_NUM == CONFIG_SYS_SPD_BUS_NUM.  The global
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/common/sys_eeprom.c:518: * variable i2c_bus_num must be compile-time initialized to CONFIG_SYS_SPD_BUS_NUM,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/common/sys_eeprom.c:520: * operations can only occur on the CONFIG_SYS_SPD_BUS_NUM bus.  So if
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/common/sys_eeprom.c:521: * CONFIG_SYS_EEPROM_BUS_NUM != CONFIG_SYS_SPD_BUS_NUM, then we can't read the EEPROM when
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/freescale/p1_p2_rdb_pc/p1_p2_rdb_pc.c:235:	i2c_set_bus_num(CONFIG_SYS_SPD_BUS_NUM);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/ddr/fsl/main.c:94:	i2c_set_bus_num(CONFIG_SYS_SPD_BUS_NUM);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:249:	i2c_set_bus_num(CONFIG_SYS_SPD_BUS_NUM);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/B4860QDS.h:256:#define CONFIG_SYS_SPD_BUS_NUM	0
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/BSC9131RDB.h:84:#define CONFIG_SYS_SPD_BUS_NUM		0
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/BSC9132QDS.h:143:#define CONFIG_SYS_SPD_BUS_NUM		0
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/C29XPCIE.h:154:#define CONFIG_SYS_SPD_BUS_NUM		0
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/DU440.h:168:#define CONFIG_SYS_SPD_BUS_NUM         0
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/HWW1U1A.h:214:#define CONFIG_SYS_SPD_BUS_NUM 0
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/MPC8349EMDS.h:70:#define CONFIG_SYS_SPD_BUS_NUM	0
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/MPC8349ITX.h:93:#define CONFIG_SYS_SPD_BUS_NUM		1	/* The I2C bus for SPD */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/MPC8536DS.h:131:#define CONFIG_SYS_SPD_BUS_NUM		1
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/MPC8572DS.h:116:#define CONFIG_SYS_SPD_BUS_NUM		1	/* SPD EEPROMS locate on I2C bus 1 */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/P1010RDB.h:275:#define CONFIG_SYS_SPD_BUS_NUM		1
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/P1022DS.h:192:#define CONFIG_SYS_SPD_BUS_NUM		1
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/P1023RDB.h:79:#define CONFIG_SYS_SPD_BUS_NUM          0
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/P2020COME.h:127:#define CONFIG_SYS_SPD_BUS_NUM		1
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/P2020DS.h:131:#define CONFIG_SYS_SPD_BUS_NUM		0	/* SPD EEPROM located on I2C bus 0 */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/P2041RDB.h:179:#define CONFIG_SYS_SPD_BUS_NUM	0
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/T1040QDS.h:181:#define CONFIG_SYS_SPD_BUS_NUM	0
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/T104xRDB.h:218:#define CONFIG_SYS_SPD_BUS_NUM	0
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/T208xQDS.h:237:#define CONFIG_SYS_SPD_BUS_NUM	0
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/T208xRDB.h:225:#define CONFIG_SYS_SPD_BUS_NUM	0
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/T4240EMU.h:36:#define CONFIG_SYS_SPD_BUS_NUM	1
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/T4240QDS.h:156:#define CONFIG_SYS_SPD_BUS_NUM	0
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/T4240RDB.h:377:#define CONFIG_SYS_SPD_BUS_NUM	0
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/bcm28155_ap.h:57:#define CONFIG_SYS_SPD_BUS_NUM	3	/* Start with PMU bus */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/corenet_ds.h:180:#define CONFIG_SYS_SPD_BUS_NUM	1
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/dlvision-10g.h:120:#define CONFIG_SYS_SPD_BUS_NUM		2
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/flea3.h:55:#define CONFIG_SYS_SPD_BUS_NUM		2 /* I2C3 */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/icon.h:108:#define CONFIG_SYS_SPD_BUS_NUM	0	/* The I2C bus for SPD		*/
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/iocon.h:111:#define CONFIG_SYS_SPD_BUS_NUM		4
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/katmai.h:107:#define CONFIG_SYS_SPD_BUS_NUM		0	/* The I2C bus for SPD		*/
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/km/kmp204x-common.h:116:#define CONFIG_SYS_SPD_BUS_NUM	0
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/ls1021aqds.h:51:#define CONFIG_SYS_SPD_BUS_NUM		0
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/ls2085a_emu.h:18:#define CONFIG_SYS_SPD_BUS_NUM	1	/* SPD on I2C bus 1 */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/novena.h:156:#define CONFIG_SYS_SPD_BUS_NUM		2
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/p1_p2_rdb_pc.h:329:#define CONFIG_SYS_SPD_BUS_NUM 1
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/p1_p2_rdb_pc.h:655:#define CONFIG_SYS_SPD_BUS_NUM		1 /* For rom_loc and flash bank */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/sbc8349.h:299:/* could also use CONFIG_I2C_MULTI_BUS and CONFIG_SYS_SPD_BUS_NUM... */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/vf610twr.h:87:#define CONFIG_SYS_SPD_BUS_NUM		0
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/vme8349.h:232:/* could also use CONFIG_I2C_MULTI_BUS and CONFIG_SYS_SPD_BUS_NUM... */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/configs/woodburn_common.h:50:#define CONFIG_SYS_SPD_BUS_NUM		0
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:54:#if !defined(CONFIG_SYS_SPD_BUS_NUM)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:55:#define CONFIG_SYS_SPD_BUS_NUM		0

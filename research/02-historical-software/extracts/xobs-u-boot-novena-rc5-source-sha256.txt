@@ -1,0 +1,7 @@
+f75834972afdb596cf885db4d97c69623cb9dc28738dc9cc1615d45e1bacc945  research/02-historical-software/sources/xobs-u-boot-novena-v2014.10-novena-rc5/board/kosagi/novena/ddr3.c
+9a961d3832988cb881282c543a7ccef244dc7eebed2cd103914b0839b9d7f4af  research/02-historical-software/sources/xobs-u-boot-novena-v2014.10-novena-rc5/board/kosagi/novena/Kconfig
+d12de3e0318583f6612fce5f7303749aff61cd640d74535459eb5b5a96673489  research/02-historical-software/sources/xobs-u-boot-novena-v2014.10-novena-rc5/board/kosagi/novena/Makefile
+ffb30695edd8efd83d0813f2d0dc396f4e2a9eb0f0f336d0a48674d20332098c  research/02-historical-software/sources/xobs-u-boot-novena-v2014.10-novena-rc5/board/kosagi/novena/novena.c
+47297c6c439f302d08125237a7bbb9a47ce26628145f4e707c892b07f59b1413  research/02-historical-software/sources/xobs-u-boot-novena-v2014.10-novena-rc5/board/kosagi/novena/novena_spl.c
+959136b9f8adcd7745564dad0b8310e124c6e13bfbb7f9728ac98be44db6d427  research/02-historical-software/sources/xobs-u-boot-novena-v2014.10-novena-rc5/board/kosagi/novena/setup.cfg
+7de9fea49866a6c768498eda29ede2f55c18bd8357eaaec7c91bd7bb34f64dd0  research/02-historical-software/sources/xobs-u-boot-novena-v2014.10-novena-rc5/include/configs/novena.h

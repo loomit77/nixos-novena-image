@@ -1,0 +1,66 @@
+commit 768776dd4efc681cdca33a79e29bb508d6de9bc0
+Author:     Stefan Eichenberger <stefan.eichenberger@toradex.com>
+AuthorDate: Mon Dec 16 16:16:40 2024 +0100
+Commit:     Andi Shyti <andi.shyti@kernel.org>
+CommitDate: Wed Dec 25 23:45:04 2024 +0100
+
+    i2c: imx: fix missing stop condition in single-master mode
+    
+    A regression was introduced with the implementation of single-master
+    mode, preventing proper stop conditions from being generated. Devices
+    that require a valid stop condition, such as EEPROMs, fail to function
+    correctly as a result.
+    
+    The issue only affects devices with the single-master property enabled.
+    
+    This commit resolves the issue by re-enabling I2C bus busy bit (IBB)
+    polling for single-master mode when generating a stop condition. The fix
+    further ensures that the i2c_imx->stopped flag is cleared at the start
+    of each transfer, allowing the stop condition to be correctly generated
+    in i2c_imx_stop().
+    
+    According to the reference manual (IMX8MMRM, Rev. 2, 09/2019, page
+    5270), polling the IBB bit to determine if the bus is free is only
+    necessary in multi-master mode. Consequently, the IBB bit is not polled
+    for the start condition in single-master mode.
+    
+    Fixes: 6692694aca86 ("i2c: imx: do not poll for bus busy in single master mode")
+    Signed-off-by: Stefan Eichenberger <stefan.eichenberger@toradex.com>
+    Reviewed-by: Frank Li <Frank.Li@nxp.com>
+    Reviewed-by: Francesco Dolcini <francesco.dolcini@toradex.com>
+    Link: https://lore.kernel.org/r/20241216151829.74056-1-eichest@gmail.com
+    Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
+---
+ drivers/i2c/busses/i2c-imx.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index f751d231ded8..488ee3511314 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -532,22 +532,20 @@ static void i2c_imx_dma_free(struct imx_i2c_struct *i2c_imx)
+ 
+ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+ {
++	bool multi_master = i2c_imx->multi_master;
+ 	unsigned long orig_jiffies = jiffies;
+ 	unsigned int temp;
+ 
+-	if (!i2c_imx->multi_master)
+-		return 0;
+-
+ 	while (1) {
+ 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+ 
+ 		/* check for arbitration lost */
+-		if (temp & I2SR_IAL) {
++		if (multi_master && (temp & I2SR_IAL)) {
+ 			i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+ 			return -EAGAIN;
+ 		}
+ 
+-		if (for_busy && (temp & I2SR_IBB)) {
++		if (for_busy && (!multi_master || (temp & I2SR_IBB))) {
+ 			i2c_imx->stopped = 0;
+ 			break;
+ 		}

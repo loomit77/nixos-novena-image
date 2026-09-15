@@ -1,0 +1,44 @@
+commit 576eba03c99435380d155e5f71d5d7603b9178f6
+Author:     Carlos Song <carlos.song@nxp.com>
+AuthorDate: Mon Dec 23 11:43:43 2024 +0800
+Commit:     Andi Shyti <andi.shyti@kernel.org>
+CommitDate: Tue Jan 7 23:46:09 2025 +0100
+
+    i2c: imx: switch different pinctrl state in different system power status
+    
+    Switch different pinctrl state in different system power status.
+    
+    Signed-off-by: Carlos Song <carlos.song@nxp.com>
+    Reviewed-by: Frank Li <Frank.Li@nxp.com>
+    Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+    Link: https://lore.kernel.org/r/20241223034343.544002-1-carlos.song@nxp.com
+    Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
+---
+ drivers/i2c/busses/i2c-imx.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 167985f60d27..1f441227bfdc 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1870,8 +1870,7 @@ static int i2c_imx_runtime_suspend(struct device *dev)
+ 	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
+ 
+ 	clk_disable(i2c_imx->clk);
+-
+-	return 0;
++	return pinctrl_pm_select_sleep_state(dev);
+ }
+ 
+ static int i2c_imx_runtime_resume(struct device *dev)
+@@ -1879,6 +1878,10 @@ static int i2c_imx_runtime_resume(struct device *dev)
+ 	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
+ 	int ret;
+ 
++	ret = pinctrl_pm_select_default_state(dev);
++	if (ret)
++		return ret;
++
+ 	ret = clk_enable(i2c_imx->clk);
+ 	if (ret)
+ 		dev_err(dev, "can't enable I2C clock, ret=%d\n", ret);

@@ -1,0 +1,357 @@
+=== STEP 2.30c: EXAKTE PM-/PINCTRL-AENDERUNGEN ===
+Di 15. Sep 13:59:14 CEST 2026
+
+=== 1. 358025a: VOLLSTAENDIGER PATCH ===
+commit 358025ac091e5a54f9819b33ee9c7cb07c55ee5d
+Author:     Carlos Song <carlos.song@nxp.com>
+AuthorDate: Mon Nov 25 22:21:08 2024 +0800
+Commit:     Andi Shyti <andi.shyti@kernel.org>
+CommitDate: Tue Jan 7 23:46:09 2025 +0100
+
+    i2c: imx: make controller available until system suspend_noirq() and from resume_noirq()
+    
+    Put runtime PM to resume state between suspend() and suspend_noirq(),
+    resume_noirq() and resume(), because some I2C devices need the controller
+    on to perform communication during this period.
+    
+    The controller can't be woken up once runtime pm is disabled and in
+    runtime autosuspended state.
+    
+    The problem can be easily reproduced on the I.MX8MQ platform:
+    the PMIC needs to be used to enable regulator when the system resumes.
+    When the PMIC uses the I2C controller, I2C runtime pm has not been enabled,
+    so in i2c xfer(), pm_runtime_resume_and_get() will return an error,
+    which causes data transfer to fail. Therefore, regulators cannot
+    be enabled and system resume hangs.
+    
+    Here is resume error log:
+    [   53.888902] galcore 38000000.gpu3d: PM: calling genpd_resume_noirq @ 529, parent: platform
+    [   53.897203] i2c_imx_xfer, pm_runtime_resume_and_get is -13
+    [   53.902713] imx-pgc imx-pgc-domain.5: failed to enable regulator: -EACCES
+    [   53.909518] galcore 38000000.gpu3d: PM: genpd_resume_noirq returned 0 after 12331 usecs
+    [   53.917545] mxc_hantro 38300000.vpu: PM: calling genpd_resume_noirq @ 529, parent: soc@0
+    [   53.925659] i2c_imx_xfer, pm_runtime_resume_and_get is -13
+    [   53.931157] imx-pgc imx-pgc-domain.6: failed to enable regulator: -EACCES
+    
+    I.MX8MQ system resume normally after applying the fix. Here is resume log:
+    [   71.068807] galcore 38000000.gpu3d: PM: calling genpd_resume_noirq @ 530, parent: platform
+    [   71.077103] i2c_imx_xfer, pm_runtime_resume_and_get is 0
+    [   71.083578] galcore 38000000.gpu3d: PM: genpd_resume_noirq returned 0 after 6490 usecs
+    [   71.091526] mxc_hantro 38300000.vpu: PM: calling genpd_resume_noirq @ 530, parent: soc@0
+    [   71.099638] i2c_imx_xfer, pm_runtime_resume_and_get is 0
+    [   71.106091] mxc_hantro 38300000.vpu: PM: genpd_resume_noirq returned 0 after 6458 usecs
+    
+    Signed-off-by: Carlos Song <carlos.song@nxp.com>
+    Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+    Reviewed-by: Frank Li <Frank.Li@nxp.com>
+    Link: https://lore.kernel.org/r/20241125142108.1613016-1-carlos.song@nxp.com
+    Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
+---
+ drivers/i2c/busses/i2c-imx.c | 39 ++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 38 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index da77ba5ee579..167985f60d27 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1767,7 +1767,8 @@ static int i2c_imx_probe(struct platform_device *pdev)
+ 		goto rpm_disable;
+ 
+ 	/* Request IRQ */
+-	ret = request_irq(irq, i2c_imx_isr, IRQF_SHARED, pdev->name, i2c_imx);
++	ret = request_irq(irq, i2c_imx_isr, IRQF_SHARED | IRQF_NO_SUSPEND,
++			  pdev->name, i2c_imx);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
+ 		goto rpm_disable;
+@@ -1885,7 +1886,43 @@ static int i2c_imx_runtime_resume(struct device *dev)
+ 	return ret;
+ }
+ 
++static int i2c_imx_suspend(struct device *dev)
++{
++	/*
++	 * Some I2C devices may need the I2C controller to remain active
++	 * during resume_noirq() or suspend_noirq(). If the controller is
++	 * autosuspended, there is no way to wake it up once runtime PM is
++	 * disabled (in suspend_late()).
++	 *
++	 * During system resume, the I2C controller will be available only
++	 * after runtime PM is re-enabled (in resume_early()). However, this
++	 * may be too late for some devices.
++	 *
++	 * Wake up the controller in the suspend() callback while runtime PM
++	 * is still enabled. The I2C controller will remain available until
++	 * the suspend_noirq() callback (pm_runtime_force_suspend()) is
++	 * called. During resume, the I2C controller can be restored by the
++	 * resume_noirq() callback (pm_runtime_force_resume()).
++	 *
++	 * Finally, the resume() callback re-enables autosuspend, ensuring
++	 * the I2C controller remains available until the system enters
++	 * suspend_noirq() and from resume_noirq().
++	 */
++	return pm_runtime_resume_and_get(dev);
++}
++
++static int i2c_imx_resume(struct device *dev)
++{
++	pm_runtime_mark_last_busy(dev);
++	pm_runtime_put_autosuspend(dev);
++
++	return 0;
++}
++
+ static const struct dev_pm_ops i2c_imx_pm_ops = {
++	NOIRQ_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
++				  pm_runtime_force_resume)
++	SYSTEM_SLEEP_PM_OPS(i2c_imx_suspend, i2c_imx_resume)
+ 	RUNTIME_PM_OPS(i2c_imx_runtime_suspend, i2c_imx_runtime_resume, NULL)
+ };
+ 
+
+=== 2. 576eba0: VOLLSTAENDIGER PATCH ===
+commit 576eba03c99435380d155e5f71d5d7603b9178f6
+Author:     Carlos Song <carlos.song@nxp.com>
+AuthorDate: Mon Dec 23 11:43:43 2024 +0800
+Commit:     Andi Shyti <andi.shyti@kernel.org>
+CommitDate: Tue Jan 7 23:46:09 2025 +0100
+
+    i2c: imx: switch different pinctrl state in different system power status
+    
+    Switch different pinctrl state in different system power status.
+    
+    Signed-off-by: Carlos Song <carlos.song@nxp.com>
+    Reviewed-by: Frank Li <Frank.Li@nxp.com>
+    Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+    Link: https://lore.kernel.org/r/20241223034343.544002-1-carlos.song@nxp.com
+    Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
+---
+ drivers/i2c/busses/i2c-imx.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 167985f60d27..1f441227bfdc 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1870,8 +1870,7 @@ static int i2c_imx_runtime_suspend(struct device *dev)
+ 	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
+ 
+ 	clk_disable(i2c_imx->clk);
+-
+-	return 0;
++	return pinctrl_pm_select_sleep_state(dev);
+ }
+ 
+ static int i2c_imx_runtime_resume(struct device *dev)
+@@ -1879,6 +1878,10 @@ static int i2c_imx_runtime_resume(struct device *dev)
+ 	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
+ 	int ret;
+ 
++	ret = pinctrl_pm_select_default_state(dev);
++	if (ret)
++		return ret;
++
+ 	ret = clk_enable(i2c_imx->clk);
+ 	if (ret)
+ 		dev_err(dev, "can't enable I2C clock, ret=%d\n", ret);
+
+=== 3. 358025a: NUR CODEAENDERUNGEN ===
+-	ret = request_irq(irq, i2c_imx_isr, IRQF_SHARED, pdev->name, i2c_imx);
++	ret = request_irq(irq, i2c_imx_isr, IRQF_SHARED | IRQF_NO_SUSPEND,
++			  pdev->name, i2c_imx);
++static int i2c_imx_suspend(struct device *dev)
++{
++	/*
++	 * Some I2C devices may need the I2C controller to remain active
++	 * during resume_noirq() or suspend_noirq(). If the controller is
++	 * autosuspended, there is no way to wake it up once runtime PM is
++	 * disabled (in suspend_late()).
++	 *
++	 * During system resume, the I2C controller will be available only
++	 * after runtime PM is re-enabled (in resume_early()). However, this
++	 * may be too late for some devices.
++	 *
++	 * Wake up the controller in the suspend() callback while runtime PM
++	 * is still enabled. The I2C controller will remain available until
++	 * the suspend_noirq() callback (pm_runtime_force_suspend()) is
++	 * called. During resume, the I2C controller can be restored by the
++	 * resume_noirq() callback (pm_runtime_force_resume()).
++	 *
++	 * Finally, the resume() callback re-enables autosuspend, ensuring
++	 * the I2C controller remains available until the system enters
++	 * suspend_noirq() and from resume_noirq().
++	 */
++	return pm_runtime_resume_and_get(dev);
++}
++static int i2c_imx_resume(struct device *dev)
++{
++	pm_runtime_mark_last_busy(dev);
++	pm_runtime_put_autosuspend(dev);
++	return 0;
++}
++	NOIRQ_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
++				  pm_runtime_force_resume)
++	SYSTEM_SLEEP_PM_OPS(i2c_imx_suspend, i2c_imx_resume)
+
+=== 4. 576eba0: NUR CODEAENDERUNGEN ===
+-	return 0;
++	return pinctrl_pm_select_sleep_state(dev);
++	ret = pinctrl_pm_select_default_state(dev);
++	if (ret)
++		return ret;
+
+=== 5. 576eba0: PINCTRL-SCHLUESSELZEILEN ===
+1-commit 576eba03c99435380d155e5f71d5d7603b9178f6
+2-Author:     Carlos Song <carlos.song@nxp.com>
+3-AuthorDate: Mon Dec 23 11:43:43 2024 +0800
+4-Commit:     Andi Shyti <andi.shyti@kernel.org>
+5-CommitDate: Tue Jan 7 23:46:09 2025 +0100
+6-
+7:    i2c: imx: switch different pinctrl state in different system power status
+8-    
+9:    Switch different pinctrl state in different system power status.
+10-    
+11-    Signed-off-by: Carlos Song <carlos.song@nxp.com>
+12-    Reviewed-by: Frank Li <Frank.Li@nxp.com>
+13-    Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+14-    Link: https://lore.kernel.org/r/20241223034343.544002-1-carlos.song@nxp.com
+15-    Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
+16----
+17- drivers/i2c/busses/i2c-imx.c | 7 +++++--
+18- 1 file changed, 5 insertions(+), 2 deletions(-)
+19-
+20-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+21-index 167985f60d27..1f441227bfdc 100644
+22---- a/drivers/i2c/busses/i2c-imx.c
+23-+++ b/drivers/i2c/busses/i2c-imx.c
+24:@@ -1870,8 +1870,7 @@ static int i2c_imx_runtime_suspend(struct device *dev)
+25- 	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
+26- 
+27- 	clk_disable(i2c_imx->clk);
+28--
+29--	return 0;
+30:+	return pinctrl_pm_select_sleep_state(dev);
+31- }
+32- 
+33: static int i2c_imx_runtime_resume(struct device *dev)
+34:@@ -1879,6 +1878,10 @@ static int i2c_imx_runtime_resume(struct device *dev)
+35- 	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
+36- 	int ret;
+37- 
+38:+	ret = pinctrl_pm_select_default_state(dev);
+39-+	if (ret)
+40-+		return ret;
+41-+
+42- 	ret = clk_enable(i2c_imx->clk);
+43- 	if (ret)
+44- 		dev_err(dev, "can't enable I2C clock, ret=%d\n", ret);
+
+=== 6. 358025a: PM-SCHLUESSELZEILEN ===
+1-commit 358025ac091e5a54f9819b33ee9c7cb07c55ee5d
+2-Author:     Carlos Song <carlos.song@nxp.com>
+3-AuthorDate: Mon Nov 25 22:21:08 2024 +0800
+4-Commit:     Andi Shyti <andi.shyti@kernel.org>
+5-CommitDate: Tue Jan 7 23:46:09 2025 +0100
+6-
+7:    i2c: imx: make controller available until system suspend_noirq() and from resume_noirq()
+8-    
+9:    Put runtime PM to resume state between suspend() and suspend_noirq(),
+10:    resume_noirq() and resume(), because some I2C devices need the controller
+11-    on to perform communication during this period.
+12-    
+13-    The controller can't be woken up once runtime pm is disabled and in
+14:    runtime autosuspended state.
+15-    
+16-    The problem can be easily reproduced on the I.MX8MQ platform:
+17:    the PMIC needs to be used to enable regulator when the system resumes.
+18-    When the PMIC uses the I2C controller, I2C runtime pm has not been enabled,
+19:    so in i2c xfer(), pm_runtime_resume_and_get() will return an error,
+20-    which causes data transfer to fail. Therefore, regulators cannot
+21:    be enabled and system resume hangs.
+22-    
+23:    Here is resume error log:
+24:    [   53.888902] galcore 38000000.gpu3d: PM: calling genpd_resume_noirq @ 529, parent: platform
+25:    [   53.897203] i2c_imx_xfer, pm_runtime_resume_and_get is -13
+26-    [   53.902713] imx-pgc imx-pgc-domain.5: failed to enable regulator: -EACCES
+27:    [   53.909518] galcore 38000000.gpu3d: PM: genpd_resume_noirq returned 0 after 12331 usecs
+28:    [   53.917545] mxc_hantro 38300000.vpu: PM: calling genpd_resume_noirq @ 529, parent: soc@0
+29:    [   53.925659] i2c_imx_xfer, pm_runtime_resume_and_get is -13
+30-    [   53.931157] imx-pgc imx-pgc-domain.6: failed to enable regulator: -EACCES
+31-    
+32:    I.MX8MQ system resume normally after applying the fix. Here is resume log:
+33:    [   71.068807] galcore 38000000.gpu3d: PM: calling genpd_resume_noirq @ 530, parent: platform
+34:    [   71.077103] i2c_imx_xfer, pm_runtime_resume_and_get is 0
+35:    [   71.083578] galcore 38000000.gpu3d: PM: genpd_resume_noirq returned 0 after 6490 usecs
+36:    [   71.091526] mxc_hantro 38300000.vpu: PM: calling genpd_resume_noirq @ 530, parent: soc@0
+37:    [   71.099638] i2c_imx_xfer, pm_runtime_resume_and_get is 0
+38:    [   71.106091] mxc_hantro 38300000.vpu: PM: genpd_resume_noirq returned 0 after 6458 usecs
+39-    
+40-    Signed-off-by: Carlos Song <carlos.song@nxp.com>
+41-    Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+42-    Reviewed-by: Frank Li <Frank.Li@nxp.com>
+43-    Link: https://lore.kernel.org/r/20241125142108.1613016-1-carlos.song@nxp.com
+44-    Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
+45----
+46- drivers/i2c/busses/i2c-imx.c | 39 ++++++++++++++++++++++++++++++++++++++-
+47- 1 file changed, 38 insertions(+), 1 deletion(-)
+48-
+--
+57--	ret = request_irq(irq, i2c_imx_isr, IRQF_SHARED, pdev->name, i2c_imx);
+58-+	ret = request_irq(irq, i2c_imx_isr, IRQF_SHARED | IRQF_NO_SUSPEND,
+59-+			  pdev->name, i2c_imx);
+60- 	if (ret) {
+61- 		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
+62- 		goto rpm_disable;
+63:@@ -1885,7 +1886,43 @@ static int i2c_imx_runtime_resume(struct device *dev)
+64- 	return ret;
+65- }
+66- 
+67:+static int i2c_imx_suspend(struct device *dev)
+68-+{
+69-+	/*
+70-+	 * Some I2C devices may need the I2C controller to remain active
+71:+	 * during resume_noirq() or suspend_noirq(). If the controller is
+72:+	 * autosuspended, there is no way to wake it up once runtime PM is
+73:+	 * disabled (in suspend_late()).
+74-+	 *
+75:+	 * During system resume, the I2C controller will be available only
+76:+	 * after runtime PM is re-enabled (in resume_early()). However, this
+77-+	 * may be too late for some devices.
+78-+	 *
+79:+	 * Wake up the controller in the suspend() callback while runtime PM
+80-+	 * is still enabled. The I2C controller will remain available until
+81:+	 * the suspend_noirq() callback (pm_runtime_force_suspend()) is
+82:+	 * called. During resume, the I2C controller can be restored by the
+83:+	 * resume_noirq() callback (pm_runtime_force_resume()).
+84-+	 *
+85:+	 * Finally, the resume() callback re-enables autosuspend, ensuring
+86-+	 * the I2C controller remains available until the system enters
+87:+	 * suspend_noirq() and from resume_noirq().
+88-+	 */
+89:+	return pm_runtime_resume_and_get(dev);
+90-+}
+91-+
+92:+static int i2c_imx_resume(struct device *dev)
+93-+{
+94:+	pm_runtime_mark_last_busy(dev);
+95:+	pm_runtime_put_autosuspend(dev);
+96-+
+97-+	return 0;
+98-+}
+99-+
+100- static const struct dev_pm_ops i2c_imx_pm_ops = {
+101:+	NOIRQ_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
+102:+				  pm_runtime_force_resume)
+103:+	SYSTEM_SLEEP_PM_OPS(i2c_imx_suspend, i2c_imx_resume)
+104: 	RUNTIME_PM_OPS(i2c_imx_runtime_suspend, i2c_imx_runtime_resume, NULL)
+105- };
+106- 
+
+=== 7. HASHES DER EINGABEPATCHES ===
+8fce80902e8025611f1c100605ebec10f806dde6dcaa0614772b0ce618e8cb0f  /tmp/novena-step-2.30a-358025a.patch
+bfb2b9b1f2e1322bb0d11cf7d57029c9cb99466e71e68164ff003589e1b3ec2a  /tmp/novena-step-2.30a-576eba0.patch
+
+=== 8. PROJEKTSTATUS ===
+?? research/02-historical-software/
+
+=== ENDE STEP 2.30c ===

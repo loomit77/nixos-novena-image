@@ -1,0 +1,8 @@
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6dl_pins.h:232:MX6_PAD_DECL(DISP0_DAT23__GPIO5_IO17,	0x0404, 0x00F0, 5, 0x0000, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/arm/include/asm/arch-mx6/mx6q_pins.h:520:MX6_PAD_DECL(DISP0_DAT23__GPIO5_IO17,	0x04E0, 0x01CC, 5, 0x0000, 0, 0)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/gateworks/gw_ventana/gw_ventana.c:667:	IOMUX_PADS(PAD_DISP0_DAT23__GPIO5_IO17 | DIO_PAD_CFG),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/gateworks/gw_ventana/gw_ventana.c:940:		.wdis = IMX_GPIO_NR(5, 17),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:66:#define NOVENA_AUDIO_PWRON		IMX_GPIO_NR(5, 17)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:78:	/* AUD_PWRON */
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:79:	MX6_PAD_DISP0_DAT23__GPIO5_IO17 | MUX_PAD_CTRL(NO_PAD_CTRL),
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena_spl.c:85:	gpio_direction_output(NOVENA_AUDIO_PWRON, 1);

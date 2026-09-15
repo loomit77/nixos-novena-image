@@ -1,0 +1,111 @@
+   135		gpio_direction_output(IMX_GPIO_NR(6, 29), 1);
+   136		gpio_direction_output(IMX_GPIO_NR(6, 24), 1);
+   137	
+   138		imx_iomux_v3_setup_multiple_pads(enet_pads2, ARRAY_SIZE(enet_pads2));
+   139	}
+   140	
+   141	/*
+   142	 * FPGA
+   143	 */
+   144	static iomux_v3_cfg_t fpga_pads[] = {
+   145		/* FPGA_RESET_N */
+   146		MX6_PAD_DISP0_DAT13__GPIO5_IO07 | MUX_PAD_CTRL(NO_PAD_CTRL),
+   147	};
+   148	
+   149	static void novena_spl_setup_iomux_fpga(void)
+   150	{
+   151		imx_iomux_v3_setup_multiple_pads(fpga_pads, ARRAY_SIZE(fpga_pads));
+   152		gpio_direction_output(NOVENA_FPGA_RESET_N_GPIO, 0);
+   153	}
+   154	
+   155	/*
+   156	 * GPIO Button
+   157	 */
+   158	static iomux_v3_cfg_t button_pads[] = {
+   159		/* Debug */
+   160		MX6_PAD_KEY_COL4__GPIO4_IO14 | MUX_PAD_CTRL(BUTTON_PAD_CTRL),
+   161	};
+   162	
+   163	static void novena_spl_setup_iomux_buttons(void)
+   164	{
+   165		imx_iomux_v3_setup_multiple_pads(button_pads, ARRAY_SIZE(button_pads));
+   166	}
+   167	
+   168	/*
+   169	 * I2C
+   170	 */
+   171	/*
+   172	 * I2C1:
+   173	 *  0x1d ... MMA7455L
+   174	 *  0x30 ... SO-DIMM temp sensor
+   175	 *  0x44 ... STMPE610
+   176	 *  0x50 ... SO-DIMM ID
+   177	 */
+   178	struct i2c_pads_info i2c_pad_info0 = {
+   179		.scl = {
+   180			.i2c_mode	= MX6_PAD_EIM_D21__I2C1_SCL | PC,
+   181			.gpio_mode	= MX6_PAD_EIM_D21__GPIO3_IO21 | PC,
+   182			.gp		= IMX_GPIO_NR(3, 21)
+   183		},
+   184		.sda = {
+   185			.i2c_mode	= MX6_PAD_EIM_D28__I2C1_SDA | PC,
+   186			.gpio_mode	= MX6_PAD_EIM_D28__GPIO3_IO28 | PC,
+   187			.gp		= IMX_GPIO_NR(3, 28)
+   188		}
+   189	};
+   190	
+   191	/*
+   192	 * I2C2:
+   193	 *  0x08 ... PMIC
+   194	 *  0x3a ... HDMI DCC
+   195	 *  0x50 ... HDMI DCC
+   196	 */
+   197	static struct i2c_pads_info i2c_pad_info1 = {
+   198		.scl = {
+   199			.i2c_mode	= MX6_PAD_EIM_EB2__I2C2_SCL | PC,
+   200			.gpio_mode	= MX6_PAD_EIM_EB2__GPIO2_IO30 | PC,
+   201			.gp		= IMX_GPIO_NR(2, 30)
+   202		},
+   203		.sda = {
+   204			.i2c_mode	= MX6_PAD_EIM_D16__I2C2_SDA | PC,
+   205			.gpio_mode	= MX6_PAD_EIM_D16__GPIO3_IO16 | PC,
+   206			.gp		= IMX_GPIO_NR(3, 16)
+   207		}
+   208	};
+   209	
+   210	/*
+   211	 * I2C3:
+   212	 *  0x11 ... ES8283
+   213	 *  0x50 ... LCD EDID
+   214	 *  0x56 ... EEPROM
+   215	 */
+   216	static struct i2c_pads_info i2c_pad_info2 = {
+   217		.scl = {
+   218			.i2c_mode	= MX6_PAD_EIM_D17__I2C3_SCL | PC,
+   219			.gpio_mode	= MX6_PAD_EIM_D17__GPIO3_IO17 | PC,
+   220			.gp		= IMX_GPIO_NR(3, 17)
+   221		},
+   222		.sda = {
+   223			.i2c_mode	= MX6_PAD_EIM_D18__I2C3_SDA | PC,
+   224			.gpio_mode	= MX6_PAD_EIM_D18__GPIO3_IO18 | PC,
+   225			.gp		= IMX_GPIO_NR(3, 18)
+   226		}
+   227	};
+   228	
+   229	static void novena_spl_setup_iomux_i2c(void)
+   230	{
+   231		setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info0);
+   232		setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+   233		setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
+   234	}
+   235	
+   236	/*
+   237	 * PCI express
+   238	 */
+   239	#ifdef CONFIG_CMD_PCI
+   240	static iomux_v3_cfg_t pcie_pads[] = {
+   241		/* "Reset" pin */
+   242		MX6_PAD_EIM_D29__GPIO3_IO29 | MUX_PAD_CTRL(NO_PAD_CTRL),
+   243		/* "Power on" pin */
+   244		MX6_PAD_GPIO_17__GPIO7_IO12 | MUX_PAD_CTRL(NO_PAD_CTRL),
+   245		/* "Wake up" pin (input) */

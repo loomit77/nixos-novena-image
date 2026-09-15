@@ -1,0 +1,13 @@
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/powerpc/cpu/mpc5xxx/i2c.c:253:void i2c_init(int speed, int saddr)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/powerpc/cpu/mpc8260/i2c.c:189:void i2c_init(int speed, int slaveadd)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:arch/powerpc/cpu/mpc8xx/i2c.c:171:void i2c_init(int speed, int slaveaddr)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/bfin-twi_i2c.c:276:void i2c_init(int speed, int slaveaddr)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/designware_i2c.c:119:void i2c_init(int speed, int slaveadd)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/i2c_core.c:402:void i2c_init(int speed, int slaveaddr)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/mv_i2c.c:269:void i2c_init(int speed, int slaveaddr)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/mxs_i2c.c:293:void i2c_init(int speed, int slaveadd)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/pca9564_i2c.c:61:void i2c_init(int speed, int slaveaddr)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/sh_sh7734_i2c.c:302:void i2c_init(int speed, int slaveaddr)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/tsi108_i2c.c:27:void i2c_init(int speed, int slaveaddr)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:drivers/i2c/u8500_i2c.c:106:void i2c_init(int speed, int slaveaddr)
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:include/i2c.h:181:void i2c_init(int speed, int slaveaddr);

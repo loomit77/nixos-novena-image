@@ -1,0 +1,1078 @@
+diff --git a/board/kosagi/novena/ddr3.c b/board/kosagi/novena/ddr3.c
+index eb78def774..1f8b8377d2 100644
+--- a/board/kosagi/novena/ddr3.c
++++ b/board/kosagi/novena/ddr3.c
+@@ -787,134 +787,169 @@ int do_dqs_calibration(void)
+ 	 * the upper and lower boundaries captured during
+ 	 * read DQS gating calibration.
+ 	 */
+ 	debug("Status registers bounds for read DQS gating:\n");
+ 	debug("\tMPDGHWST0 PHY0 (0x021b087c) = 0x%08X\n", readl(0x021b087c));
+ 	debug("\tMPDGHWST1 PHY0 (0x021b0880) = 0x%08X\n", readl(0x021b0880));
+ 	debug("\tMPDGHWST2 PHY0 (0x021b0884) = 0x%08X\n", readl(0x021b0884));
+ 	debug("\tMPDGHWST3 PHY0 (0x021b0888) = 0x%08X\n", readl(0x021b0888));
+ 	debug("\tMPDGHWST0 PHY1 (0x021b487c) = 0x%08X\n", readl(0x021b487c));
+ 	debug("\tMPDGHWST1 PHY1 (0x021b4880) = 0x%08X\n", readl(0x021b4880));
+ 	debug("\tMPDGHWST2 PHY1 (0x021b4884) = 0x%08X\n", readl(0x021b4884));
+ 	debug("\tMPDGHWST3 PHY1 (0x021b4888) = 0x%08X\n", readl(0x021b4888));
+ 
+ 	debug("Final do_dqs_calibration error mask: 0x%x\n", errors);
+ 
+ 	return errors;
+ }
+ 
+ uint32_t novena_read_spd(struct mx6_ddr_sysinfo *sysinfo,
+ 			 struct mx6_ddr3_cfg *cfg)
+ {
+ 	struct ddr3_spd_eeprom_s spd;
+ 	int ret;
+ 	int chip   = 0x50;	/* Address of the SPD I2C device */
+ 	int addr   = 0x0;	/* Start of SPD address */
+ 	int alen   = 0x1;	/* Address is one-byte long */
+ 	uint32_t capacity;
+ 	uint32_t mtb_scale;
+ 
+ 	i2c_init(CONFIG_SYS_I2C_SPEED, 0);
+ 
+ 	ret = i2c_read(chip, addr, alen, (uint8_t *)&spd, sizeof(spd));
+ 	if (ret != 0) {
+ 		printf("Error reading SPD on DDR3.\n");
+ 		dram_fatal(-ret);
+ 	}
+ 
+ 	switch (spd.tck_min) {
+ 	case 0x14:
+ 		cfg->mem_speed = 800;
++		if (spd.tfaw_min == 0x40) {
++			cfg->pagesz = 1;
++			debug("\t1K page size\n");
++		} else if (spd.tfaw_min == 0x90) {
++			cfg->pagesz = 2;
++			debug("\t2K page size\n");
++		}
++		else
++			debug("Unknown page size: 0x%02x\n", spd.tfaw_min);
+ 		break;
+ 	case 0x0f:
+ 		cfg->mem_speed = 1066;
++		if (spd.tfaw_min == 0x2c) {
++			cfg->pagesz = 1;
++			debug("\t1K page size\n");
++		} else if (spd.tfaw_min == 0x90) {
++			cfg->pagesz = 2;
++			debug("\t2K page size\n");
++		}
++		else
++			debug("Unknown page size: 0x%02x\n", spd.tfaw_min);
+ 		break;
+ 	case 0x0c:
+ 		cfg->mem_speed = 1333;
++		if (spd.tfaw_min == 0xf0) {
++			cfg->pagesz = 1;
++			debug("\t1K page size\n");
++		} else if (spd.tfaw_min == 0x68) {
++			cfg->pagesz = 2;
++			debug("\t2K page size\n");
++		}
++		else
++			debug("Unknown page size: 0x%02x\n", spd.tfaw_min);
+ 		break;
+ 	case 0x0a:
+ 		cfg->mem_speed = 1600;
++		if (spd.tfaw_min == 0xf0) {
++			cfg->pagesz = 1;
++			debug("\t1K page size\n");
++		} else if (spd.tfaw_min == 0x40) {
++			cfg->pagesz = 2;
++			debug("\t2K page size\n");
++		}
++		else
++			debug("Unknown page size: 0x%02x\n", spd.tfaw_min);
+ 		break;
+ 	case 0x09:
++		cfg->pagesz = 1;
+ 		cfg->mem_speed = 1866;
+ 		break;
+ 	case 0x08:
++		cfg->pagesz = 1;
+ 		cfg->mem_speed = 2133;
+ 		break;
+ 	default:
+ 		if (spd.tck_min <= 0xf) {
+ 			debug("**undecodable but sufficiently fast "
+ 					"clock rate detected\n");
+ 			cfg->mem_speed = 1066;
+ 		} else {
+ 			debug("**undecodable but too slow "
+ 					"clock rate detected\n");
+ 			cfg->mem_speed = 800;
+ 		}
+ 		break;
+ 	}
+ 	debug("\tDDR3-%d speed rating detected\n", cfg->mem_speed);
+ 	if (cfg->mem_speed < 1066) {
+ 		printf("memory is too slow.\n");
+ 		dram_fatal(0x05);
+ 	}
+ 
+ 	cfg->density = (256 * (1 << (spd.density_banks & 0xf))) / 1024;
+ 	debug("\tIndividual chip density is %d Gib\n", cfg->density);
+ 
+ 	cfg->width = (1 << (spd.organization & 0x7)) * 4;
+ 	debug("\tChips have a width of %d bits\n", cfg->width);
+ 
+ 	if ((spd.density_banks & 0x30) != 0) {
+ 		printf("\tWarning: memory has an unsupported bank size\n");
+ 		dram_fatal(0x06);
+ 	}
+ 	cfg->banks = 8;
+ 	debug("\t%d address banks\n", cfg->banks);
+ 
+ 	cfg->rowaddr = ((spd.addressing >> 3) & 0x7) + 12;
+ 	cfg->coladdr = (spd.addressing & 0x7) + 9;
+ 	debug("\tRows: %d, Cols: %d\n", cfg->rowaddr, cfg->coladdr);
+ 
+-	cfg->pagesz = 1;
+-	debug("\t!!! Guessing a pagesz of 1 !!!\n");
+-
+ 	sysinfo->ncs = ((spd.organization >> 3) & 0x7) + 1;
+ 	debug("\tThere are %d chip selects (ranks)\n", sysinfo->ncs);
+ 
+ 	capacity = (64 / cfg->width) * sysinfo->ncs * (cfg->density * 1024);
+ 	debug("\tTotal memory capacity: %d Mib (%d MiB)\n",
+ 			capacity, capacity / 8);
+ 
+ 	/* We only support 64-bit modules */
+ 	if (spd.bus_width != 0x3) {
+ 		printf("Unsupported device width, fatal.\n");
+ 		dram_fatal(0x03);
+ 	}
+ 	sysinfo->dsize = 2;
+ 	debug("\tModule width is 64 bits, no ECC\n");
+ 
+ 	sysinfo->cs_density = (capacity / (256 * sysinfo->ncs)) / 4;
+ 	debug("\tCS density: %d Gb\n", sysinfo->cs_density);
+ 
+ 	/*
+ 	 * MTB is in periods of some fraction of nanoseconds.  Convert to
+ 	 * ns*100, which is what MX6 uses.
+ 	 */
+ 	mtb_scale = (spd.mtb_dividend * 100) / spd.mtb_divisor;
+ 
+ 	cfg->trcd = spd.trcd_min + 1;
+ 	cfg->trcd *= mtb_scale;
+ 	debug("\ttRCD: %d\n", cfg->trcd);
+ 
+ 	cfg->trcmin = (((spd.tras_trc_ext & 0xf0) << 4) | spd.trc_min_lsb) + 1;
+ 	cfg->trcmin *= mtb_scale;
+ 	debug("\ttRC: %d\n", cfg->trcmin);
+ 
+ 	cfg->trasmin = (((spd.tras_trc_ext & 0xf) << 8) | spd.tras_min_lsb) + 1;
+ 	cfg->trasmin *= mtb_scale;
+ 	debug("\ttRAS: %d\n", cfg->trasmin);
+ 
+ 	/* Set self-refresh temperature flag to extended range, if present */
+ 	cfg->SRT = 0;
+ 	if ((spd.therm_ref_opt & 0x1) && !(spd.therm_ref_opt & 0x2))
+ 		cfg->SRT = 1;
+diff --git a/board/kosagi/novena/eeprom.c b/board/kosagi/novena/eeprom.c
+index ebe047fdf1..1b2908872c 100644
+--- a/board/kosagi/novena/eeprom.c
++++ b/board/kosagi/novena/eeprom.c
+@@ -1,140 +1,135 @@
+ #include <common.h>
+ #include <i2c.h>
+ 
+ #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
+ #include <libfdt.h>
+ #include "novena-eeprom.h"
+ 
+ #define EEPROM_ADDRESS (0xac >> 1)
+ 
+ static int fdt_del_by_path(void *fdt, const char *path)
+ {
+ 	int  nodeoffset;        /* node offset from libfdt */
+ 	int  err;
+ 
+ 	/*
+ 	 * Get the path.  The root node is an oddball, the offset
+ 	 * is zero and has no name.
+ 	 */
+-	nodeoffset = fdt_path_offset (working_fdt, path);
++	nodeoffset = fdt_path_offset(working_fdt, path);
+ 	if (nodeoffset < 0) {
+ 		/*
+ 		 * Not found or something else bad happened.
+ 		 */
+ 		printf ("libfdt fdt_path_offset() returned %s\n",
+ 			fdt_strerror(nodeoffset));
+ 		return 1;
+ 	}
+ 
+ 	err = fdt_del_node(working_fdt, nodeoffset);
+ 	if (err < 0) {
+ 		printf("libfdt fdt_del_by_path():  %s\n",
+ 		fdt_strerror(err));
+ 		return err;
+ 	}
+ 
+ 	return 0;
+ }
+ 
+ void ft_board_setup(void *blob, bd_t *bd)
+ {
+ 	struct novena_eeprom_data_v2 data;
+ 	int ret;
+ 
+ 	i2c_set_bus_num(2);
+ 	ret = eeprom_read(EEPROM_ADDRESS, 0, (uint8_t *)&data, sizeof(data));
+ 	if (ret != 0) {
+ 		printf("Unable to read from EEPROM: %d\n", ret);
+ 		return;
+ 	}
+ 
+ 	/* Check EEPROM signature. */
+ 	if (memcmp(data.signature, NOVENA_SIGNATURE, sizeof(data.signature))) {
+ 		puts("Invalid I2C EEPROM signature.\n");
+ 		return;
+ 	}
+ 
+ 	/* Check which version */
+ 	if (data.version > 2) {
+ 		printf("Unsupported EEPROM version: %d\n", data.version);
+ 		return;
+ 	}
+ 
+ 	/* Set ethernet address from EEPROM (if one hasn't been set yet). */
+ 	if (!getenv("ethaddr"))
+ 		eth_setenv_enetaddr("ethaddr", data.mac);
+ 
+ 	if (getenv("rec")) {
+ 		puts("Detected recovery mode, leaving everything enabled\n");
+ 		return;
+ 	}
+ 
+ 	if (!(data.features & feature_es8328))
+ 		fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/es8328@11");
+ 	if (!(data.features & feature_senoko))
+-		fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a0000/bq20z75@b");
++		fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a0000/bq20z75@0b");
+ 	if (!(data.features & feature_pcie))
+ 		fdt_del_by_path(blob, "/soc/pcie@0x01000000");
+ 
+ 	if (!(data.features & feature_gbit))
+ 		fdt_del_by_path(blob, "/soc/aips-bus@02100000/ethernet@02188000");
+ 
+-	/* Boot from SATA if we're set up to do so */
+-	if (!(data.features & feature_rootsrc_sata))
+-		setenv("rootdev", "PARTUUID=4e6f7653-03"); /* "NovS" */
+-
+ 	/* Older version had simpler panel selection */
+ 	if (data.version == 1) {
+ 		if (!(data.features & feature_hdmi))
+ 			fdt_del_by_path(blob, "/soc/aips-bus@02000000/hdmi@0120000");
+ 
+ 		if (!(data.features & feature_retina)) {
+ 			fdt_del_by_path(blob, "/soc/aips-bus@02000000/ldb@020e0008");
+-			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@73");
+-			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@73");
++			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@5c");
+ 		}
+ 	}
+ 
+ 	else if (data.version == 2) {
+ 		/* In version 2, this indicates whether an LVDS-to-eDP chip is present */
+ 		if (!(data.features & feature_retina))
+-			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@73");
++			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/it6251@5c");
+ 
+ 		if (!(data.lvds1.flags & channel_present)) {
+ 			fdt_del_by_path(blob, "/soc/aips-bus@02000000/ldb@020e0008/lvds-channel@0");
+ 		}
+ 		else {
+ 			/* XXX Configure lvds1 display timings here */
+ 		}
+ 
+ 		if (!(data.lvds2.flags & channel_present) &&
+ 		    !(data.lvds2.flags & dual_channel)) {
+ 			fdt_del_by_path(blob, "/soc/aips-bus@02000000/ldb@020e0008/lvds-channel@1");
+ 		}
+ 		else {
+ 			/* XXX Configure lvds2 display timings here */
+ 		}
+ 
+ 		if (!(data.hdmi.flags & channel_present)) {
+ 			fdt_del_by_path(blob, "/soc/aips-bus@02000000/hdmi@0120000");
+ 		}
+ 		else if (data.hdmi.flags & ignore_settings) {
+ 			/* Do nothing, let the system auto-detect */
+ 			;
+ 		}
+ 		else {
+ 			/* XXX Configure hdmi display timings here */
+ 		}
+ 
+ 		if (!(data.features & feature_eepromoops))
+ 			fdt_del_by_path(blob, "/soc/aips-bus@02100000/i2c@021a8000/eepromoops@56");
+ 		else {
+ 			/* XXX Configure eepromoops here */
+ 		}
+ 
+ 		if (data.features & feature_rootsrc_sata)
+ 			setenv("rootdev", "PARTUUID=4e6f7653-03"); /* NovS */ \
+ 	}
+ }
+ 
+ #endif
+diff --git a/board/kosagi/novena/novena.c b/board/kosagi/novena/novena.c
+index 2361a3c550..bfbfe42570 100644
+--- a/board/kosagi/novena/novena.c
++++ b/board/kosagi/novena/novena.c
+@@ -5,80 +5,139 @@
+  *
+  * SPDX-License-Identifier:	GPL-2.0+
+  */
+ 
+ #include <common.h>
+ #include <asm/errno.h>
+ #include <asm/gpio.h>
+ #include <asm/io.h>
+ #include <asm/arch/clock.h>
+ #include <asm/arch/crm_regs.h>
+ #include <asm/arch/imx-regs.h>
+ #include <asm/arch/iomux.h>
+ #include <asm/arch/mxc_hdmi.h>
+ #include <asm/arch/sys_proto.h>
+ #include <asm/imx-common/boot_mode.h>
+ #include <asm/imx-common/iomux-v3.h>
+ #include <asm/imx-common/mxc_i2c.h>
+ #include <asm/imx-common/sata.h>
+ #include <asm/imx-common/video.h>
+ #include <fsl_esdhc.h>
+ #include <i2c.h>
+ #include <input.h>
+ #include <ipu_pixfmt.h>
+ #include <linux/fb.h>
+ #include <linux/input.h>
+ #include <malloc.h>
+ #include <micrel.h>
+ #include <miiphy.h>
+ #include <mmc.h>
+ #include <netdev.h>
+ #include <power/pmic.h>
+ #include <power/pfuze100_pmic.h>
+ #include <stdio_dev.h>
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+ #define NOVENA_BUTTON_GPIO	IMX_GPIO_NR(4, 14)
+ #define NOVENA_SD_WP		IMX_GPIO_NR(1, 2)
+ #define NOVENA_SD_CD		IMX_GPIO_NR(1, 4)
+ 
++enum boot_device {
++	MX6_SD0_BOOT,
++	MX6_SD1_BOOT,
++	MX6_MMC_BOOT,
++	MX6_NAND_BOOT,
++	MX6_SATA_BOOT,
++	MX6_WEIM_NOR_BOOT,
++	MX6_ONE_NAND_BOOT,
++	MX6_PATA_BOOT,
++	MX6_I2C_BOOT,
++	MX6_SPI_NOR_BOOT,
++	MX6_UNKNOWN_BOOT,
++	MX6_BOOT_DEV_NUM = MX6_UNKNOWN_BOOT,
++};
++
++static enum boot_device get_boot_device(void)
++{
++	struct src *psrc = (struct src *)SRC_BASE_ADDR;
++	unsigned soc_sbmr = readl(&psrc->sbmr1);
++	uint bt_mem_ctl = (soc_sbmr & 0x000000FF) >> 4 ;
++	uint bt_mem_type = (soc_sbmr & 0x00000008) >> 3;
++	uint bt_mem_mmc = (soc_sbmr & 0x00001000) >> 12;
++
++	switch (bt_mem_ctl) {
++	case 0x0:
++		if (bt_mem_type)
++			return MX6_ONE_NAND_BOOT;
++		else
++			return MX6_WEIM_NOR_BOOT;
++		break;
++	case 0x2:
++			return MX6_SATA_BOOT;
++		break;
++	case 0x3:
++		if (bt_mem_type)
++			return MX6_I2C_BOOT;
++		else
++			return MX6_SPI_NOR_BOOT;
++		break;
++	case 0x4:
++	case 0x5:
++		if (bt_mem_mmc)
++			return MX6_SD0_BOOT;
++		else
++			return MX6_SD1_BOOT;
++		break;
++	case 0x6:
++	case 0x7:
++		return MX6_MMC_BOOT;
++		break;
++	case 0x8 ... 0xf:
++		return MX6_NAND_BOOT;
++		break;
++	default:
++		return MX6_UNKNOWN_BOOT;
++		break;
++	}
++}
++
+ /*
+  * GPIO button
+  */
+ #ifdef CONFIG_KEYBOARD
+ static struct input_config button_input;
+ 
+ static int novena_gpio_button_read_keys(struct input_config *input)
+ {
+ 	int key = KEY_ENTER;
+ 	if (gpio_get_value(NOVENA_BUTTON_GPIO))
+ 		return 0;
+ 	input_send_keycodes(&button_input, &key, 1);
+ 	return 1;
+ }
+ 
+ static int novena_gpio_button_getc(struct stdio_dev *dev)
+ {
+ 	return input_getc(&button_input);
+ }
+ 
+ static int novena_gpio_button_tstc(struct stdio_dev *dev)
+ {
+ 	return input_tstc(&button_input);
+ }
+ 
+ static int novena_gpio_button_init(struct stdio_dev *dev)
+ {
+ 	gpio_direction_input(NOVENA_BUTTON_GPIO);
+ 	input_set_delays(&button_input, 250, 250);
+ 	return 0;
+ }
+ 
+ int drv_keyboard_init(void)
+ {
+ 	int error;
+ 	struct stdio_dev dev = {
+ 		.name	= "button",
+ 		.flags	= DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM,
+ 		.start	= novena_gpio_button_init,
+ 		.getc	= novena_gpio_button_getc,
+@@ -259,85 +318,134 @@ int checkboard(void)
+ {
+ 	puts("Board: Novena 4x\n");
+ 	return 0;
+ }
+ 
+ int dram_init(void)
+ {
+ 	gd->ram_size = imx_ddr_size();
+ 	return 0;
+ }
+ 
+ /* setup board specific PMIC */
+ int power_init_board(void)
+ {
+ 	struct pmic *p;
+ 	u32 reg;
+ 	int ret;
+ 
+ 	power_pfuze100_init(1);
+ 	p = pmic_get("PFUZE100");
+ 	if (!p)
+ 		return -EINVAL;
+ 
+ 	ret = pmic_probe(p);
+ 	if (ret)
+ 		return ret;
+ 
+ 	pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
+ 	printf("PMIC:  PFUZE100 ID=0x%02x\n", reg);
+ 
+ 	/* Set SWBST to 5.0V and enable (for USB) */
+ 	pmic_reg_read(p, PFUZE100_SWBSTCON1, &reg);
+ 	reg &= ~(SWBST_MODE_MASK | SWBST_VOL_MASK);
+ 	reg |= (SWBST_5_00V | SWBST_MODE_AUTO);
+ 	pmic_reg_write(p, PFUZE100_SWBSTCON1, reg);
+ 
+ 	return 0;
+ }
+ 
+ /* EEPROM configuration data */
+-struct novena_eeprom_data {
++static struct novena_eeprom_data {
+ 	uint8_t		signature[6];
+ 	uint8_t		version;
+ 	uint8_t		reserved;
+ 	uint32_t	serial;
+ 	uint8_t		mac[6];
+ 	uint16_t	features;
+-};
++} eeprom_data;
+ 
+-int misc_init_r(void)
++static int is_valid_eeprom_data(void)
+ {
+-	struct novena_eeprom_data data;
+-	uchar *datap = (uchar *)&data;
+ 	const char *signature = "Novena";
+-	int ret;
+ 
+-	/* If 'ethaddr' is already set, do nothing. */
+-	if (getenv("ethaddr"))
+-		return 0;
++	/* Check EEPROM signature. */
++	return !memcmp(eeprom_data.signature, signature, 6);
++}
++
++static int read_eeprom(void)
++{
++	int ret;
+ 
+ 	/* EEPROM is at bus 2. */
+ 	ret = i2c_set_bus_num(2);
+ 	if (ret) {
+ 		puts("Cannot select EEPROM I2C bus.\n");
+-		return 0;
++		return 1;
+ 	}
+ 
+ 	/* EEPROM is at address 0x56. */
+-	ret = eeprom_read(0x56, 0, datap, sizeof(data));
++	ret = eeprom_read(0x56, 0, (void *)&eeprom_data, sizeof(eeprom_data));
+ 	if (ret) {
+ 		puts("Cannot read I2C EEPROM.\n");
+-		return 0;
++		return ret;
+ 	}
+ 
+-	/* Check EEPROM signature. */
+-	if (memcmp(data.signature, signature, 6)) {
+-		puts("Invalid I2C EEPROM signature.\n");
++	return is_valid_eeprom_data();
++}
++
++static int set_ethaddr(void)
++{
++	/* If 'ethaddr' is already set, do nothing. */
++	if (getenv("ethaddr"))
+ 		return 0;
+-	}
+ 
+ 	/* Set ethernet address from EEPROM. */
+-	eth_setenv_enetaddr("ethaddr", data.mac);
++	if (is_valid_eeprom_data())
++		eth_setenv_enetaddr("ethaddr", eeprom_data.mac);
++
++	return 0;
++}
++
++static int set_bootdev(void)
++{
++	/* Set boot environment variables */
++	switch(get_boot_device()) {
++	case MX6_SD0_BOOT:
++		setenv("bootdev", "0");
++		setenv("bootsrc", "mmc");
++		break;
++
++	case MX6_SD1_BOOT:
++		setenv("bootdev", "1");
++		setenv("bootsrc", "mmc");
++		break;
++
++	case MX6_SATA_BOOT:
++		setenv("bootdev", "0");
++		setenv("bootsrc", "sata");
++
++		break;
++
++	default:
++		return 1;
++		break;
++	}
++
++	if (is_valid_eeprom_data() && (eeprom_data.features & 0x100))
++		setenv("rootdev", "PARTUUID=4e6f7653-03"); /* NovS */
++	else
++		setenv("rootdev", "PARTUUID=4e6f764d-03"); /* NovM */
++
++	return 0;
++}
++
++int misc_init_r(void)
++{
++	int ret = 0;
++
++	read_eeprom();
++	ret |= set_bootdev();
++	ret |= set_ethaddr();
+ 
+ 	return ret;
+ }
+diff --git a/board/kosagi/novena/novena_spl.c b/board/kosagi/novena/novena_spl.c
+index ccb66037e5..12bcd7cfe2 100644
+--- a/board/kosagi/novena/novena_spl.c
++++ b/board/kosagi/novena/novena_spl.c
+@@ -33,80 +33,140 @@ DECLARE_GLOBAL_DATA_PTR;
+ 
+ #define USDHC_PAD_CTRL						\
+ 	(PAD_CTL_PKE | PAD_CTL_PUE |				\
+ 	PAD_CTL_PUS_47K_UP  | PAD_CTL_SPEED_LOW |		\
+ 	PAD_CTL_DSE_80ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
+ 
+ #define ENET_PAD_CTRL						\
+ 	(PAD_CTL_PKE | PAD_CTL_PUE |				\
+ 	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED	  |		\
+ 	PAD_CTL_DSE_40ohm   | PAD_CTL_HYS)
+ 
+ #define RGMII_PAD_CTRL						\
+ 	(PAD_CTL_PKE | PAD_CTL_PUE |				\
+ 	PAD_CTL_PUS_100K_UP | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
+ 
+ #define SPI_PAD_CTRL						\
+ 	(PAD_CTL_HYS |						\
+ 	PAD_CTL_PUS_100K_DOWN | PAD_CTL_SPEED_MED |		\
+ 	PAD_CTL_DSE_40ohm     | PAD_CTL_SRE_FAST)
+ 
+ #define I2C_PAD_CTRL						\
+ 	(PAD_CTL_PKE | PAD_CTL_PUE |				\
+ 	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_LOW |		\
+ 	PAD_CTL_DSE_240ohm  | PAD_CTL_HYS |			\
+ 	PAD_CTL_ODE)
+ 
+ #define BUTTON_PAD_CTRL						\
+ 	(PAD_CTL_PKE | PAD_CTL_PUE |				\
+ 	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED   |		\
+ 	PAD_CTL_DSE_40ohm   | PAD_CTL_HYS)
+ 
+ #define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
+ 
+ #define NOVENA_AUDIO_PWRON		IMX_GPIO_NR(5, 17)
+ #define NOVENA_FPGA_RESET_N_GPIO	IMX_GPIO_NR(5, 7)
+ #define NOVENA_HDMI_GHOST_HPD		IMX_GPIO_NR(5, 4)
+ #define NOVENA_PCIE_RESET_GPIO		IMX_GPIO_NR(3, 29)
+ #define NOVENA_PCIE_POWER_ON_GPIO	IMX_GPIO_NR(7, 12)
+ #define NOVENA_PCIE_WAKE_UP_GPIO	IMX_GPIO_NR(3, 22)
+ #define NOVENA_PCIE_DISABLE_GPIO	IMX_GPIO_NR(2, 16)
++#define NOVENA_LVDS_PWRON		IMX_GPIO_NR(5, 28)
++#define NOVENA_BACKLIGHT_PWRON		IMX_GPIO_NR(4, 15)
++
++enum boot_device {
++	MX6_SD0_BOOT,
++	MX6_SD1_BOOT,
++	MX6_MMC_BOOT,
++	MX6_NAND_BOOT,
++	MX6_SATA_BOOT,
++	MX6_WEIM_NOR_BOOT,
++	MX6_ONE_NAND_BOOT,
++	MX6_PATA_BOOT,
++	MX6_I2C_BOOT,
++	MX6_SPI_NOR_BOOT,
++	MX6_UNKNOWN_BOOT,
++	MX6_BOOT_DEV_NUM = MX6_UNKNOWN_BOOT,
++};
++
++static enum boot_device get_boot_device(void)
++{
++	uint soc_sbmr = readl(SRC_BASE_ADDR + 0x4);
++	uint bt_mem_ctl = (soc_sbmr & 0x000000FF) >> 4 ;
++	uint bt_mem_type = (soc_sbmr & 0x00000008) >> 3;
++	uint bt_mem_mmc = (soc_sbmr & 0x00001000) >> 12;
++
++	switch (bt_mem_ctl) {
++	case 0x0:
++		if (bt_mem_type)
++			return MX6_ONE_NAND_BOOT;
++		else
++			return MX6_WEIM_NOR_BOOT;
++		break;
++	case 0x2:
++			return MX6_SATA_BOOT;
++		break;
++	case 0x3:
++		if (bt_mem_type)
++			return MX6_I2C_BOOT;
++		else
++			return MX6_SPI_NOR_BOOT;
++		break;
++	case 0x4:
++	case 0x5:
++		if (bt_mem_mmc)
++			return MX6_SD0_BOOT;
++		else
++			return MX6_SD1_BOOT;
++		break;
++	case 0x6:
++	case 0x7:
++		return MX6_MMC_BOOT;
++		break;
++	case 0x8 ... 0xf:
++		return MX6_NAND_BOOT;
++		break;
++	default:
++		return MX6_UNKNOWN_BOOT;
++		break;
++	}
++}
+ 
+ /*
+  * Audio
+  */
+ static iomux_v3_cfg_t audio_pads[] = {
+ 	/* AUD_PWRON */
+ 	MX6_PAD_DISP0_DAT23__GPIO5_IO17 | MUX_PAD_CTRL(NO_PAD_CTRL),
+ };
+ 
+ static void novena_spl_setup_iomux_audio(void)
+ {
+ 	imx_iomux_v3_setup_multiple_pads(audio_pads, ARRAY_SIZE(audio_pads));
+ 	gpio_direction_output(NOVENA_AUDIO_PWRON, 1);
+ }
+ 
+ /*
+  * ENET
+  */
+ static iomux_v3_cfg_t enet_pads1[] = {
+ 	MX6_PAD_ENET_MDIO__ENET_MDIO		| MUX_PAD_CTRL(ENET_PAD_CTRL),
+ 	MX6_PAD_ENET_MDC__ENET_MDC		| MUX_PAD_CTRL(ENET_PAD_CTRL),
+ 	MX6_PAD_RGMII_TXC__RGMII_TXC		| MUX_PAD_CTRL(RGMII_PAD_CTRL),
+ 	MX6_PAD_RGMII_TD0__RGMII_TD0		| MUX_PAD_CTRL(RGMII_PAD_CTRL),
+ 	MX6_PAD_RGMII_TD1__RGMII_TD1		| MUX_PAD_CTRL(RGMII_PAD_CTRL),
+ 	MX6_PAD_RGMII_TD2__RGMII_TD2		| MUX_PAD_CTRL(RGMII_PAD_CTRL),
+ 	MX6_PAD_RGMII_TD3__RGMII_TD3		| MUX_PAD_CTRL(RGMII_PAD_CTRL),
+ 	MX6_PAD_RGMII_TX_CTL__RGMII_TX_CTL	| MUX_PAD_CTRL(RGMII_PAD_CTRL),
+ 	MX6_PAD_ENET_REF_CLK__ENET_TX_CLK	| MUX_PAD_CTRL(ENET_PAD_CTRL),
+ 	/* pin 35 - 1 (PHY_AD2) on reset */
+ 	MX6_PAD_RGMII_RXC__GPIO6_IO30		| MUX_PAD_CTRL(NO_PAD_CTRL),
+ 	/* pin 32 - 1 - (MODE0) all */
+ 	MX6_PAD_RGMII_RD0__GPIO6_IO25		| MUX_PAD_CTRL(NO_PAD_CTRL),
+ 	/* pin 31 - 1 - (MODE1) all */
+ 	MX6_PAD_RGMII_RD1__GPIO6_IO27		| MUX_PAD_CTRL(NO_PAD_CTRL),
+ 	/* pin 28 - 1 - (MODE2) all */
+ 	MX6_PAD_RGMII_RD2__GPIO6_IO28		| MUX_PAD_CTRL(NO_PAD_CTRL),
+ 	/* pin 27 - 1 - (MODE3) all */
+ 	MX6_PAD_RGMII_RD3__GPIO6_IO29		| MUX_PAD_CTRL(NO_PAD_CTRL),
+ 	/* pin 33 - 1 - (CLK125_EN) 125Mhz clockout enabled */
+ 	MX6_PAD_RGMII_RX_CTL__GPIO6_IO24	| MUX_PAD_CTRL(NO_PAD_CTRL),
+@@ -328,107 +388,144 @@ static void novena_spl_setup_iomux_spi(void)
+ static void novena_spl_setup_iomux_spi(void) {}
+ #endif
+ 
+ /*
+  * UART
+  */
+ static iomux_v3_cfg_t const uart2_pads[] = {
+ 	MX6_PAD_EIM_D26__UART2_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
+ 	MX6_PAD_EIM_D27__UART2_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
+ };
+ 
+ static iomux_v3_cfg_t const uart3_pads[] = {
+ 	MX6_PAD_EIM_D24__UART3_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
+ 	MX6_PAD_EIM_D25__UART3_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
+ };
+ 
+ static iomux_v3_cfg_t const uart4_pads[] = {
+ 	MX6_PAD_KEY_COL0__UART4_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
+ 	MX6_PAD_KEY_ROW0__UART4_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
+ 	MX6_PAD_CSI0_DAT16__UART4_CTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
+ 	MX6_PAD_CSI0_DAT17__UART4_RTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
+ 
+ };
+ 
+ static void novena_spl_setup_iomux_uart(void)
+ {
+ 	imx_iomux_v3_setup_multiple_pads(uart2_pads, ARRAY_SIZE(uart2_pads));
+ 	imx_iomux_v3_setup_multiple_pads(uart3_pads, ARRAY_SIZE(uart3_pads));
+ 	imx_iomux_v3_setup_multiple_pads(uart4_pads, ARRAY_SIZE(uart4_pads));
+ }
+ 
+ /*
+  * Video
+  */
+ #ifdef CONFIG_VIDEO
+ static iomux_v3_cfg_t hdmi_pads[] = {
+ 	/* "Ghost HPD" pin */
+ 	MX6_PAD_EIM_A24__GPIO5_IO04 | MUX_PAD_CTRL(NO_PAD_CTRL),
+ };
+ 
++static iomux_v3_cfg_t lvds_pads[] = {
++	/* Entire display subsystem power */
++	MX6_PAD_CSI0_DAT10__GPIO5_IO28 | MUX_PAD_CTRL(NO_PAD_CTRL),
++
++	/* Backlight pin */
++	MX6_PAD_KEY_ROW4__GPIO4_IO15 | MUX_PAD_CTRL(NO_PAD_CTRL),
++};
++
+ static void novena_spl_setup_iomux_video(void)
+ {
+ 	imx_iomux_v3_setup_multiple_pads(hdmi_pads, ARRAY_SIZE(hdmi_pads));
+ 	gpio_direction_input(NOVENA_HDMI_GHOST_HPD);
++
++	imx_iomux_v3_setup_multiple_pads(lvds_pads, ARRAY_SIZE(lvds_pads));
++	gpio_direction_output(NOVENA_LVDS_PWRON, 1);
++	gpio_direction_output(NOVENA_BACKLIGHT_PWRON, 1);
+ }
+ #else
+ static inline void novena_spl_setup_iomux_video(void) {}
+ #endif
+ 
+ /*
+  * SPL boots from uSDHC card
+  */
+ #ifdef CONFIG_FSL_ESDHC
+-static struct fsl_esdhc_cfg usdhc_cfg = {
++static struct fsl_esdhc_cfg usdhc3_cfg = {
+ 	USDHC3_BASE_ADDR, 0, 4
+ };
+ 
++static struct fsl_esdhc_cfg usdhc2_cfg = {
++	USDHC2_BASE_ADDR, 0, 4
++};
++
+ int board_mmc_getcd(struct mmc *mmc)
+ {
+ 	/* There is no CD for a microSD card, assume always present. */
+ 	return 1;
+ }
+ 
+ int board_mmc_init(bd_t *bis)
+ {
+-	usdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
+-	return fsl_esdhc_initialize(bis, &usdhc_cfg);
++	enum boot_device dev = get_boot_device();
++
++	/* Internal MMC */
++	switch (dev) {
++	case MX6_SD0_BOOT:	/* Internal SD card */
++		puts("Internal SD card\n");
++		usdhc3_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
++		return fsl_esdhc_initialize(bis, &usdhc3_cfg);
++
++	case MX6_SD1_BOOT:	/* External SD card */
++		puts("External SD card\n");
++		usdhc2_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
++		return fsl_esdhc_initialize(bis, &usdhc2_cfg);
++
++	case MX6_SATA_BOOT:
++		puts("Don't yet support booting from SATA\n");
++		hang();
++
++	default:
++		printf("Unrecognized boot source: %d\n", dev);
++		hang();
++	}
++	return 0;
+ }
+ #endif
+ 
+ /* Configure MX6Q/DUAL mmdc DDR io registers */
+ static struct mx6dq_iomux_ddr_regs novena_ddr_ioregs = {
+ 	/* SDCLK[0:1], CAS, RAS, Reset: Differential input, 40ohm */
+ 	.dram_sdclk_0		= 0x00020038,
+ 	.dram_sdclk_1		= 0x00020038,
+ 	.dram_cas		= 0x00000038,
+ 	.dram_ras		= 0x00000038,
+ 	.dram_reset		= 0x00000038,
+ 	/* SDCKE[0:1]: 100k pull-up */
+ 	.dram_sdcke0		= 0x00003000,
+ 	.dram_sdcke1		= 0x00003000,
+ 	/* SDBA2: pull-up disabled */
+ 	.dram_sdba2		= 0x00000000,
+ 	/* SDODT[0:1]: 100k pull-up, 40 ohm */
+ 	.dram_sdodt0		= 0x00000038,
+ 	.dram_sdodt1		= 0x00000038,
+ 	/* SDQS[0:7]: Differential input, 40 ohm */
+ 	.dram_sdqs0		= 0x00000038,
+ 	.dram_sdqs1		= 0x00000038,
+ 	.dram_sdqs2		= 0x00000038,
+ 	.dram_sdqs3		= 0x00000038,
+ 	.dram_sdqs4		= 0x00000038,
+ 	.dram_sdqs5		= 0x00000038,
+ 	.dram_sdqs6		= 0x00000038,
+ 	.dram_sdqs7		= 0x00000038,
+ 
+ 	/* DQM[0:7]: Differential input, 40 ohm */
+ 	.dram_dqm0		= 0x00000038,
+ 	.dram_dqm1		= 0x00000038,
+ 	.dram_dqm2		= 0x00000038,
+ 	.dram_dqm3		= 0x00000038,
+ 	.dram_dqm4		= 0x00000038,
+ 	.dram_dqm5		= 0x00000038,
+ 	.dram_dqm6		= 0x00000038,
+ 	.dram_dqm7		= 0x00000038,
+ };
+ 
+diff --git a/include/configs/novena.h b/include/configs/novena.h
+index 1e5aba8fa4..c65aa8e3ee 100644
+--- a/include/configs/novena.h
++++ b/include/configs/novena.h
+@@ -216,142 +216,141 @@
+ #define CONFIG_USB_HOST_ETHER
+ #define CONFIG_USB_ETHER_ASIX
+ #define CONFIG_USB_ETHER_SMSC95XX
+ #define CONFIG_USB_MAX_CONTROLLER_COUNT 2
+ #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
+ #define CONFIG_MXC_USB_FLAGS		0
+ /* Gadget part */
+ #define CONFIG_CI_UDC
+ #define CONFIG_USBD_HS
+ #define CONFIG_USB_GADGET_DUALSPEED
+ #define CONFIG_USB_ETHER
+ #define CONFIG_USB_ETH_CDC
+ #define CONFIG_NETCONSOLE
+ #endif
+ 
+ /* Video output */
+ #ifdef CONFIG_VIDEO
+ #define CONFIG_VIDEO
+ #define CONFIG_VIDEO_IPUV3
+ #define CONFIG_CFB_CONSOLE
+ #define CONFIG_VGA_AS_SINGLE_DEVICE
+ #define CONFIG_SYS_CONSOLE_IS_IN_ENV
+ #define CONFIG_VIDEO_BMP_RLE8
+ #define CONFIG_SPLASH_SCREEN
+ #define CONFIG_BMP_16BPP
+ #define CONFIG_VIDEO_LOGO
+ #define CONFIG_IPUV3_CLK		260000000
+ #define CONFIG_CMD_HDMIDETECT
+ #define CONFIG_CONSOLE_MUX
+ #define CONFIG_IMX_HDMI
+ #define CONFIG_IMX_VIDEO_SKIP
+ #endif
+ 
+ /* Extra U-Boot environment. */
+ #define CONFIG_EXTRA_ENV_SETTINGS					\
+ 	"fdt_high=0xffffffff\0"						\
+ 	"initrd_high=0xffffffff\0"					\
+ 	"consdev=ttymxc1\0"						\
+ 	"baudrate=115200\0"						\
+ 	"bootdev=/dev/mmcblk0p1\0"					\
+-	"rootdev=/dev/mmcblk0p2\0"					\
+ 	"netdev=eth0\0"							\
+ 	"rootpath=/opt/eldk-5.5/armv7a-hf/rootfs-qte-sdk\0"		\
+ 	"kernel_addr_r=0x12000000\0"					\
+ 	"fdt_addr_r=0x11ff0000\0"					\
+ 	"initrd_addr_r=-\0"						\
+ 	"addcons="							\
+ 		"setenv bootargs ${bootargs} "				\
+ 		"console=${consdev},${baudrate}\0"			\
+ 	"addip="							\
+ 		"setenv bootargs ${bootargs} "				\
+ 		"ip=${ipaddr}:${serverip}:${gatewayip}:"		\
+ 			"${netmask}:${hostname}:${netdev}:off\0"	\
+ 	"addmisc="							\
+ 		"setenv bootargs ${bootargs} ${miscargs}\0"		\
+ 	"addargs=run addcons addmisc\0"					\
+ 	"mmcload="							\
+ 		"mmc rescan ; "						\
+ 		"ext4load mmc 0:1 ${kernel_addr_r} ${bootfile}\0"	\
+ 	"netload="							\
+ 		"tftp ${kernel_addr_r} ${hostname}/${bootfile}\0"	\
+ 	"miscargs=nohlt panic=1\0"					\
+ 	"mmcargs=setenv bootargs root=${rootdev} rw rootwait\0"		\
+ 	"nfsargs="							\
+ 		"setenv bootargs root=/dev/nfs rw "			\
+ 			"nfsroot=${serverip}:${rootpath},v3,tcp\0"	\
+ 	"mmc_mmc="							\
+ 		"run mmcload mmcargs addargs ; "			\
+ 		"bootm ${kernel_addr_r}\0"				\
+ 	"mmc_nfs="							\
+ 		"run mmcload nfsargs addip addargs ; "			\
+ 		"bootm ${kernel_addr_r}\0"				\
+ 	"net_mmc="							\
+ 		"run netload mmcargs addargs ; "			\
+ 		"bootm ${kernel_addr_r}\0"				\
+ 	"net_nfs="							\
+ 		"run netload nfsargs addip addargs ; "			\
+ 		"bootm ${kernel_addr_r}\0"				\
+-	"prephdmi=true"							\
+-	"preplcd=true"							\
+-	"prepethernet=true"						\
+-	"prepmisc=true"							\
+ 	"bootenv=uEnv.txt\0"						\
+ 	"loadbootenv=load ${bootsrc} ${bootdev} ${loadaddr} ${bootenv}\0" \
+ 	"importbootenv="						\
+ 		"echo Importing environment from ${bootsrc} ... ; "	\
+                 "env import -t -r $loadaddr $filesize\0"		\
+ 	"novena_boot="							\
+-		"setenv bootsrc mmc ; "					\
+-		"setenv bootdev 0 ; "					\
+-		"setenv rootdev PARTUUID=4e6f764d-03 ; " /* NovM */	\
+ 		"setenv bootargs init=/lib/systemd/systemd rootwait rw ; " \
+ 		"if run loadbootenv; then "				\
+ 			"echo Loaded environment from ${bootenv} ; "	\
+ 			"run importbootenv ; "				\
+ 		"else ; "						\
+ 			"echo To override boot, create a file on the internal MMC called ${bootenv} ; " \
+ 		"fi ; "							\
+-		"if test -n $uenvcmd; then "				\
+-			"echo Running uenvcmd ... ; "			\
+-			"run uenvcmd ; "				\
++		"if test -n $earlyhook; then "				\
++			"echo Running earlyhook ... ; "			\
++			"run earlyhook ; "				\
+ 		"else ; "						\
+-			"echo To hook boot process, add a variable called uenvcmd ; " \
++			"echo To hook early boot process, add a variable called earlyhook ; " \
+ 		"fi ; "							\
+ 		"if gpio input 110 ; then " /* Test recovery button */  \
+ 			"echo Press Control-C to enter U-Boot shell, or wait to enter recovery mode ; " \
+ 			"if sleep 2 ; then true; else exit ; fi ; "	\
+ 			"echo Entering recovery mode... ; "		\
+ 			"setenv rec .recovery ;	"			\
+ 			"setenv bootargs ${bootargs} recovery ; "	\
+ 			"setenv rootdev PARTUUID=4e6f764d-03 ; " /* NovM */ \
+ 		"else ; "						\
+-			"echo Hold recovery button to boot to recovery, or enter U-Boot shell. ; " \
++			"echo Hold recovery button to boot to recovery, or to enter U-Boot shell. ; " \
+ 		"fi ; "							\
++		"i2c dev 2 ; "						\
+ 		"if hdmidet ; then "					\
+-			"echo HDMI monitor detected ; "		\
++			"echo HDMI monitor detected ; "			\
++			"setenv consdev tty0 ; "			\
++		"elif i2c md 0x5c 0 1 ; then "				\
++			"echo IT6251 bridge chip detected ; "		\
+ 			"setenv consdev tty0 ; "			\
+ 		"else ; "						\
+ 			"echo No video detected, using serial port ; "	\
+ 			"setenv consdev ${consdev},${baudrate} ; "	\
+ 		"fi ; "							\
+ 		"fatload ${bootsrc} ${bootdev} ${kernel_addr_r} zImage${rec} ; " \
+ 		"fatload ${bootsrc} ${bootdev} ${fdt_addr_r} novena${rec}.dtb ; " \
+-		"fdt addr ${fdt_addr_r} ; "				\
+-		"fdt boardsetup ; "					\
+ 		"setenv bootargs ${bootargs} root=${rootdev} console=${consdev} ; " \
+-		"run finalprep ; "					\
++		"if test -n $finalhook; then "				\
++			"echo Running finalhook ... ; "			\
++			"run finalhook ; "				\
++		"else ; "						\
++			"echo To hook late boot process, add a variable called finalhook ; " \
++		"fi ; "							\
+ 		"bootz ${kernel_addr_r} ${initrd_addr_r} ${fdt_addr_r} ; " \
+ 		"\0"							\
+ 	"update_sd_spl_filename=SPL\0"					\
+ 	"update_sd_uboot_filename=u-boot.img\0"				\
+ 	"update_sd_firmware="	/* Update the SD firmware partition */	\
+ 		"if mmc rescan ; then "					\
+ 		"if dhcp ${update_sd_spl_filename} ; then "		\
+ 		"mmc write ${loadaddr} 2 0x200 ; "			\
+ 		"fi ; "							\
+ 		"if dhcp ${update_sd_uboot_filename} ; then "		\
+ 		"fatwrite mmc 0:1 ${loadaddr} u-boot.img ${filesize} ; "\
+ 		"fi ; "							\
+ 		"fi\0"							\
+ 
+ #endif				/* __CONFIG_H */

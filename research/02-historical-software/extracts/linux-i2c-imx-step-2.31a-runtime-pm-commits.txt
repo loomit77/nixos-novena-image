@@ -1,0 +1,23 @@
+=== 7. COMMITS 5.7 BIS 6.18 MIT AENDERUNG DER RUNTIME-FUNKTIONEN ===
+COMMIT e190a0c389e60178fba3d532abf936dcae223e7d
+DATE 2023-05-08T22:51:38+02:00
+SUBJECT i2c: Convert to platform remove callback returning void
+
+COMMIT 2d30c638f98408c0d2ad5a8c3b2421328aa30213
+DATE 2024-08-07T15:14:56-03:00
+SUBJECT i2c: imx: Switch to RUNTIME_PM_OPS()
+
+COMMIT 32a0a94aa09e7095fccec1ffc969911f492cc7b9
+DATE 2024-09-29T09:21:57+02:00
+SUBJECT i2c: Switch back to struct platform_driver::remove()
+
+COMMIT 358025ac091e5a54f9819b33ee9c7cb07c55ee5d
+DATE 2024-11-25T22:21:08+08:00
+SUBJECT i2c: imx: make controller available until system suspend_noirq() and from resume_noirq()
+
+COMMIT 576eba03c99435380d155e5f71d5d7603b9178f6
+DATE 2024-12-23T11:43:43+08:00
+SUBJECT i2c: imx: switch different pinctrl state in different system power status
+
+
+=== 8. EXAKTE CODEAENDERUNGEN DIESER COMMITS ===

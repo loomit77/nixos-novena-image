@@ -1,0 +1,244 @@
+=== COMMIT ===
+afe595630f335c73ec41a49f41d9728017dec0e8 2014-10-15T17:34:22+08:00 novena: it6251: Check if the IT6251 is connected
+
+=== SPL board_init_f ===
+void board_init_f(ulong dummy)
+{
+	/* setup AIPS and disable watchdog */
+	arch_cpu_init();
+
+	/* setup GP timer */
+	timer_init();
+
+#ifdef CONFIG_BOARD_POSTCLK_INIT
+	board_postclk_init();
+#endif
+#ifdef CONFIG_FSL_ESDHC
+	get_clocks();
+#endif
+
+	/* Setup IOMUX and configure basics. */
+	novena_spl_setup_iomux_audio();
+	novena_spl_setup_iomux_buttons();
+	novena_spl_setup_iomux_enet();
+	novena_spl_setup_iomux_fpga();
+	novena_spl_setup_iomux_i2c();
+	novena_spl_setup_iomux_pcie();
+	novena_spl_setup_iomux_sdhc();
+	novena_spl_setup_iomux_spi();
+	novena_spl_setup_iomux_uart();
+	novena_spl_setup_iomux_video();
+
+	/* UART clocks enabled and gd valid - init serial console */
+	preloader_console_init();
+
+	/* Start the DDR DRAM */
+
+	novena_read_spd(&novena_ddr_info, &novena_ddr3_cfg);
+	mx6dq_dram_iocfg(novena_ddr3_cfg.width,
+			 &novena_ddr_ioregs, &novena_grp_ioregs);
+	mx6_dram_cfg(&novena_ddr_info, &novena_mmdc_calib, &novena_ddr3_cfg);
+	do_write_level_calibration();
+	do_dqs_calibration();
+	printf("Running post-config memory test... ");
+	if (novena_memory_test())
+		printf("Fail!\n");
+	else
+		printf("Pass\n");
+
+	/* Clear the BSS. */
+	memset(__bss_start, 0, __bss_end - __bss_start);
+
+	/* load/boot image from boot device */
+	board_init_r(NULL, 0);
+}
+
+void reset_cpu(ulong addr)
+{
+}
+
+=== SPL board_init_r REFERENZEN ===
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/cpu/arm720t/tegra-common/spl.c:21:void spl_board_init(void)
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/cpu/arm720t/tegra-common/spl.c:43:void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/cpu/arm926ejs/davinci/spl.c:55:	board_init_r(NULL, 0);
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/cpu/arm926ejs/davinci/spl.c:58:void spl_board_init(void)
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/cpu/arm926ejs/mxs/spl_boot.c:166:inline void board_init_r(gd_t *id, ulong dest_addr)
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/cpu/armv7/am33xx/board.c:163:__weak void am33xx_spl_board_init(void)
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/cpu/armv7/exynos/spl_boot.c:299:void board_init_r(gd_t *id, ulong dest_addr)
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/cpu/armv7/keystone/spl.c:39:void spl_board_init(void)
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/cpu/armv7/omap-common/boot-common.c:94:void spl_board_init(void)
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/cpu/armv7/omap-common/boot-common.c:106:	am33xx_spl_board_init();
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/cpu/armv7/omap-common/boot-common.c:124:void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/cpu/armv7/omap3/board.c:95:void spl_board_init(void)
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/cpu/armv7/socfpga/spl.c:55:void spl_board_init(void)
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/cpu/armv7/uniphier/spl.c:11:void spl_board_init(void)
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/cpu/armv7/zynq/spl.c:28:	board_init_r(NULL, 0);
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/cpu/armv7/zynq/spl.c:32:void spl_board_init(void)
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/include/asm/arch-am33xx/sys_proto.h:44:void am33xx_spl_board_init(void);
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/lib/board.c:509:void board_init_r(gd_t *id, ulong dest_addr)
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/lib/board.c:517:	bootstage_mark_name(BOOTSTAGE_ID_START_UBOOT_R, "board_init_r");
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/lib/crt0.S:44: * 5. Set up final environment for calling board_init_r(). This
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/lib/crt0.S:51: * 6. Branch to board_init_r().
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/lib/crt0.S:125:	/* call board_init_r(gd_t *id, ulong dest_addr) */
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/lib/crt0.S:128:	/* call board_init_r */
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/lib/crt0.S:129:	ldr	pc, =board_init_r	/* this is auto-relocated! */
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/lib/crt0_64.S:49: * 5. Set up final environment for calling board_init_r(). This
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/lib/crt0_64.S:56: * 6. Branch to board_init_r().
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/lib/crt0_64.S:106:	/* call board_init_r(gd_t *id, ulong dest_addr) */
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/lib/crt0_64.S:109:	b	board_init_r			/* PC relative jump */
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/lib/crt0_64.S:111:	/* NOTREACHED - board_init_r() does not return */
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/lib/spl.c:34:	board_init_r(NULL, 0);
+afe595630f335c73ec41a49f41d9728017dec0e8:arch/arm/lib/spl.c:43:void __noreturn jump_to_image_linux(void *arg)
+afe595630f335c73ec41a49f41d9728017dec0e8:board/kosagi/novena/novena_spl.c:581:	board_init_r(NULL, 0);
+afe595630f335c73ec41a49f41d9728017dec0e8:common/board_f.c:1074:	 * of the in-RAM copy of board_init_r() and calling it
+afe595630f335c73ec41a49f41d9728017dec0e8:common/board_f.c:1076:	(board_init_r + gd->reloc_off)(gd, gd->relocaddr);
+afe595630f335c73ec41a49f41d9728017dec0e8:common/board_f.c:1078:	/* NOTREACHED - board_init_r() does not return */
+afe595630f335c73ec41a49f41d9728017dec0e8:common/board_r.c:109:	bootstage_mark_name(BOOTSTAGE_ID_START_UBOOT_R, "board_init_r");
+afe595630f335c73ec41a49f41d9728017dec0e8:common/board_r.c:912:void board_init_r(gd_t *new_gd, ulong dest_addr)
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl.c:104:__weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl.c:132:void board_init_r(gd_t *dummy1, ulong dummy2)
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl.c:135:	debug(">>spl:board_init_r()\n");
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl.c:151:	spl_board_init();
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl.c:231:		jump_to_image_linux((void *)CONFIG_SYS_SPL_ARGS_ADDR);
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl.c:236:	jump_to_image_no_args(&spl_image);
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_fat.c:41:int spl_load_image_fat(block_dev_desc_t *block_dev,
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_fat.c:74:int spl_load_image_fat_os(block_dev_desc_t *block_dev, int partition)
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_fat.c:94:			err = spl_load_image_fat(block_dev, partition, file);
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_fat.c:119:	return spl_load_image_fat(block_dev, partition,
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_mmc.c:107:		if (spl_start_uboot() || spl_load_image_fat_os(&mmc->block_dev,
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_mmc.c:110:		err = spl_load_image_fat(&mmc->block_dev,
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_nand.c:28:		 * load to temp position since nand_spl_load_image reads
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_nand.c:33:		nand_spl_load_image(CONFIG_CMD_SPL_NAND_OFS,
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_nand.c:46:		nand_spl_load_image(CONFIG_SYS_NAND_SPL_KERNEL_OFFS,
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_nand.c:51:			nand_spl_load_image(CONFIG_SYS_NAND_SPL_KERNEL_OFFS,
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_nand.c:64:	nand_spl_load_image(CONFIG_ENV_OFFSET,
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_nand.c:67:	nand_spl_load_image(CONFIG_ENV_OFFSET, spl_image.size,
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_nand.c:70:	nand_spl_load_image(CONFIG_ENV_OFFSET_REDUND,
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_nand.c:73:	nand_spl_load_image(CONFIG_ENV_OFFSET_REDUND, spl_image.size,
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_nand.c:78:	nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_nand.c:81:	nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_onenand.c:26:	onenand_spl_load_image(CONFIG_SYS_ONENAND_U_BOOT_OFFS,
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_onenand.c:29:	onenand_spl_load_image(CONFIG_SYS_ONENAND_U_BOOT_OFFS,
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_sata.c:39:	if (spl_start_uboot() || spl_load_image_fat_os(stor_dev,
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_sata.c:42:	err = spl_load_image_fat(stor_dev,
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_usb.c:47:		if (spl_start_uboot() || spl_load_image_fat_os(stor_dev,
+afe595630f335c73ec41a49f41d9728017dec0e8:common/spl/spl_usb.c:50:		err = spl_load_image_fat(stor_dev,
+
+=== MAIN-U-BOOT INIT / BOOTCMD REFERENZEN ===
+afe595630f335c73ec41a49f41d9728017dec0e8:common/autoboot.c:254:	debug("### main_loop entered: bootdelay=%d\n\n", bootdelay);
+afe595630f335c73ec41a49f41d9728017dec0e8:common/autoboot.c:263:		s = getenv("failbootcmd");
+afe595630f335c73ec41a49f41d9728017dec0e8:common/autoboot.c:268:		printf("Warning: Bootlimit (%u) exceeded. Using altbootcmd.\n",
+afe595630f335c73ec41a49f41d9728017dec0e8:common/autoboot.c:270:		s = getenv("altbootcmd");
+afe595630f335c73ec41a49f41d9728017dec0e8:common/autoboot.c:273:		s = getenv("bootcmd");
+afe595630f335c73ec41a49f41d9728017dec0e8:common/autoboot.c:283:	debug("### main_loop: bootcmd=\"%s\"\n", s ? s : "<UNDEFINED>");
+afe595630f335c73ec41a49f41d9728017dec0e8:common/board_r.c:692:static int run_main_loop(void)
+afe595630f335c73ec41a49f41d9728017dec0e8:common/board_r.c:695:	sandbox_main_loop_init();
+afe595630f335c73ec41a49f41d9728017dec0e8:common/board_r.c:697:	/* main_loop() can return to retry autoboot, if so just run it again */
+afe595630f335c73ec41a49f41d9728017dec0e8:common/board_r.c:699:		main_loop();
+afe595630f335c73ec41a49f41d9728017dec0e8:common/board_r.c:909:	run_main_loop,
+afe595630f335c73ec41a49f41d9728017dec0e8:common/board_r.c:930:	/* NOTREACHED - run_main_loop() does not return */
+afe595630f335c73ec41a49f41d9728017dec0e8:common/bootretry.c:19:static int      retry_time = -1; /* -1 so can call readline before main_loop */
+afe595630f335c73ec41a49f41d9728017dec0e8:common/cli.c:139:	char *env = fdtdec_get_config_string(gd->fdt_blob, "bootcmd");
+afe595630f335c73ec41a49f41d9728017dec0e8:common/cli.c:145:	 * bootcmd was specified in the FDT too.
+afe595630f335c73ec41a49f41d9728017dec0e8:common/cmd_bedbug.c:207:void bedbug_main_loop (unsigned long addr, struct pt_regs *regs)
+afe595630f335c73ec41a49f41d9728017dec0e8:common/cmd_bedbug.c:253:}				/* bedbug_main_loop */
+afe595630f335c73ec41a49f41d9728017dec0e8:common/cmd_bootm.c:201:	return run_command(getenv("bootcmd"), flag);
+afe595630f335c73ec41a49f41d9728017dec0e8:common/cmd_bootm.c:206:	"boot default, i.e., run 'bootcmd'",
+afe595630f335c73ec41a49f41d9728017dec0e8:common/cmd_bootm.c:213:	"boot default, i.e., run 'bootcmd'",
+afe595630f335c73ec41a49f41d9728017dec0e8:common/main.c:25:	debug("DEBUG: main_loop:   gd->do_mdm_init=%lu\n", gd->do_mdm_init);
+afe595630f335c73ec41a49f41d9728017dec0e8:common/main.c:56:void main_loop(void)
+afe595630f335c73ec41a49f41d9728017dec0e8:common/main.c:60:	bootstage_mark_name(BOOTSTAGE_ID_MAIN_LOOP, "main_loop");
+afe595630f335c73ec41a49f41d9728017dec0e8:include/configs/novena.h:99:#define CONFIG_BOOTCOMMAND		"run novena_boot"
+afe595630f335c73ec41a49f41d9728017dec0e8:include/configs/novena.h:299:	"novena_boot="							\
+
+=== NOVENA BOOTENV ===
+		"setenv bootargs ${bootargs} ${miscargs}\0"		\
+	"addargs=run addcons addmisc\0"					\
+	"mmcload="							\
+		"mmc rescan ; "						\
+		"ext4load mmc 0:1 ${kernel_addr_r} ${bootfile}\0"	\
+	"netload="							\
+		"tftp ${kernel_addr_r} ${hostname}/${bootfile}\0"	\
+	"miscargs=nohlt panic=1\0"					\
+	"mmcargs=setenv bootargs root=${rootdev} rw rootwait\0"		\
+	"nfsargs="							\
+		"setenv bootargs root=/dev/nfs rw "			\
+			"nfsroot=${serverip}:${rootpath},v3,tcp\0"	\
+	"mmc_mmc="							\
+		"run mmcload mmcargs addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"mmc_nfs="							\
+		"run mmcload nfsargs addip addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"net_mmc="							\
+		"run netload mmcargs addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"net_nfs="							\
+		"run netload nfsargs addip addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"bootenv=uEnv.txt\0"						\
+	"loadbootenv=load ${bootsrc} ${bootdev} ${loadaddr} ${bootenv}\0" \
+	"importbootenv="						\
+		"echo Importing environment from ${bootsrc} ... ; "	\
+                "env import -t -r $loadaddr $filesize\0"		\
+	"novena_boot="							\
+		"setenv bootsrc mmc ; "					\
+		"setenv bootdev 0 ; "					\
+		"setenv rootdev PARTUUID=4e6f764d-03 ; " /* NovM */	\
+		"setenv bootargs init=/lib/systemd/systemd rootwait rw ; " \
+		"if run loadbootenv; then "				\
+			"echo Loaded environment from ${bootenv} ; "	\
+			"run importbootenv ; "				\
+		"else ; "						\
+			"echo To override boot, create a file on the internal MMC called ${bootenv} ; " \
+		"fi ; "							\
+		"if test -n $earlyhook; then "				\
+			"echo Running earlyhook ... ; "			\
+			"run earlyhook ; "				\
+		"else ; "						\
+			"echo To hook early boot process, add a variable called earlyhook ; " \
+		"fi ; "							\
+		"if gpio input 110 ; then " /* Test recovery button */  \
+			"echo Press Control-C to enter U-Boot shell, or wait to enter recovery mode ; " \
+			"if sleep 2 ; then true; else exit ; fi ; "	\
+			"echo Entering recovery mode... ; "		\
+			"setenv rec .recovery ;	"			\
+			"setenv bootargs ${bootargs} recovery ; "	\
+			"setenv rootdev PARTUUID=4e6f764d-03 ; " /* NovM */ \
+		"else ; "						\
+			"echo Hold recovery button to boot to recovery, or enter U-Boot shell. ; " \
+		"fi ; "							\
+		"i2c dev 2 ; "						\
+		"if hdmidet ; then "					\
+			"echo HDMI monitor detected ; "			\
+			"setenv consdev tty0 ; "			\
+		"elif i2c md 0x5c 0 1 ; then "				\
+			"echo IT6251 bridge chip detected ; "		\
+			"setenv consdev tty0 ; "			\
+		"else ; "						\
+			"echo No video detected, using serial port ; "	\
+			"setenv consdev ${consdev},${baudrate} ; "	\
+		"fi ; "							\
+		"fatload ${bootsrc} ${bootdev} ${kernel_addr_r} zImage${rec} ; " \
+		"fatload ${bootsrc} ${bootdev} ${fdt_addr_r} novena${rec}.dtb ; " \
+		"fdt addr ${fdt_addr_r} ; "				\
+		"fdt boardsetup ; "					\
+		"setenv bootargs ${bootargs} root=${rootdev} console=${consdev} ; " \
+		"if test -n $finalhook; then "				\
+			"echo Running finalhook ... ; "			\
+			"run finalhook ; "				\
+		"else ; "						\
+			"echo To hook late boot process, add a variable called finalhook ; " \
+		"fi ; "							\
+		"bootz ${kernel_addr_r} ${initrd_addr_r} ${fdt_addr_r} ; " \
+		"\0"							\
+	"update_sd_spl_filename=SPL\0"					\
+	"update_sd_uboot_filename=u-boot.img\0"				\
+	"update_sd_firmware="	/* Update the SD firmware partition */	\
+		"if mmc rescan ; then "					\
+		"if dhcp ${update_sd_spl_filename} ; then "		\
+		"mmc write ${loadaddr} 2 0x200 ; "			\
+
+=== IT6251 TEST ===
+afe595630f335c73ec41a49f41d9728017dec0e8:include/configs/novena.h:330:		"elif i2c md 0x5c 0 1 ; then "				\
+afe595630f335c73ec41a49f41d9728017dec0e8:include/configs/novena.h:331:			"echo IT6251 bridge chip detected ; "		\

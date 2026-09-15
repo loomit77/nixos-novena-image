@@ -1,0 +1,16 @@
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:16:#include <asm/arch/iomux.h>
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:20:#include <asm/imx-common/iomux-v3.h>
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:197:	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:217:	writel(IOMUXC_GPR2_BGREF_RRMODE_EXTERNAL_RES |
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:218:	       IOMUXC_GPR2_DI1_VS_POLARITY_ACTIVE_HIGH |
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:219:	       IOMUXC_GPR2_DI0_VS_POLARITY_ACTIVE_LOW |
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:220:	       IOMUXC_GPR2_BIT_MAPPING_CH1_SPWG |
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:221:	       IOMUXC_GPR2_DATA_WIDTH_CH1_18BIT |
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:222:	       IOMUXC_GPR2_BIT_MAPPING_CH0_SPWG |
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:223:	       IOMUXC_GPR2_DATA_WIDTH_CH0_18BIT |
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:224:	       IOMUXC_GPR2_LVDS_CH1_MODE_DISABLED |
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:225:	       IOMUXC_GPR2_LVDS_CH0_MODE_ENABLED_DI0,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:226:	       &iomux->gpr[2]);
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:228:	clrsetbits_le32(&iomux->gpr[3], IOMUXC_GPR3_LVDS0_MUX_CTL_MASK,
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:229:			IOMUXC_GPR3_MUX_SRC_IPU1_DI0 <<
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5:board/kosagi/novena/novena.c:230:			IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET);

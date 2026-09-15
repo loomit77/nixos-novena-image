@@ -1,0 +1,71 @@
+   180				.left_margin    = 220,
+   181				.right_margin   = 40,
+   182				.upper_margin   = 21,
+   183				.lower_margin   = 7,
+   184				.hsync_len      = 60,
+   185				.vsync_len      = 10,
+   186				.sync           = FB_SYNC_EXT,
+   187				.vmode          = FB_VMODE_NONINTERLACED
+   188			}
+   189		}
+   190	};
+   191	
+   192	size_t display_count = ARRAY_SIZE(displays);
+   193	
+   194	static void setup_display(void)
+   195	{
+   196		struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+   197		struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+   198	
+   199		enable_ipu_clock();
+   200		imx_setup_hdmi();
+   201	
+   202		/* Turn on LDB0,IPU,IPU DI0 clocks */
+   203		setbits_le32(&mxc_ccm->CCGR3, MXC_CCM_CCGR3_LDB_DI0_MASK);
+   204	
+   205		/* set LDB0, LDB1 clk select to 011/011 */
+   206		clrsetbits_le32(&mxc_ccm->cs2cdr,
+   207				MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_MASK |
+   208				MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_MASK,
+   209				(3 << MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_OFFSET) |
+   210				(3 << MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_OFFSET));
+   211	
+   212		setbits_le32(&mxc_ccm->cscmr2, MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV);
+   213	
+   214		setbits_le32(&mxc_ccm->chsccdr, CHSCCDR_CLK_SEL_LDB_DI0 <<
+   215			     MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET);
+   216	
+   217		writel(IOMUXC_GPR2_BGREF_RRMODE_EXTERNAL_RES |
+   218		       IOMUXC_GPR2_DI1_VS_POLARITY_ACTIVE_HIGH |
+   219		       IOMUXC_GPR2_DI0_VS_POLARITY_ACTIVE_LOW |
+   220		       IOMUXC_GPR2_BIT_MAPPING_CH1_SPWG |
+   221		       IOMUXC_GPR2_DATA_WIDTH_CH1_18BIT |
+   222		       IOMUXC_GPR2_BIT_MAPPING_CH0_SPWG |
+   223		       IOMUXC_GPR2_DATA_WIDTH_CH0_18BIT |
+   224		       IOMUXC_GPR2_LVDS_CH1_MODE_DISABLED |
+   225		       IOMUXC_GPR2_LVDS_CH0_MODE_ENABLED_DI0,
+   226		       &iomux->gpr[2]);
+   227	
+   228		clrsetbits_le32(&iomux->gpr[3], IOMUXC_GPR3_LVDS0_MUX_CTL_MASK,
+   229				IOMUXC_GPR3_MUX_SRC_IPU1_DI0 <<
+   230				IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET);
+   231	}
+   232	#endif
+   233	
+   234	int board_early_init_f(void)
+   235	{
+   236	#if defined(CONFIG_VIDEO_IPUV3)
+   237		setup_display();
+   238	#endif
+   239	
+   240		/* Bring Ethernet PHY out of reset. */
+   241		gpio_set_value(IMX_GPIO_NR(3, 23), 1);
+   242	
+   243		return 0;
+   244	}
+   245	
+   246	int board_init(void)
+   247	{
+   248		/* address of boot parameters */
+   249		gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
+   250	

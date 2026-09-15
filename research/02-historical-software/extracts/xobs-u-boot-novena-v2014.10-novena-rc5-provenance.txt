@@ -1,0 +1,23 @@
+Tag: v2014.10-novena-rc5
+
+=== SHOW-REF ===
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5 refs/tags/v2014.10-novena-rc5
+
+=== OBJECT TYPE ===
+commit
+
+=== DIRECT RESOLUTION ===
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5
+
+=== COMMIT RESOLUTION ===
+9402489e9a3e52a9df5464b4ce3c792cee2ba3a5
+
+=== COMMIT METADATA ===
+COMMIT=9402489e9a3e52a9df5464b4ce3c792cee2ba3a5
+TREE=cae9ec09217089dfbcfbc79d71364a802e302fe2
+PARENTS=6f6c330f09503a6ac11d698975eb7a1a152ddfc0
+AUTHOR=Sean Cross <xobs@kosagi.com>
+AUTHOR_DATE=2014-10-11T21:18:50+08:00
+COMMITTER=Sean Cross <xobs@kosagi.com>
+COMMITTER_DATE=2014-10-11T22:23:16+08:00
+SUBJECT=novena: Change config to add hdmi, lcd hooks

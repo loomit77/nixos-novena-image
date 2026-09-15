@@ -1,0 +1,1341 @@
+=== STEP 2.29c: IAL-SERIE OKTOBER 2020 ===
+Di 15. Sep 13:56:16 CEST 2026
+
+=== 1. COMMIT 384a956 ===
+commit 384a9565f70a876c2e78e58c5ca0bbf0547e4f6d
+Author:     Christian Eggers <ceggers@arri.de>
+AuthorDate: Fri Oct 9 13:03:18 2020 +0200
+Commit:     Wolfram Sang <wsa@kernel.org>
+CommitDate: Wed Dec 2 21:28:19 2020 +0100
+
+    i2c: imx: Fix reset of I2SR_IAL flag
+    
+    According to the "VFxxx Controller Reference Manual" (and the comment
+    block starting at line 97), Vybrid requires writing a one for clearing
+    an interrupt flag. Syncing the method for clearing I2SR_IIF in
+    i2c_imx_isr().
+    
+    Signed-off-by: Christian Eggers <ceggers@arri.de>
+    Fixes: 4b775022f6fd ("i2c: imx: add struct to hold more configurable quirks")
+    Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+    Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+    Cc: stable@vger.kernel.org
+    Signed-off-by: Wolfram Sang <wsa@kernel.org>
+
+=== PATCH ===
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index c98529c76348..39e98d216016 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -412,6 +412,19 @@ static void i2c_imx_dma_free(struct imx_i2c_struct *i2c_imx)
+ 	dma->chan_using = NULL;
+ }
+ 
++static void i2c_imx_clear_irq(struct imx_i2c_struct *i2c_imx, unsigned int bits)
++{
++	unsigned int temp;
++
++	/*
++	 * i2sr_clr_opcode is the value to clear all interrupts. Here we want to
++	 * clear only <bits>, so we write ~i2sr_clr_opcode with just <bits>
++	 * toggled. This is required because i.MX needs W0C and Vybrid uses W1C.
++	 */
++	temp = ~i2c_imx->hwdata->i2sr_clr_opcode ^ bits;
++	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
++}
++
+ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+ {
+ 	unsigned long orig_jiffies = jiffies;
+@@ -424,8 +437,7 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool a
+ 
+ 		/* check for arbitration lost */
+ 		if (temp & I2SR_IAL) {
+-			temp &= ~I2SR_IAL;
+-			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
++			i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+ 			return -EAGAIN;
+ 		}
+ 
+@@ -469,7 +481,7 @@ static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx, bool atomic)
+ 		 */
+ 		readb_poll_timeout_atomic(addr, regval, regval & I2SR_IIF, 5, 1000 + 100);
+ 		i2c_imx->i2csr = regval;
+-		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
++		i2c_imx_clear_irq(i2c_imx, I2SR_IIF | I2SR_IAL);
+ 	} else {
+ 		wait_event_timeout(i2c_imx->queue, i2c_imx->i2csr & I2SR_IIF, HZ / 10);
+ 	}
+@@ -623,9 +635,7 @@ static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
+ 	if (temp & I2SR_IIF) {
+ 		/* save status register */
+ 		i2c_imx->i2csr = temp;
+-		temp &= ~I2SR_IIF;
+-		temp |= (i2c_imx->hwdata->i2sr_clr_opcode & I2SR_IIF);
+-		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
++		i2c_imx_clear_irq(i2c_imx, I2SR_IIF);
+ 		wake_up(&i2c_imx->queue);
+ 		return IRQ_HANDLED;
+ 	}
+
+=== 2. COMMIT 1de67a3 ===
+commit 1de67a3dee7a279ebe4d892b359fe3696938ec15
+Author:     Christian Eggers <ceggers@arri.de>
+AuthorDate: Fri Oct 9 13:03:19 2020 +0200
+Commit:     Wolfram Sang <wsa@kernel.org>
+CommitDate: Wed Dec 2 21:28:20 2020 +0100
+
+    i2c: imx: Check for I2SR_IAL after every byte
+    
+    Arbitration Lost (IAL) can happen after every single byte transfer. If
+    arbitration is lost, the I2C hardware will autonomously switch from
+    master mode to slave. If a transfer is not aborted in this state,
+    consecutive transfers will not be executed by the hardware and will
+    timeout.
+    
+    Signed-off-by: Christian Eggers <ceggers@arri.de>
+    Tested (not extensively) on Vybrid VF500 (Toradex VF50):
+    Tested-by: Krzysztof Kozlowski <krzk@kernel.org>
+    Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+    Cc: stable@vger.kernel.org
+    Signed-off-by: Wolfram Sang <wsa@kernel.org>
+
+=== PATCH ===
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 39e98d216016..a2abae124342 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -490,6 +490,16 @@ static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx, bool atomic)
+ 		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
+ 		return -ETIMEDOUT;
+ 	}
++
++	/* check for arbitration lost */
++	if (i2c_imx->i2csr & I2SR_IAL) {
++		dev_dbg(&i2c_imx->adapter.dev, "<%s> Arbitration lost\n", __func__);
++		i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
++
++		i2c_imx->i2csr = 0;
++		return -EAGAIN;
++	}
++
+ 	dev_dbg(&i2c_imx->adapter.dev, "<%s> TRX complete\n", __func__);
+ 	i2c_imx->i2csr = 0;
+ 	return 0;
+
+=== 3. COMMIT 61e6fe5 ===
+commit 61e6fe59ede155881a622f5901551b1cc8748f6a
+Author:     Christian Eggers <ceggers@arri.de>
+AuthorDate: Fri Oct 9 13:03:20 2020 +0200
+Commit:     Wolfram Sang <wsa@kernel.org>
+CommitDate: Wed Dec 2 21:28:20 2020 +0100
+
+    i2c: imx: Don't generate STOP condition if arbitration has been lost
+    
+    If arbitration is lost, the master automatically changes to slave mode.
+    I2SR_IBB may or may not be reset by hardware. Raising a STOP condition
+    by resetting I2CR_MSTA has no effect and will not clear I2SR_IBB.
+    
+    So calling i2c_imx_bus_busy() is not required and would busy-wait until
+    timeout.
+    
+    Signed-off-by: Christian Eggers <ceggers@arri.de>
+    Tested (not extensively) on Vybrid VF500 (Toradex VF50):
+    Tested-by: Krzysztof Kozlowski <krzk@kernel.org>
+    Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
+    Cc: stable@vger.kernel.org # Requires trivial backporting, simple remove
+                               # the 3rd argument from the calls to
+                               # i2c_imx_bus_busy().
+    Signed-off-by: Wolfram Sang <wsa@kernel.org>
+
+=== PATCH ===
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index a2abae124342..e6f8d6e45a15 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -615,6 +615,8 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx, bool atomic)
+ 		/* Stop I2C transaction */
+ 		dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+ 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
++		if (!(temp & I2CR_MSTA))
++			i2c_imx->stopped = 1;
+ 		temp &= ~(I2CR_MSTA | I2CR_MTX);
+ 		if (i2c_imx->dma)
+ 			temp &= ~I2CR_DMAEN;
+@@ -778,9 +780,12 @@ static int i2c_imx_dma_read(struct imx_i2c_struct *i2c_imx,
+ 		 */
+ 		dev_dbg(dev, "<%s> clear MSTA\n", __func__);
+ 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
++		if (!(temp & I2CR_MSTA))
++			i2c_imx->stopped = 1;
+ 		temp &= ~(I2CR_MSTA | I2CR_MTX);
+ 		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+-		i2c_imx_bus_busy(i2c_imx, 0, false);
++		if (!i2c_imx->stopped)
++			i2c_imx_bus_busy(i2c_imx, 0, false);
+ 	} else {
+ 		/*
+ 		 * For i2c master receiver repeat restart operation like:
+@@ -905,9 +910,12 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs,
+ 				dev_dbg(&i2c_imx->adapter.dev,
+ 					"<%s> clear MSTA\n", __func__);
+ 				temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
++				if (!(temp & I2CR_MSTA))
++					i2c_imx->stopped =  1;
+ 				temp &= ~(I2CR_MSTA | I2CR_MTX);
+ 				imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+-				i2c_imx_bus_busy(i2c_imx, 0, atomic);
++				if (!i2c_imx->stopped)
++					i2c_imx_bus_busy(i2c_imx, 0, atomic);
+ 			} else {
+ 				/*
+ 				 * For i2c master receiver repeat restart operation like:
+
+=== 4. REIHENFOLGE / ANCESTRY ===
+384a956_VOR_1de67a3=JA
+1de67a3_VOR_61e6fe5=JA
+
+=== 5. BUS_BUSY VOR DER SERIE ===
+static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+{
+	unsigned long orig_jiffies = jiffies;
+	unsigned int temp;
+
+	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+
+	while (1) {
+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+
+		/* check for arbitration lost */
+		if (temp & I2SR_IAL) {
+			temp &= ~I2SR_IAL;
+			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
+			return -EAGAIN;
+		}
+
+		if (for_busy && (temp & I2SR_IBB)) {
+			i2c_imx->stopped = 0;
+			break;
+		}
+		if (!for_busy && !(temp & I2SR_IBB)) {
+			i2c_imx->stopped = 1;
+			break;
+		}
+		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
+			dev_dbg(&i2c_imx->adapter.dev,
+				"<%s> I2C bus is busy\n", __func__);
+			return -ETIMEDOUT;
+		}
+		if (atomic)
+			udelay(100);
+		else
+			schedule();
+	}
+
+	return 0;
+}
+
+=== 6. BUS_BUSY NACH DER SERIE ===
+static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+{
+	unsigned long orig_jiffies = jiffies;
+	unsigned int temp;
+
+	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+
+	while (1) {
+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+
+		/* check for arbitration lost */
+		if (temp & I2SR_IAL) {
+			i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+			return -EAGAIN;
+		}
+
+		if (for_busy && (temp & I2SR_IBB)) {
+			i2c_imx->stopped = 0;
+			break;
+		}
+		if (!for_busy && !(temp & I2SR_IBB)) {
+			i2c_imx->stopped = 1;
+			break;
+		}
+		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
+			dev_dbg(&i2c_imx->adapter.dev,
+				"<%s> I2C bus is busy\n", __func__);
+			return -ETIMEDOUT;
+		}
+		if (atomic)
+			udelay(100);
+		else
+			schedule();
+	}
+
+	return 0;
+}
+
+=== 7. START NACH DER SERIE ===
+static int i2c_imx_start(struct imx_i2c_struct *i2c_imx, bool atomic)
+{
+	unsigned int temp = 0;
+	int result;
+
+	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+
+	imx_i2c_write_reg(i2c_imx->ifdr, i2c_imx, IMX_I2C_IFDR);
+	/* Enable I2C controller */
+	imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx, IMX_I2C_I2SR);
+	imx_i2c_write_reg(i2c_imx->hwdata->i2cr_ien_opcode, i2c_imx, IMX_I2C_I2CR);
+
+	/* Wait controller to be stable */
+	if (atomic)
+		udelay(50);
+	else
+		usleep_range(50, 150);
+
+	/* Start I2C transaction */
+	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+	temp |= I2CR_MSTA;
+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+	result = i2c_imx_bus_busy(i2c_imx, 1, atomic);
+	if (result)
+		return result;
+
+	temp |= I2CR_IIEN | I2CR_MTX | I2CR_TXAK;
+	if (atomic)
+		temp &= ~I2CR_IIEN; /* Disable interrupt */
+
+	temp &= ~I2CR_DMAEN;
+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+	return result;
+}
+
+=== 8. STOP NACH DER SERIE ===
+static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx, bool atomic)
+{
+	unsigned int temp = 0;
+
+	if (!i2c_imx->stopped) {
+		/* Stop I2C transaction */
+		dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+		if (!(temp & I2CR_MSTA))
+			i2c_imx->stopped = 1;
+		temp &= ~(I2CR_MSTA | I2CR_MTX);
+		if (i2c_imx->dma)
+			temp &= ~I2CR_DMAEN;
+		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+	}
+	if (is_imx1_i2c(i2c_imx)) {
+		/*
+		 * This delay caused by an i.MXL hardware bug.
+		 * If no (or too short) delay, no "STOP" bit will be generated.
+		 */
+		udelay(i2c_imx->disable_delay);
+	}
+
+	if (!i2c_imx->stopped)
+		i2c_imx_bus_busy(i2c_imx, 0, atomic);
+
+	/* Disable I2C controller */
+	temp = i2c_imx->hwdata->i2cr_ien_opcode ^ I2CR_IEN,
+	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+}
+
+=== 9. ALLE IAL-STELLEN VOR DER SERIE ===
+75-
+76-#define IMX_I2C_REGSHIFT	2
+77-#define VF610_I2C_REGSHIFT	0
+78-
+79-/* Bits of IMX I2C registers */
+80-#define I2SR_RXAK	0x01
+81-#define I2SR_IIF	0x02
+82-#define I2SR_SRW	0x04
+83:#define I2SR_IAL	0x10
+84-#define I2SR_IBB	0x20
+85-#define I2SR_IAAS	0x40
+86-#define I2SR_ICF	0x80
+87-#define I2CR_DMAEN	0x02
+88-#define I2CR_RSTA	0x04
+89-#define I2CR_TXAK	0x08
+90-#define I2CR_MTX	0x10
+91-#define I2CR_MSTA	0x20
+92-#define I2CR_IIEN	0x40
+93-#define I2CR_IEN	0x80
+94-
+95-/* register bits different operating codes definition:
+96- * 1) I2SR: Interrupt flags clear operation differ between SoCs:
+97- * - write zero to clear(w0c) INT flag on i.MX,
+98- * - but write one to clear(w1c) INT flag on Vybrid.
+99- * 2) I2CR: I2C module enable operation also differ between SoCs:
+100- * - set I2CR_IEN bit enable the module on i.MX,
+101- * - but clear I2CR_IEN bit enable the module on Vybrid.
+102- */
+103-#define I2SR_CLR_OPCODE_W0C	0x0
+104:#define I2SR_CLR_OPCODE_W1C	(I2SR_IAL | I2SR_IIF)
+105-#define I2CR_IEN_OPCODE_0	0x0
+106-#define I2CR_IEN_OPCODE_1	I2CR_IEN
+107-
+108-#define I2C_PM_TIMEOUT		10 /* ms */
+109-
+110-/*
+111- * sorted list of clock divider, register value pairs
+112- * taken from table 26-5, p.26-9, Freescale i.MX
+113- * Integrated Portable System Processor Reference Manual
+114- * Document Number: MC9328MXLRM, Rev. 5.1, 06/2007
+115- *
+116- * Duplicated divider values removed from list
+--
+418-	unsigned int temp;
+419-
+420-	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+421-
+422-	while (1) {
+423-		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+424-
+425-		/* check for arbitration lost */
+426:		if (temp & I2SR_IAL) {
+427:			temp &= ~I2SR_IAL;
+428-			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
+429-			return -EAGAIN;
+430-		}
+431-
+432-		if (for_busy && (temp & I2SR_IBB)) {
+433-			i2c_imx->stopped = 0;
+434-			break;
+435-		}
+436-		if (!for_busy && !(temp & I2SR_IBB)) {
+437-			i2c_imx->stopped = 1;
+438-			break;
+439-		}
+--
+970-			(temp & I2CR_IEN ? 1 : 0), (temp & I2CR_IIEN ? 1 : 0),
+971-			(temp & I2CR_MSTA ? 1 : 0), (temp & I2CR_MTX ? 1 : 0),
+972-			(temp & I2CR_TXAK ? 1 : 0), (temp & I2CR_RSTA ? 1 : 0));
+973-		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+974-		dev_dbg(&i2c_imx->adapter.dev,
+975-			"<%s> STATUS: ICF=%d, IAAS=%d, IBB=%d, IAL=%d, SRW=%d, IIF=%d, RXAK=%d\n",
+976-			__func__,
+977-			(temp & I2SR_ICF ? 1 : 0), (temp & I2SR_IAAS ? 1 : 0),
+978:			(temp & I2SR_IBB ? 1 : 0), (temp & I2SR_IAL ? 1 : 0),
+979-			(temp & I2SR_SRW ? 1 : 0), (temp & I2SR_IIF ? 1 : 0),
+980-			(temp & I2SR_RXAK ? 1 : 0));
+981-#endif
+982-		if (msgs[i].flags & I2C_M_RD) {
+983-			result = i2c_imx_read(i2c_imx, &msgs[i], is_lastmsg, atomic);
+984-		} else {
+985-			if (!atomic &&
+986-			    i2c_imx->dma && msgs[i].len >= DMA_THRESHOLD)
+987-				result = i2c_imx_dma_write(i2c_imx, &msgs[i]);
+988-			else
+989-				result = i2c_imx_write(i2c_imx, &msgs[i], atomic);
+990-		}
+
+=== 10. ALLE IAL-STELLEN NACH DER SERIE ===
+75-
+76-#define IMX_I2C_REGSHIFT	2
+77-#define VF610_I2C_REGSHIFT	0
+78-
+79-/* Bits of IMX I2C registers */
+80-#define I2SR_RXAK	0x01
+81-#define I2SR_IIF	0x02
+82-#define I2SR_SRW	0x04
+83:#define I2SR_IAL	0x10
+84-#define I2SR_IBB	0x20
+85-#define I2SR_IAAS	0x40
+86-#define I2SR_ICF	0x80
+87-#define I2CR_DMAEN	0x02
+88-#define I2CR_RSTA	0x04
+89-#define I2CR_TXAK	0x08
+90-#define I2CR_MTX	0x10
+91-#define I2CR_MSTA	0x20
+92-#define I2CR_IIEN	0x40
+93-#define I2CR_IEN	0x80
+94-
+95-/* register bits different operating codes definition:
+96- * 1) I2SR: Interrupt flags clear operation differ between SoCs:
+97- * - write zero to clear(w0c) INT flag on i.MX,
+98- * - but write one to clear(w1c) INT flag on Vybrid.
+99- * 2) I2CR: I2C module enable operation also differ between SoCs:
+100- * - set I2CR_IEN bit enable the module on i.MX,
+101- * - but clear I2CR_IEN bit enable the module on Vybrid.
+102- */
+103-#define I2SR_CLR_OPCODE_W0C	0x0
+104:#define I2SR_CLR_OPCODE_W1C	(I2SR_IAL | I2SR_IIF)
+105-#define I2CR_IEN_OPCODE_0	0x0
+106-#define I2CR_IEN_OPCODE_1	I2CR_IEN
+107-
+108-#define I2C_PM_TIMEOUT		10 /* ms */
+109-
+110-/*
+111- * sorted list of clock divider, register value pairs
+112- * taken from table 26-5, p.26-9, Freescale i.MX
+113- * Integrated Portable System Processor Reference Manual
+114- * Document Number: MC9328MXLRM, Rev. 5.1, 06/2007
+115- *
+116- * Duplicated divider values removed from list
+--
+431-	unsigned int temp;
+432-
+433-	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+434-
+435-	while (1) {
+436-		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+437-
+438-		/* check for arbitration lost */
+439:		if (temp & I2SR_IAL) {
+440:			i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+441-			return -EAGAIN;
+442-		}
+443-
+444-		if (for_busy && (temp & I2SR_IBB)) {
+445-			i2c_imx->stopped = 0;
+446-			break;
+447-		}
+448-		if (!for_busy && !(temp & I2SR_IBB)) {
+449-			i2c_imx->stopped = 1;
+450-			break;
+451-		}
+452-		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
+--
+476-		 * Set the value hard as it is done for the non-atomic use-case.
+477-		 * Use 10 kHz for the calculation since this is the minimum
+478-		 * allowed SMBus frequency. Also add an offset of 100us since it
+479-		 * turned out that the I2SR_IIF bit isn't set correctly within
+480-		 * the minimum timeout in polling mode.
+481-		 */
+482-		readb_poll_timeout_atomic(addr, regval, regval & I2SR_IIF, 5, 1000 + 100);
+483-		i2c_imx->i2csr = regval;
+484:		i2c_imx_clear_irq(i2c_imx, I2SR_IIF | I2SR_IAL);
+485-	} else {
+486-		wait_event_timeout(i2c_imx->queue, i2c_imx->i2csr & I2SR_IIF, HZ / 10);
+487-	}
+488-
+489-	if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
+490-		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
+491-		return -ETIMEDOUT;
+492-	}
+493-
+494-	/* check for arbitration lost */
+495:	if (i2c_imx->i2csr & I2SR_IAL) {
+496-		dev_dbg(&i2c_imx->adapter.dev, "<%s> Arbitration lost\n", __func__);
+497:		i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+498-
+499-		i2c_imx->i2csr = 0;
+500-		return -EAGAIN;
+501-	}
+502-
+503-	dev_dbg(&i2c_imx->adapter.dev, "<%s> TRX complete\n", __func__);
+504-	i2c_imx->i2csr = 0;
+505-	return 0;
+506-}
+507-
+508-static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx)
+509-{
+--
+998-			(temp & I2CR_IEN ? 1 : 0), (temp & I2CR_IIEN ? 1 : 0),
+999-			(temp & I2CR_MSTA ? 1 : 0), (temp & I2CR_MTX ? 1 : 0),
+1000-			(temp & I2CR_TXAK ? 1 : 0), (temp & I2CR_RSTA ? 1 : 0));
+1001-		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+1002-		dev_dbg(&i2c_imx->adapter.dev,
+1003-			"<%s> STATUS: ICF=%d, IAAS=%d, IBB=%d, IAL=%d, SRW=%d, IIF=%d, RXAK=%d\n",
+1004-			__func__,
+1005-			(temp & I2SR_ICF ? 1 : 0), (temp & I2SR_IAAS ? 1 : 0),
+1006:			(temp & I2SR_IBB ? 1 : 0), (temp & I2SR_IAL ? 1 : 0),
+1007-			(temp & I2SR_SRW ? 1 : 0), (temp & I2SR_IIF ? 1 : 0),
+1008-			(temp & I2SR_RXAK ? 1 : 0));
+1009-#endif
+1010-		if (msgs[i].flags & I2C_M_RD) {
+1011-			result = i2c_imx_read(i2c_imx, &msgs[i], is_lastmsg, atomic);
+1012-		} else {
+1013-			if (!atomic &&
+1014-			    i2c_imx->dma && msgs[i].len >= DMA_THRESHOLD)
+1015-				result = i2c_imx_dma_write(i2c_imx, &msgs[i]);
+1016-			else
+1017-				result = i2c_imx_write(i2c_imx, &msgs[i], atomic);
+1018-		}
+
+=== 11. EXAKTER I2SR-CLEAR-KONTEXT VORHER ===
+65- * register offset into a fixed base address and a
+66- * variable shift value, then the full register offset
+67- * will be calculated by
+68- * reg_off = ( reg_base_addr << reg_shift)
+69- */
+70-#define IMX_I2C_IADR	0x00	/* i2c slave address */
+71-#define IMX_I2C_IFDR	0x01	/* i2c frequency divider */
+72-#define IMX_I2C_I2CR	0x02	/* i2c control */
+73:#define IMX_I2C_I2SR	0x03	/* i2c status */
+74-#define IMX_I2C_I2DR	0x04	/* i2c transfer data */
+75-
+76-#define IMX_I2C_REGSHIFT	2
+77-#define VF610_I2C_REGSHIFT	0
+78-
+79-/* Bits of IMX I2C registers */
+80:#define I2SR_RXAK	0x01
+81:#define I2SR_IIF	0x02
+82:#define I2SR_SRW	0x04
+83:#define I2SR_IAL	0x10
+84:#define I2SR_IBB	0x20
+85:#define I2SR_IAAS	0x40
+86:#define I2SR_ICF	0x80
+87-#define I2CR_DMAEN	0x02
+88-#define I2CR_RSTA	0x04
+89-#define I2CR_TXAK	0x08
+90-#define I2CR_MTX	0x10
+91-#define I2CR_MSTA	0x20
+92-#define I2CR_IIEN	0x40
+93-#define I2CR_IEN	0x80
+94-
+95-/* register bits different operating codes definition:
+96: * 1) I2SR: Interrupt flags clear operation differ between SoCs:
+97- * - write zero to clear(w0c) INT flag on i.MX,
+98- * - but write one to clear(w1c) INT flag on Vybrid.
+99- * 2) I2CR: I2C module enable operation also differ between SoCs:
+100- * - set I2CR_IEN bit enable the module on i.MX,
+101- * - but clear I2CR_IEN bit enable the module on Vybrid.
+102- */
+103:#define I2SR_CLR_OPCODE_W0C	0x0
+104:#define I2SR_CLR_OPCODE_W1C	(I2SR_IAL | I2SR_IIF)
+105-#define I2CR_IEN_OPCODE_0	0x0
+106-#define I2CR_IEN_OPCODE_1	I2CR_IEN
+107-
+108-#define I2C_PM_TIMEOUT		10 /* ms */
+109-
+110-/*
+111- * sorted list of clock divider, register value pairs
+112- * taken from table 26-5, p.26-9, Freescale i.MX
+113- * Integrated Portable System Processor Reference Manual
+114- * Document Number: MC9328MXLRM, Rev. 5.1, 06/2007
+115- *
+116- * Duplicated divider values removed from list
+--
+161-	VF610_I2C,
+162-};
+163-
+164-struct imx_i2c_hwdata {
+165-	enum imx_i2c_type	devtype;
+166-	unsigned		regshift;
+167-	struct imx_i2c_clk_pair	*clk_div;
+168-	unsigned		ndivs;
+169:	unsigned		i2sr_clr_opcode;
+170-	unsigned		i2cr_ien_opcode;
+171-};
+172-
+173-struct imx_i2c_dma {
+174-	struct dma_chan		*chan_tx;
+175-	struct dma_chan		*chan_rx;
+176-	struct dma_chan		*chan_using;
+177-	struct completion	cmd_complete;
+178-	dma_addr_t		dma_buf;
+179-	unsigned int		dma_len;
+180-	enum dma_transfer_direction dma_transfer_dir;
+181-	enum dma_data_direction dma_data_dir;
+--
+203-	struct imx_i2c_dma	*dma;
+204-};
+205-
+206-static const struct imx_i2c_hwdata imx1_i2c_hwdata = {
+207-	.devtype		= IMX1_I2C,
+208-	.regshift		= IMX_I2C_REGSHIFT,
+209-	.clk_div		= imx_i2c_clk_div,
+210-	.ndivs			= ARRAY_SIZE(imx_i2c_clk_div),
+211:	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W0C,
+212-	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_1,
+213-
+214-};
+215-
+216-static const struct imx_i2c_hwdata imx21_i2c_hwdata = {
+217-	.devtype		= IMX21_I2C,
+218-	.regshift		= IMX_I2C_REGSHIFT,
+219-	.clk_div		= imx_i2c_clk_div,
+220-	.ndivs			= ARRAY_SIZE(imx_i2c_clk_div),
+221:	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W0C,
+222-	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_1,
+223-
+224-};
+225-
+226-static struct imx_i2c_hwdata vf610_i2c_hwdata = {
+227-	.devtype		= VF610_I2C,
+228-	.regshift		= VF610_I2C_REGSHIFT,
+229-	.clk_div		= vf610_i2c_clk_div,
+230-	.ndivs			= ARRAY_SIZE(vf610_i2c_clk_div),
+231:	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W1C,
+232-	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_0,
+233-
+234-};
+235-
+236-static const struct platform_device_id imx_i2c_devtype[] = {
+237-	{
+238-		.name = "imx1-i2c",
+239-		.driver_data = (kernel_ulong_t)&imx1_i2c_hwdata,
+240-	}, {
+241-		.name = "imx21-i2c",
+242-		.driver_data = (kernel_ulong_t)&imx21_i2c_hwdata,
+243-	}, {
+--
+415-static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+416-{
+417-	unsigned long orig_jiffies = jiffies;
+418-	unsigned int temp;
+419-
+420-	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+421-
+422-	while (1) {
+423:		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+424-
+425-		/* check for arbitration lost */
+426:		if (temp & I2SR_IAL) {
+427:			temp &= ~I2SR_IAL;
+428:			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
+429-			return -EAGAIN;
+430-		}
+431-
+432:		if (for_busy && (temp & I2SR_IBB)) {
+433-			i2c_imx->stopped = 0;
+434-			break;
+435-		}
+436:		if (!for_busy && !(temp & I2SR_IBB)) {
+437-			i2c_imx->stopped = 1;
+438-			break;
+439-		}
+440-		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
+441-			dev_dbg(&i2c_imx->adapter.dev,
+442-				"<%s> I2C bus is busy\n", __func__);
+443-			return -ETIMEDOUT;
+444-		}
+445-		if (atomic)
+446-			udelay(100);
+447-		else
+448-			schedule();
+449-	}
+450-
+451-	return 0;
+452-}
+453-
+454-static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx, bool atomic)
+455-{
+456-	if (atomic) {
+457:		void __iomem *addr = i2c_imx->base + (IMX_I2C_I2SR << i2c_imx->hwdata->regshift);
+458-		unsigned int regval;
+459-
+460-		/*
+461-		 * The formula for the poll timeout is documented in the RM
+462-		 * Rev.5 on page 1878:
+463-		 *     T_min = 10/F_scl
+464-		 * Set the value hard as it is done for the non-atomic use-case.
+465-		 * Use 10 kHz for the calculation since this is the minimum
+466-		 * allowed SMBus frequency. Also add an offset of 100us since it
+467:		 * turned out that the I2SR_IIF bit isn't set correctly within
+468-		 * the minimum timeout in polling mode.
+469-		 */
+470:		readb_poll_timeout_atomic(addr, regval, regval & I2SR_IIF, 5, 1000 + 100);
+471-		i2c_imx->i2csr = regval;
+472:		imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
+473-	} else {
+474:		wait_event_timeout(i2c_imx->queue, i2c_imx->i2csr & I2SR_IIF, HZ / 10);
+475-	}
+476-
+477:	if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
+478-		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
+479-		return -ETIMEDOUT;
+480-	}
+481-	dev_dbg(&i2c_imx->adapter.dev, "<%s> TRX complete\n", __func__);
+482-	i2c_imx->i2csr = 0;
+483-	return 0;
+484-}
+485-
+486-static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx)
+487-{
+488:	if (imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR) & I2SR_RXAK) {
+489-		dev_dbg(&i2c_imx->adapter.dev, "<%s> No ACK\n", __func__);
+490-		return -ENXIO;  /* No ACK */
+491-	}
+492-
+493-	dev_dbg(&i2c_imx->adapter.dev, "<%s> ACK received\n", __func__);
+494-	return 0;
+495-}
+496-
+497-static void i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
+498-			    unsigned int i2c_clk_rate)
+499-{
+500-	struct imx_i2c_clk_pair *i2c_clk_div = i2c_imx->hwdata->clk_div;
+--
+554-{
+555-	unsigned int temp = 0;
+556-	int result;
+557-
+558-	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+559-
+560-	imx_i2c_write_reg(i2c_imx->ifdr, i2c_imx, IMX_I2C_IFDR);
+561-	/* Enable I2C controller */
+562:	imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx, IMX_I2C_I2SR);
+563-	imx_i2c_write_reg(i2c_imx->hwdata->i2cr_ien_opcode, i2c_imx, IMX_I2C_I2CR);
+564-
+565-	/* Wait controller to be stable */
+566-	if (atomic)
+567-		udelay(50);
+568-	else
+569-		usleep_range(50, 150);
+570-
+571-	/* Start I2C transaction */
+572-	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+573-	temp |= I2CR_MSTA;
+574-	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+--
+614-	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+615-}
+616-
+617-static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
+618-{
+619-	struct imx_i2c_struct *i2c_imx = dev_id;
+620-	unsigned int temp;
+621-
+622:	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+623:	if (temp & I2SR_IIF) {
+624-		/* save status register */
+625-		i2c_imx->i2csr = temp;
+626:		temp &= ~I2SR_IIF;
+627:		temp |= (i2c_imx->hwdata->i2sr_clr_opcode & I2SR_IIF);
+628:		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
+629-		wake_up(&i2c_imx->queue);
+630-		return IRQ_HANDLED;
+631-	}
+632-
+633-	return IRQ_NONE;
+634-}
+635-
+636-static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
+637-					struct i2c_msg *msgs)
+638-{
+639-	int result;
+640-	unsigned long time_left;
+--
+665-				msecs_to_jiffies(DMA_TIMEOUT));
+666-	if (time_left == 0) {
+667-		dmaengine_terminate_all(dma->chan_using);
+668-		return -ETIMEDOUT;
+669-	}
+670-
+671-	/* Waiting for transfer complete. */
+672-	while (1) {
+673:		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+674:		if (temp & I2SR_ICF)
+675-			break;
+676-		if (time_after(jiffies, orig_jiffies +
+677-				msecs_to_jiffies(DMA_TIMEOUT))) {
+678-			dev_dbg(dev, "<%s> Timeout\n", __func__);
+679-			return -ETIMEDOUT;
+680-		}
+681-		schedule();
+682-	}
+683-
+684-	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+685-	temp &= ~I2CR_DMAEN;
+686-	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+--
+720-				msecs_to_jiffies(DMA_TIMEOUT));
+721-	if (time_left == 0) {
+722-		dmaengine_terminate_all(dma->chan_using);
+723-		return -ETIMEDOUT;
+724-	}
+725-
+726-	/* waiting for transfer complete. */
+727-	while (1) {
+728:		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+729:		if (temp & I2SR_ICF)
+730-			break;
+731-		if (time_after(jiffies, orig_jiffies +
+732-				msecs_to_jiffies(DMA_TIMEOUT))) {
+733-			dev_dbg(dev, "<%s> Timeout\n", __func__);
+734-			return -ETIMEDOUT;
+735-		}
+736-		schedule();
+737-	}
+738-
+739-	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+740-	temp &= ~I2CR_DMAEN;
+741-	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+--
+965-#ifdef CONFIG_I2C_DEBUG_BUS
+966-		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+967-		dev_dbg(&i2c_imx->adapter.dev,
+968-			"<%s> CONTROL: IEN=%d, IIEN=%d, MSTA=%d, MTX=%d, TXAK=%d, RSTA=%d\n",
+969-			__func__,
+970-			(temp & I2CR_IEN ? 1 : 0), (temp & I2CR_IIEN ? 1 : 0),
+971-			(temp & I2CR_MSTA ? 1 : 0), (temp & I2CR_MTX ? 1 : 0),
+972-			(temp & I2CR_TXAK ? 1 : 0), (temp & I2CR_RSTA ? 1 : 0));
+973:		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+974-		dev_dbg(&i2c_imx->adapter.dev,
+975-			"<%s> STATUS: ICF=%d, IAAS=%d, IBB=%d, IAL=%d, SRW=%d, IIF=%d, RXAK=%d\n",
+976-			__func__,
+977:			(temp & I2SR_ICF ? 1 : 0), (temp & I2SR_IAAS ? 1 : 0),
+978:			(temp & I2SR_IBB ? 1 : 0), (temp & I2SR_IAL ? 1 : 0),
+979:			(temp & I2SR_SRW ? 1 : 0), (temp & I2SR_IIF ? 1 : 0),
+980:			(temp & I2SR_RXAK ? 1 : 0));
+981-#endif
+982-		if (msgs[i].flags & I2C_M_RD) {
+983-			result = i2c_imx_read(i2c_imx, &msgs[i], is_lastmsg, atomic);
+984-		} else {
+985-			if (!atomic &&
+986-			    i2c_imx->dma && msgs[i].len >= DMA_THRESHOLD)
+987-				result = i2c_imx_dma_write(i2c_imx, &msgs[i]);
+988-			else
+989-				result = i2c_imx_write(i2c_imx, &msgs[i], atomic);
+990-		}
+991-		if (result)
+992-			goto fail0;
+--
+1203-		i2c_imx->bitrate = pdata->bitrate;
+1204-	i2c_imx->clk_change_nb.notifier_call = i2c_imx_clk_notifier_call;
+1205-	clk_notifier_register(i2c_imx->clk, &i2c_imx->clk_change_nb);
+1206-	i2c_imx_set_clk(i2c_imx, clk_get_rate(i2c_imx->clk));
+1207-
+1208-	/* Set up chip registers to defaults */
+1209-	imx_i2c_write_reg(i2c_imx->hwdata->i2cr_ien_opcode ^ I2CR_IEN,
+1210-			i2c_imx, IMX_I2C_I2CR);
+1211:	imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx, IMX_I2C_I2SR);
+1212-
+1213-	/* Init optional bus recovery function */
+1214-	ret = i2c_imx_init_recovery_info(i2c_imx, pdev);
+1215-	/* Give it another chance if pinctrl used is not ready yet */
+1216-	if (ret == -EPROBE_DEFER)
+1217-		goto clk_notifier_unregister;
+1218-
+1219-	/* Add I2C adapter */
+1220-	ret = i2c_add_numbered_adapter(&i2c_imx->adapter);
+1221-	if (ret < 0)
+1222-		goto clk_notifier_unregister;
+1223-
+--
+1262-
+1263-	if (i2c_imx->dma)
+1264-		i2c_imx_dma_free(i2c_imx);
+1265-
+1266-	/* setup chip registers to defaults */
+1267-	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IADR);
+1268-	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IFDR);
+1269-	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2CR);
+1270:	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
+1271-
+1272-	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
+1273-	irq = platform_get_irq(pdev, 0);
+1274-	if (irq >= 0)
+1275-		free_irq(irq, i2c_imx);
+1276-	clk_disable_unprepare(i2c_imx->clk);
+1277-
+1278-	pm_runtime_put_noidle(&pdev->dev);
+1279-	pm_runtime_disable(&pdev->dev);
+1280-
+1281-	return 0;
+1282-}
+
+=== 12. EXAKTER I2SR-CLEAR-KONTEXT NACHHER ===
+65- * register offset into a fixed base address and a
+66- * variable shift value, then the full register offset
+67- * will be calculated by
+68- * reg_off = ( reg_base_addr << reg_shift)
+69- */
+70-#define IMX_I2C_IADR	0x00	/* i2c slave address */
+71-#define IMX_I2C_IFDR	0x01	/* i2c frequency divider */
+72-#define IMX_I2C_I2CR	0x02	/* i2c control */
+73:#define IMX_I2C_I2SR	0x03	/* i2c status */
+74-#define IMX_I2C_I2DR	0x04	/* i2c transfer data */
+75-
+76-#define IMX_I2C_REGSHIFT	2
+77-#define VF610_I2C_REGSHIFT	0
+78-
+79-/* Bits of IMX I2C registers */
+80:#define I2SR_RXAK	0x01
+81:#define I2SR_IIF	0x02
+82:#define I2SR_SRW	0x04
+83:#define I2SR_IAL	0x10
+84:#define I2SR_IBB	0x20
+85:#define I2SR_IAAS	0x40
+86:#define I2SR_ICF	0x80
+87-#define I2CR_DMAEN	0x02
+88-#define I2CR_RSTA	0x04
+89-#define I2CR_TXAK	0x08
+90-#define I2CR_MTX	0x10
+91-#define I2CR_MSTA	0x20
+92-#define I2CR_IIEN	0x40
+93-#define I2CR_IEN	0x80
+94-
+95-/* register bits different operating codes definition:
+96: * 1) I2SR: Interrupt flags clear operation differ between SoCs:
+97- * - write zero to clear(w0c) INT flag on i.MX,
+98- * - but write one to clear(w1c) INT flag on Vybrid.
+99- * 2) I2CR: I2C module enable operation also differ between SoCs:
+100- * - set I2CR_IEN bit enable the module on i.MX,
+101- * - but clear I2CR_IEN bit enable the module on Vybrid.
+102- */
+103:#define I2SR_CLR_OPCODE_W0C	0x0
+104:#define I2SR_CLR_OPCODE_W1C	(I2SR_IAL | I2SR_IIF)
+105-#define I2CR_IEN_OPCODE_0	0x0
+106-#define I2CR_IEN_OPCODE_1	I2CR_IEN
+107-
+108-#define I2C_PM_TIMEOUT		10 /* ms */
+109-
+110-/*
+111- * sorted list of clock divider, register value pairs
+112- * taken from table 26-5, p.26-9, Freescale i.MX
+113- * Integrated Portable System Processor Reference Manual
+114- * Document Number: MC9328MXLRM, Rev. 5.1, 06/2007
+115- *
+116- * Duplicated divider values removed from list
+--
+161-	VF610_I2C,
+162-};
+163-
+164-struct imx_i2c_hwdata {
+165-	enum imx_i2c_type	devtype;
+166-	unsigned		regshift;
+167-	struct imx_i2c_clk_pair	*clk_div;
+168-	unsigned		ndivs;
+169:	unsigned		i2sr_clr_opcode;
+170-	unsigned		i2cr_ien_opcode;
+171-};
+172-
+173-struct imx_i2c_dma {
+174-	struct dma_chan		*chan_tx;
+175-	struct dma_chan		*chan_rx;
+176-	struct dma_chan		*chan_using;
+177-	struct completion	cmd_complete;
+178-	dma_addr_t		dma_buf;
+179-	unsigned int		dma_len;
+180-	enum dma_transfer_direction dma_transfer_dir;
+181-	enum dma_data_direction dma_data_dir;
+--
+203-	struct imx_i2c_dma	*dma;
+204-};
+205-
+206-static const struct imx_i2c_hwdata imx1_i2c_hwdata = {
+207-	.devtype		= IMX1_I2C,
+208-	.regshift		= IMX_I2C_REGSHIFT,
+209-	.clk_div		= imx_i2c_clk_div,
+210-	.ndivs			= ARRAY_SIZE(imx_i2c_clk_div),
+211:	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W0C,
+212-	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_1,
+213-
+214-};
+215-
+216-static const struct imx_i2c_hwdata imx21_i2c_hwdata = {
+217-	.devtype		= IMX21_I2C,
+218-	.regshift		= IMX_I2C_REGSHIFT,
+219-	.clk_div		= imx_i2c_clk_div,
+220-	.ndivs			= ARRAY_SIZE(imx_i2c_clk_div),
+221:	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W0C,
+222-	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_1,
+223-
+224-};
+225-
+226-static struct imx_i2c_hwdata vf610_i2c_hwdata = {
+227-	.devtype		= VF610_I2C,
+228-	.regshift		= VF610_I2C_REGSHIFT,
+229-	.clk_div		= vf610_i2c_clk_div,
+230-	.ndivs			= ARRAY_SIZE(vf610_i2c_clk_div),
+231:	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W1C,
+232-	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_0,
+233-
+234-};
+235-
+236-static const struct platform_device_id imx_i2c_devtype[] = {
+237-	{
+238-		.name = "imx1-i2c",
+239-		.driver_data = (kernel_ulong_t)&imx1_i2c_hwdata,
+240-	}, {
+241-		.name = "imx21-i2c",
+242-		.driver_data = (kernel_ulong_t)&imx21_i2c_hwdata,
+243-	}, {
+--
+412-	dma->chan_using = NULL;
+413-}
+414-
+415-static void i2c_imx_clear_irq(struct imx_i2c_struct *i2c_imx, unsigned int bits)
+416-{
+417-	unsigned int temp;
+418-
+419-	/*
+420:	 * i2sr_clr_opcode is the value to clear all interrupts. Here we want to
+421:	 * clear only <bits>, so we write ~i2sr_clr_opcode with just <bits>
+422-	 * toggled. This is required because i.MX needs W0C and Vybrid uses W1C.
+423-	 */
+424:	temp = ~i2c_imx->hwdata->i2sr_clr_opcode ^ bits;
+425:	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
+426-}
+427-
+428-static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+429-{
+430-	unsigned long orig_jiffies = jiffies;
+431-	unsigned int temp;
+432-
+433-	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+434-
+435-	while (1) {
+436:		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+437-
+438-		/* check for arbitration lost */
+439:		if (temp & I2SR_IAL) {
+440:			i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+441-			return -EAGAIN;
+442-		}
+443-
+444:		if (for_busy && (temp & I2SR_IBB)) {
+445-			i2c_imx->stopped = 0;
+446-			break;
+447-		}
+448:		if (!for_busy && !(temp & I2SR_IBB)) {
+449-			i2c_imx->stopped = 1;
+450-			break;
+451-		}
+452-		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
+453-			dev_dbg(&i2c_imx->adapter.dev,
+454-				"<%s> I2C bus is busy\n", __func__);
+455-			return -ETIMEDOUT;
+456-		}
+457-		if (atomic)
+458-			udelay(100);
+459-		else
+460-			schedule();
+461-	}
+462-
+463-	return 0;
+464-}
+465-
+466-static int i2c_imx_trx_complete(struct imx_i2c_struct *i2c_imx, bool atomic)
+467-{
+468-	if (atomic) {
+469:		void __iomem *addr = i2c_imx->base + (IMX_I2C_I2SR << i2c_imx->hwdata->regshift);
+470-		unsigned int regval;
+471-
+472-		/*
+473-		 * The formula for the poll timeout is documented in the RM
+474-		 * Rev.5 on page 1878:
+475-		 *     T_min = 10/F_scl
+476-		 * Set the value hard as it is done for the non-atomic use-case.
+477-		 * Use 10 kHz for the calculation since this is the minimum
+478-		 * allowed SMBus frequency. Also add an offset of 100us since it
+479:		 * turned out that the I2SR_IIF bit isn't set correctly within
+480-		 * the minimum timeout in polling mode.
+481-		 */
+482:		readb_poll_timeout_atomic(addr, regval, regval & I2SR_IIF, 5, 1000 + 100);
+483-		i2c_imx->i2csr = regval;
+484:		i2c_imx_clear_irq(i2c_imx, I2SR_IIF | I2SR_IAL);
+485-	} else {
+486:		wait_event_timeout(i2c_imx->queue, i2c_imx->i2csr & I2SR_IIF, HZ / 10);
+487-	}
+488-
+489:	if (unlikely(!(i2c_imx->i2csr & I2SR_IIF))) {
+490-		dev_dbg(&i2c_imx->adapter.dev, "<%s> Timeout\n", __func__);
+491-		return -ETIMEDOUT;
+492-	}
+493-
+494-	/* check for arbitration lost */
+495:	if (i2c_imx->i2csr & I2SR_IAL) {
+496-		dev_dbg(&i2c_imx->adapter.dev, "<%s> Arbitration lost\n", __func__);
+497:		i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+498-
+499-		i2c_imx->i2csr = 0;
+500-		return -EAGAIN;
+501-	}
+502-
+503-	dev_dbg(&i2c_imx->adapter.dev, "<%s> TRX complete\n", __func__);
+504-	i2c_imx->i2csr = 0;
+505-	return 0;
+506-}
+507-
+508-static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx)
+509-{
+510:	if (imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR) & I2SR_RXAK) {
+511-		dev_dbg(&i2c_imx->adapter.dev, "<%s> No ACK\n", __func__);
+512-		return -ENXIO;  /* No ACK */
+513-	}
+514-
+515-	dev_dbg(&i2c_imx->adapter.dev, "<%s> ACK received\n", __func__);
+516-	return 0;
+517-}
+518-
+519-static void i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
+520-			    unsigned int i2c_clk_rate)
+521-{
+522-	struct imx_i2c_clk_pair *i2c_clk_div = i2c_imx->hwdata->clk_div;
+--
+576-{
+577-	unsigned int temp = 0;
+578-	int result;
+579-
+580-	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+581-
+582-	imx_i2c_write_reg(i2c_imx->ifdr, i2c_imx, IMX_I2C_IFDR);
+583-	/* Enable I2C controller */
+584:	imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx, IMX_I2C_I2SR);
+585-	imx_i2c_write_reg(i2c_imx->hwdata->i2cr_ien_opcode, i2c_imx, IMX_I2C_I2CR);
+586-
+587-	/* Wait controller to be stable */
+588-	if (atomic)
+589-		udelay(50);
+590-	else
+591-		usleep_range(50, 150);
+592-
+593-	/* Start I2C transaction */
+594-	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+595-	temp |= I2CR_MSTA;
+596-	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+--
+638-	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+639-}
+640-
+641-static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
+642-{
+643-	struct imx_i2c_struct *i2c_imx = dev_id;
+644-	unsigned int temp;
+645-
+646:	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+647:	if (temp & I2SR_IIF) {
+648-		/* save status register */
+649-		i2c_imx->i2csr = temp;
+650:		i2c_imx_clear_irq(i2c_imx, I2SR_IIF);
+651-		wake_up(&i2c_imx->queue);
+652-		return IRQ_HANDLED;
+653-	}
+654-
+655-	return IRQ_NONE;
+656-}
+657-
+658-static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
+659-					struct i2c_msg *msgs)
+660-{
+661-	int result;
+662-	unsigned long time_left;
+--
+687-				msecs_to_jiffies(DMA_TIMEOUT));
+688-	if (time_left == 0) {
+689-		dmaengine_terminate_all(dma->chan_using);
+690-		return -ETIMEDOUT;
+691-	}
+692-
+693-	/* Waiting for transfer complete. */
+694-	while (1) {
+695:		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+696:		if (temp & I2SR_ICF)
+697-			break;
+698-		if (time_after(jiffies, orig_jiffies +
+699-				msecs_to_jiffies(DMA_TIMEOUT))) {
+700-			dev_dbg(dev, "<%s> Timeout\n", __func__);
+701-			return -ETIMEDOUT;
+702-		}
+703-		schedule();
+704-	}
+705-
+706-	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+707-	temp &= ~I2CR_DMAEN;
+708-	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+--
+742-				msecs_to_jiffies(DMA_TIMEOUT));
+743-	if (time_left == 0) {
+744-		dmaengine_terminate_all(dma->chan_using);
+745-		return -ETIMEDOUT;
+746-	}
+747-
+748-	/* waiting for transfer complete. */
+749-	while (1) {
+750:		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+751:		if (temp & I2SR_ICF)
+752-			break;
+753-		if (time_after(jiffies, orig_jiffies +
+754-				msecs_to_jiffies(DMA_TIMEOUT))) {
+755-			dev_dbg(dev, "<%s> Timeout\n", __func__);
+756-			return -ETIMEDOUT;
+757-		}
+758-		schedule();
+759-	}
+760-
+761-	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+762-	temp &= ~I2CR_DMAEN;
+763-	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+--
+993-#ifdef CONFIG_I2C_DEBUG_BUS
+994-		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+995-		dev_dbg(&i2c_imx->adapter.dev,
+996-			"<%s> CONTROL: IEN=%d, IIEN=%d, MSTA=%d, MTX=%d, TXAK=%d, RSTA=%d\n",
+997-			__func__,
+998-			(temp & I2CR_IEN ? 1 : 0), (temp & I2CR_IIEN ? 1 : 0),
+999-			(temp & I2CR_MSTA ? 1 : 0), (temp & I2CR_MTX ? 1 : 0),
+1000-			(temp & I2CR_TXAK ? 1 : 0), (temp & I2CR_RSTA ? 1 : 0));
+1001:		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+1002-		dev_dbg(&i2c_imx->adapter.dev,
+1003-			"<%s> STATUS: ICF=%d, IAAS=%d, IBB=%d, IAL=%d, SRW=%d, IIF=%d, RXAK=%d\n",
+1004-			__func__,
+1005:			(temp & I2SR_ICF ? 1 : 0), (temp & I2SR_IAAS ? 1 : 0),
+1006:			(temp & I2SR_IBB ? 1 : 0), (temp & I2SR_IAL ? 1 : 0),
+1007:			(temp & I2SR_SRW ? 1 : 0), (temp & I2SR_IIF ? 1 : 0),
+1008:			(temp & I2SR_RXAK ? 1 : 0));
+1009-#endif
+1010-		if (msgs[i].flags & I2C_M_RD) {
+1011-			result = i2c_imx_read(i2c_imx, &msgs[i], is_lastmsg, atomic);
+1012-		} else {
+1013-			if (!atomic &&
+1014-			    i2c_imx->dma && msgs[i].len >= DMA_THRESHOLD)
+1015-				result = i2c_imx_dma_write(i2c_imx, &msgs[i]);
+1016-			else
+1017-				result = i2c_imx_write(i2c_imx, &msgs[i], atomic);
+1018-		}
+1019-		if (result)
+1020-			goto fail0;
+--
+1231-		i2c_imx->bitrate = pdata->bitrate;
+1232-	i2c_imx->clk_change_nb.notifier_call = i2c_imx_clk_notifier_call;
+1233-	clk_notifier_register(i2c_imx->clk, &i2c_imx->clk_change_nb);
+1234-	i2c_imx_set_clk(i2c_imx, clk_get_rate(i2c_imx->clk));
+1235-
+1236-	/* Set up chip registers to defaults */
+1237-	imx_i2c_write_reg(i2c_imx->hwdata->i2cr_ien_opcode ^ I2CR_IEN,
+1238-			i2c_imx, IMX_I2C_I2CR);
+1239:	imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx, IMX_I2C_I2SR);
+1240-
+1241-	/* Init optional bus recovery function */
+1242-	ret = i2c_imx_init_recovery_info(i2c_imx, pdev);
+1243-	/* Give it another chance if pinctrl used is not ready yet */
+1244-	if (ret == -EPROBE_DEFER)
+1245-		goto clk_notifier_unregister;
+1246-
+1247-	/* Add I2C adapter */
+1248-	ret = i2c_add_numbered_adapter(&i2c_imx->adapter);
+1249-	if (ret < 0)
+1250-		goto clk_notifier_unregister;
+1251-
+--
+1290-
+1291-	if (i2c_imx->dma)
+1292-		i2c_imx_dma_free(i2c_imx);
+1293-
+1294-	/* setup chip registers to defaults */
+1295-	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IADR);
+1296-	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IFDR);
+1297-	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2CR);
+1298:	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_I2SR);
+1299-
+1300-	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
+1301-	irq = platform_get_irq(pdev, 0);
+1302-	if (irq >= 0)
+1303-		free_irq(irq, i2c_imx);
+1304-	clk_disable_unprepare(i2c_imx->clk);
+1305-
+1306-	pm_runtime_put_noidle(&pdev->dev);
+1307-	pm_runtime_disable(&pdev->dev);
+1308-
+1309-	return 0;
+1310-}
+
+=== 13. PATCH-HASHES ===
+  77 2924 /tmp/novena-step-2.29c-384a956.patch
+  45 1678 /tmp/novena-step-2.29c-1de67a3.patch
+  68 2826 /tmp/novena-step-2.29c-61e6fe5.patch
+ 190 7428 insgesamt
+1d46ed0f8844aa97b8257ef8911bf46d3b215f0a0b337fcc2e86d3e1087f3dc6  /tmp/novena-step-2.29c-384a956.patch
+1cf7f5ae5c63d36177478bfc6523d0eb66ee9040ac75661d12bf902cfcc90799  /tmp/novena-step-2.29c-1de67a3.patch
+c29e57776c9c482d8921a9c230d1225bf31836c81026bc25e4421b6c0d2e2cfe  /tmp/novena-step-2.29c-61e6fe5.patch
+
+=== 14. PROJEKTSTATUS ===
+?? research/02-historical-software/
+
+=== ENDE STEP 2.29c ===

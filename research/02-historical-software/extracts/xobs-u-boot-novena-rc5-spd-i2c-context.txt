@@ -1,0 +1,71 @@
+   780		debug("\tMPRDDLCTL PHY0 (0x021b0848) = 0x%08X\n", readl(MPRDDLCTL_PHY0));
+   781		debug("\tMPRDDLCTL PHY1 (0x021b4848) = 0x%08X\n", readl(MPRDDLCTL_PHY1));
+   782		debug("Write calibration:\n");
+   783		debug("\tMPWRDLCTL PHY0 (0x021b0850) = 0x%08X\n", readl(MPWRDLCTL_PHY0));
+   784		debug("\tMPWRDLCTL PHY1 (0x021b4850) = 0x%08X\n", readl(MPWRDLCTL_PHY1));
+   785		/*
+   786		 * Registers below are for debugging purposes.  These print out
+   787		 * the upper and lower boundaries captured during
+   788		 * read DQS gating calibration.
+   789		 */
+   790		debug("Status registers bounds for read DQS gating:\n");
+   791		debug("\tMPDGHWST0 PHY0 (0x021b087c) = 0x%08X\n", readl(0x021b087c));
+   792		debug("\tMPDGHWST1 PHY0 (0x021b0880) = 0x%08X\n", readl(0x021b0880));
+   793		debug("\tMPDGHWST2 PHY0 (0x021b0884) = 0x%08X\n", readl(0x021b0884));
+   794		debug("\tMPDGHWST3 PHY0 (0x021b0888) = 0x%08X\n", readl(0x021b0888));
+   795		debug("\tMPDGHWST0 PHY1 (0x021b487c) = 0x%08X\n", readl(0x021b487c));
+   796		debug("\tMPDGHWST1 PHY1 (0x021b4880) = 0x%08X\n", readl(0x021b4880));
+   797		debug("\tMPDGHWST2 PHY1 (0x021b4884) = 0x%08X\n", readl(0x021b4884));
+   798		debug("\tMPDGHWST3 PHY1 (0x021b4888) = 0x%08X\n", readl(0x021b4888));
+   799	
+   800		debug("Final do_dqs_calibration error mask: 0x%x\n", errors);
+   801	
+   802		return errors;
+   803	}
+   804	
+   805	uint32_t novena_read_spd(struct mx6_ddr_sysinfo *sysinfo,
+   806				 struct mx6_ddr3_cfg *cfg)
+   807	{
+   808		struct ddr3_spd_eeprom_s spd;
+   809		int ret;
+   810		int chip   = 0x50;	/* Address of the SPD I2C device */
+   811		int addr   = 0x0;	/* Start of SPD address */
+   812		int alen   = 0x1;	/* Address is one-byte long */
+   813		uint32_t capacity;
+   814		uint32_t mtb_scale;
+   815	
+   816		i2c_init(CONFIG_SYS_I2C_SPEED, 0);
+   817	
+   818		ret = i2c_read(chip, addr, alen, (uint8_t *)&spd, sizeof(spd));
+   819		if (ret != 0) {
+   820			printf("Error reading SPD on DDR3.\n");
+   821			dram_fatal(-ret);
+   822		}
+   823	
+   824		switch (spd.tck_min) {
+   825		case 0x14:
+   826			cfg->mem_speed = 800;
+   827			break;
+   828		case 0x0f:
+   829			cfg->mem_speed = 1066;
+   830			break;
+   831		case 0x0c:
+   832			cfg->mem_speed = 1333;
+   833			break;
+   834		case 0x0a:
+   835			cfg->mem_speed = 1600;
+   836			break;
+   837		case 0x09:
+   838			cfg->mem_speed = 1866;
+   839			break;
+   840		case 0x08:
+   841			cfg->mem_speed = 2133;
+   842			break;
+   843		default:
+   844			if (spd.tck_min <= 0xf) {
+   845				debug("**undecodable but sufficiently fast "
+   846						"clock rate detected\n");
+   847				cfg->mem_speed = 1066;
+   848			} else {
+   849				debug("**undecodable but too slow "
+   850						"clock rate detected\n");
