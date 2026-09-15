@@ -1,0 +1,10 @@
+/sys/firmware/devicetree/base/regulator-audio-codec/compatible
+/sys/firmware/devicetree/base/regulator-audio-codec/regulator-boot-on
+/sys/firmware/devicetree/base/regulator-audio-codec/enable-active-high
+/sys/firmware/devicetree/base/regulator-audio-codec/gpio
+/sys/firmware/devicetree/base/regulator-audio-codec/phandle
+/sys/firmware/devicetree/base/regulator-audio-codec/startup-delay-us
+/sys/firmware/devicetree/base/regulator-audio-codec/regulator-min-microvolt
+/sys/firmware/devicetree/base/regulator-audio-codec/regulator-max-microvolt
+/sys/firmware/devicetree/base/regulator-audio-codec/regulator-name
+/sys/firmware/devicetree/base/regulator-audio-codec/name

@@ -1,0 +1,25 @@
+gpiochip0: 32 GPIOs, parent: platform/209c000.gpio, 209c000.gpio:
+ gpio-2   (                    |wp                  ) in  lo ACTIVE LOW
+ gpio-4   (                    |cd                  ) in  lo ACTIVE LOW
+ gpio-21  (                    |novena:white:panel  ) out hi 
+
+gpiochip1: 32 GPIOs, parent: platform/20a0000.gpio, 20a0000.gpio:
+
+gpiochip2: 32 GPIOs, parent: platform/20a4000.gpio, 20a4000.gpio:
+ gpio-23  (                    |phy-reset           ) out hi ACTIVE LOW
+ gpio-30  (                    |regulator-sata      ) out hi 
+
+gpiochip3: 32 GPIOs, parent: platform/20a8000.gpio, 20a8000.gpio:
+ gpio-12  (                    |Lid                 ) in  hi ACTIVE LOW
+ gpio-14  (                    |User Button         ) in  hi ACTIVE LOW
+ gpio-15  (                    |regulator-lvds-lcd  ) out hi 
+
+gpiochip4: 32 GPIOs, parent: platform/20ac000.gpio, 20ac000.gpio:
+ gpio-15  (                    |jack                ) in  lo 
+ gpio-17  (                    |regulator-audio-code) out hi 
+ gpio-28  (                    |regulator-display   ) out hi 
+
+gpiochip5: 32 GPIOs, parent: platform/20b0000.gpio, 20b0000.gpio:
+
+gpiochip6: 32 GPIOs, parent: platform/20b4000.gpio, 20b4000.gpio:
+ gpio-12  (                    |regulator-pcie      ) out lo 

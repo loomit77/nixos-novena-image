@@ -1477,3 +1477,215 @@ nichts am erfolgreich protokollierten Codeberg-Push und darf nicht mit einer
 technischen Unsicherheit des Novena-Tests vermischt werden.
 
 Vor Block 3 wird kein Patch `0007` angelegt.
+
+## Checkpoint Block 3 – H3-1 ES8328-/Audio-Power und I2C3 – 2026-09-15
+
+### Ausgangspunkt
+
+Block 3 begann auf dem verifizierten Git-Stand
+`1120875370557ea79a0c9499d83caa167af901dd` und ohne Patch `0007`.
+Ausgangspunkt war der mit Patch `0006-i2c-imx-debug-start-transition.patch`
+beobachtete Unterschied unmittelbar nach dem Setzen von MSTA:
+
+`Cold FAIL: A=81/80 -> M0=93/80`
+
+gegenüber
+
+`Same-Boot-LDB-Rebind PASS: A=81/80 -> M0=81/a0`.
+
+Priorität 1 aus Block 2.5 war die historische ES8328-/Audio-Power-
+Wechselwirkung mit dem gemeinsam genutzten I2C3.
+
+### H3-1 – Audio-Power-State-Hypothese
+
+Als einzelner erster Test wurde H3-1 formuliert: Der Zustand von
+`es8328-power` beziehungsweise des zugehörigen Audio-Power-/GPIO-Pfads
+unterscheidet sich im für den ersten IT6251-START relevanten Zeitraum zwischen
+einem fehlerhaften POR-Cold-Boot und dem erfolgreichen Same-Boot-LDB-Rebind
+und beeinflusst dadurch möglicherweise den gemeinsam genutzten I2C3.
+
+Die Hardware- und historische Quellenlage macht diese Hypothese konkret:
+ES8328 und IT6251 teilen sich I2C3. Der ES8328-Zweig ist über Serienwiderstände
+an I2C3 gekoppelt und besitzt eine zusätzliche Pull-up-/Versorgungsabhängigkeit
+vom Audio-Power-Bereich. Historisch wurde die Device-Tree-Policy für
+`es8328-power` von `regulator-boot-on` auf `regulator-always-on` geändert,
+weil das Abschalten der ES8328-Versorgung auf realer Novena-Hardware den
+I2C3-Bus beeinträchtigte.
+
+Dieser historische Befund ist ein Hinweis und kein Beweis für die aktuelle
+Root Cause.
+
+### Block 3.5 – kontrollierter POR-FAIL und Same-Boot-Rebind
+
+Ein echter POR-Cold-Boot reproduzierte den bekannten Fehler. Der erste
+IT6251-Zugriff zeigte:
+
+`A=81/80 B=93/80 C=83/80 ret=-11`
+
+und Patch `0006` erfasste unmittelbar nach dem MSTA-Schreibzugriff:
+
+`M0=93/80 M1=93/80 M2=93/80 M3=93/80 M4=93/80 M5=93/80 M6=93/80 M7=93/80`.
+
+Alle fünf Product-ID-Versuche schlugen mit derselben Signatur fehl. Der
+IT6251-Treiber deaktivierte danach seinen Display-Regulator und der interne
+Bildschirm blieb aus.
+
+Ohne Reboot wurde anschließend ausschließlich der bereits etablierte
+Same-Boot-LDB-Unbind/Bind-Vergleich durchgeführt. Danach wechselte der
+IT6251-Zugriff unmittelbar auf den erfolgreichen Zustand:
+
+`A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8`
+
+und
+
+`M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0`.
+
+Der IT6251 konnte anschließend initialisiert werden und der Display-Link wurde
+stabil.
+
+Damit enthält derselbe Boot sowohl den reproduzierten Cold-FAIL als auch den
+späteren Same-Boot-PASS.
+
+### Post-Boot-Beobachtung des Audio-Power-Pfads
+
+Vor beziehungsweise nach dem erfolgreichen LDB-Rebind war im laufenden
+System folgender sichtbarer Zustand feststellbar:
+
+* `es8328-power`: 5000 mV,
+* zugehöriger Audio-Regulator-GPIO: `out hi`,
+* ES8328 als I2C-Gerät `2-0011` vorhanden.
+
+Dieser identische spätere Softwarezustand reicht jedoch nicht zur
+Falsifikation einer transienten Audio-Power-Hypothese aus.
+
+Die nachfolgende Auswertung des vollständigen, gesicherten Kernel-Logs zeigte
+nämlich einen zuvor nicht berücksichtigten Vorgang während des Cold-Boots.
+
+### Block 3.6 – zeitliche Rekonstruktion aus der gesicherten Evidence
+
+Im vollständigen `dmesg` des Cold-FAIL-/Same-Boot-PASS-Laufs befindet sich
+genau eine explizite Meldung zu `es8328-power`:
+
+`[   33.761742] es8328-power: disabling`
+
+Der aktuell gebootete Live-Device-Tree enthält für
+`/regulator-audio-codec` weiterhin die Property `regulator-boot-on`.
+
+Für `es8328-power` existiert im gespeicherten Kernel-Log keine spätere
+explizite Enable-Meldung.
+
+Der relevante Ablauf des Cold-FAIL ist:
+
+1. bei 33.761742 s: `es8328-power: disabling`,
+2. bei 42.395351 s: der IT6251-Treiber beginnt das Einschalten seines
+   eigenen Display-Power-Regulators,
+3. bei 43.172998 s: `imx-es8328 sound: Unable to register: -517`,
+4. bei 44.471549 s: der IT6251-Display-Regulator ist eingeschaltet,
+5. bei 44.471609 s: erster Product-ID-Versuch,
+6. bei 44.478167 s: I2C3 meldet `arbitration lost`, I2SR `0x93`,
+7. bei 44.478235 s: der IT6251-START schlägt mit
+   `A=81/80 B=93/80 C=83/80 ret=-11` fehl,
+8. bei 44.478258 s: alle acht unmittelbaren Post-MSTA-Samples sind
+   `93/80`.
+
+Zwischen der expliziten Meldung `es8328-power: disabling` und dem ersten
+beobachteten I2C3-Fehler liegen damit ungefähr 10,716 Sekunden.
+
+Später initialisiert sich der Audio-Pfad weiter:
+
+* 46.079553 s: `imx-es8328 sound` erreicht die ASoC-Registrierung,
+* 46.194765 s: das ES8328-Headphone-Input-Gerät wird registriert.
+
+Der erfolgreiche Same-Boot-IT6251-Versuch erfolgt wesentlich später bei
+ungefähr 178,39 s und zeigt die bekannte erfolgreiche START-Transition
+`M0=81/a0`.
+
+### Bewertung von H3-1
+
+Die ursprüngliche Zwischenbewertung, H3-1 sei aufgrund identischer
+Post-Boot-Regulator-/GPIO-Zustände falsifiziert, wird durch die vollständige
+Zeitreihenanalyse eingeschränkt.
+
+Gesichert ist nun:
+
+* Der sichtbare Post-Boot-Zustand des Audio-Power-Pfads ist beim späteren
+  Vergleich aktiv.
+* Während des vorausgehenden Cold-Boots schaltet Linux `es8328-power`
+  nachweislich bei 33.761742 s ab.
+* Der erste fehlerhafte IT6251-START folgt rund 10,7 Sekunden später.
+* Das Log enthält keine explizite spätere Enable-Meldung für
+  `es8328-power`.
+* Diese zeitliche Korrelation beweist keine Kausalität.
+* Sie verhindert aber, dass die transiente ES8328-/Audio-Power-Hypothese
+  allein anhand des späteren Post-Boot-Zustands verworfen wird.
+
+Die historische ES8328-/I2C3-Spur bleibt deshalb als konkrete
+Root-Cause-Hypothese aktiv.
+
+### Nächster einzelner falsifizierbarer Test – H3-1R
+
+Als nächster Test ist ausschließlich H3-1R vorgesehen:
+
+Wenn das automatische Abschalten von `es8328-power` während des Cold-Boots
+eine notwendige Voraussetzung für die spätere I2C3-Fehlersignatur
+`A=81/80 -> M0=93/80` schafft, dann muss ein ansonsten vergleichbarer
+POR-Cold-Boot, bei dem ausschließlich dieses automatische Abschalten
+verhindert wird, die Fehlersignatur reproduzierbar verändern oder beseitigen.
+
+Die Interpretation ist vorab festgelegt:
+
+* Bleibt bei nachweislich nicht abgeschaltetem `es8328-power` die identische
+  Cold-Boot-Signatur `M0=93/80` mit `ret=-11` bestehen, spricht dies gegen
+  H3-1R.
+* Wechselt der Cold-Boot reproduzierbar auf die erfolgreiche
+  `M0=81/a0`-Transition beziehungsweise einen erfolgreichen IT6251-Zugriff,
+  stützt dies einen kausalen Zusammenhang.
+* Ein einzelner erfolgreicher POR-Boot reicht nicht als Bestätigung, da auch
+  mit dem bisherigen Zustand bereits spontane POR-PASS-Läufe beobachtet
+  wurden.
+
+H3-1R ist ein experimenteller Root-Cause-Test und noch keine dauerhafte
+Systementscheidung.
+
+Insbesondere ist `regulator-always-on` zu diesem Zeitpunkt nicht als Fix oder
+neue Policy beschlossen.
+
+### Evidence
+
+Die Rohdaten dieses Laufs befinden sich im Repository unter:
+
+`evidence/block-3.5-h3-1-2026-09-15/`
+
+Enthalten sind unter anderem vollständiges `dmesg`, der IT6251-/I2C3-Auszug,
+Regulator- und GPIO-Zustände, Live-Device-Tree-Daten, I2C3-Geräte und
+LDB-Binding.
+
+Alle Dateien wurden über `SHA256SUMS` erfolgreich verifiziert.
+
+Zusätzlich wurde vor der Dokumentationsänderung eine unabhängige bytegleiche
+Sicherung angelegt:
+
+`~/novena-backups/block-3.5-h3-1-2026-09-15/`
+
+`diff -qr` bestätigte:
+
+`EVIDENCE_BACKUP=IDENTISCH`
+
+Damit existieren vor weiteren experimentellen Änderungen zwei voneinander
+getrennte, verifizierte Kopien der Block-3.5-Rohdaten.
+
+### Änderungsgrenzen nach diesem Checkpoint
+
+Bis zur ausdrücklichen Vorbereitung von H3-1R gilt weiterhin:
+
+* kein Patch `0007`,
+* kein Retry als Fehlerbehebung,
+* kein zusätzlicher pauschaler IT6251-Delay,
+* keine I2C-Bus-Recovery als Fix,
+* kein manueller Audio-GPIO-Eingriff,
+* kein erzwungener IT6251-Power-Cycle,
+* kein dauerhaft beschlossenes `regulator-always-on`.
+
+Die nächste funktionale Änderung darf ausschließlich der kontrollierten
+Falsifikation von H3-1R dienen.
+

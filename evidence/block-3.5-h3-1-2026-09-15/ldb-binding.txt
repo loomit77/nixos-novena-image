@@ -1,0 +1,6 @@
+total 0
+--w------- 1 root root 4096 Sep 15 14:33 bind
+lrwxrwxrwx 1 root root    0 Sep 15 14:34 ldb -> ../../../../devices/platform/ldb
+lrwxrwxrwx 1 root root    0 Sep 15 14:32 module -> ../../../../module/imx_ldb
+--w------- 1 root root 4096 Sep 15 14:32 uevent
+--w------- 1 root root 4096 Sep 15 14:33 unbind

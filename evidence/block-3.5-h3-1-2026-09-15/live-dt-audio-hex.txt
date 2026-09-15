@@ -1,0 +1,29 @@
+
+=== /sys/firmware/devicetree/base/regulator-audio-codec/compatible ===
+ 72 65 67 75 6c 61 74 6f 72 2d 66 69 78 65 64 00
+
+=== /sys/firmware/devicetree/base/regulator-audio-codec/enable-active-high ===
+
+=== /sys/firmware/devicetree/base/regulator-audio-codec/gpio ===
+ 00 00 00 39 00 00 00 11 00 00 00 00
+
+=== /sys/firmware/devicetree/base/regulator-audio-codec/name ===
+ 72 65 67 75 6c 61 74 6f 72 2d 61 75 64 69 6f 2d
+ 63 6f 64 65 63 00
+
+=== /sys/firmware/devicetree/base/regulator-audio-codec/phandle ===
+ 00 00 00 3e
+
+=== /sys/firmware/devicetree/base/regulator-audio-codec/regulator-boot-on ===
+
+=== /sys/firmware/devicetree/base/regulator-audio-codec/regulator-max-microvolt ===
+ 00 4c 4b 40
+
+=== /sys/firmware/devicetree/base/regulator-audio-codec/regulator-min-microvolt ===
+ 00 4c 4b 40
+
+=== /sys/firmware/devicetree/base/regulator-audio-codec/regulator-name ===
+ 65 73 38 33 32 38 2d 70 6f 77 65 72 00
+
+=== /sys/firmware/devicetree/base/regulator-audio-codec/startup-delay-us ===
+ 00 06 1a 80
