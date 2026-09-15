@@ -1,0 +1,1025 @@
+Novena – historische DTS-Power-Policy-Matrix
+============================================
+
+Zweck:
+Dieser reproduzierbare Primärquellen-Auszug vergleicht die für
+Display, LVDS und ES8328 relevanten Regulator-Policies in vier
+historischen Novena-Kernelständen.
+
+Die Matrix dokumentiert die Entwicklung der DTS-Konfiguration.
+Sie beweist NICHT, dass eine dieser historischen Policies allein
+die Ursache des aktuellen Linux-6.18.49-Kaltstartfehlers
+A=81/80 -> M0=93/80 erklärt.
+
+=== Repository-Provenienz ===
+origin	https://github.com/novena-next/linux.git (fetch)
+origin	https://github.com/novena-next/linux.git (push)
+Repository-HEAD: 18bf34080c4c3beb6699181986cc97dd712498fe
+
+============================================================
+KERNELSTAND: 4.4
+REF: origin/v4.4-novena
+COMMIT: d9d2e8b619f17e8394d62c08d60b4ea17154e9d6
+DATUM: 2017-07-24T14:56:19+08:00
+BETREFF: arm: configs: novena: enable 74XX GPIO controller
+DTS: arch/arm/boot/dts/imx6q-novena.dts
+DTS_BLOB: ba77aeda18ae181403b0d4561f8ef8bf05fc9e73
+DTS_SHA256: d8fbeef35d0ce8cd8c3d51c54fe6694730e5df31aa8bcb3776611c98756bb261
+
+--- Regulator- und Power-Schlüsselstellen ---
+44-		};
+45-	};
+46-
+47-	reg_2p5v: 2p5v {
+48-		compatible = "regulator-fixed";
+49-		regulator-name = "2P5V";
+50-		regulator-min-microvolt = <2500000>;
+51-		regulator-max-microvolt = <2500000>;
+52:		regulator-always-on;
+53-	};
+54-
+55-	reg_3p3v: 3p3v {
+56-		compatible = "regulator-fixed";
+57-		regulator-name = "3P3V";
+58-		regulator-min-microvolt = <3300000>;
+59-		regulator-max-microvolt = <3300000>;
+60:		regulator-always-on;
+61-	};
+62-
+63-	reg_usb_otg_vbus: usb_otg_vbus {
+64-		compatible = "regulator-fixed";
+65-		regulator-name = "usb_otg_vbus";
+66-		regulator-min-microvolt = <5000000>;
+67-		regulator-max-microvolt = <5000000>;
+68-		enable-active-high;
+69-	};
+70-
+71:	reg_audio_codec: es8328-regulator {
+72-		compatible = "regulator-fixed";
+73:		regulator-name = "es8328-power";
+74-		regulator-min-microvolt = <5000000>;
+75-		regulator-max-microvolt = <5000000>;
+76:		startup-delay-us = <400000>;
+77:		gpio = <&gpio5 17 GPIO_ACTIVE_HIGH>;
+78-		enable-active-high;
+79:		regulator-boot-on;
+80-
+81-		regulator-state-mem {
+82-			regulator-on-in-suspend;
+83-		};
+84-	};
+85-
+86:	reg_lvds_lcd: lcd-regulator {
+87-		compatible = "regulator-fixed";
+88:		regulator-name = "lcd-lvds-power";
+89-		regulator-min-microvolt = <3300000>;
+90-		regulator-max-microvolt = <3300000>;
+91-		parent-supply = <&reg_display>;
+92:		gpio = <&gpio4 15 GPIO_ACTIVE_HIGH>;
+93-		enable-active-high;
+94-	};
+95-
+96:	reg_display: display-regulator {
+97-		compatible = "regulator-fixed";
+98:		regulator-name = "lcd-display-power";
+99-		regulator-min-microvolt = <3300000>;
+100-		regulator-max-microvolt = <3300000>;
+101:		startup-delay-us = <2000000>;
+102:		gpio = <&gpio5 28 GPIO_ACTIVE_HIGH>;
+103-		enable-active-high;
+104-	};
+105-
+106-	reg_sata: sata-regulator {
+107-		compatible = "regulator-fixed";
+108-		regulator-name = "sata-power";
+109-		regulator-min-microvolt = <3300000>;
+110-		regulator-max-microvolt = <3300000>;
+111:		startup-delay-us = <10000>;
+112-		gpio = <&gpio3 30 GPIO_ACTIVE_HIGH>;
+113-		enable-active-high;
+114:		regulator-boot-on;
+115-	};
+116-
+117-	reg_pcie: pcie-regulator {
+118-		compatible = "regulator-fixed";
+119-		regulator-name = "pcie-power";
+120-		regulator-min-microvolt = <3300000>;
+121-		regulator-max-microvolt = <3300000>;
+122-		gpio = <&gpio7 12 GPIO_ACTIVE_HIGH>;
+--
+411-	pmic: pfuze100@08 {
+412-		compatible = "fsl,pfuze100";
+413-		reg = <0x08>;
+414-
+415-		regulators {
+416-			sw1a_reg: sw1ab {
+417-				regulator-min-microvolt = <300000>;
+418-				regulator-max-microvolt = <1875000>;
+419:				regulator-boot-on;
+420:				regulator-always-on;
+421-				regulator-ramp-delay = <6250>;
+422-			};
+423-
+424-			sw1c_reg: sw1c {
+425-				regulator-min-microvolt = <300000>;
+426-				regulator-max-microvolt = <1875000>;
+427:				regulator-boot-on;
+428:				regulator-always-on;
+429-			};
+430-
+431-			sw2_reg: sw2 {
+432-				regulator-min-microvolt = <800000>;
+433-				regulator-max-microvolt = <3300000>;
+434:				regulator-boot-on;
+435:				regulator-always-on;
+436-			};
+437-
+438-			sw3a_reg: sw3a {
+439-				regulator-min-microvolt = <400000>;
+440-				regulator-max-microvolt = <1975000>;
+441:				regulator-boot-on;
+442:				regulator-always-on;
+443-			};
+444-
+445-			sw3b_reg: sw3b {
+446-				regulator-min-microvolt = <400000>;
+447-				regulator-max-microvolt = <1975000>;
+448:				regulator-boot-on;
+449:				regulator-always-on;
+450-			};
+451-
+452-			sw4_reg: sw4 {
+453-				regulator-min-microvolt = <800000>;
+454-				regulator-max-microvolt = <3300000>;
+455-			};
+456-
+457-			swbst_reg: swbst {
+458-				regulator-min-microvolt = <5000000>;
+459-				regulator-max-microvolt = <5150000>;
+460:				regulator-boot-on;
+461-
+462-				regulator-state-mem {
+463-					regulator-on-in-suspend;
+464-				};
+465-			};
+466-
+467-			snvs_reg: vsnvs {
+468-				regulator-min-microvolt = <1000000>;
+469-				regulator-max-microvolt = <3000000>;
+470:				regulator-boot-on;
+471:				regulator-always-on;
+472-			};
+473-
+474-			vref_reg: vrefddr {
+475:				regulator-boot-on;
+476:				regulator-always-on;
+477-			};
+478-
+479-			vgen1_reg: vgen1 {
+480-				regulator-min-microvolt = <800000>;
+481-				regulator-max-microvolt = <1550000>;
+482-			};
+483-
+484-			vgen2_reg: vgen2 {
+--
+489-			vgen3_reg: vgen3 {
+490-				regulator-min-microvolt = <1800000>;
+491-				regulator-max-microvolt = <3300000>;
+492-			};
+493-
+494-			vgen4_reg: vgen4 {
+495-				regulator-min-microvolt = <1800000>;
+496-				regulator-max-microvolt = <3300000>;
+497:				regulator-always-on;
+498-			};
+499-
+500-			vgen5_reg: vgen5 {
+501-				regulator-min-microvolt = <1800000>;
+502-				regulator-max-microvolt = <3300000>;
+503:				regulator-always-on;
+504-			};
+505-
+506-			vgen6_reg: vgen6 {
+507-				regulator-min-microvolt = <1800000>;
+508-				regulator-max-microvolt = <3300000>;
+509:				regulator-always-on;
+510-			};
+511-		};
+512-	};
+513-};
+514-
+515-&i2c3 {
+516-	pinctrl-names = "default";
+517-	pinctrl-0 = <&pinctrl_i2c3_novena>;
+
+--- I2C3 und angeschlossene relevante Geräte ---
+349-	status = "okay";
+350-
+351-	sbs_battery: bq20z75@0b {
+352-		compatible = "sbs,sbs-battery";
+353-		reg = <0x0b>;
+354-		sbs,i2c-retry-count = <3>;
+355-	};
+356-
+357:	senoko: senoko@20 {
+358-		pinctrl-names = "default";
+359-		pinctrl-0 = <&pinctrl_senoko_novena>;
+360-		compatible = "kosagi,senoko";
+361:		reg = <0x20>;
+362-		irq-gpio = <&gpio1 20 GPIO_ACTIVE_HIGH>;
+363-		supplied-to = "sbs-0-000b";
+364-	};
+365-
+366-	stmpe811@44 {
+367-		compatible = "st,stmpe811";
+368-		reg = <0x44>;
+369-		#address-cells = <1>;
+--
+507-				regulator-min-microvolt = <1800000>;
+508-				regulator-max-microvolt = <3300000>;
+509-				regulator-always-on;
+510-			};
+511-		};
+512-	};
+513-};
+514-
+515:&i2c3 {
+516-	pinctrl-names = "default";
+517-	pinctrl-0 = <&pinctrl_i2c3_novena>;
+518-	status = "okay";
+519-
+520:	codec: es8328@11 {
+521-		compatible = "everest,es8328";
+522:		reg = <0x11>;
+523-		DVDD-supply = <&reg_audio_codec>;
+524-		AVDD-supply = <&reg_audio_codec>;
+525-		PVDD-supply = <&reg_audio_codec>;
+526-		HPVDD-supply = <&reg_audio_codec>;
+527-
+528-		pinctrl-names = "default";
+529-		pinctrl-0 = <&pinctrl_sound_novena>;
+530-
+--
+538-					 <&clks IMX6QDL_PLL4_BYPASS_SRC>,
+539-					 <&clks IMX6QDL_CLK_CKO1_PODF>;
+540-		assigned-clock-rates = <0
+541-					0
+542-					722534400
+543-					22579200>;
+544-	};
+545-
+546:	eepromoops@56 {
+547-		compatible = "kosagi,eepromoops";
+548:		reg = <0x56>;
+549-		status = "okay";
+550-	};
+551-
+552:	it6251@5c {
+553-		compatible = "it,it6251";
+554:		reg = <0x5c>;
+555-		power-supply = <&reg_display>;
+556-
+557-                ports {
+558-                        port@0 {
+559-                                bridge_out: endpoint {
+560-                                        remote-endpoint = <&panel_in>;
+561-                                };
+562-                        };
+
+============================================================
+KERNELSTAND: 4.19-WIP3
+REF: origin/linux-4.19.98-novena-wip3
+COMMIT: f7c5b3505876d8df968bd4d47068e63d464f2c82
+DATUM: 2023-06-24T23:26:50+10:00
+BETREFF: Merge pull request #1 from c-x-r/linux-4.19.98-novena-spi-dma-fix
+DTS: arch/arm/boot/dts/imx6q-novena.dts
+DTS_BLOB: 934ee700f6912659f53de0103a910ed1ac30ae23
+DTS_SHA256: fe839a7db685a00a0ddb2c5350096a2972191b7427b4362937706577508597bb
+
+--- Regulator- und Power-Schlüsselstellen ---
+130-		};
+131-	};
+132-
+133-	reg_2p5v: regulator-2p5v {
+134-		compatible = "regulator-fixed";
+135-		regulator-name = "2P5V";
+136-		regulator-min-microvolt = <2500000>;
+137-		regulator-max-microvolt = <2500000>;
+138:		regulator-always-on;
+139-	};
+140-
+141-	reg_3p3v: regulator-3p3v {
+142-		compatible = "regulator-fixed";
+143-		regulator-name = "3P3V";
+144-		regulator-min-microvolt = <3300000>;
+145-		regulator-max-microvolt = <3300000>;
+146:		regulator-always-on;
+147-	};
+148-
+149:	reg_audio_codec: regulator-audio-codec {
+150-		compatible = "regulator-fixed";
+151:		regulator-name = "es8328-power";
+152:		regulator-always-on;
+153-		regulator-min-microvolt = <5000000>;
+154-		regulator-max-microvolt = <5000000>;
+155:		startup-delay-us = <400000>;
+156:		gpio = <&gpio5 17 GPIO_ACTIVE_HIGH>;
+157-		enable-active-high;
+158-	};
+159-
+160:	reg_display: regulator-display {
+161-		compatible = "regulator-fixed";
+162:		regulator-name = "lcd-display-power";
+163-		regulator-min-microvolt = <3300000>;
+164-		regulator-max-microvolt = <3300000>;
+165:		startup-delay-us = <2000000>;
+166:		gpio = <&gpio5 28 GPIO_ACTIVE_HIGH>;
+167-		enable-active-high;
+168:		regulator-boot-on;
+169-	};
+170-
+171:	reg_lvds_lcd: regulator-lvds-lcd {
+172-		compatible = "regulator-fixed";
+173:		regulator-name = "lcd-lvds-power";
+174-		regulator-min-microvolt = <3300000>;
+175-		regulator-max-microvolt = <3300000>;
+176-		parent-supply = <&reg_display>;
+177:		gpio = <&gpio4 15 GPIO_ACTIVE_HIGH>;
+178-		enable-active-high;
+179-	};
+180-
+181-	reg_pcie: regulator-pcie {
+182-		compatible = "regulator-fixed";
+183-		regulator-name = "pcie-bus-power";
+184-		regulator-min-microvolt = <1500000>;
+185-		regulator-max-microvolt = <1500000>;
+--
+188-		regulator-state-mem {
+189-			regulator-on-in-suspend;
+190-		};
+191-	};
+192-
+193-	reg_sata: regulator-sata {
+194-		compatible = "regulator-fixed";
+195-		regulator-name = "sata-power";
+196:		regulator-boot-on;
+197-		regulator-min-microvolt = <3300000>;
+198-		regulator-max-microvolt = <3300000>;
+199:		startup-delay-us = <10000>;
+200-		gpio = <&gpio3 30 GPIO_ACTIVE_HIGH>;
+201-		enable-active-high;
+202-	};
+203-
+204-	reg_usb_otg_vbus: regulator-usb-otg-vbus {
+205-		compatible = "regulator-fixed";
+206-		regulator-name = "usb_otg_vbus";
+207-		regulator-min-microvolt = <5000000>;
+--
+460-	pmic: pfuze100@8 {
+461-		compatible = "fsl,pfuze100";
+462-		reg = <0x08>;
+463-
+464-		regulators {
+465-			reg_sw1a: sw1a {
+466-				regulator-min-microvolt = <300000>;
+467-				regulator-max-microvolt = <1875000>;
+468:				regulator-boot-on;
+469:				regulator-always-on;
+470-				regulator-ramp-delay = <6250>;
+471-			};
+472-
+473-			reg_sw1c: sw1c {
+474-				regulator-min-microvolt = <300000>;
+475-				regulator-max-microvolt = <1875000>;
+476:				regulator-boot-on;
+477:				regulator-always-on;
+478-			};
+479-
+480-			reg_sw2: sw2 {
+481-				regulator-min-microvolt = <800000>;
+482-				regulator-max-microvolt = <3300000>;
+483:				regulator-boot-on;
+484:				regulator-always-on;
+485-			};
+486-
+487-			reg_sw3a: sw3a {
+488-				regulator-min-microvolt = <400000>;
+489-				regulator-max-microvolt = <1975000>;
+490:				regulator-boot-on;
+491:				regulator-always-on;
+492-			};
+493-
+494-			reg_sw3b: sw3b {
+495-				regulator-min-microvolt = <400000>;
+496-				regulator-max-microvolt = <1975000>;
+497:				regulator-boot-on;
+498:				regulator-always-on;
+499-			};
+500-
+501-			reg_sw4: sw4 {
+502-				regulator-min-microvolt = <800000>;
+503-				regulator-max-microvolt = <3300000>;
+504-			};
+505-
+506-			reg_swbst: swbst {
+507-				regulator-min-microvolt = <5000000>;
+508-				regulator-max-microvolt = <5150000>;
+509:				regulator-boot-on;
+510-				regulator-state-mem {
+511-					regulator-on-in-suspend;
+512-				};
+513-			};
+514-
+515-			reg_snvs: vsnvs {
+516-				regulator-min-microvolt = <1000000>;
+517-				regulator-max-microvolt = <3000000>;
+518:				regulator-boot-on;
+519:				regulator-always-on;
+520-			};
+521-
+522-			reg_vref: vrefddr {
+523:				regulator-boot-on;
+524:				regulator-always-on;
+525-			};
+526-
+527-			reg_vgen1: vgen1 {
+528-				regulator-min-microvolt = <800000>;
+529-				regulator-max-microvolt = <1550000>;
+530-			};
+531-
+532-			reg_vgen2: vgen2 {
+--
+537-			reg_vgen3: vgen3 {
+538-				regulator-min-microvolt = <1800000>;
+539-				regulator-max-microvolt = <3300000>;
+540-			};
+541-
+542-			reg_vgen4: vgen4 {
+543-				regulator-min-microvolt = <1800000>;
+544-				regulator-max-microvolt = <3300000>;
+545:				regulator-always-on;
+546-			};
+547-
+548-			reg_vgen5: vgen5 {
+549-				regulator-min-microvolt = <1800000>;
+550-				regulator-max-microvolt = <3300000>;
+551:				regulator-always-on;
+552-			};
+553-
+554-			reg_vgen6: vgen6 {
+555-				regulator-min-microvolt = <1800000>;
+556-				regulator-max-microvolt = <3300000>;
+557:				regulator-always-on;
+558-			};
+559-		};
+560-	};
+561-};
+562-
+563-&i2c3 {
+564-	pinctrl-names = "default";
+565-	pinctrl-0 = <&pinctrl_i2c3_novena>;
+
+--- I2C3 und angeschlossene relevante Geräte ---
+405-		reg = <0x1c>;
+406-	};
+407-
+408-	rtc: pcf8523@68 {
+409-		compatible = "nxp,pcf8523";
+410-		reg = <0x68>;
+411-	};
+412-
+413:	senoko: senoko@20 {
+414-		pinctrl-names = "default";
+415-		pinctrl-0 = <&pinctrl_senoko_novena>;
+416-		compatible = "kosagi,senoko";
+417:		reg = <0x20>;
+418-		irq-gpio = <&gpio1 20 GPIO_ACTIVE_HIGH>;
+419-		supplied-to = "sbs-0-000b";
+420-	};
+421-
+422-	sbs_battery: bq20z75@b {
+423-		compatible = "sbs,sbs-battery";
+424-		reg = <0x0b>;
+425-		sbs,i2c-retry-count = <50>;
+--
+555-				regulator-min-microvolt = <1800000>;
+556-				regulator-max-microvolt = <3300000>;
+557-				regulator-always-on;
+558-			};
+559-		};
+560-	};
+561-};
+562-
+563:&i2c3 {
+564-	pinctrl-names = "default";
+565-	pinctrl-0 = <&pinctrl_i2c3_novena>;
+566-	status = "okay";
+567-
+568:	codec: es8328@11 {
+569-		compatible = "everest,es8328";
+570:		reg = <0x11>;
+571-		DVDD-supply = <&reg_audio_codec>;
+572-		AVDD-supply = <&reg_audio_codec>;
+573-		PVDD-supply = <&reg_audio_codec>;
+574-		HPVDD-supply = <&reg_audio_codec>;
+575-		pinctrl-names = "default";
+576-		pinctrl-0 = <&pinctrl_sound_novena>;
+577-		clocks = <&clks IMX6QDL_CLK_CKO1>;
+578-		assigned-clocks = <&clks IMX6QDL_CLK_CKO>,
+--
+580-				  <&clks IMX6QDL_CLK_PLL4>,
+581-				  <&clks IMX6QDL_CLK_PLL4_POST_DIV>,
+582-				  <&clks IMX6QDL_CLK_CKO1_PODF>;
+583-		assigned-clock-parents = <&clks IMX6QDL_CLK_CKO1>,
+584-					 <&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>;
+585-		assigned-clock-rates = <0 0 722534400 0 22579200>;
+586-	};
+587-
+588:	eepromoops@56 {
+589-		compatible = "kosagi,eepromoops";
+590:		reg = <0x56>;
+591-		status = "okay";
+592-	};
+593-
+594:	it6251@5c {
+595-		compatible = "it,it6251";
+596:		reg = <0x5c>;
+597-		power-supply = <&reg_display>;
+598-
+599-		ports {
+600-			port@0 {
+601-				bridge_out: endpoint {
+602-					remote-endpoint = <&panel_in>;
+603-				};
+604-			};
+
+============================================================
+KERNELSTAND: 5.7-rc2
+REF: origin/nvn_v5.7-rc2
+COMMIT: 1fda06deecb61538ca3d07d256eb7c43d4e3432a
+DATUM: 2020-01-27T05:13:57+01:00
+BETREFF: FIXME: ITE workaround
+DTS: arch/arm/boot/dts/imx6q-novena.dts
+DTS_BLOB: 803a97e04dc4b8f760aed5f7611e4e4a832cc6f0
+DTS_SHA256: a26b29487f204a9b2e32909441c27a37f2d95f3bb5a1ec93659178285adc8cee
+
+--- Regulator- und Power-Schlüsselstellen ---
+117-		};
+118-	};
+119-
+120-	reg_2p5v: regulator-2p5v {
+121-		compatible = "regulator-fixed";
+122-		regulator-name = "2P5V";
+123-		regulator-min-microvolt = <2500000>;
+124-		regulator-max-microvolt = <2500000>;
+125:		regulator-always-on;
+126-	};
+127-
+128-	reg_3p3v: regulator-3p3v {
+129-		compatible = "regulator-fixed";
+130-		regulator-name = "3P3V";
+131-		regulator-min-microvolt = <3300000>;
+132-		regulator-max-microvolt = <3300000>;
+133:		regulator-always-on;
+134-	};
+135-
+136:	reg_audio_codec: regulator-audio-codec {
+137-		compatible = "regulator-fixed";
+138:		regulator-name = "es8328-power";
+139:		regulator-boot-on;
+140-		regulator-min-microvolt = <5000000>;
+141-		regulator-max-microvolt = <5000000>;
+142:		startup-delay-us = <400000>;
+143:		gpio = <&gpio5 17 GPIO_ACTIVE_HIGH>;
+144-		enable-active-high;
+145-	};
+146-
+147:	reg_display: regulator-display {
+148-		compatible = "regulator-fixed";
+149:		regulator-name = "lcd-display-power";
+150-		regulator-min-microvolt = <3300000>;
+151-		regulator-max-microvolt = <3300000>;
+152:		startup-delay-us = <200000>;
+153:		gpio = <&gpio5 28 GPIO_ACTIVE_HIGH>;
+154-		enable-active-high;
+155:		regulator-always-on;
+156-	};
+157-
+158:	reg_lvds_lcd: regulator-lvds-lcd {
+159-		compatible = "regulator-fixed";
+160:		regulator-name = "lcd-lvds-power";
+161-		regulator-min-microvolt = <3300000>;
+162-		regulator-max-microvolt = <3300000>;
+163:		gpio = <&gpio4 15 GPIO_ACTIVE_HIGH>;
+164-		enable-active-high;
+165:		regulator-always-on;
+166-	};
+167-
+168-	reg_pcie: regulator-pcie {
+169-		compatible = "regulator-fixed";
+170-		regulator-name = "pcie-bus-power";
+171-		regulator-min-microvolt = <1500000>;
+172-		regulator-max-microvolt = <1500000>;
+173-		gpio = <&gpio7 12 GPIO_ACTIVE_HIGH>;
+174-		enable-active-high;
+175-	};
+176-
+177-	reg_sata: regulator-sata {
+178-		compatible = "regulator-fixed";
+179-		regulator-name = "sata-power";
+180:		regulator-boot-on;
+181-		regulator-min-microvolt = <3300000>;
+182-		regulator-max-microvolt = <3300000>;
+183:		startup-delay-us = <10000>;
+184-		gpio = <&gpio3 30 GPIO_ACTIVE_HIGH>;
+185-		enable-active-high;
+186-	};
+187-
+188-	reg_usb_otg_vbus: regulator-usb-otg-vbus {
+189-		compatible = "regulator-fixed";
+190-		regulator-name = "usb_otg_vbus";
+191-		regulator-min-microvolt = <5000000>;
+--
+320-	pmic: pfuze100@8 {
+321-		compatible = "fsl,pfuze100";
+322-		reg = <0x08>;
+323-
+324-		regulators {
+325-			reg_sw1a: sw1a {
+326-				regulator-min-microvolt = <300000>;
+327-				regulator-max-microvolt = <1875000>;
+328:				regulator-boot-on;
+329:				regulator-always-on;
+330-				regulator-ramp-delay = <6250>;
+331-			};
+332-
+333-			reg_sw1c: sw1c {
+334-				regulator-min-microvolt = <300000>;
+335-				regulator-max-microvolt = <1875000>;
+336:				regulator-boot-on;
+337:				regulator-always-on;
+338-			};
+339-
+340-			reg_sw2: sw2 {
+341-				regulator-min-microvolt = <800000>;
+342-				regulator-max-microvolt = <3300000>;
+343:				regulator-boot-on;
+344:				regulator-always-on;
+345-			};
+346-
+347-			reg_sw3a: sw3a {
+348-				regulator-min-microvolt = <400000>;
+349-				regulator-max-microvolt = <1975000>;
+350:				regulator-boot-on;
+351:				regulator-always-on;
+352-			};
+353-
+354-			reg_sw3b: sw3b {
+355-				regulator-min-microvolt = <400000>;
+356-				regulator-max-microvolt = <1975000>;
+357:				regulator-boot-on;
+358:				regulator-always-on;
+359-			};
+360-
+361-			reg_sw4: sw4 {
+362-				regulator-min-microvolt = <800000>;
+363-				regulator-max-microvolt = <3300000>;
+364-			};
+365-
+366-			reg_swbst: swbst {
+367-				regulator-min-microvolt = <5000000>;
+368-				regulator-max-microvolt = <5150000>;
+369:				regulator-boot-on;
+370-			};
+371-
+372-			reg_snvs: vsnvs {
+373-				regulator-min-microvolt = <1000000>;
+374-				regulator-max-microvolt = <3000000>;
+375:				regulator-boot-on;
+376:				regulator-always-on;
+377-			};
+378-
+379-			reg_vref: vrefddr {
+380:				regulator-boot-on;
+381:				regulator-always-on;
+382-			};
+383-
+384-			reg_vgen1: vgen1 {
+385-				regulator-min-microvolt = <800000>;
+386-				regulator-max-microvolt = <1550000>;
+387-			};
+388-
+389-			reg_vgen2: vgen2 {
+--
+394-			reg_vgen3: vgen3 {
+395-				regulator-min-microvolt = <1800000>;
+396-				regulator-max-microvolt = <3300000>;
+397-			};
+398-
+399-			reg_vgen4: vgen4 {
+400-				regulator-min-microvolt = <1800000>;
+401-				regulator-max-microvolt = <3300000>;
+402:				regulator-always-on;
+403-			};
+404-
+405-			reg_vgen5: vgen5 {
+406-				regulator-min-microvolt = <1800000>;
+407-				regulator-max-microvolt = <3300000>;
+408:				regulator-always-on;
+409-			};
+410-
+411-			reg_vgen6: vgen6 {
+412-				regulator-min-microvolt = <1800000>;
+413-				regulator-max-microvolt = <3300000>;
+414:				regulator-always-on;
+415-			};
+416-		};
+417-	};
+418-};
+419-
+420-&i2c3 {
+421-	pinctrl-names = "default";
+422-	pinctrl-0 = <&pinctrl_i2c3_novena>;
+
+--- I2C3 und angeschlossene relevante Geräte ---
+412-				regulator-min-microvolt = <1800000>;
+413-				regulator-max-microvolt = <3300000>;
+414-				regulator-always-on;
+415-			};
+416-		};
+417-	};
+418-};
+419-
+420:&i2c3 {
+421-	pinctrl-names = "default";
+422-	pinctrl-0 = <&pinctrl_i2c3_novena>;
+423-	status = "okay";
+424-
+425:	codec: es8328@11 {
+426-		compatible = "everest,es8328";
+427:		reg = <0x11>;
+428-		DVDD-supply = <&reg_audio_codec>;
+429-		AVDD-supply = <&reg_audio_codec>;
+430-		PVDD-supply = <&reg_audio_codec>;
+431-		HPVDD-supply = <&reg_audio_codec>;
+432-		pinctrl-names = "default";
+433-		pinctrl-0 = <&pinctrl_sound_novena>;
+434-		clocks = <&clks IMX6QDL_CLK_CKO1>;
+435-		assigned-clocks = <&clks IMX6QDL_CLK_CKO>,
+--
+438-				  <&clks IMX6QDL_CLK_CKO1>;
+439-		assigned-clock-parents = <&clks IMX6QDL_CLK_CKO1>,
+440-					 <&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,
+441-					 <&clks IMX6QDL_CLK_OSC>,
+442-					 <&clks IMX6QDL_CLK_CKO1_PODF>;
+443-		assigned-clock-rates = <0 0 722534400 22579200>;
+444-	};
+445-
+446:	it6251@5c {
+447-		compatible = "ite,it6251";
+448:		reg = <0x5c>, <0x5e>;
+449-		reg-names = "bridge", "lvds";
+450-		power-supply = <&reg_display>;
+451-		pinctrl-names = "default";
+452-		pinctrl-0 = <&pinctrl_lvdsbridge_novena>;
+453-
+454-		ports {
+455-			port@0 {
+456-				bridge_out_edp0: endpoint {
+
+============================================================
+KERNELSTAND: 6.6
+REF: origin/nvn_v6.6
+COMMIT: 62230169377ba41353d41806ae35cde734cb5cf0
+DATUM: 2023-12-22T11:34:48+01:00
+BETREFF: fixup! drm/bridge: Add ITE IT6251 bridge driver
+DTS: arch/arm/boot/dts/nxp/imx/imx6q-novena.dts
+DTS_BLOB: 590b7f71701a5eee09b3b0c1f8fff41171ec8291
+DTS_SHA256: 3bb90e171d279331a382720ef49c547acb5f89ff5a1bfa4119411adca1b508cf
+
+--- Regulator- und Power-Schlüsselstellen ---
+117-		};
+118-	};
+119-
+120-	reg_2p5v: regulator-2p5v {
+121-		compatible = "regulator-fixed";
+122-		regulator-name = "2P5V";
+123-		regulator-min-microvolt = <2500000>;
+124-		regulator-max-microvolt = <2500000>;
+125:		regulator-always-on;
+126-	};
+127-
+128-	reg_3p3v: regulator-3p3v {
+129-		compatible = "regulator-fixed";
+130-		regulator-name = "3P3V";
+131-		regulator-min-microvolt = <3300000>;
+132-		regulator-max-microvolt = <3300000>;
+133:		regulator-always-on;
+134-	};
+135-
+136:	reg_audio_codec: regulator-audio-codec {
+137-		compatible = "regulator-fixed";
+138:		regulator-name = "es8328-power";
+139:		regulator-boot-on;
+140-		regulator-min-microvolt = <5000000>;
+141-		regulator-max-microvolt = <5000000>;
+142:		startup-delay-us = <400000>;
+143:		gpio = <&gpio5 17 GPIO_ACTIVE_HIGH>;
+144-		enable-active-high;
+145-	};
+146-
+147:	reg_display: regulator-display {
+148-		compatible = "regulator-fixed";
+149:		regulator-name = "lcd-display-power";
+150-		regulator-min-microvolt = <3300000>;
+151-		regulator-max-microvolt = <3300000>;
+152:		startup-delay-us = <200000>;
+153:		gpio = <&gpio5 28 GPIO_ACTIVE_HIGH>;
+154-		enable-active-high;
+155:		regulator-always-on;
+156-	};
+157-
+158:	reg_lvds_lcd: regulator-lvds-lcd {
+159-		compatible = "regulator-fixed";
+160:		regulator-name = "lcd-lvds-power";
+161-		regulator-min-microvolt = <3300000>;
+162-		regulator-max-microvolt = <3300000>;
+163:		gpio = <&gpio4 15 GPIO_ACTIVE_HIGH>;
+164-		enable-active-high;
+165:		regulator-always-on;
+166-	};
+167-
+168-	reg_pcie: regulator-pcie {
+169-		compatible = "regulator-fixed";
+170-		regulator-name = "pcie-bus-power";
+171-		regulator-min-microvolt = <1500000>;
+172-		regulator-max-microvolt = <1500000>;
+173-		gpio = <&gpio7 12 GPIO_ACTIVE_HIGH>;
+174-		enable-active-high;
+175-	};
+176-
+177-	reg_sata: regulator-sata {
+178-		compatible = "regulator-fixed";
+179-		regulator-name = "sata-power";
+180:		regulator-boot-on;
+181-		regulator-min-microvolt = <3300000>;
+182-		regulator-max-microvolt = <3300000>;
+183:		startup-delay-us = <10000>;
+184-		gpio = <&gpio3 30 GPIO_ACTIVE_HIGH>;
+185-		enable-active-high;
+186-	};
+187-
+188-	reg_usb_otg_vbus: regulator-usb-otg-vbus {
+189-		compatible = "regulator-fixed";
+190-		regulator-name = "usb_otg_vbus";
+191-		regulator-min-microvolt = <5000000>;
+--
+330-	pmic: pmic@8 {
+331-		compatible = "fsl,pfuze100";
+332-		reg = <0x08>;
+333-
+334-		regulators {
+335-			reg_sw1a: sw1a {
+336-				regulator-min-microvolt = <300000>;
+337-				regulator-max-microvolt = <1875000>;
+338:				regulator-boot-on;
+339:				regulator-always-on;
+340-				regulator-ramp-delay = <6250>;
+341-			};
+342-
+343-			reg_sw1c: sw1c {
+344-				regulator-min-microvolt = <300000>;
+345-				regulator-max-microvolt = <1875000>;
+346:				regulator-boot-on;
+347:				regulator-always-on;
+348-			};
+349-
+350-			reg_sw2: sw2 {
+351-				regulator-min-microvolt = <800000>;
+352-				regulator-max-microvolt = <3300000>;
+353:				regulator-boot-on;
+354:				regulator-always-on;
+355-			};
+356-
+357-			reg_sw3a: sw3a {
+358-				regulator-min-microvolt = <400000>;
+359-				regulator-max-microvolt = <1975000>;
+360:				regulator-boot-on;
+361:				regulator-always-on;
+362-			};
+363-
+364-			reg_sw3b: sw3b {
+365-				regulator-min-microvolt = <400000>;
+366-				regulator-max-microvolt = <1975000>;
+367:				regulator-boot-on;
+368:				regulator-always-on;
+369-			};
+370-
+371-			reg_sw4: sw4 {
+372-				regulator-min-microvolt = <800000>;
+373-				regulator-max-microvolt = <3300000>;
+374-			};
+375-
+376-			reg_swbst: swbst {
+377-				regulator-min-microvolt = <5000000>;
+378-				regulator-max-microvolt = <5150000>;
+379:				regulator-boot-on;
+380-			};
+381-
+382-			reg_snvs: vsnvs {
+383-				regulator-min-microvolt = <1000000>;
+384-				regulator-max-microvolt = <3000000>;
+385:				regulator-boot-on;
+386:				regulator-always-on;
+387-			};
+388-
+389-			reg_vref: vrefddr {
+390:				regulator-boot-on;
+391:				regulator-always-on;
+392-			};
+393-
+394-			reg_vgen1: vgen1 {
+395-				regulator-min-microvolt = <800000>;
+396-				regulator-max-microvolt = <1550000>;
+397-			};
+398-
+399-			reg_vgen2: vgen2 {
+--
+404-			reg_vgen3: vgen3 {
+405-				regulator-min-microvolt = <1800000>;
+406-				regulator-max-microvolt = <3300000>;
+407-			};
+408-
+409-			reg_vgen4: vgen4 {
+410-				regulator-min-microvolt = <1800000>;
+411-				regulator-max-microvolt = <3300000>;
+412:				regulator-always-on;
+413-			};
+414-
+415-			reg_vgen5: vgen5 {
+416-				regulator-min-microvolt = <1800000>;
+417-				regulator-max-microvolt = <3300000>;
+418:				regulator-always-on;
+419-			};
+420-
+421-			reg_vgen6: vgen6 {
+422-				regulator-min-microvolt = <1800000>;
+423-				regulator-max-microvolt = <3300000>;
+424:				regulator-always-on;
+425-			};
+426-		};
+427-	};
+428-};
+429-
+430-&i2c3 {
+431-	pinctrl-names = "default";
+432-	pinctrl-0 = <&pinctrl_i2c3_novena>;
+
+--- I2C3 und angeschlossene relevante Geräte ---
+422-				regulator-min-microvolt = <1800000>;
+423-				regulator-max-microvolt = <3300000>;
+424-				regulator-always-on;
+425-			};
+426-		};
+427-	};
+428-};
+429-
+430:&i2c3 {
+431-	pinctrl-names = "default";
+432-	pinctrl-0 = <&pinctrl_i2c3_novena>;
+433-	status = "okay";
+434-
+435:	codec: es8328@11 {
+436-		compatible = "everest,es8328";
+437:		reg = <0x11>;
+438-		DVDD-supply = <&reg_audio_codec>;
+439-		AVDD-supply = <&reg_audio_codec>;
+440-		PVDD-supply = <&reg_audio_codec>;
+441-		HPVDD-supply = <&reg_audio_codec>;
+442-		pinctrl-names = "default";
+443-		pinctrl-0 = <&pinctrl_sound_novena>;
+444-		clocks = <&clks IMX6QDL_CLK_CKO1>;
+445-		assigned-clocks = <&clks IMX6QDL_CLK_CKO>,
+--
+448-				  <&clks IMX6QDL_CLK_CKO1>;
+449-		assigned-clock-parents = <&clks IMX6QDL_CLK_CKO1>,
+450-					 <&clks IMX6QDL_CLK_PLL4_AUDIO_DIV>,
+451-					 <&clks IMX6QDL_CLK_OSC>,
+452-					 <&clks IMX6QDL_CLK_CKO1_PODF>;
+453-		assigned-clock-rates = <0 0 722534400 22579200>;
+454-	};
+455-
+456:	it6251@5c {
+457-		compatible = "ite,it6251";
+458:		reg = <0x5c>, <0x5e>;
+459-		reg-names = "bridge", "lvds";
+460-		power-supply = <&reg_display>;
+461-		pinctrl-names = "default";
+462-		pinctrl-0 = <&pinctrl_lvdsbridge_novena>;
+463-
+464-		ports {
+465-			port@0 {
+466-				bridge_out_edp0: endpoint {
+
+============================================================
+Ende des reproduzierbaren Primärquellen-Auszugs.

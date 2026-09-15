@@ -40,6 +40,10 @@ d75e66561737caa5836edb5edea7f3aea1c4cffb48f2351d300dc11358d61225  ./extracts/nov
 0e8c4a46537f399236baebb1317b63fdc5ba4701960db6c18c5c4b17e90aeb26  ./extracts/novena-next-nixos-novena-HEAD-novena-usb-hub-default.nix
 f5a964580d4f240029eef2b6293b5145f43c5dafbc55ddb747fabee640cc7a2b  ./extracts/novena-next-nixos-novena-it6251-dump-dptx-history.patch
 0fcb913e44bcd7e1e3ff713be7cdaec112f80f21770c1b4c6534ae76c1f23209  ./extracts/novena-next-nixos-novena-kernel-history.patch
+6d36235eb40eb6058f6f184e9eaf79a5b45a8a05fc4834daff2231bae6eda550  ./extracts/quellenuebergreifend/novena-next-linux-dts-power-policy-matrix.txt
+35bbe085ce6c199f15596e0edaa5106e10b1ef1db4a8a416491e0437b27e19a4  ./extracts/quellenuebergreifend/novena-next-linux-es8328-i2c3-wechselwirkung.txt
+71eea99b3b18d4ed86f6c46f76c0962e740233ee50c5c4ac3679318530481db8  ./extracts/quellenuebergreifend/xobs-novena-linux-it6251-powerup-historie.txt
+7d39dcfba3486d7a712244fcdc8359d440c336bd33e65e67cd03b99a05d3257e  ./extracts/quellenuebergreifend/xobs-u-boot-novena-it6251-power-ready-sequenz.txt
 faa8697a47185ad214c460e0eef19c6d34909ab823ff3d473fa44a1900806e13  ./extracts/xobs-it6251-dump-dptx-70b07ef-it6251-dump-dptx.c
 99326868d7ac1b6947173f544c54d519bcff893428f279329eecaabc27e9cc26  ./extracts/xobs-it6251-dump-dptx-70b07ef-provenance.txt
 ccc1afb064ea328df6c0783ac126c3f3e4dd0e16e69e36a87ea93293b80828f3  ./extracts/xobs-u-boot-novena-afe5956-cmd-i2c-after.txt
@@ -111,6 +115,7 @@ aa7ce80dd00f28cdf2cd57004dc5fea267970f1804c6c25e8b2610b6d14f9dec  ./extracts/xob
 e77400d8bbfe8c167be049bf6668dff84ecb7378bc519f4567da71d5a7719a3d  ./extracts/xobs-u-boot-novena-v2014.10-novena-rc5-provenance.txt
 6d4598f498a02d6db1d8c3487a293313c99320cdff6349697e46b3b02adf82d0  ./notes/linux-i2c-imx-5.7-vs-6.18-analyse.md
 e97885ffd6f3f645ab051b7591abda7019c2afed866437d2fb506b20be66aea3  ./notes/nixos-wiki-kosagi-novena-revision-21513.md
+16b30d6b7990d2e98a854339c5107e994416efb93e91ed9de7e1c53c95cce7e4  ./notes/quellenuebergreifende-novena-sichtung.md
 aabfd8faf5401dd355a1a854d528df12fe115b8b14973a36a22f9bfcc7c2370c  ./notes/u-boot-v2014.10-novena-rc5-i2c-analysis.md
 2d8d27f092cf26f3307f022901959184e328b0f2b0b6ef9107eca5dee12980c3  ./notes/xobs-it6251-dump-dptx-70b07ef-analysis.md
 ab3855d4dbc0190a2d43cf1c7ec5855ba70db5f5da8eab76b1aeecf39a5ac2b6  ./sources/nixos-wiki-kosagi-novena-revision-21513.html
