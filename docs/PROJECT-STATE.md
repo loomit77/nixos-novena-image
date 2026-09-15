@@ -1202,3 +1202,278 @@ verifizierte Artefakte Vorrang.
 
 Beim Wiedereinstieg soll zunächst ausschließlich ein Read-only-Statuscheck
 auf der foobox erfolgen. Erst danach werden neue Änderungen geplant.
+
+## Checkpoint nach Block 2.5 – quellenübergreifende historische Novena-Sichtung – 2026-09-15
+
+Dieser Abschnitt ergänzt den unmittelbar vorhergehenden 0006-Checkpoint.
+Der technische Ausgangsbefund von 0006 bleibt unverändert maßgeblich.
+Block 2.5 diente ausschließlich der quellenübergreifenden historischen
+Einordnung und hat weder eine Root Cause bewiesen noch eine funktionale
+Änderung am Kernel, Device Tree oder Testmedium eingeführt.
+
+### Git- und Sicherungsstand
+
+Der abgeschlossene Forschungsstand von Block 2.5 ist in folgendem Commit
+gesichert:
+
+`afdc25adb7e5c94408a339ebb6a43e26654e8268`
+
+Commit-Betreff:
+
+`Archive cross-source Novena research`
+
+Parent:
+
+`8c1c0f6418726aae75ec525bc4fa0eb2ef4411b3`
+
+Der Commit enthält ausschließlich sechs Änderungen unter
+`research/02-historical-software/`:
+
+* das aktualisierte `SHA256SUMS`-Manifest,
+* vier neue quellenübergreifende Primärquellen-Extrakte,
+* die zentrale deutsche Analyse
+  `notes/quellenuebergreifende-novena-sichtung.md`.
+
+Commit-Statistik:
+
+* 6 Dateien geändert
+* 4408 Einfügungen
+* keine Löschungen
+
+Das aktualisierte Block-2-Manifest enthält 134 Einträge.
+
+SHA-256 des Manifests:
+
+`345d9f100fb5b86ea0d3ac8ab2071454035480e11993279f40513a0358e0e422`
+
+Die fünf neuen Forschungsdateien wurden vor und nach dem Commit über ihre
+SHA-256-Werte verifiziert. Die in drei Primärquellen-Extrakten enthaltenen
+historischen Whitespace-Eigenschaften wurden bewusst quellgetreu erhalten;
+die neu verfasste Analysenote und das Manifest sind `git diff --check`-sauber.
+
+Vor dem Commit wurde zusätzlich eine bytegenaue Sicherung angelegt:
+
+`/home/loomit/novena-backups/block-2.5-vor-commit-2026-09-15`
+
+Der Commit wurde erfolgreich zu GitHub übertragen und dort anschließend per
+`ls-remote` exakt als `afdc25adb7e5c94408a339ebb6a43e26654e8268`
+verifiziert.
+
+Auch der Push zu Codeberg war erfolgreich und meldete:
+
+`8c1c0f6..afdc25a  main -> main`
+
+mit Rückgabecode 0. Dadurch wurde der lokale Tracking-Ref `origin/main` auf
+`afdc25adb7e5c94408a339ebb6a43e26654e8268` aktualisiert. Eine zusätzliche
+unabhängige `ls-remote`-Verifikation von Codeberg war unmittelbar danach wegen
+des bekannten intermittierenden SSH-Problems auf Port 22 nicht möglich; neue
+SSH-Verbindungen wurden von Codeberg wiederholt geschlossen. Dies ist als
+noch offene Remote-Leseverifikation zu behandeln, nicht als fehlgeschlagener
+Push.
+
+Zum Abschluss standen lokal:
+
+* `HEAD = afdc25adb7e5c94408a339ebb6a43e26654e8268`
+* `origin/main = afdc25adb7e5c94408a339ebb6a43e26654e8268`
+* `github/main = afdc25adb7e5c94408a339ebb6a43e26654e8268`
+* sauberer Worktree relativ zu `origin/main`
+
+### Umfang und Quellenbasis von Block 2.5
+
+Block 2.5 war eine quellenübergreifende Sichtung der bereits gesicherten
+Novena-Hardware- und Softwarequellen. Ziel war nicht die Suche nach einem
+passenden historischen Workaround, sondern die Prüfung, ob sich aus den
+verschiedenen Entwicklungsständen belastbare Hinweise auf bislang übersehene
+Hardwarezustände, Abhängigkeiten oder Initialisierungsreihenfolgen ergeben.
+
+Einbezogen wurden insbesondere:
+
+* die bereits archivierten originalen Novena-Hardwareunterlagen,
+* historische Novena-U-Boot-Quellen,
+* historische Linux-/Device-Tree-Stände aus `xobs/novena-linux` und
+  `novena-next/linux`,
+* die historischen `novena-next/nixos-novena`-Quellen,
+* die gesicherte NixOS-Wiki-Revision,
+* das historische IT6251-Werkzeug,
+* sowie gezielt das von der historischen Dokumentation referenzierte
+  `novena-next/docs`-Repository.
+
+Die breite historische Quellensuche ist mit Block 2.5 abgeschlossen. Weitere
+zufällige Repository-Suchen sollen vor der nächsten experimentellen Phase
+nicht erfolgen.
+
+### Historisch belastbare Befunde
+
+Die quellenübergreifende Sichtung hat mehrere zuvor getrennte Befunde
+zusammengeführt.
+
+Erstens existiert ein direkter historischer Novena-Beleg für eine
+Wechselwirkung zwischen der Audio-Versorgung `es8328-power` und I2C3. Der
+Commit
+
+`e48619edadbde342d79655e73654f0b21fc5e20b`
+
+änderte 2020 die Versorgung des ES8328 von `regulator-boot-on` auf
+`regulator-always-on`. Die Commit-Beschreibung hält ausdrücklich fest, dass
+das Abschalten dieser Versorgung offenbar den I2C3-Bus beeinträchtigte und
+unter anderem Bildschirm, EEPROM und Senoko störte. Dieser Befund ist ein
+starker historischer Hinweis auf eine reale Audio-Power-/I2C3-Wechselwirkung
+auf Novena-Hardware.
+
+Zweitens zeigen die historischen IT6251-Implementierungen wiederholte
+Robustheitsmaßnahmen beim Power-up und bei der Readiness-Erkennung. Im
+historischen Linux-Treiber wurden Product-ID-Leseversuche mehrfach
+nachgebessert. Der Commit
+
+`fc52d5f71a01541572adf259b0cc174dc3df45ce`
+
+mit dem Betreff `it6251: Attempt to make powerup more robust` reduzierte die
+Versuchsanzahl und vergrößerte die Wartezeit nach fehlgeschlagenen
+Product-ID-Leseversuchen auf 100000 bis 200000 Mikrosekunden. Dabei existiert
+jedoch kein fester zusätzlicher Delay vor dem ersten I2C-Zugriff. Eine früher
+auffällige Zahl `150000` stammte lediglich aus einer später entfernten
+Debug-Ausgabe und ist kein festes Initialdelay.
+
+Drittens enthält das historische Novena-U-Boot seit der Einführung der
+proper-LVDS-Unterstützung durch
+
+`331ae846ad9fee532cf04268da76701093e4e4ed`
+
+eine explizite IT6251-Power-Sequenz. GPIO5_28 wird zunächst LOW gesetzt, nach
+10 ms HIGH gesetzt und anschließend weitere 20 ms gewartet. Danach wird die
+IT6251-Readiness über die bekannten Product-ID-Werte `0x15`, `0xca`, `0x51`
+und `0x62` abgefragt, bevor Initialisierung und Backlight-Freigabe fortgesetzt
+werden. Die U-Boot-Implementierung verweist dabei ausdrücklich auf den
+historischen Sean-Cross-/xobs-Linux-Code.
+
+Viertens änderte sich die Device-Tree-Power-Policy im historischen
+Novena-Kernel mehrfach. Zwischen den untersuchten Ständen 4.4, 4.19 WIP3,
+5.7-rc2 und 6.6 wechselten insbesondere `regulator-boot-on` und
+`regulator-always-on` für Audio-, Display- und LVDS-Versorgungen sowie die
+Display-Startup-Delays. Damit existiert keine einzelne historische
+Power-Policy, die ohne weitere Prüfung als universelle Novena-Lösung
+übernommen werden kann.
+
+Zusätzlich zeigen ältere Display-Device-Tree-Änderungen, dass die
+Displayversorgung in der Vergangenheit bewusst verändert wurde. Der Commit
+`5f3c4528c7714e23b174c232af70fcaafecf2ba1` sollte die Displayversorgungen
+beim Boot vollständig neu starten; der spätere Commit
+`29f549a50d76fb73f88cbcdc4a4391c266f4f557` brachte `reg_display` beim Boot
+wieder hoch. Auch diese Änderungen belegen eine historische Sensitivität der
+Display-Power-Sequenz, ohne die aktuelle Ursache zu beweisen.
+
+Die Hardwareunterlagen ergänzen diese Softwarebefunde. I2C3 verbindet unter
+anderem ES8328, EEPROM, FPGA-/Boardpfade und den über den LCD-/eDP-Pfad
+erreichbaren IT6251. Die eDP-Adapter-Unterlagen zeigen außerdem einen
+separaten Reset-/Power-Kontext des IT6251 einschließlich APX803-Resetmonitor.
+Produktionsänderungen und ECO-Unterlagen zeigen zugleich, dass nicht jede
+reale Boardbestückung vollständig aus einem einzelnen Schaltplan- oder
+BOM-Stand abgeleitet werden darf.
+
+### Abgrenzung gegenüber dem aktuellen 0006-Fehler
+
+Keiner der historischen Befunde beweist, dass der aktuelle Linux-6.18.49-
+Fehler dieselbe Ursache besitzt.
+
+Der maßgebliche aktuelle Messbefund bleibt unverändert:
+
+`Cold FAIL: A=81/80 -> M0=93/80`
+
+gegen:
+
+`LDB-Rebind PASS: A=81/80 -> M0=81/a0`
+
+Damit ist beim fehlgeschlagenen Cold Boot das IAL-Bit bereits in der ersten
+beobachtbaren Post-MSTA-Probe gesetzt und MSTA bereits wieder gelöscht. Die
+historischen Quellen dokumentieren Power-, Readiness- und I2C3-Abhängigkeiten,
+aber keinen Nachweis dafür, dass genau eine dieser Abhängigkeiten den heutigen
+`A=81/80 -> M0=93/80`-Übergang verursacht.
+
+Insbesondere folgt aus Block 2.5 nicht, dass ein historisches
+`regulator-always-on`, ein zusätzlicher IT6251-Delay, ein Retry, ein
+Power-Cycle oder eine Bus-Recovery-Maßnahme als Lösung übernommen werden
+sollte.
+
+### Prioritäten für die nächste Root-Cause-Phase
+
+Aus Block 2.5 ergibt sich eine Reihenfolge für die weitere Untersuchung,
+keine Fix-Reihenfolge.
+
+Priorität 1 ist die aktuelle ES8328-/Audio-Power-Wechselwirkung mit I2C3. Zu
+klären ist, welchen realen Regulator-, GPIO- und Buszustand Linux 6.18.49 auf
+der getesteten Novena vor dem ersten IT6251-START erzeugt und ob sich dieser
+zwischen echtem POR-Cold-Boot und erfolgreichem Same-Boot-LDB-Rebind
+unterscheidet.
+
+Priorität 2 ist die aktuelle IT6251-/Display-Power- und Reset-Sequenz. Die
+historische U-Boot-Sequenz und die Linux-Readiness-Retries sind hierbei
+Vergleichsmaterial, dürfen aber nicht ungeprüft als Fix übernommen werden.
+
+Priorität 3 ist der auf dem aktuellen Testmedium vorhandene U-Boot-2020.07-
+Pfad. Zu klären ist, welche Display-, Audio-, I2C3-, GPIO- und Power-Zustände
+dieser U-Boot-Stand vor Übergabe an Linux tatsächlich hinterlässt.
+
+Priorität 4 bleibt der Linux-6.18.49-Controllerzustand selbst, insbesondere
+Pinctrl, Clock, Runtime-PM und die Controller-Lifecycle-Unterschiede zwischen
+Cold Boot und Same-Boot-Rebind. Der identische sichtbare Pre-MSTA-Snapshot A
+beweist nicht, dass alle versteckten Controller-, Pad- oder physischen
+Buszustände identisch sind.
+
+Priorität 5 ist erst danach ein kontrollierter Vergleich mit historischen
+Kernelständen beziehungsweise relevanten Implementierungsunterschieden, wenn
+dies zur Falsifikation einer konkreten Hypothese erforderlich wird.
+
+### Noch nicht beschlossene Maßnahmen
+
+Block 2.5 führt zu keiner neuen dauerhaften Projektentscheidung in
+`docs/DECISIONS.md`. Die dort dokumentierte Patch- und Diagnosepolitik bleibt
+unverändert.
+
+Insbesondere ist weiterhin nicht beschlossen:
+
+* ein Patch `0007`,
+* ein Retry des fehlgeschlagenen STARTs,
+* ein zusätzlicher pauschaler Delay,
+* eine I2C-Bus-Recovery als Fehlerbehebung,
+* ein erzwungener IT6251-Power-Cycle,
+* `regulator-always-on` als neue Display- oder Audio-Policy,
+* oder die Übernahme eines historischen Device-Tree-Zustands.
+
+Eine solche Änderung darf erst aus einem konkreten, falsifizierbaren Test
+abgeleitet werden.
+
+### Aktueller physischer Zustand
+
+Während Block 2.5 wurden keine weiteren Hardwaretests durchgeführt. Die
+Novena blieb ausgeschaltet. Das externe Testmedium bleibt im dokumentierten
+0006-Zustand; vor jedem erneuten Zugriff auf der foobox muss seine aktuelle
+Gerätebezeichnung neu ermittelt werden.
+
+Die vorhandenen 0006-Evidence-, Rollback- und Backup-Artefakte bleiben die
+Ausgangsbasis für die nächste experimentelle Phase.
+
+### Wiedereinstieg in Block 3
+
+Block 2.5 ist als historische Quellenphase abgeschlossen. Die nächste Phase
+beginnt nicht mit einem neuen Patch, sondern mit einem Read-only-Checkpoint
+auf der foobox und der Ableitung eines einzelnen falsifizierbaren Tests aus
+den oben priorisierten Hypothesen.
+
+Für den Wiedereinstieg gelten als maßgeblich:
+
+1. der Git-Checkpoint
+   `afdc25adb7e5c94408a339ebb6a43e26654e8268` für die abgeschlossene
+   Block-2.5-Forschung,
+2. der unmittelbar vorhergehende 0006-Checkpoint in dieser Datei,
+3. die zentrale Forschungsanalyse
+   `research/02-historical-software/notes/quellenuebergreifende-novena-sichtung.md`,
+4. `docs/TEST-LOG.md`,
+5. die SHA-256-verifizierten 0006-Evidence-, Build-, Backup- und
+   Rollback-Artefakte.
+
+Die noch ausstehende unabhängige Codeberg-`ls-remote`-Verifikation kann bei
+einer später wieder stabilen SSH-Verbindung nachgeholt werden. Sie ändert
+nichts am erfolgreich protokollierten Codeberg-Push und darf nicht mit einer
+technischen Unsicherheit des Novena-Tests vermischt werden.
+
+Vor Block 3 wird kein Patch `0007` angelegt.
