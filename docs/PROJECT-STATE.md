@@ -2255,3 +2255,146 @@ Ab Block 3.11 gilt:
 * Es wird kein Kernel-Patch `0007` für diese Lösung eingeführt.
 * Die Diagnose-Patches `0003` bis `0006` bleiben weiterhin getrennt von
   dieser Device-Tree-Entscheidung zu bewerten.
+
+## Block 3.12 – Root-Cause-Kandidatenmatrix nach H3-1R – 2026-09-15
+
+### Ausgangspunkt
+
+Block 3.12 wurde auf dem gesicherten Ausgangscheckpoint
+
+`be1dabc653ea9937ba05a546c0de1a8c2143e888`
+
+durchgeführt.
+
+Die in Block 3.11 dauerhaft getroffene Board-Entscheidung bleibt unverändert:
+
+`es8328-power = regulator-always-on`
+
+Diese Einstellung wird nicht mehr als experimentelle H3-1R-Intervention
+behandelt. Gegenstand der weiteren Root-Cause-Untersuchung ist der noch
+ungeklärte elektrische Mechanismus der ES8328-/I2C3-Wechselwirkung.
+
+### Grundlage der Synthese
+
+Vor der Kandidatenbildung wurden die drei bisherigen Untersuchungsbereiche
+zusammengeführt:
+
+1. originale Novena-Dokumentation und Schaltplanunterlagen,
+2. historische Novena-, Kosagi-, U-Boot- und Kernelquellen,
+3. die vorhandenen Kernel-, Device-Tree- und Hardwaretests einschließlich
+   der instrumentierten Linux-6.18.49-Cold-Boot-/Rebind-Evidence.
+
+Die Kernelvergleichs-Evidence liegt nicht in einem separaten historischen
+`research/03-*`-Block. Die relevanten realen Testergebnisse befinden sich
+vor allem in `docs/PROJECT-STATE.md`, `docs/TEST-LOG.md` und der gesicherten
+Evidence. Die Quellcodevergleiche von Linux 5.7 und 6.18 sind zusätzlich in
+Block 2 dokumentiert.
+
+Die Synthese bestätigt insbesondere:
+
+- Der gesicherte Baseline-Cold-FAIL zeigt
+  `A=81/80 -> M0=93/80` mit frischem IAL und `ret=-11`.
+- Der erfolgreiche Same-Boot-LDB-Rebind zeigt
+  `A=81/80 -> M0=81/a0`.
+- Im Baseline-Cold-FAIL wird `es8328-power` ungefähr 10,716 Sekunden vor
+  dem ersten beobachteten I2C3-Fehler abgeschaltet.
+- H3-1R verhindert ausschließlich diese automatische Abschaltung durch
+  `regulator-always-on` und erreicht 5/5 erfolgreiche echte POR-Cold-Boots.
+- In diesen fünf vollständigen Kernel-Logs fehlen die bekannte `93/80`-
+  Signatur und das untersuchte I2C3-`arbitration lost` vollständig.
+- Der historische Novena-Commit
+  `e48619edadbde342d79655e73654f0b21fc5e20b` dokumentiert unabhängig eine
+  reale Störung von I2C3 beim Abschalten der ES8328-Versorgung.
+- Die grundlegende START-Sequenz des i.MX-I2C-Treibers unterscheidet sich
+  zwischen den untersuchten Linux-5.7- und Linux-6.18-Ständen nicht so,
+  dass daraus derzeit eine primäre Linux-6.18-Regression folgt.
+- Das Entfernen von `single-master` beseitigt das Hardware-IAL nicht.
+- Die STMPE811-Isolation beseitigt die untersuchte IT6251-Cold-Boot-
+  Fehlerklasse nicht.
+
+### Root-Cause-Kandidaten nach H3-1R
+
+Die noch offenen Kandidaten wurden nach Informationswert und bestehender
+Evidence neu priorisiert.
+
+Höchste Priorität besitzen die elektrischen Mechanismen am weiterhin mit
+I2C3 verbundenen ES8328-/Audiozweig:
+
+1. Clamp- oder Bus-Loading-Effekt am unversorgten ES8328,
+2. Rückspeisung des abgeschalteten Audio-Power-Domains,
+3. Pull-up-/Power-Domain-Wechselwirkung,
+4. elektrischer Transient beim Abschalten der Audio-Versorgung.
+
+Nachgeordnet offen bleiben:
+
+- IT6251-Power-/Reset-/POR-Zustand,
+- aktueller U-Boot-2020.07-I2C3-Übergabezustand,
+- interner i.MX6Q-Controller-, Clock-, Pinmux- oder Pad-Zustand.
+
+Eine primäre Linux-6.18-START-/IAL-Regression besitzt nach der bisherigen
+Evidence nur noch sehr niedrige Priorität.
+
+Für die untersuchte Fehlerklasse sind STMPE811 und `single-master` als
+Ursache experimentell ausgeschlossen. Ein lediglich aus einem früheren
+Transfer stehen gebliebenes IAL-Bit ist durch Patch 0006 stark ausgeschlossen.
+
+Die zusätzlich beobachteten Arbitration-Lost-Ereignisse auf I2C0 bleiben ein
+separater offener Befund und werden ohne verbindende Evidence nicht mit der
+I2C3-/IT6251-Root-Cause gleichgesetzt.
+
+### Nächster Untersuchungsschritt
+
+Der nächste Root-Cause-Schritt wird als
+
+**Block 3.13 – Elektrische ES8328-/I2C3-Messplanung**
+
+definiert.
+
+Vor einer Hardwaremessung werden aus den bereits gesicherten
+Schaltplanunterlagen eindeutige und sichere Messpunkte für mindestens
+folgende Größen bestimmt:
+
+- tatsächlich geschalteter ES8328-/Audio-Power-Rail beziehungsweise AUD_P3.3V,
+- I2C3_SDA,
+- I2C3_SCL,
+- gemeinsame Masse.
+
+Für jeden Messpunkt müssen Schaltplanbezug, physischer Messpunkt, erwarteter
+Zustand, erforderliches Messmittel, zeitliche Auflösung und Messrisiko vor
+dem Anschluss eines Messgeräts dokumentiert werden.
+
+Erst danach wird entschieden, ob statische Multimetermessungen genügen oder
+Oszilloskop beziehungsweise Logic Analyzer erforderlich sind.
+
+Eine temporäre Wiederherstellung eines Audio-Power-OFF-Zustands wäre nur als
+separat geplanter diagnostischer Vergleich zulässig. Sie stellt keine
+Rücknahme der dauerhaften Board-Konfiguration dar und erfordert vorab einen
+eigenen Sicherungs-, Risiko- und Wiederherstellungsplan.
+
+### Änderungsgrenzen nach Block 3.12
+
+Für Block 3.12 wurde keine funktionale Systemänderung vorgenommen.
+
+Insbesondere gilt weiterhin:
+
+- kein Kernel-Patch `0007`,
+- kein zusätzlicher IT6251-Delay,
+- kein zusätzlicher IT6251-Retry als vermeintlicher Fix,
+- keine routinemäßige Rücknahme von `regulator-always-on`,
+- keine erneute Änderung von `single-master`,
+- keine erneute STMPE811-Isolation.
+
+Die vollständige Kandidatenmatrix befindet sich unter:
+
+`research/03-root-cause-synthesis/block-3.12-root-cause-kandidatenmatrix.md`
+
+### Aussagegrenze
+
+Block 3.12 beweist noch keinen einzelnen elektrischen Mechanismus.
+
+Gesichert ist die dauerhafte Board-Konfiguration und der stark gestützte
+kausale Beitrag des Abschaltens der ES8328-Versorgung zur untersuchten
+I2C3-Cold-Boot-Fehlerklasse.
+
+Clamp-, Rückspeisungs-, Pull-up- und Transient-Effekte bleiben voneinander
+zu unterscheidende Hypothesen.
