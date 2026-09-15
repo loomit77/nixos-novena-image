@@ -1,0 +1,4 @@
+1213:[   46.694525] imx-es8328 sound: Unable to register: -517
+1218:[   46.763195] imx-es8328 sound: Unable to register: -517
+1224:[   46.900753] imx-es8328 sound: ASoC: driver name too long 'imx-audio-es8328' -> 'imx-audio-es832'
+1225:[   47.064141] input: imx-audio-es8328 Headphone as /devices/platform/sound/sound/card1/input2

@@ -1,0 +1,1 @@
+systemConfig=/nix/store/ifl71s7rzhk16746d8p5r85pjyc1k5gj-nixos-system-novena-26.05.20260903.a5cc6f2 init=/nix/store/ifl71s7rzhk16746d8p5r85pjyc1k5gj-nixos-system-novena-26.05.20260903.a5cc6f2/init loglevel=7 console=ttymxc1,115200 console=tty0

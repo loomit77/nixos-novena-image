@@ -1,0 +1,540 @@
+104:[    0.118907] /soc/bus@2100000/i2c@21a8000/it6251@5c: Fixed dependency cycle(s) with /ldb/lvds-channel@0
+122:[    0.141100] /soc/bus@2100000/i2c@21a8000/it6251@5c: Fixed dependency cycle(s) with /ldb/lvds-channel@0
+123:[    0.145246] /soc/bus@2100000/i2c@21a8000/it6251@5c: Fixed dependency cycle(s) with /ldb/lvds-channel@0
+136:[    0.155078] /soc/bus@2100000/i2c@21a8000/it6251@5c: Fixed dependency cycle(s) with /panel
+137:[    0.155273] /panel: Fixed dependency cycle(s) with /soc/bus@2100000/i2c@21a8000/it6251@5c
+156:[    0.240995] /panel: Fixed dependency cycle(s) with /soc/bus@2100000/i2c@21a8000/it6251@5c
+157:[    0.241203] /ldb/lvds-channel@0: Fixed dependency cycle(s) with /soc/bus@2100000/i2c@21a8000/it6251@5c
+158:[    0.241507] /soc/bus@2100000/i2c@21a8000/it6251@5c: Fixed dependency cycle(s) with /panel
+159:[    0.241671] /soc/bus@2100000/i2c@21a8000/it6251@5c: Fixed dependency cycle(s) with /ldb/lvds-channel@0
+209:[    2.821040] it6251 2-005c: DEBUG: probe: enter addr=0x5c
+210:[    2.821085] it6251 2-005c: DEBUG: probe: bridge allocation complete
+211:[    2.821112] it6251 2-005c: DEBUG: probe: requesting power regulator
+212:[    2.821426] it6251 2-005c: DEBUG: probe: power regulator acquired
+213:[    2.821461] it6251 2-005c: DEBUG: probe: creating LVDS dummy client at 0x5e
+214:[    2.821675] it6251 2-005c: DEBUG: probe: LVDS dummy client created
+215:[    2.821709] it6251 2-005c: DEBUG: probe: finding downstream panel/bridge on port 0
+217:[    2.821821] it6251 2-005c: DEBUG: probe: creating DRM panel bridge
+218:[    2.821894] it6251 2-005c: DEBUG: probe: panel bridge created
+219:[    2.821922] it6251 2-005c: DEBUG: probe: registering DRM bridge
+220:[    2.821949] it6251 2-005c: IT6251 DRM bridge registered
+221:[    2.821972] it6251 2-005c: DEBUG: probe: exit success
+477:[   42.273168] it6251 2-005c: DEBUG: bridge_attach: enter flags=0x1
+478:[   42.273203] it6251 2-005c: DEBUG: bridge_attach: downstream attach returned 0
+481:[   42.334928] it6251 2-005c: DEBUG: bridge_pre_enable: enter
+482:[   42.334995] it6251 2-005c: DEBUG: power_up: enter powered=0
+483:[   42.335053] it6251 2-005c: DEBUG: power_up: regulator_enable
+495:[   44.392045] it6251 2-005c: DEBUG: power_up: regulator enabled
+496:[   44.392131] it6251 2-005c: DEBUG: power_up: product ID attempt 1/5
+498:[   44.392868] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+499:[   44.392903] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+501:[   44.393095] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+502:[   44.393127] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+503:[   44.393287] it6251 2-005c: DEBUG: read subaddress 0x0: SEND succeeded
+504:[   44.393786] it6251 2-005c: DEBUG: read subaddress 0x0: RECV succeeded value=0x15
+506:[   44.394142] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+507:[   44.394163] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+509:[   44.394323] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+510:[   44.394342] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+511:[   44.394413] it6251 2-005c: DEBUG: read subaddress 0x1: SEND succeeded
+512:[   44.394903] it6251 2-005c: DEBUG: read subaddress 0x1: RECV succeeded value=0xca
+514:[   44.395257] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+515:[   44.395278] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+517:[   44.395439] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+518:[   44.395459] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+519:[   44.395535] it6251 2-005c: DEBUG: read subaddress 0x2: SEND succeeded
+520:[   44.396029] it6251 2-005c: DEBUG: read subaddress 0x2: RECV succeeded value=0x51
+522:[   44.396387] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+523:[   44.396409] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+525:[   44.396570] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+526:[   44.396589] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+527:[   44.396662] it6251 2-005c: DEBUG: read subaddress 0x3: SEND succeeded
+528:[   44.397153] it6251 2-005c: DEBUG: read subaddress 0x3: RECV succeeded value=0x62
+529:[   44.397168] it6251 2-005c: IT6251 detected: vendor ca15 device 6251
+530:[   44.397181] it6251 2-005c: DEBUG: power_up: exit success
+531:[   44.397190] it6251 2-005c: DEBUG: bridge_pre_enable: exit ret=0 powered=1
+532:[   44.401456] it6251 2-005c: DEBUG: bridge_enable: enter powered=1
+533:[   44.401476] it6251 2-005c: initialization attempt 1/5
+534:[   44.401486] it6251 2-005c: DEBUG: bridge_enable: calling init attempt 1
+535:[   44.401496] it6251 2-005c: DEBUG: init: enter
+536:[   44.401503] it6251 2-005c: DEBUG: init: resetting DisplayPort half
+538:[   44.401926] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+539:[   44.401946] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+541:[   44.402108] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+542:[   44.402127] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+544:[   44.402287] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a7/f8
+545:[   44.402307] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+546:[   44.402394] it6251 2-005c: error -6 writing to eDP addr 0x5
+548:[   44.402761] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+549:[   44.402783] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+551:[   44.402942] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+552:[   44.402962] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+554:[   44.403123] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+555:[   44.403142] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+556:[   44.403217] it6251 2-005c: DEBUG: init: configuring LVDS I2C port
+558:[   44.403566] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+559:[   44.403586] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+561:[   44.403746] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+562:[   44.403766] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+564:[   44.403925] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+565:[   44.403945] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+567:[   44.404358] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+568:[   44.404378] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+570:[   44.404537] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+571:[   44.404557] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+573:[   44.404715] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+574:[   44.404734] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+575:[   44.404813] it6251 2-005c: DEBUG: init: resetting LVDSRX
+576:[   44.405421] it6251 2-005c: error -6 writing to LVDS addr 0x5
+577:[   44.412027] it6251 2-005c: DEBUG: init: LVDSRX programming complete
+579:[   44.412381] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+580:[   44.412402] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+582:[   44.412562] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+583:[   44.412582] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+585:[   44.412742] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+586:[   44.412761] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+588:[   44.413173] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+589:[   44.413193] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+591:[   44.413356] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+592:[   44.413378] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+594:[   44.413540] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+595:[   44.413561] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+597:[   44.413975] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+598:[   44.413995] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+600:[   44.414155] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+601:[   44.414174] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+603:[   44.414335] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+604:[   44.414355] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+606:[   44.414757] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+607:[   44.414777] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+609:[   44.414936] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+610:[   44.414956] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+612:[   44.415114] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+613:[   44.415134] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+615:[   44.415544] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+616:[   44.415564] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+618:[   44.415723] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+619:[   44.415742] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+621:[   44.415900] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+622:[   44.415919] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+624:[   44.416329] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+625:[   44.416349] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+627:[   44.416511] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+628:[   44.416531] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+630:[   44.416689] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+631:[   44.416708] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+633:[   44.417116] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+634:[   44.417135] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+636:[   44.417295] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+637:[   44.417314] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+639:[   44.417473] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+640:[   44.417493] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+642:[   44.417903] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+643:[   44.417923] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+645:[   44.418083] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+646:[   44.418103] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+648:[   44.418261] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+649:[   44.418281] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+651:[   44.418688] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+652:[   44.418708] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+654:[   44.418867] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+655:[   44.418887] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+657:[   44.419045] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+658:[   44.419064] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+660:[   44.419472] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+661:[   44.419492] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+663:[   44.419655] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+664:[   44.419675] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+666:[   44.419834] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+667:[   44.419853] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+669:[   44.420255] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+670:[   44.420275] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+672:[   44.420436] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+673:[   44.420456] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+675:[   44.420615] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+676:[   44.420634] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+678:[   44.421044] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+679:[   44.421064] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+681:[   44.421224] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+682:[   44.421243] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+684:[   44.421405] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+685:[   44.421425] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+687:[   44.421845] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+688:[   44.421864] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+690:[   44.422024] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+691:[   44.422042] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+693:[   44.422200] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+694:[   44.422219] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+696:[   44.422641] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+697:[   44.422661] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+699:[   44.422822] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+700:[   44.422841] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+702:[   44.423001] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+703:[   44.423021] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+705:[   44.423513] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+706:[   44.423547] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+708:[   44.423735] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+709:[   44.423767] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+711:[   44.423955] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+712:[   44.423987] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+714:[   44.424476] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+715:[   44.424510] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+717:[   44.424696] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+718:[   44.424728] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+720:[   44.424915] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+721:[   44.424945] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+723:[   44.425425] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+724:[   44.425457] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+726:[   44.425645] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+727:[   44.425676] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+729:[   44.425862] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+730:[   44.425894] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+732:[   44.426381] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+733:[   44.426413] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+735:[   44.426599] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+736:[   44.426630] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+738:[   44.426815] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+739:[   44.426847] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+741:[   44.427334] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+742:[   44.427367] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=a1/a0
+744:[   44.427553] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+745:[   44.427585] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=a1/a0
+747:[   44.427771] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+748:[   44.427803] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=a1/a0
+750:[   44.428296] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+751:[   44.428328] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+753:[   44.428516] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+754:[   44.428548] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+756:[   44.428734] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+757:[   44.428765] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+759:[   44.429250] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+760:[   44.429283] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+762:[   44.429471] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+763:[   44.429502] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+765:[   44.429690] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+766:[   44.429721] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+768:[   44.430204] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+769:[   44.430236] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=a1/a0
+771:[   44.430427] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+772:[   44.430460] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=a1/a0
+774:[   44.430647] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+775:[   44.430680] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=a1/a0
+777:[   44.431172] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+778:[   44.431204] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+780:[   44.431402] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+781:[   44.431436] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+783:[   44.431626] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+784:[   44.431657] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+786:[   44.432131] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+787:[   44.432146] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+789:[   44.432297] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+790:[   44.432312] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+792:[   44.432462] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+793:[   44.432477] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+794:[   44.432550] it6251 2-005c: DEBUG: init: DisplayPort programming complete
+795:[   44.432561] it6251 2-005c: DEBUG: init: starting link training
+797:[   44.432895] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+798:[   44.432911] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+800:[   44.433063] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+801:[   44.433078] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+803:[   44.433229] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+804:[   44.433244] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+806:[   44.433633] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+807:[   44.433649] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+809:[   44.433802] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+810:[   44.433817] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+811:[   44.433879] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+812:[   44.434354] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xa2
+814:[   44.436702] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+815:[   44.436718] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+817:[   44.436871] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+818:[   44.436887] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+819:[   44.436950] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+820:[   44.437415] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xa8
+822:[   44.439763] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+823:[   44.439779] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+825:[   44.439931] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+826:[   44.439946] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+827:[   44.440009] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+828:[   44.440474] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xb0
+830:[   44.440813] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+831:[   44.440830] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+833:[   44.440983] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+834:[   44.440998] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+835:[   44.441060] it6251 2-005c: DEBUG: read subaddress 0xd: SEND succeeded
+836:[   44.441581] it6251 2-005c: DEBUG: read subaddress 0xd: RECV succeeded value=0x3a
+838:[   44.443988] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+839:[   44.444023] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+841:[   44.444212] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+842:[   44.444245] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+843:[   44.444366] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+844:[   44.444897] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xb0
+846:[   44.445300] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+847:[   44.445334] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+849:[   44.445522] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+850:[   44.445554] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+851:[   44.445664] it6251 2-005c: DEBUG: read subaddress 0xd: SEND succeeded
+852:[   44.446202] it6251 2-005c: DEBUG: read subaddress 0xd: RECV succeeded value=0x3a
+854:[   44.448608] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+855:[   44.448642] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+857:[   44.448830] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+858:[   44.448863] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+859:[   44.448973] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+860:[   44.449515] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xb0
+862:[   44.449909] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+863:[   44.449942] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=a1/a0
+865:[   44.450131] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+866:[   44.450162] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=a1/a0
+867:[   44.450265] it6251 2-005c: DEBUG: read subaddress 0xd: SEND succeeded
+868:[   44.450794] it6251 2-005c: DEBUG: read subaddress 0xd: RECV succeeded value=0x3a
+870:[   44.453227] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+871:[   44.453261] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+873:[   44.453451] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+874:[   44.453484] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+875:[   44.453609] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+876:[   44.454084] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xb0
+878:[   44.454412] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+879:[   44.454428] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+881:[   44.454572] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+882:[   44.454586] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+883:[   44.454641] it6251 2-005c: DEBUG: read subaddress 0xd: SEND succeeded
+884:[   44.455100] it6251 2-005c: DEBUG: read subaddress 0xd: RECV succeeded value=0x3a
+886:[   44.457437] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+887:[   44.457450] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=a1/a0 M7=a1/a0
+889:[   44.457596] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+890:[   44.457609] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=a1/a0 M7=a1/a0
+891:[   44.457667] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+892:[   44.458126] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xb0
+894:[   44.458456] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+895:[   44.458469] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+897:[   44.458615] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+898:[   44.458628] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+899:[   44.458681] it6251 2-005c: DEBUG: read subaddress 0xd: SEND succeeded
+900:[   44.459132] it6251 2-005c: DEBUG: read subaddress 0xd: RECV succeeded value=0x3a
+902:[   44.461497] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+903:[   44.461513] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=a1/a0
+905:[   44.461660] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+906:[   44.461673] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=a1/a0
+907:[   44.461735] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+908:[   44.462190] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xb0
+910:[   44.462520] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+911:[   44.462533] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+913:[   44.462681] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+914:[   44.462694] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+915:[   44.462755] it6251 2-005c: DEBUG: read subaddress 0xd: SEND succeeded
+916:[   44.463210] it6251 2-005c: DEBUG: read subaddress 0xd: RECV succeeded value=0x3a
+918:[   44.465550] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+919:[   44.465565] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+921:[   44.465711] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+922:[   44.465724] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+923:[   44.465785] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+924:[   44.466239] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xb0
+926:[   44.466566] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+927:[   44.466579] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+929:[   44.466726] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+930:[   44.466739] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+931:[   44.466796] it6251 2-005c: DEBUG: read subaddress 0xd: SEND succeeded
+932:[   44.467247] it6251 2-005c: DEBUG: read subaddress 0xd: RECV succeeded value=0x3a
+934:[   44.469580] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+935:[   44.469595] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+937:[   44.469740] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+938:[   44.469754] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+939:[   44.469809] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+940:[   44.470268] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xb0
+942:[   44.470592] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+943:[   44.470606] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+945:[   44.470752] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+946:[   44.470765] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+947:[   44.470819] it6251 2-005c: DEBUG: read subaddress 0xd: SEND succeeded
+948:[   44.471276] it6251 2-005c: DEBUG: read subaddress 0xd: RECV succeeded value=0x3a
+950:[   44.473618] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+951:[   44.473632] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+953:[   44.473781] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+954:[   44.473794] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+955:[   44.473854] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+956:[   44.474312] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xb0
+958:[   44.474653] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+959:[   44.474667] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+961:[   44.474813] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+962:[   44.474825] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+963:[   44.474883] it6251 2-005c: DEBUG: read subaddress 0xd: SEND succeeded
+964:[   44.475346] it6251 2-005c: DEBUG: read subaddress 0xd: RECV succeeded value=0x3a
+966:[   44.477696] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+967:[   44.477710] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+969:[   44.477856] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+970:[   44.477870] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+971:[   44.477929] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+972:[   44.478383] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xb0
+974:[   44.478715] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+975:[   44.478728] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+977:[   44.478877] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+978:[   44.478890] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+979:[   44.478948] it6251 2-005c: DEBUG: read subaddress 0xd: SEND succeeded
+980:[   44.479408] it6251 2-005c: DEBUG: read subaddress 0xd: RECV succeeded value=0x3a
+982:[   44.481758] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+983:[   44.481774] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+985:[   44.481923] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+986:[   44.481937] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+987:[   44.482012] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+988:[   44.482476] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xb0
+990:[   44.482804] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+991:[   44.482818] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+993:[   44.482966] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+994:[   44.482980] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+995:[   44.483039] it6251 2-005c: DEBUG: read subaddress 0xd: SEND succeeded
+996:[   44.483494] it6251 2-005c: DEBUG: read subaddress 0xd: RECV succeeded value=0x3a
+998:[   44.485831] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+999:[   44.485845] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1001:[   44.485992] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1002:[   44.486005] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1003:[   44.486066] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+1004:[   44.486522] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xb0
+1006:[   44.486848] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1007:[   44.486861] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1009:[   44.487006] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+1010:[   44.487022] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1011:[   44.487076] it6251 2-005c: DEBUG: read subaddress 0xd: SEND succeeded
+1012:[   44.487537] it6251 2-005c: DEBUG: read subaddress 0xd: RECV succeeded value=0x3a
+1014:[   44.489874] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1015:[   44.489888] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1017:[   44.490034] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1018:[   44.490047] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1019:[   44.490103] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+1020:[   44.490566] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xb0
+1022:[   44.490891] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1023:[   44.490905] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1025:[   44.491052] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+1026:[   44.491065] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1027:[   44.491117] it6251 2-005c: DEBUG: read subaddress 0xd: SEND succeeded
+1028:[   44.491605] it6251 2-005c: DEBUG: read subaddress 0xd: RECV succeeded value=0x3a
+1030:[   44.493944] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1031:[   44.493959] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1033:[   44.494104] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1034:[   44.494117] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1035:[   44.494174] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+1036:[   44.494630] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xb0
+1038:[   44.494959] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1039:[   44.494973] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1041:[   44.495118] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+1042:[   44.495132] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1043:[   44.495186] it6251 2-005c: DEBUG: read subaddress 0xd: SEND succeeded
+1044:[   44.495641] it6251 2-005c: DEBUG: read subaddress 0xd: RECV succeeded value=0x3a
+1046:[   44.497978] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1047:[   44.497991] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1049:[   44.498138] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1050:[   44.498152] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1051:[   44.498209] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+1052:[   44.498664] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xb0
+1054:[   44.498991] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1055:[   44.499004] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1057:[   44.499149] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+1058:[   44.499163] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1059:[   44.499224] it6251 2-005c: DEBUG: read subaddress 0xd: SEND succeeded
+1060:[   44.499677] it6251 2-005c: DEBUG: read subaddress 0xd: RECV succeeded value=0x3a
+1062:[   44.502020] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1063:[   44.502034] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1065:[   44.502182] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1066:[   44.502195] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1067:[   44.502263] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+1068:[   44.502722] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xb0
+1070:[   44.503052] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1071:[   44.503067] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1073:[   44.503212] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+1074:[   44.503225] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1075:[   44.503283] it6251 2-005c: DEBUG: read subaddress 0xd: SEND succeeded
+1076:[   44.503732] it6251 2-005c: DEBUG: read subaddress 0xd: RECV succeeded value=0x3a
+1078:[   44.506072] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1079:[   44.506088] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1081:[   44.506234] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1082:[   44.506247] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1083:[   44.506304] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+1084:[   44.506764] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xb0
+1086:[   44.507090] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1087:[   44.507104] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1089:[   44.507249] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+1090:[   44.507262] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1091:[   44.507314] it6251 2-005c: DEBUG: read subaddress 0xd: SEND succeeded
+1092:[   44.507770] it6251 2-005c: DEBUG: read subaddress 0xd: RECV succeeded value=0x3a
+1094:[   44.510101] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1095:[   44.510116] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1097:[   44.510262] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1098:[   44.510275] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1099:[   44.510332] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+1100:[   44.510791] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xb0
+1102:[   44.511117] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1103:[   44.511132] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1105:[   44.511277] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+1106:[   44.511291] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1107:[   44.511366] it6251 2-005c: DEBUG: read subaddress 0xd: SEND succeeded
+1108:[   44.511826] it6251 2-005c: DEBUG: read subaddress 0xd: RECV succeeded value=0x3a
+1110:[   44.514162] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1111:[   44.514176] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1113:[   44.514322] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1114:[   44.514336] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1115:[   44.514392] it6251 2-005c: DEBUG: read subaddress 0xe: SEND succeeded
+1116:[   44.514847] it6251 2-005c: DEBUG: read subaddress 0xe: RECV succeeded value=0xb0
+1118:[   44.515181] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1119:[   44.515195] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1121:[   44.515341] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+1122:[   44.515354] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1123:[   44.515408] it6251 2-005c: DEBUG: read subaddress 0xd: SEND succeeded
+1124:[   44.515861] it6251 2-005c: DEBUG: read subaddress 0xd: RECV succeeded value=0x3e
+1125:[   44.515871] it6251 2-005c: DEBUG: init: link training loop finished after 20 iterations
+1126:[   44.515879] it6251 2-005c: DEBUG: is_stable: enter
+1128:[   44.516202] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1129:[   44.516215] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1131:[   44.516361] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+1132:[   44.516374] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1133:[   44.516434] it6251 2-005c: DEBUG: read subaddress 0xd: SEND succeeded
+1134:[   44.516891] it6251 2-005c: DEBUG: read subaddress 0xd: RECV succeeded value=0x3e
+1135:[   44.516901] it6251 2-005c: System status: 0x3e
+1137:[   44.517226] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1138:[   44.517240] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1140:[   44.517386] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+1141:[   44.517399] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1142:[   44.517458] it6251 2-005c: DEBUG: read subaddress 0x13: SEND succeeded
+1143:[   44.517912] it6251 2-005c: DEBUG: read subaddress 0x13: RECV succeeded value=0x09
+1145:[   44.518240] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1146:[   44.518254] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1148:[   44.518401] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1149:[   44.518414] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1150:[   44.518472] it6251 2-005c: DEBUG: read subaddress 0x14: SEND succeeded
+1151:[   44.518926] it6251 2-005c: DEBUG: read subaddress 0x14: RECV succeeded value=0x0f
+1152:[   44.518936] it6251 2-005c: RPCLKCnt: 3849
+1157:[   44.520791] it6251 2-005c: Clock: 0x197
+1160:[   44.521743] it6251 2-005c: Ref Link State: 0x00
+1163:[   44.522668] it6251 2-005c: RPC Req: 0x24
+1165:[   44.522991] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1166:[   44.523005] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1168:[   44.523151] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+1169:[   44.523164] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1170:[   44.523217] it6251 2-005c: DEBUG: read subaddress 0xa5: SEND succeeded
+1171:[   44.523671] it6251 2-005c: DEBUG: read subaddress 0xa5: RECV succeeded value=0x80
+1173:[   44.524003] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1174:[   44.524017] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1176:[   44.524163] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1177:[   44.524176] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1178:[   44.524231] it6251 2-005c: DEBUG: read subaddress 0xa6: SEND succeeded
+1179:[   44.524687] it6251 2-005c: DEBUG: read subaddress 0xa6: RECV succeeded value=0x07
+1180:[   44.524697] it6251 2-005c: hactive: 1920
+1182:[   44.525026] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1183:[   44.525040] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1185:[   44.525186] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a6/f8
+1186:[   44.525199] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1187:[   44.525252] it6251 2-005c: DEBUG: read subaddress 0xaf: SEND succeeded
+1188:[   44.525706] it6251 2-005c: DEBUG: read subaddress 0xaf: RECV succeeded value=0x38
+1190:[   44.526031] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1191:[   44.526045] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1193:[   44.526190] i2c i2c-2: NOVENA-I2C: IT6251 START snapshots A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8 IRQ=a2/f8
+1194:[   44.526203] i2c i2c-2: NOVENA-I2C: IT6251 START transition M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=81/a0 M7=81/a0
+1195:[   44.526260] it6251 2-005c: DEBUG: read subaddress 0xb0: SEND succeeded
+1196:[   44.526717] it6251 2-005c: DEBUG: read subaddress 0xb0: RECV succeeded value=0x04
+1197:[   44.526727] it6251 2-005c: vactive: 1080
+1198:[   44.526733] it6251 2-005c: DEBUG: is_stable: stable 1920x1080
+1199:[   44.526739] it6251 2-005c: display link stable
+1200:[   44.526745] it6251 2-005c: DEBUG: init: exit success
+1201:[   44.526750] it6251 2-005c: DEBUG: bridge_enable: init attempt 1 returned 0
+1202:[   44.526757] it6251 2-005c: DEBUG: bridge_enable: exit success
+1213:[   46.694525] imx-es8328 sound: Unable to register: -517
+1218:[   46.763195] imx-es8328 sound: Unable to register: -517
+1224:[   46.900753] imx-es8328 sound: ASoC: driver name too long 'imx-audio-es8328' -> 'imx-audio-es832'

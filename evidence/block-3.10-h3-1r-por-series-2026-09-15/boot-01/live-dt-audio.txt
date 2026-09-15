@@ -1,0 +1,5 @@
+regulator-name:
+es8328-power
+
+regulator-boot-on=PRESENT
+regulator-always-on=PRESENT

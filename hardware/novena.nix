@@ -197,5 +197,22 @@
         };
       '';
     }
+
+    {
+      name = "novena-es8328-power-always-on";
+
+      dtsText = ''
+        /dts-v1/;
+        /plugin/;
+
+        / {
+          compatible = "kosagi,imx6q-novena";
+        };
+
+        &reg_audio_codec {
+          regulator-always-on;
+        };
+      '';
+    }
   ];
 }

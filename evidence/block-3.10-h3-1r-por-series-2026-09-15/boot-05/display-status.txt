@@ -1,0 +1,2 @@
+/sys/class/drm/card0-HDMI-A-1/status: disconnected
+/sys/class/drm/card0-LVDS-1/status: connected

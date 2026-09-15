@@ -1689,3 +1689,569 @@ Bis zur ausdrücklichen Vorbereitung von H3-1R gilt weiterhin:
 Die nächste funktionale Änderung darf ausschließlich der kontrollierten
 Falsifikation von H3-1R dienen.
 
+
+## Block 3.8–3.10 – H3-1R: kontrollierter ES8328-Power-Test
+
+### Ziel und Hypothese
+
+Aus Block 3.5 und Block 3.6 ergab sich als einzelne falsifizierbare
+Folgehypothese H3-1R:
+
+Wenn das automatische Abschalten von `es8328-power` während des Cold-Boots
+eine notwendige Voraussetzung oder einen kausalen Beitrag zur späteren
+I2C3-Fehlersignatur
+
+`A=81/80 -> M0=93/80`
+
+liefert, dann muss ein ansonsten unveränderter POR-Cold-Boot, bei dem
+ausschließlich dieses automatische Abschalten verhindert wird, die
+Fehlersignatur reproduzierbar verändern oder beseitigen.
+
+Die Änderung wurde ausdrücklich als experimentelle Intervention und nicht
+vorab als dauerhafter Fix behandelt.
+
+### Block 3.8 – Device-Tree-Pfad und Zielknoten
+
+Vor der funktionalen Änderung wurde die vollständige Device-Tree-Kette
+read-only nachvollzogen.
+
+Der von der aktuellen NixOS-Konfiguration verwendete Novena-DTB entsteht aus:
+
+1. den vom Linux-6.18.49-Kernel gebauten DTBs,
+2. den in `hardware/novena.nix` definierten Device-Tree-Overlays,
+3. dem daraus erzeugten `device-tree-overlays`-Paket,
+4. `config.hardware.deviceTree.package`,
+5. `system.build.novenaDtb`,
+6. der Kopie als `novena.dtb` in das FIRMWARE-Dateisystem des SD-Images.
+
+Der Basis-DTB und der vor H3-1R verwendete finale DTB enthielten für
+`reg_audio_codec`:
+
+`regulator-name = "es8328-power"`
+
+und:
+
+`regulator-boot-on`
+
+aber kein:
+
+`regulator-always-on`.
+
+Der Symbolbereich des DTB enthält:
+
+`reg_audio_codec = "/regulator-audio-codec"`
+
+Damit ist `&reg_audio_codec` ein gültiges Overlay-Ziel.
+
+Zusätzlich wurde anhand der bereits vorhandenen Änderung von
+`reg_display/startup-delay-us` nachgewiesen, dass die Overlays aus
+`hardware/novena.nix` tatsächlich in den final verwendeten DTB eingehen.
+
+### Block 3.9 – einzelne experimentelle Intervention
+
+Für H3-1R wurde in `hardware/novena.nix` genau ein zusätzliches
+Device-Tree-Overlay angelegt.
+
+Dieses ergänzt am bestehenden Knoten `&reg_audio_codec` ausschließlich:
+
+`regulator-always-on;`
+
+Unverändert blieben insbesondere:
+
+* `regulator-boot-on`,
+* Regulatorname `es8328-power`,
+* GPIO-Zuordnung,
+* Active-High-Polarität,
+* 5-V-Spannung,
+* 400-ms-Startup-Delay,
+* I2C3-Konfiguration,
+* IT6251-Konfiguration,
+* Display-Power-Timing,
+* Kernel 6.18.49,
+* Kernel-Patches `0001` bis `0006`.
+
+Es wurde kein Patch `0007` angelegt.
+
+### Semantische DTB-Verifikation
+
+Vor dem Hardwaretest wurden Baseline-DTB und H3-1R-DTB dekompiliert und
+vollständig miteinander verglichen.
+
+Baseline-DTB:
+
+`0058510ff34cae32185b8d1b27e6514d0e140974f9aff5542ccc2311220ae081`
+
+H3-1R-DTB:
+
+`d9eaa356fab80e5d205972683c83d21f72c23ee8b968163934f0f2ef97179cc1`
+
+Der vollständige DTS-Vergleich ergab genau eine semantische Ergänzung:
+
+`regulator-always-on;`
+
+am Knoten:
+
+`reg_audio_codec: regulator-audio-codec`
+
+Damit war die unabhängige Variable vor dem ersten H3-1R-Hardwaretest
+eindeutig auf diese eine Device-Tree-Property begrenzt.
+
+Die zugehörigen Testartefakte wurden zusätzlich unter
+
+`~/novena-backups/h3-1r-test-2026-09-15/`
+
+gesichert und per SHA-256 verifiziert.
+
+### Aktivierung auf dem Testmedium
+
+Das externe Testmedium wurde vor der Änderung read-only geprüft.
+
+Der aktive `novena.dtb` auf dem Medium hatte den Baseline-Hash:
+
+`0058510ff34cae32185b8d1b27e6514d0e140974f9aff5542ccc2311220ae081`
+
+und war damit byteidentisch zum zuvor untersuchten Baseline-DTB.
+
+`boot.cmd` lädt ausdrücklich `novena.dtb`.
+
+Vor der Änderung wurde der aktive Medium-DTB zusätzlich unter
+
+`~/novena-backups/h3-1r-test-2026-09-15/novena.dtb.from-medium-before-h3-1r`
+
+gesichert.
+
+Danach wurde ausschließlich der aktive `novena.dtb` durch den bereits
+verifizierten H3-1R-DTB ersetzt.
+
+Nach erneutem read-only Mount hatte der persistierte Medium-DTB den
+erwarteten H3-1R-Hash:
+
+`d9eaa356fab80e5d205972683c83d21f72c23ee8b968163934f0f2ef97179cc1`
+
+Die übrigen geprüften Bootdateien behielten ihre vorherigen Hashes.
+
+### Vorregistriertes Testprotokoll
+
+Vor Beginn der H3-1R-Serie wurde folgendes Protokoll festgelegt:
+
+* fünf echte POR-Cold-Boots,
+* vor jedem Versuch vollständiges Herunterfahren,
+* physisches Trennen der Stromversorgung,
+* mindestens 30 Sekunden vollständig ohne Strom,
+* unveränderte externe H3-1R-Test-SD,
+* kein `reboot`,
+* kein LDB-Unbind/Bind,
+* keine manuellen I2C-Zugriffe vor der Beweissicherung,
+* keine funktionale Änderung zwischen den fünf Versuchen.
+
+Primäre Messgröße war der erste IT6251-START nach POR.
+
+Die bekannte Cold-FAIL-Signatur war:
+
+`A=81/80 -> M0=93/80`
+
+mit `ret=-11` beziehungsweise `arbitration lost`.
+
+Die bekannte erfolgreiche START-Signatur war:
+
+`A=81/80 -> M0=81/a0`
+
+mit anschließend normalem I2C-Transfer.
+
+Als sekundäre Interventionskontrolle durfte bei aktivem
+`regulator-always-on` keine automatische Meldung
+
+`es8328-power: disabling`
+
+mehr auftreten.
+
+Ein einzelner erfolgreicher POR-Boot war ausdrücklich nicht als
+Bestätigung ausreichend, da unter der Baseline bereits spontane
+POR-PASS-Läufe beobachtet worden waren.
+
+### Ergebnis der fünf vorregistrierten POR-Cold-Boots
+
+Alle fünf H3-1R-Versuche wurden vollständig durchgeführt.
+
+| Versuch | always-on | Power-Abschaltung | erster M0 | `93/80` | Arbitration lost | LVDS |
+| --- | --- | --- | --- | --- | --- | --- |
+| H3-1R/01 | ja | nein | `81/a0` | nein | nein | connected |
+| H3-1R/02 | ja | nein | `81/a0` | nein | nein | connected |
+| H3-1R/03 | ja | nein | `81/a0` | nein | nein | connected |
+| H3-1R/04 | ja | nein | `81/a0` | nein | nein | connected |
+| H3-1R/05 | ja | nein | `81/a0` | nein | nein | connected |
+
+Ergebnis der vorregistrierten Serie:
+
+`5/5 POR-Cold-Boots = PASS`
+
+Bei allen fünf Boots bestätigte der Live-Device-Tree:
+
+`regulator-boot-on=PRESENT`
+
+und:
+
+`regulator-always-on=PRESENT`.
+
+Der Audio-Regulator-GPIO war bei der späteren Beweissicherung in allen fünf
+Läufen `out hi`.
+
+`es8328-power` wurde jeweils mit 5000 mV angezeigt.
+
+Die vollständigen Kernel-Logs aller fünf Läufe wurden nach Abschluss der
+Serie gemeinsam durchsucht.
+
+In keinem der fünf H3-1R-Läufe findet sich:
+
+* `es8328-power: disabling`,
+* die bekannte `93/80`-Fehlersignatur,
+* `arbitration lost`,
+* ein IT6251-Product-ID-Fehler.
+
+Damit handelt es sich nicht lediglich um fünf optisch erfolgreiche
+Display-Boots. Die bekannte instrumentierte I2C3-Fehlerklasse blieb in allen
+fünf vollständigen Kernel-Logs aus.
+
+### Vergleich mit dem gesicherten Baseline-Cold-FAIL
+
+Die Baseline-Evidence aus Block 3.5 wurde vor dem Vergleich erneut vollständig
+per SHA-256 verifiziert.
+
+Im Baseline-Cold-FAIL befindet sich:
+
+`[   33.761742] es8328-power: disabling`
+
+Der erste bekannte I2C3-Fehler folgt bei:
+
+`[   44.478167] ... arbitration lost in bus_busy, I2SR=0x93`
+
+unmittelbar gefolgt von:
+
+`[   44.478235] ... IT6251 START failure A=81/80 B=93/80 C=83/80 ret=-11`
+
+Patch `0006` zeigt für denselben START:
+
+`M0=93/80 M1=93/80 M2=93/80 M3=93/80 M4=93/80 M5=93/80 M6=93/80 M7=93/80`
+
+Der Baseline-Live-Device-Tree enthält `regulator-boot-on`, aber kein
+nachgewiesenes `regulator-always-on`.
+
+Zwischen der expliziten Audio-Regulator-Abschaltung und dem ersten
+beobachteten I2C3-Fehler liegen ungefähr 10,716 Sekunden.
+
+Demgegenüber gilt für alle fünf H3-1R-Cold-Boots:
+
+* `regulator-always-on` ist im Live-DT vorhanden,
+* keine automatische `es8328-power`-Abschaltung wird protokolliert,
+* der erste IT6251-START beginnt erfolgreich mit `M0=81/a0`,
+* die `93/80`-Signatur tritt im vollständigen Kernel-Log nicht auf,
+* `arbitration lost` tritt nicht auf,
+* der IT6251 initialisiert erfolgreich,
+* LVDS ist verbunden und der interne Bildschirm funktioniert.
+
+### Historische Übereinstimmung
+
+Die aktuelle experimentelle Beobachtung stimmt mit einer unabhängig
+gefundenen historischen Novena-Änderung überein.
+
+Commit:
+
+`e48619edadbde342d79655e73654f0b21fc5e20b`
+
+Betreff:
+
+`ARM: dts: imx6q-novena: Always enable the es8328-power regulator`
+
+Die historische Änderung ersetzte für `es8328-power` die bisherige
+`regulator-boot-on`-Policy durch `regulator-always-on`.
+
+Die zugehörige historische Beschreibung dokumentiert, dass das Abschalten
+der ES8328-Versorgung auf realer Novena-Hardware den I2C3-Bus beeinträchtigte
+und dadurch unter anderem Display-, EEPROM- und Senoko-Kommunikation gestört
+wurde.
+
+Diese historische Beobachtung entstand unabhängig von der aktuellen
+Linux-6.18.49-/IT6251-Untersuchung.
+
+### Bewertung von H3-1R
+
+H3-1R wird durch die vorregistrierte Versuchsserie deutlich gestützt.
+
+Die aktuelle Evidenz besteht aus drei zusammenpassenden Ebenen:
+
+1. Im instrumentierten Baseline-Cold-FAIL wird `es8328-power` abgeschaltet.
+   Später tritt die charakteristische I2C3-START-Fehlersignatur `M0=93/80`
+   mit `arbitration lost` auf.
+2. Bei einer kontrollierten Intervention, die ausschließlich
+   `regulator-always-on` für denselben Audio-Power-Regulator ergänzt, bleiben
+   in fünf von fünf echten POR-Cold-Boots sowohl die Audio-Abschaltung als
+   auch die gesamte bekannte I2C3-Fehlerklasse aus.
+3. Historische Novena-Entwicklung dokumentiert unabhängig davon dieselbe
+   Wechselwirkung zwischen dem Abschalten von `es8328-power` und einem
+   gestörten I2C3-Bus.
+
+Damit besteht starke experimentelle Evidenz dafür, dass das automatische
+Abschalten des ES8328-Power-Domains einen kausalen Beitrag zur untersuchten
+Novena-I2C3-Cold-Boot-Fehlerklasse leistet.
+
+Die frühere Annahme, der Audio-Power-Pfad könne aufgrund identischer späterer
+Post-Boot-Regulatorzustände ausgeschlossen werden, ist damit nicht haltbar.
+
+### Noch nicht bewiesen
+
+Die Versuchsserie bestimmt noch nicht den exakten elektrischen Mechanismus,
+durch den das Abschalten der ES8328-Versorgung I2C3 beeinflusst.
+
+Insbesondere ist noch nicht entschieden, ob die Ursache beispielsweise in:
+
+* einem Pegel- oder Clamp-Effekt am unversorgten ES8328,
+* einer Rückspeisung über die I2C-Leitungen,
+* der zusätzlichen codec-seitigen SDA-Pull-up-/Versorgungsstruktur,
+* einem transienten Zustand beim Abschalten oder späteren Einschalten,
+* oder einem anderen elektrischen Effekt des Audio-Power-Domains
+
+liegt.
+
+Diese Mechanismen dürfen ohne zusätzliche elektrische Messungen oder
+gezielte weitere Tests nicht als bewiesen bezeichnet werden.
+
+Ebenso ist `5/5 PASS` keine Garantie dafür, dass unter allen denkbaren
+Startbedingungen niemals wieder ein Fehler auftreten kann.
+
+### Status von `regulator-always-on`
+
+`regulator-always-on` hat den vorregistrierten H3-1R-Test erfolgreich
+bestanden und entspricht zusätzlich der historischen Novena-Lösung für die
+ES8328-/I2C3-Wechselwirkung.
+
+Zum Zeitpunkt dieses Checkpoints wird die Änderung dennoch weiterhin als
+validierte experimentelle Intervention geführt.
+
+Die Entscheidung, sie als dauerhafte Novena-Konfiguration zu übernehmen,
+erfolgt ausdrücklich erst nach Sicherung und Review dieses Checkpoints.
+
+Es wurde weiterhin kein Kernel-Patch `0007` angelegt.
+
+### Evidence der H3-1R-Serie
+
+Die fünf vollständigen POR-Testläufe befinden sich im Repository unter:
+
+`evidence/block-3.10-h3-1r-por-series-2026-09-15/`
+
+mit:
+
+* `boot-01/`
+* `boot-02/`
+* `boot-03/`
+* `boot-04/`
+* `boot-05/`
+
+Jeder Lauf enthält unter anderem vollständiges `dmesg`, IT6251-START-Auszug,
+Audio-Power-Auszug, kritisches Zeitfenster, Regulator- und GPIO-Zustand,
+I2C3-Geräte, Live-Device-Tree-Zustand, DRM-Displaystatus, Testkennung und
+`SHA256SUMS`.
+
+Alle fünf Repository-Kopien wurden in Block 3.10C-R einzeln in ihren
+tatsächlichen Zielverzeichnissen mit
+
+`sha256sum -c SHA256SUMS`
+
+geprüft.
+
+Für jeden Lauf ergab die Prüfung:
+
+`SHA256_EXIT=0`
+
+Zusätzlich wurden Quelle und Repository-Kopie für jeden Boot byteweise
+verglichen:
+
+* `BOOT-01: IDENTISCH`
+* `BOOT-02: IDENTISCH`
+* `BOOT-03: IDENTISCH`
+* `BOOT-04: IDENTISCH`
+* `BOOT-05: IDENTISCH`
+
+Quelle und Ziel enthalten für jeden Lauf jeweils 15 Dateien.
+
+Die unabhängigen Ausgangskopien bleiben zusätzlich unter
+
+`~/novena-backups/h3-1r-trials-2026-09-15/`
+
+erhalten.
+
+### Korrektur der ersten Block-3.10C-Verifikation
+
+Die erste Ziel-Hash-Prüfung in Block 3.10C verwendete nach dem ersten
+Verzeichniswechsel einen relativen Zielpfad.
+
+Dadurch schlug `cd` für `boot-02` bis `boot-05` fehl und die anschließend
+ausgegebenen `sha256sum`-Ergebnisse stammten weiterhin aus dem vorherigen
+Verzeichnis.
+
+Diese Ausgaben werden ausdrücklich nicht als gültige Zielverifikation
+gewertet.
+
+Block 3.10C-R wiederholte die Prüfung mit absoluten Pfaden und bestätigte für
+alle fünf tatsächlichen Zielverzeichnisse:
+
+`SHA256_EXIT=0`
+
+Damit ist die Repository-Evidence nach der korrigierten Prüfung vollständig
+verifiziert.
+
+### Änderungsgrenzen nach Block 3.10
+
+Bis zur ausdrücklichen Entscheidung über die dauerhafte Übernahme gilt:
+
+* kein Patch `0007`,
+* keine zusätzliche Kerneländerung,
+* kein Retry als Fix,
+* keine zusätzliche I2C-Bus-Recovery,
+* kein zusätzlicher pauschaler Display-Delay,
+* keine weitere Veränderung der H3-1R-Test-SD,
+* keine weitere funktionale Änderung an `hardware/novena.nix`.
+
+Der aktuelle H3-1R-Stand soll zunächst unverändert gesichert, dokumentiert
+und als eigener Git-Checkpoint geprüft werden.
+
+## Block 3.11 – Dauerhafte Übernahme von `es8328-power` als `regulator-always-on`
+
+Nach Abschluss und Verifikation der H3-1R-Versuchsserie wurde über den
+Status der getesteten Device-Tree-Änderung ausdrücklich entschieden.
+
+### Dauerhafte Board-Entscheidung
+
+Für Novena wird der bestehende Regulator `es8328-power` dauerhaft mit
+`regulator-always-on` konfiguriert.
+
+Die Änderung wird damit nicht mehr nur als experimentelle
+H3-1R-Intervention geführt, sondern als boardspezifische
+Novena-Hardwarekonfiguration übernommen.
+
+Die formale Projektentscheidung ist zusätzlich in `docs/DECISIONS.md`
+unter `2026-09-15 – ES8328-Versorgung bleibt dauerhaft eingeschaltet`
+dokumentiert.
+
+### Grundlage der Entscheidung
+
+Die Entscheidung beruht auf drei voneinander unterscheidbaren
+Evidenzsträngen:
+
+1. Im gesicherten Baseline-Cold-FAIL wurde `es8328-power` während des
+   Bootvorgangs abgeschaltet. Später folgte beim ersten relevanten
+   IT6251-START die bekannte Fehlersignatur `A=81/80 -> M0=93/80`
+   mit `arbitration lost`.
+
+2. H3-1R änderte gegenüber dem Baseline-Device-Tree semantisch
+   ausschließlich den bestehenden Audio-Power-Regulator durch Ergänzung
+   von `regulator-always-on`.
+
+   Unter dieser Intervention bestanden fünf von fünf vorregistrierten
+   echten POR-Cold-Boots.
+
+   In allen fünf vollständigen Kernel-Logs galt:
+
+   * keine Abschaltung von `es8328-power`,
+   * keine `93/80`-Fehlersignatur,
+   * kein `arbitration lost`,
+   * erfolgreicher erster IT6251-START mit `M0=81/a0`,
+   * Display aktiv.
+
+3. Die unabhängige historische Novena-Änderung
+   `e48619edadbde342d79655e73654f0b21fc5e20b` dokumentiert ebenfalls,
+   dass das Abschalten von `es8328-power` I2C3 auf realer
+   Novena-Hardware beeinträchtigt, und verwendet als Abhilfe ebenfalls
+   `regulator-always-on`.
+
+Damit besteht eine Kombination aus kontrollierter aktueller
+Versuchsevidenz und unabhängigem historischem Hardwarebefund.
+
+### Umbenennung des Device-Tree-Overlays
+
+Nach der dauerhaften Entscheidung wurde ausschließlich der bisherige
+experimentelle Overlay-Name `novena-h3-1r-es8328-always-on` in den
+neutralen dauerhaften Namen `novena-es8328-power-always-on` geändert.
+
+Der `dtsText` des Overlays wurde dabei nicht verändert.
+
+Die funktionale Device-Tree-Änderung bleibt ausschließlich
+`regulator-always-on` am bestehenden Knoten `reg_audio_codec`.
+
+### Reproduzierbarkeitsprüfung nach der Umbenennung
+
+Nach der reinen Overlay-Umbenennung wurde der projektdefinierte
+`system.build.novenaDtb` erneut gebaut.
+
+Finaler Store-Pfad:
+
+`/nix/store/cl4dh5ak90rrsh399fqdr2rjvmnmy6rn-imx6q-novena.dtb`
+
+SHA-256 des neu gebauten finalen DTB:
+
+`d9eaa356fab80e5d205972683c83d21f72c23ee8b968163934f0f2ef97179cc1`
+
+Der bereits in den fünf erfolgreichen H3-1R-POR-Tests verwendete und
+gesicherte DTB
+
+`~/novena-backups/h3-1r-test-2026-09-15/imx6q-novena-h3-1r.dtb`
+
+hat exakt denselben SHA-256:
+
+`d9eaa356fab80e5d205972683c83d21f72c23ee8b968163934f0f2ef97179cc1`
+
+Der direkte Vergleich ergab:
+
+`DTB_BYTE_COMPARE=IDENTISCH`
+
+Zusätzlich wurden beide DTBs mit `dtc 1.8.1` dekompiliert.
+
+Beide dekompilierten DTS-Dateien haben SHA-256:
+
+`0648dbd8a3379beca016220df777c1969b005b169521f618628c9142b6b7da9a`
+
+Der Vergleich ergab:
+
+`DTS_COMPARE=IDENTISCH`
+
+Beide dekompilierten Device Trees enthalten 18 Vorkommen von
+`regulator-always-on`.
+
+Damit erzeugt die dauerhaft benannte Konfiguration bytegenau denselben
+Device Tree wie die bereits in fünf POR-Cold-Boots getestete
+H3-1R-Konfiguration.
+
+Ein zusätzlicher Hardwaretest allein aufgrund der Umbenennung ist daher
+nicht erforderlich.
+
+### Aussagegrenze
+
+Die dauerhafte Übernahme von `regulator-always-on` bedeutet nicht, dass
+der exakte elektrische Mechanismus der ES8328-/I2C3-Wechselwirkung
+bestimmt wurde.
+
+Insbesondere bleiben mögliche Clamp-, Rückspeisungs-, Pull-up- oder
+andere transiente elektrische Effekte ohne zusätzliche elektrische
+Messungen offen.
+
+Die Entscheidung lautet daher nicht, dass der vollständige elektrische
+Root Cause bewiesen sei.
+
+Entschieden ist, dass das automatische Abschalten der ES8328-Versorgung
+unter den untersuchten Bedingungen einen kausalen Beitrag zur
+beobachteten I2C3-Cold-Boot-Fehlerklasse leistet und dass das Verhindern
+dieser Abschaltung eine ausreichend stark validierte boardspezifische
+Konfiguration darstellt.
+
+### Konsequenzen für den weiteren Projektstand
+
+Ab Block 3.11 gilt:
+
+* `regulator-always-on` für `es8328-power` ist dauerhafte
+  Novena-Board-Konfiguration.
+* Der dauerhafte Overlay-Name lautet `novena-es8328-power-always-on`.
+* Die H3-1R-Evidence bleibt unverändert erhalten.
+* Die H3-1R-Test-SD wird für diese reine Umbenennung nicht erneut
+  verändert oder getestet.
+* Es wird kein Kernel-Patch `0007` für diese Lösung eingeführt.
+* Die Diagnose-Patches `0003` bis `0006` bleiben weiterhin getrennt von
+  dieser Device-Tree-Entscheidung zu bewerten.

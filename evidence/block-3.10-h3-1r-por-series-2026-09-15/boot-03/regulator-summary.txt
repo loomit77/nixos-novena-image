@@ -1,0 +1,54 @@
+ regulator                      use open bypass  opmode voltage current     min     max
+---------------------------------------------------------------------------------------
+ regulator-dummy                  9   11      0 unknown     0mV     0mA     0mV     0mV 
+    0-001c-vddio                  0                                 0mA     0mV     0mV
+    0-001c-vdd                    0                                 0mA     0mV     0mV
+    2200000.sata-phy              1                                 0mA     0mV     0mV
+    2200000.sata-ahci             1                                 0mA     0mV     0mV
+    panel-power                   1                                 0mA     0mV     0mV
+    vdd1p1                        1    0      0 unknown  1100mV     0mA  1000mV  1200mV 
+    vdd2p5                        1    0      0 unknown  2500mV     0mA  2250mV  2750mV 
+    vdd3p0                        3    2      0 unknown  3200mV     0mA  2625mV  3400mV 
+       20ca000.usbphy-phy-3p0     1                                 0mA  3200mV  3200mV
+       20c9000.usbphy-phy-3p0     1                                 0mA  3200mV  3200mV
+    vddarm                        1    1      0 unknown  1250mV     0mA   725mV  1450mV 
+       cpu0-arm                   0                                 0mA  1250mV  1250mV
+    vddpu                         0    2      0 unknown  1250mV     0mA   725mV  1450mV 
+       cpu0-pu                    0                                 0mA  1250mV  1250mV
+       imx-pgc-power-domain.1-power   0                                 0mA     0mV     0mV
+    vddsoc                        1    1      0 unknown  1250mV     0mA   725mV  1450mV 
+       cpu0-soc                   0                                 0mA  1250mV  1250mV
+ 2P5V                             1    0      0 unknown  2500mV     0mA  2500mV  2500mV 
+ 3P3V                             1    0      0 unknown  3300mV     0mA  3300mV  3300mV 
+ lcd-display-power                1    1      0 unknown  3300mV     0mA  3300mV  3300mV 
+    2-005c-power                  1                                 0mA     0mV     0mV
+ lcd-lvds-power                   1    1      0 unknown  3300mV     0mA  3300mV  3300mV 
+    backlight-power               1                                 0mA     0mV     0mV
+ pcie-bus-power                   0    0      0 unknown  1500mV     0mA  1500mV  1500mV 
+ usb_otg_vbus                     1    1      0 unknown  5000mV     0mA  5000mV  5000mV 
+    2184000.usb-vbus              0                                 0mA     0mV     0mV
+ sata-power                       1    1      0 unknown  3300mV     0mA  3300mV  3300mV 
+    2200000.sata-target           1                                 0mA     0mV     0mV
+ es8328-power                     5    5      0 unknown  5000mV     0mA  5000mV  5000mV 
+    sound-audio-amp               0                                 0mA     0mV     0mV
+    2-0011-HPVDD                  1                                 0mA     0mV     0mV
+    2-0011-PVDD                   1                                 0mA     0mV     0mV
+    2-0011-AVDD                   1                                 0mA     0mV     0mV
+    2-0011-DVDD                   1                                 0mA     0mV     0mV
+ SW1AB                            1    0      0 unknown  1375mV     0mA     0mV     0mV 
+ SW1C                             1    0      0 unknown  1375mV     0mA   300mV  1875mV 
+ SW2                              1    0      0 unknown  3000mV     0mA   800mV  3300mV 
+ SW3A                             1    0      0 unknown  1500mV     0mA   400mV  1975mV 
+ SW3B                             1    0      0 unknown  1500mV     0mA   400mV  1975mV 
+ SW4                              1    0      0 unknown  1800mV     0mA   800mV  1975mV 
+ SWBST                            1    1      0 unknown  5000mV     0mA  5000mV  5150mV 
+    2184200.usb-vbus              1                                 0mA     0mV     0mV
+ VSNVS                            1    0      0 unknown  3000mV     0mA  1000mV  3000mV 
+ VREFDDR                          1    0      0 unknown   750mV     0mA   750mV   750mV 
+ VGEN1                            0    0      0 unknown   800mV     0mA   800mV  1550mV 
+ VGEN2                            0    0      0 unknown  1500mV     0mA   800mV  1550mV 
+ VGEN3                            0    0      0 unknown  1800mV     0mA  1800mV  3300mV 
+ VGEN4                            1    0      0 unknown  1800mV     0mA  1800mV  3300mV 
+ VGEN5                            1    0      0 unknown  2500mV     0mA  1800mV  3300mV 
+ VGEN6                            1    0      0 unknown  2800mV     0mA  1800mV  3300mV 
+ COIN                             0    0      0 unknown  2500mV     0mA     0mV     0mV 
