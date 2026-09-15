@@ -58,6 +58,11 @@
       name = "novena-i2c-imx-debug-start-error";
       patch = ../kernel/0005-i2c-imx-debug-start-error.patch;
     }
+
+    {
+      name = "novena-i2c-imx-debug-start-transition";
+      patch = ../kernel/0006-i2c-imx-debug-start-transition.patch;
+    }
   ];
 
   hardware.deviceTree.overlays = [

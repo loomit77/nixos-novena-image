@@ -1,6 +1,6 @@
 # Project State
 
-Stand: 2026-09-13
+Stand: 2026-09-15
 
 ## Ziel
 
@@ -947,3 +947,258 @@ Diff gemeinsam geprüft werden.
 Die Vor-Git-Displayentwicklung muss dagegen anhand der erhaltenen
 Nix-Artefakte, Device Trees, Backups und Chat-/Testaufzeichnungen
 rekonstruiert werden.
+
+## Aktueller Checkpoint nach Diagnose-Patch 0006 – 2026-09-15
+
+Dieser Abschnitt ist der maßgebliche Wiedereinstiegspunkt für die weitere
+I2C-/Display-Diagnose. Ältere Abschnitte dieses Dokuments bleiben als
+historische Dokumentation erhalten; bei widersprüchlichen Aussagen gilt
+dieser Checkpoint zusammen mit dem verifizierten Git-Stand und den
+gesicherten Testartefakten.
+
+### Versionskontrolle des 0006-Checkpoints
+
+Verifizierter Ausgangs-HEAD vor Abschluss des 0006-Checkpoints:
+
+`1d1384adc462371d741b4b95afe4c93e9c149052`
+
+Commit-Betreff:
+
+`Document build host and refresh project overview`
+
+Zu diesem Ausgangszeitpunkt waren `HEAD`, `origin/main` und `github/main`
+identisch.
+
+Der 0006-Checkpoint umfasst die Änderung an `hardware/novena.nix`, den
+neuen Patch `kernel/0006-i2c-imx-debug-start-transition.patch` sowie die
+zugehörige Projektdokumentation. Als abgeschlossener Git-Checkpoint gilt
+dieser Stand erst, wenn der aktuelle Commit zu beiden Projekt-Remotes
+übertragen wurde, `HEAD`, `origin/main` und `github/main` dort erneut
+identisch verifiziert wurden und der lokale Worktree sauber ist.
+
+Der endgültige Commit-Hash wird hier bewusst nicht vorab festgeschrieben,
+da diese Datei selbst Bestandteil dieses Commits ist. Für einen späteren
+Wiedereinstieg ist der dann auf beiden Remotes verifizierte aktuelle
+`HEAD` maßgeblich.
+
+### Diagnose-Patch 0006
+
+Patch:
+
+`kernel/0006-i2c-imx-debug-start-transition.patch`
+
+SHA-256:
+
+`23a0e0c00860565fca1d8ccb1546b4d8e893d0f423e6c450013e76a47b70903f`
+
+Der Patch ergänzt acht unmittelbar aufeinanderfolgende Messpunkte M0 bis M7
+nach dem Schreiben von MSTA. Innerhalb dieses Messfensters werden bewusst
+keine Delays, Logs oder Timestamp-Abfragen ausgeführt. Die MMIO-Lesezugriffe
+selbst bleiben eine unvermeidbare diagnostische Timing-Beeinflussung.
+
+Kernel-Deriver:
+
+`/nix/store/2g78mma5gxjvr9g6mci7c66mkcy2yssk-linux-armv7l-unknown-linux-gnueabihf-6.18.49.drv`
+
+Kernel-Ausgabe:
+
+`/nix/store/f03kxwghama2l7if4p1798fvcyrhvwjj-linux-armv7l-unknown-linux-gnueabihf-6.18.49`
+
+Separate Ausgaben:
+
+* `dev`: `/nix/store/ay6ds8zsb4bxm284xjvw4vydp09w3dv0-linux-armv7l-unknown-linux-gnueabihf-6.18.49-dev`
+* `modules`: `/nix/store/08ls92b1vpj0v2nqa3ssygdms6zsslbb-linux-armv7l-unknown-linux-gnueabihf-6.18.49-modules`
+
+SHA-256 des `zImage`:
+
+`f5cb8d264c14286e53a0ea5884e167c7d4815c529046a71e1813cb37512302d5`
+
+Kernel-Basis-DTB SHA-256:
+
+`b560d50c186e0953cc1b9042ca991ffed7609db2d00379446e4286c252e47522`
+
+Finaler Overlay-DTB SHA-256:
+
+`0058510ff34cae32185b8d1b27e6514d0e140974f9aff5542ccc2311220ae081`
+
+Der finale DTB ist bytegleich mit dem bereits getesteten Zustand ohne
+`single-master;`. STMPE811 ist deaktiviert; `single-master;` ist auf `i2c3`
+nicht vorhanden. Damit blieb die Device-Tree-Seite für den 0006-Vergleich
+konstant.
+
+### Externes 0006-Testmedium
+
+Beim letzten verifizierten foobox-Zugriff war die externe Test-SD `/dev/sda`
+mit `FIRMWARE` auf `/dev/sda1` und `NIXOS_SD` auf `/dev/sda2`. Diese
+Gerätebezeichnung darf bei einem späteren Einstecken nicht vorausgesetzt
+werden und muss vor jedem Schreibzugriff erneut ermittelt werden.
+
+Vor dem 0006-Test wurde bestätigt:
+
+* vorheriges `zImage`: 0005, SHA-256 `197ce0ef325307a877eb5a889519387be91fdf536da3bee03883f0c40264fc7c`
+* `novena.dtb`: SHA-256 `0058510ff34cae32185b8d1b27e6514d0e140974f9aff5542ccc2311220ae081`
+* U-Boot lädt `zImage`, `initrd.uimg` und `novena.dtb` direkt von `FIRMWARE`
+
+Für 0006 wurde ausschließlich `zImage` ersetzt. DTB, initrd, Bootskript,
+Root-Dateisystem und U-Boot blieben unverändert. Der neue `zImage`-Hash
+wurde vom Medium als `f5cb8d264c14286e53a0ea5884e167c7d4815c529046a71e1813cb37512302d5`
+verifiziert.
+
+Rollback-Sicherung vor der Änderung:
+
+`/home/loomit/novena-backups/test-sd-before-0006-2026-09-14`
+
+Sie enthält den ersten 16-MiB-Bereich einschließlich Prepartition/U-Boot
+sowie ein vollständiges Image der FIRMWARE-Partition.
+
+Die externe Test-SD bleibt nach dem Test unverändert im reproduzierbaren
+0006-Zustand.
+
+### 0006 echter POR-Cold-Boot
+
+Der Test erfolgte aus vollständig ausgeschaltetem Zustand. U-Boot meldete:
+
+`Reset cause: POR`
+
+Boot-ID:
+
+`e904173c-7b90-4f71-b3da-e8e450528670`
+
+Das interne Display blieb aus. Der Fehler trat bei den IT6251-Product-ID-
+Zugriffen reproduzierbar auf:
+
+`NOVENA-I2C: arbitration lost in bus_busy, I2SR=0x93`
+
+`NOVENA-I2C: IT6251 START failure A=81/80 B=93/80 C=83/80 ret=-11`
+
+Neue 0006-Messung:
+
+`M0=93/80 M1=93/80 M2=93/80 M3=93/80 M4=93/80 M5=93/80 M6=93/80 M7=93/80`
+
+Damit ist der fehlerhafte Zustand bereits bei der ersten beobachtbaren
+Probe nach dem MSTA-Schreibzugriff vollständig vorhanden. A unmittelbar vor
+dem MSTA-Versuch ist noch `81/80`; bei M0 ist IAL bereits gesetzt und MSTA
+bereits wieder gelöscht.
+
+Die Divergenz wurde damit auf das sehr kleine Zeitfenster zwischen dem
+Pre-MSTA-Snapshot A und der ersten Post-MSTA-Beobachtung M0 eingegrenzt.
+Die tieferliegende Ursache ist weiterhin nicht bewiesen.
+
+### Same-Boot-A/B-Vergleich
+
+Ein einfaches Unbind/Bind des IT6251-I2C-Treibers registrierte die DRM-Bridge
+erneut, reaktivierte aber nicht den vollständigen Displaypfad und erzeugte
+keinen neuen Product-ID-Transfer.
+
+Ein anschließendes Same-Boot-Unbind/Bind des `imx-ldb`-Plattformtreibers
+reaktivierte dagegen die vollständige Pipeline. Die IT6251-Initialisierung
+und der Displaystart waren erfolgreich.
+
+Erfolgreicher Beginn:
+
+`M0=81/a0`
+
+Spätere Samples zeigen je nach Transfer weiterhin `81/a0` oder den Übergang
+zu `a1/a0`. Die erfolgreichen START-Snapshots entsprechen:
+
+`A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8`
+
+mit erfolgreichen IRQ-Zuständen `a2/f8` beziehungsweise `a6/f8`.
+
+Der Displaypfad erreichte anschließend wieder:
+
+* `System status: 0x3e`
+* `hactive: 1920`
+* `vactive: 1080`
+* `display link stable`
+* `bridge_enable: exit success`
+
+Der entscheidende Same-Boot-Vergleich lautet somit:
+
+`Cold FAIL: A=81/80 -> M0=93/80`
+
+`LDB-Rebind PASS: A=81/80 -> M0=81/a0`
+
+Der Pre-MSTA-Zustand ist gleich; die Divergenz ist bereits beim ersten
+beobachtbaren Zustand nach dem MSTA-Schreibzugriff vorhanden. Dies spricht
+gegen eine normale Arbitration-Lost-Situation erst während eines bereits
+laufenden Transfers und lokalisiert das Problem sehr eng am Master-/START-
+Erwerb. Eine konkrete Root Cause folgt daraus noch nicht.
+
+### Evidence und Provenienz
+
+Evidence-Verzeichnis auf der foobox:
+
+`/home/loomit/novena-backups/i2c-0006-evidence-e904173c-2026-09-15`
+
+Die acht von `SHA256SUMS` erfassten Dateien wurden nach der Übertragung mit
+`sha256sum -c SHA256SUMS` vollständig als `OK` verifiziert.
+
+Archiv:
+
+`/home/loomit/novena-backups/novena-i2c-0006-evidence-e904173c-2026-09-15.tar.gz`
+
+SHA-256:
+
+`2b4b635ecfb693a2d7471efd1c67e9ccc65e240d8a08b207cd3e9805750d0ee8`
+
+Die Novena-Wallclock war während der Aufzeichnung falsch und zeigte in
+Dateien teilweise den 13. September. Maßgeblich für die Zuordnung sind die
+Boot-ID, monotone Kernel-Zeitstempel und die SHA-256-verifizierten
+Testartefakte. Der physische Test fand am 2026-09-15 statt.
+
+Nach der Evidence-Sicherung wurde die Novena sauber heruntergefahren.
+Aktueller physischer Zustand am Checkpoint: **Novena ausgeschaltet**.
+
+### Aktueller technischer Befund
+
+Die STMPE811-Isolation ist abgeschlossen und STMPE811 bleibt für diese
+Diagnose deaktiviert. Das Entfernen von `single-master;` beseitigt das
+Hardware-IAL-Ereignis nicht.
+
+0006 zeigt nun:
+
+`FAIL: A=81/80 -> M0=93/80`
+
+gegen:
+
+`PASS: A=81/80 -> M0=81/a0`
+
+Beim Cold-Boot-Fehler ist IAL somit vor der ersten beobachtbaren
+Post-MSTA-Probe gesetzt und MSTA bereits wieder gelöscht.
+
+Es existiert weiterhin **keine bewiesene Root Cause** und **keine
+funktionale Fehlerbehebung**. Insbesondere wurde noch keine Retry-, Delay-
+oder Bus-Recovery-Maßnahme als Lösung übernommen.
+
+Die Patches `0003` bis `0006` und `loglevel=7` bleiben
+Diagnoseinstrumentierung und sind nicht als Produktionszustand anzusehen.
+
+### Nächster Schritt
+
+Nach Abschluss und Verifikation dieses 0006-Git-Checkpoints beginnt in
+einem neuen Chat die nächste Root-Cause-Phase. Ausgangspunkt ist
+ausschließlich der verifizierte 0006-Befund.
+
+Ein weiterer Diagnose-Patch (`0007`) oder eine funktionale Änderung wird
+erst festgelegt, nachdem aus dem 0006-Ergebnis ein konkreter nächster
+Versuch abgeleitet wurde.
+
+Vor jedem weiteren Kernel-, DTB- oder Testmedium-Eingriff sind die vorhandenen
+Rollback-Artefakte und Backups erneut zu prüfen.
+
+### Wiedereinstieg nach einer Pause oder in einem neuen Chat
+
+Für den Wiedereinstieg gelten in dieser Reihenfolge als maßgebliche Quellen:
+
+1. der aktuelle und auf beiden Remotes verifizierte Git-Commit,
+2. diese Datei `docs/PROJECT-STATE.md`, insbesondere dieser Checkpoint,
+3. `docs/TEST-LOG.md`,
+4. SHA-256-verifizierte Build-, Backup- und Evidence-Artefakte.
+
+Gesprächserinnerungen und Chat-Zusammenfassungen sind nur ergänzende Quellen.
+Bei einem Widerspruch haben Git, committed Projektdokumentation und
+verifizierte Artefakte Vorrang.
+
+Beim Wiedereinstieg soll zunächst ausschließlich ein Read-only-Statuscheck
+auf der foobox erfolgen. Erst danach werden neue Änderungen geplant.

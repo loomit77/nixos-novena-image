@@ -25,6 +25,13 @@ Aktuelle Patchserie:
 - `0001-drm-bridge-it6251.patch`
 - `0002-drm-panel-add-innolux-n133hse-ea1.patch`
 - `0003-i2c-imx-debug-arbitration-lost.patch`
+- `0004-i2c-imx-debug-start-state.patch`
+- `0005-i2c-imx-debug-start-error.patch`
+- `0006-i2c-imx-debug-start-transition.patch`
+
+Die Patches `0003` bis `0006` dienen der aktuellen I2C-Root-Cause-
+Diagnose. Sie sind Diagnoseinstrumentierung und nicht als dauerhafter
+Produktionsbestandteil des finalen Images beschlossen.
 
 ## 2026-09-11 – Referenz-Bootdateien werden versioniert
 

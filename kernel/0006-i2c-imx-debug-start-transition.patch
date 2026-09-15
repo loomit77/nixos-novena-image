@@ -1,0 +1,111 @@
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -64,6 +64,8 @@
+ #define DMA_THRESHOLD	16
+ #define DMA_TIMEOUT	1000
+ 
++#define NOVENA_IT6251_START_SAMPLES	8
++
+ /* IMX I2C registers:
+  * the I2C register offset is different between SoCs,
+  * to provide support for all these chips, split the
+@@ -275,6 +277,8 @@
+ 	unsigned int			novena_i2sr_c, novena_i2cr_c;
+ 	unsigned int			novena_i2sr_d, novena_i2cr_d;
+ 	unsigned int			novena_i2sr_e, novena_i2cr_e;
++	unsigned int			novena_start_i2sr[NOVENA_IT6251_START_SAMPLES];
++	unsigned int			novena_start_i2cr[NOVENA_IT6251_START_SAMPLES];
+ 
+ 	/* For checking slave events. */
+ 	spinlock_t     slave_lock;
+@@ -713,10 +717,37 @@
+ 	return notifier_from_errno(ret);
+ }
+ 
++static void i2c_imx_novena_dump_start_transition(struct imx_i2c_struct *i2c_imx)
++{
++	dev_err(&i2c_imx->adapter.dev,
++		"NOVENA-I2C: IT6251 START transition "
++		"M0=%02x/%02x M1=%02x/%02x "
++		"M2=%02x/%02x M3=%02x/%02x "
++		"M4=%02x/%02x M5=%02x/%02x "
++		"M6=%02x/%02x M7=%02x/%02x\n",
++		i2c_imx->novena_start_i2sr[0],
++		i2c_imx->novena_start_i2cr[0],
++		i2c_imx->novena_start_i2sr[1],
++		i2c_imx->novena_start_i2cr[1],
++		i2c_imx->novena_start_i2sr[2],
++		i2c_imx->novena_start_i2cr[2],
++		i2c_imx->novena_start_i2sr[3],
++		i2c_imx->novena_start_i2cr[3],
++		i2c_imx->novena_start_i2sr[4],
++		i2c_imx->novena_start_i2cr[4],
++		i2c_imx->novena_start_i2sr[5],
++		i2c_imx->novena_start_i2cr[5],
++		i2c_imx->novena_start_i2sr[6],
++		i2c_imx->novena_start_i2cr[6],
++		i2c_imx->novena_start_i2sr[7],
++		i2c_imx->novena_start_i2cr[7]);
++}
++
+ static int i2c_imx_start(struct imx_i2c_struct *i2c_imx, bool atomic,
+ 			 bool trace_it6251)
+ {
+ 	unsigned int temp = 0;
++	unsigned int i;
+ 	int result;
+ 
+ 	imx_i2c_write_reg(i2c_imx->ifdr, i2c_imx, IMX_I2C_IFDR);
+@@ -746,11 +777,24 @@
+ 	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+ 
+ 	if (trace_it6251) {
+-		/* B: immediately after requesting master mode. */
+-		i2c_imx->novena_i2sr_b =
+-			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+-		i2c_imx->novena_i2cr_b =
+-			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
++		/*
++		 * Resolve the MSTA/START transition with a tight sequence of
++		 * ordered register reads. There are deliberately no delays,
++		 * logging calls or timestamp reads inside this window.
++		 */
++		for (i = 0; i < NOVENA_IT6251_START_SAMPLES; i++) {
++			i2c_imx->novena_start_i2sr[i] =
++				imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
++			i2c_imx->novena_start_i2cr[i] =
++				imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
++		}
++
++		/*
++		 * Preserve the existing B snapshot: M0 is the first
++		 * observation immediately after requesting master mode.
++		 */
++		i2c_imx->novena_i2sr_b = i2c_imx->novena_start_i2sr[0];
++		i2c_imx->novena_i2cr_b = i2c_imx->novena_start_i2cr[0];
+ 	}
+ 
+ 	result = i2c_imx_bus_busy(i2c_imx, 1, atomic);
+@@ -773,6 +817,9 @@
+ 				i2c_imx->novena_i2sr_c, i2c_imx->novena_i2cr_c,
+ 				result);
+ 
++		if (trace_it6251)
++			i2c_imx_novena_dump_start_transition(i2c_imx);
++
+ 		return result;
+ 	}
+ 
+@@ -1246,6 +1293,12 @@
+ 				i2c_imx->novena_i2sr_e, i2c_imx->novena_i2cr_e,
+ 				status, ctl);
+ 
++		if (i2c_imx->state == IMX_I2C_STATE_WRITE &&
++		    i2c_imx->msg &&
++		    i2c_imx->msg->addr == 0x5c &&
++		    i2c_imx->novena_trace_it6251)
++			i2c_imx_novena_dump_start_transition(i2c_imx);
++
+ 		if (!(status & I2SR_IIF))
+ 			return IRQ_NONE;
+ 

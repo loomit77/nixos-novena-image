@@ -702,3 +702,272 @@ Zu untersuchen sind insbesondere Buszustand und mögliche SDA-/SCL-Bedingungen b
 Eine funktionale Korrektur soll erst vorgenommen werden, wenn eine konkrete Ursache ausreichend begründet ist. Danach ist erneut eine echte Cold-Boot-Stabilitätsserie erforderlich.
 
 Die Diagnoseinstrumentierung bleibt vorerst ein Entwicklungswerkzeug und ist nicht als Produktionsstand einzustufen.
+
+## 2026-09-15 – Diagnose-Patch 0006
+
+Auf Grundlage des mit `0005` eingegrenzten Fehlerfensters wurde
+`kernel/0006-i2c-imx-debug-start-transition.patch` entwickelt.
+
+Ziel des Patches ist es, den Übergang unmittelbar nach dem Setzen von
+`MSTA` feiner aufzulösen.
+
+Der Patch erfasst acht direkt aufeinanderfolgende Registerpaare
+`M0` bis `M7` aus `I2SR` und `I2CR`.
+
+Innerhalb dieses Messfensters befinden sich absichtlich:
+
+* keine Delays
+* keine Kernel-Logs
+* keine Timestamp-Abfragen
+
+Die 16 MMIO-Lesezugriffe selbst können das Timing prinzipbedingt
+beeinflussen. `0006` ist deshalb weiterhin reine
+Diagnoseinstrumentierung und keine funktionale Korrektur.
+
+Patch-SHA-256:
+
+`23a0e0c00860565fca1d8ccb1546b4d8e893d0f423e6c450013e76a47b70903f`
+
+Kernel-Deriver:
+
+`/nix/store/2g78mma5gxjvr9g6mci7c66mkcy2yssk-linux-armv7l-unknown-linux-gnueabihf-6.18.49.drv`
+
+Kernel:
+
+`/nix/store/f03kxwghama2l7if4p1798fvcyrhvwjj-linux-armv7l-unknown-linux-gnueabihf-6.18.49`
+
+Separate Ausgaben:
+
+* `dev`: `/nix/store/ay6ds8zsb4bxm284xjvw4vydp09w3dv0-linux-armv7l-unknown-linux-gnueabihf-6.18.49-dev`
+* `modules`: `/nix/store/08ls92b1vpj0v2nqa3ssygdms6zsslbb-linux-armv7l-unknown-linux-gnueabihf-6.18.49-modules`
+
+SHA-256 des `zImage`:
+
+`f5cb8d264c14286e53a0ea5884e167c7d4815c529046a71e1813cb37512302d5`
+
+Kernel-Basis-DTB SHA-256:
+
+`b560d50c186e0953cc1b9042ca991ffed7609db2d00379446e4286c252e47522`
+
+Finaler Overlay-DTB SHA-256:
+
+`0058510ff34cae32185b8d1b27e6514d0e140974f9aff5542ccc2311220ae081`
+
+Der finale DTB ist bytegleich mit dem bereits getesteten
+No-`single-master`-DTB. Damit blieb die Device-Tree-Seite für den
+`0006`-Vergleich konstant.
+
+STMPE811 blieb deaktiviert und `single-master;` blieb auf `i2c3`
+entfernt.
+
+## 2026-09-15 – 0006 echter POR-Cold-Boot FAIL
+
+Der Hardwaretest wurde aus vollständig ausgeschaltetem Zustand mit
+eingesetzter externer Test-SD durchgeführt.
+
+U-Boot meldete:
+
+`Reset cause: POR`
+
+Damit ist der Test als echter Power-On-Cold-Boot bestätigt.
+
+Boot-ID:
+
+`e904173c-7b90-4f71-b3da-e8e450528670`
+
+Das interne Display blieb beim nativen Boot dunkel.
+
+Der bekannte frühe Fehlerpfad blieb erhalten:
+
+`NOVENA-I2C: arbitration lost in bus_busy, I2SR=0x93`
+
+`NOVENA-I2C: IT6251 START failure A=81/80 B=93/80 C=83/80 ret=-11`
+
+Die neue `0006`-Messung zeigte bei den fehlgeschlagenen
+Product-ID-Zugriffen reproduzierbar:
+
+`M0=93/80 M1=93/80 M2=93/80 M3=93/80 M4=93/80 M5=93/80 M6=93/80 M7=93/80`
+
+Damit gilt:
+
+* A unmittelbar vor dem `MSTA`-Versuch ist `81/80`.
+* Bereits die erste beobachtbare Probe nach dem `MSTA`-Schreibzugriff,
+  M0, ist `93/80`.
+* `IAL` ist bei M0 bereits gesetzt.
+* `MSTA` ist bei M0 bereits wieder gelöscht.
+* M0 bis M7 bleiben in diesem Zustand.
+
+Das IAL-Ereignis entsteht damit spätestens zwischen dem
+Pre-MSTA-Snapshot A und der ersten beobachtbaren Post-MSTA-Probe M0.
+
+`0006` konnte keinen späteren Übergang innerhalb M0 bis M7 beobachten,
+weil der fehlerhafte Zustand bereits bei M0 vollständig vorhanden war.
+
+Der IT6251-Product-ID-Zugriff scheiterte anschließend vollständig und
+der Displaypfad wurde nicht aktiviert.
+
+Die tiefere Ursache dafür, warum der i.MX6-I2C-Controller bei diesem
+Cold Boot unmittelbar beim Master-/START-Eintritt IAL meldet, ist damit
+noch nicht bewiesen.
+
+## 2026-09-15 – 0006 Same-Boot-Recovery
+
+Im exakt gleichen Boot wurde zunächst nur der IT6251-I2C-Treiber
+unbind/bind ausgeführt.
+
+Dieser Schritt registrierte die DRM-Bridge erneut, aktivierte jedoch
+nicht den vollständigen Displaypfad. Es entstand kein neuer
+Product-ID-Transfer und damit auch keine für den A/B-Vergleich
+verwertbare neue START-Sequenz.
+
+Anschließend wurde der Plattformtreiber `imx-ldb` im selben Boot
+unbind/bind ausgeführt.
+
+Dadurch wurde der vollständige Displaypfad erneut aktiviert.
+
+Die IT6251-Initialisierung war nun erfolgreich.
+
+Die erfolgreichen START-Transition-Messungen unterschieden sich bereits
+bei M0 fundamental vom Cold-Boot-Fehler.
+
+Typischer erfolgreicher Beginn:
+
+`M0=81/a0`
+
+Die folgenden Samples blieben zunächst `81/a0`; bei einzelnen
+Transaktionen erschien innerhalb der späteren Samples bereits
+`a1/a0`.
+
+Die erfolgreichen START-Snapshots entsprachen:
+
+`A=81/80 B=81/a0 C=a1/a0 D=a1/f8 E=a1/f8`
+
+mit erfolgreichen IRQ-Zuständen wie:
+
+`IRQ=a2/f8`
+
+beziehungsweise:
+
+`IRQ=a6/f8`
+
+Der IT6251 wurde erfolgreich angesprochen, das Linktraining
+abgeschlossen und der Displaypfad erreichte erneut:
+
+`System status: 0x3e`
+
+`hactive: 1920`
+
+`vactive: 1080`
+
+`display link stable`
+
+`bridge_enable: exit success`
+
+Damit liegt innerhalb derselben Boot-Session ein besonders direkter
+A/B-Vergleich vor:
+
+Cold Boot FAIL:
+
+`A=81/80 -> M0=93/80`
+
+Same-Boot LDB-Rebind PASS:
+
+`A=81/80 -> M0=81/a0`
+
+Der Pre-MSTA-Zustand A ist gleich. Die entscheidende Divergenz ist
+bereits bei der ersten beobachtbaren Probe nach dem MSTA-Schreibzugriff
+vorhanden.
+
+Der Fehler ist damit sehr eng mit dem Master-/START-Erwerb verbunden.
+Eine Root Cause ist weiterhin nicht bewiesen.
+
+## 2026-09-15 – Sicherung der 0006-Evidence
+
+Die vollständige Same-Boot-Evidence wurde vor dem Ausschalten der
+Novena auf die foobox übertragen.
+
+Die acht in `SHA256SUMS` erfassten Evidence-Dateien wurden auf der
+foobox mit:
+
+`sha256sum -c SHA256SUMS`
+
+vollständig verifiziert.
+
+Alle Dateien meldeten:
+
+`OK`
+
+Die gesicherte Boot-ID lautet:
+
+`e904173c-7b90-4f71-b3da-e8e450528670`
+
+Evidence-Verzeichnis auf der foobox:
+
+`/home/loomit/novena-backups/i2c-0006-evidence-e904173c-2026-09-15`
+
+Zusätzlich wurde ein Archiv erstellt:
+
+`/home/loomit/novena-backups/novena-i2c-0006-evidence-e904173c-2026-09-15.tar.gz`
+
+SHA-256 des Archivs:
+
+`2b4b635ecfb693a2d7471efd1c67e9ccc65e240d8a08b207cd3e9805750d0ee8`
+
+Nach erfolgreicher Übertragung und Hash-Verifikation wurde die Novena
+sauber heruntergefahren und ausgeschaltet.
+
+### Zeitstempel-Hinweis
+
+Die Novena protokollierte bei diesem Test teilweise den 13. September,
+obwohl der physische Test am 2026-09-15 durchgeführt wurde.
+
+Diese Wallclock-Zeit ist deshalb für die Provenienz dieses Tests nicht
+maßgeblich.
+
+Für die eindeutige Zuordnung werden insbesondere verwendet:
+
+* Boot-ID `e904173c-7b90-4f71-b3da-e8e450528670`
+* monotone Kernel-Zeitstempel innerhalb des Boots
+* SHA-256-verifizierte Evidence-Dateien
+* das am 2026-09-15 auf der foobox erzeugte Evidence-Archiv
+
+## Checkpoint nach Diagnose-Patch 0006
+
+Der Diagnoseblock `0006` ist abgeschlossen.
+
+Bestätigter Kernbefund:
+
+`Cold FAIL: A=81/80 -> M0=93/80`
+
+gegen:
+
+`Same-Boot LDB-Rebind PASS: A=81/80 -> M0=81/a0`
+
+Beim Cold-Boot-Fehler ist das frische IAL somit bereits bei der ersten
+beobachtbaren Probe nach dem MSTA-Schreibzugriff vorhanden und MSTA
+bereits wieder gelöscht.
+
+Die Root Cause dieses unterschiedlichen Hardwareverhaltens ist weiterhin
+offen.
+
+Insbesondere wurde noch keine funktionale Retry-, Delay- oder
+Bus-Recovery-Lösung als eigentliche Fehlerbehebung eingeführt.
+
+Die Diagnoseinstrumentierung `0003` bis `0006` bleibt
+Entwicklungsinstrumentierung und ist nicht als Produktionsstand
+einzustufen.
+
+Der Diagnoseblock `0006` bildet den technischen Inhalt des
+zugehörigen Git-Checkpoints. Der Checkpoint gilt als versionskontrolliert
+abgeschlossen, sobald der ihn enthaltende aktuelle Commit auf beide
+Projekt-Remotes übertragen, dort identisch verifiziert und der lokale
+Worktree als sauber bestätigt wurde.
+
+Erst danach soll die Entwicklung eines weiteren Diagnose-Patches oder
+einer funktionalen Korrektur beginnen.
+
+Für einen Wiedereinstieg nach einer Pause gelten Git, die committed
+Projektdokumentation und die gesicherten Testartefakte als maßgebliche
+Quelle. Gesprächserinnerungen dienen nur als zusätzliche Orientierung
+und dürfen verifizierten Repository- oder Messdaten nicht vorgezogen
+werden.
