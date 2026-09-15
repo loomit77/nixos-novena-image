@@ -1,0 +1,68 @@
+                          1                                                             2                    3                                                                  4                              5                                                     6
+
+                                                                                                                                                                             Power sequencing
+
+
+         Novena PVT2-A
+A                                                                                                                                                                                                                                                                                   A
+
+
+
+
+B                                                                                                                                                                                                                                                                                   B
+
+
+
+
+    I2C mappings:
+    addresses are already shifted left by one to accommodate r/w bit
+    i.e., address is expressed as the write address
+    I2C1: 10k pull-up
+           SMBus functions (optional)                                                                                                P1.8V_SW4 has option to power VTT
+           MMA8452 (0x38) (optional)                                                                             Use this option to lower VTT source to 1.0V to save power
+           SO-DIMM identification (0xA0)
+           FPGA (optional)
+           SO-DIMM temp sensor (0x30) (optional)
+           STMPE610 (0x88) (optional)
+           Gas gauge and charger via SMB (on battery board)
+           PCF8523 RTC (0xD0)
+
+    I2C2: 1.8k pull-up
+         HDMI DDC (0xA0, 0x74)
+         expansion header                                                                                                       changes on table:
+C        FPGA (optional)                                                                                                                                                                                                                                                            C
+         PMIC (0x10)                                                                                                               P1.8V_VGEN3 micbias gen option
+                                                                                                                                   (reprogram to 3.0V before using)
+    I2C3: 2.2k pull-up
+         LCD EDID (0xA0)
+         ES8283 (0x22)
+         FPGA (optional)
+         Utility EEPROM (0xAC)
+
+
+
+    U_02cpu_power                 U_06cpu_soc                   U_10ethernet100         U_14audio
+    02cpu_power.SchDoc            06cpu_soc.SchDoc              10ethernet100.SchDoc    14audio.SchDoc
+
+
+
+    U_03cpu_sodimm                U_07sdcard                    U_11ethernetGbit        U_15fpga
+    03cpu_sodimm.SchDoc           07sdcard.SchDoc               11ethernetGbit.SchDoc   15fpga.SchDoc
+
+
+
+    U_04pwr_pmic                  U_08usb                       U_12mPCIe               U_16gpio_misc
+    04pwr_pmic.SchDoc             08usb.SchDoc                  12mPCIe.SchDoc          16gpio_misc.SchDoc
+
+D                                                                                                                                                                                                                                                                                   D
+                                                                                                                                                                                                                    Copyright 2014 Andrew "bunnie" Huang
+    U_05pwr_input                 U_09sata                      U_13hdmi_lcd                                                                                                                                       Title
+    05pwr_input.SchDoc            09sata.SchDoc                 13hdmi_lcd.SchDoc
+                                                                                                                                                                                                                    Novena PVT2-A
+                                                                                                                                                                                                                   Size     Number                                       Revision
+
+                                                                                                                                                                Copyrights: CC-BY-SA 3.0 Patents: Apache 2.0        B
+                                                                                                                                                                                                                   Date:   7/5/2014                          Sheet of
+                                                                                                                                                                                                                   File:   F:\largework\..\01docmap.SchDoc   Drawn By:
+                          1                                                             2                    3                                                                  4                              5                                                     6
+

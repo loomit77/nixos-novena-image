@@ -1,0 +1,30 @@
+				<div id="mw-content-text" lang="en" dir="ltr" class="mw-content-ltr"><div class="mw-parser-output"><h2><span class="mw-headline" id="Hardware_Bringup_Notes">Hardware Bringup Notes</span></h2>
+<ul><li>HPD on i.MX6 has a low input impedance (10k). This causes marginal stability on HPD on some boards. Swap R29L from 10k, 1% to 1k, 1% for more reliable performance.</li></ul>
+<h2><span id="Running_changes_-_available_in_PVT1E,_but_doc_check_needed"></span><span class="mw-headline" id="Running_changes_-_available_in_PVT1E.2C_but_doc_check_needed">Running changes - available in PVT1E, but doc check needed</span></h2>
+<p><b>These changes need to be verified in production</b> as they were running changes during the previous run and were not propagated through all the docs.
+</p>
+<ul><li>U11D swapped from STMPE610 to STMPE811 due to EOL of STMPE610 part. Parts are pin-compatible.</li>
+<li>U10S changed from 24LC32A-I/ST to FT24C512AUTR-T for kernel panic logging</li>
+<li>U10A, U12A changed from NS4890 to NS4890B due to EOL of NS4890.</li></ul>
+
+<!-- 
+NewPP limit report
+Cached time: 20260502231314
+Cache expiry: 0
+Dynamic content: true
+CPU time usage: 0.028 seconds
+Real time usage: 0.030 seconds
+Preprocessor visited node count: 6/1000000
+Preprocessor generated node count: 12/1000000
+Post‐expand include size: 0/2097152 bytes
+Template argument size: 0/2097152 bytes
+Highest expansion depth: 2/40
+Expensive parser function count: 0/100
+Unstrip recursion depth: 0/20
+Unstrip post‐expand size: 0/5000000 bytes
+-->
+<!--
+Transclusion expansion time report (%,ms,calls,template)
+100.00%    0.000      1 -total
+-->
+</div></div>					<div class="printfooter">

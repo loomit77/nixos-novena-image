@@ -1,0 +1,9 @@
+HTTP/2 200 
+last-modified: Sat, 02 May 2026 23:23:50 GMT
+etag: "3b0b-650ddfd793b84"
+accept-ranges: bytes
+content-length: 15115
+content-type: text/html
+date: Tue, 15 Sep 2026 09:24:18 GMT
+server: Apache
+

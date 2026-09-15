@@ -1,0 +1,42 @@
+				<div id="mw-content-text" lang="en" dir="ltr" class="mw-content-ltr"><div class="mw-parser-output"><p>There are several versions of U-Boot available for Novena, and we're working on getting mainline U-Boot support.  For now, we have very light patches on top of mainline that allow us to configure DDR3 memory, plus adding debian build support.  Our repository is <a rel="nofollow" class="external text" href="https://github.com/xobs/u-boot-novena">available on Github</a>.
+</p>
+<h2><span class="mw-headline" id="Building_-_.deb">Building - .deb</span></h2>
+<p>Building U-Boot is very similar to other packages.  To build a particular revision, specify its tag:
+</p>
+<pre>   git clone <a rel="nofollow" class="external free" href="https://github.com/xobs/u-boot-novena">https://github.com/xobs/u-boot-novena</a>
+   cd u-boot-novena
+   git-buildpackage -us -uc --git-upstream-tag=v2014.10-novena-rc5
+</pre>
+<h2><span class="mw-headline" id="Building_-_development">Building - development</span></h2>
+<p>To build a non-packaged version, check out the code, configure it, and build it:
+</p>
+<pre>   git clone <a rel="nofollow" class="external free" href="https://github.com/xobs/u-boot-novena">https://github.com/xobs/u-boot-novena</a>
+   cd u-boot-novena
+   make novena_config
+   make
+</pre>
+<h2><span class="mw-headline" id="Support_programs">Support programs</span></h2>
+<p>U-Boot allows for a dual-stage bootloader, where an initial image configures DDR3 memory and then loads and jumps to a bigger bootloader file.  The first stage is called SPL (Secondary Program Loader), and lives in the MBR outside of any partition.  The second stage is called u-boot.img, and lives on the first partition.
+</p><p>Following the tradition of x86 bootloaders, the Novena version of U-Boot doesn't install itself to the system MBR directly.  It will place u-boot.img and u-boot.spl into /boot, but it won't write them out.  In order to install the SPL, we ship a simple script called novena-install-spl.  This simply does a dd of the file to the specified disk.
+</p>
+<!-- 
+NewPP limit report
+Cached time: 20260502231301
+Cache expiry: 0
+Dynamic content: true
+CPU time usage: 0.029 seconds
+Real time usage: 0.031 seconds
+Preprocessor visited node count: 11/1000000
+Preprocessor generated node count: 16/1000000
+Post‐expand include size: 0/2097152 bytes
+Template argument size: 0/2097152 bytes
+Highest expansion depth: 2/40
+Expensive parser function count: 0/100
+Unstrip recursion depth: 0/20
+Unstrip post‐expand size: 0/5000000 bytes
+-->
+<!--
+Transclusion expansion time report (%,ms,calls,template)
+100.00%    0.000      1 -total
+-->
+</div></div>					<div class="printfooter">

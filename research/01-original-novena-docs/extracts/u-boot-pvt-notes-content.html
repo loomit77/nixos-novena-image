@@ -1,0 +1,40 @@
+				<div id="mw-content-text" lang="en" dir="ltr" class="mw-content-ltr"><div class="mw-parser-output"><h2><span class="mw-headline" id="Overview">Overview</span></h2>
+<p>Novena uses a two-stage U-Boot architecture.  The Secondary Program Loader, called SPL, is built using the same build system as the main U-Boot image.
+</p><p>SPL is responsible for setting up DDR3 memory (i.e. calibrating it and measuring trace lengths), loading the main U-Boot image from disk, and jumping to it.  The rest is handled by the primary U-Boot image.
+</p><p>To customize U-Boot, modify include/configs/novena.h and change #define messages.
+</p>
+<h2><span class="mw-headline" id="Building">Building</span></h2>
+<pre> git clone <a rel="nofollow" class="external free" href="https://github.com/xobs/u-boot-novena.git">https://github.com/xobs/u-boot-novena.git</a>
+ cd u-boot-novena
+ make novena_config   # sets up u-boot for novena configuration
+ make -j3
+</pre>
+<p>Note: If you edit include/configs/novena.h, you should run "make novena_config" again.
+</p>
+<h2><span class="mw-headline" id="Deploying">Deploying</span></h2>
+<p>To install the primary U-Boot image, copy u-boot.img to /boot/.  You do not need to do anything further.
+</p><p>If you're modifying very early code, such as DDR3 setup or booting from SATA, you'll need to install a new SPL file.  To install the SPL image, you need to copy the file "SPL" to an offset 1024 bytes from the start of the disk.  If you're running on Novena, use "novena-install-spl".  See "man novena-install-spl" for more information.  Otherwise, use dd:
+</p>
+<pre>sudo dd if="SPL" of="/dev/disk/by-path/platform-2198000.usdhc" bs=1024 seek=1 conv=notrunc
+</pre>
+<!-- 
+NewPP limit report
+Cached time: 20260502231256
+Cache expiry: 0
+Dynamic content: true
+CPU time usage: 0.027 seconds
+Real time usage: 0.029 seconds
+Preprocessor visited node count: 10/1000000
+Preprocessor generated node count: 16/1000000
+Post‐expand include size: 0/2097152 bytes
+Template argument size: 0/2097152 bytes
+Highest expansion depth: 2/40
+Expensive parser function count: 0/100
+Unstrip recursion depth: 0/20
+Unstrip post‐expand size: 0/5000000 bytes
+-->
+<!--
+Transclusion expansion time report (%,ms,calls,template)
+100.00%    0.000      1 -total
+-->
+</div></div>					<div class="printfooter">

@@ -1,0 +1,10 @@
+HTTP/1.1 200 OK
+Server: nginx/1.24.0 (Ubuntu)
+Date: Tue, 15 Sep 2026 09:05:12 GMT
+Content-Type: application/pdf
+Content-Length: 6457816
+Last-Modified: Thu, 11 Dec 2014 05:37:54 GMT
+Connection: keep-alive
+ETag: "54892db2-6289d8"
+Accept-Ranges: bytes
+

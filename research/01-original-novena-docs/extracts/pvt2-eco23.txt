@@ -1,0 +1,40 @@
+<h2><span class="mw-headline" id="ECO23:_improve_regulator_stability_on_cold_power-on">ECO23: improve regulator stability on cold power-on</span></h2>
+<p>ECO13 changes the inductor. This has introduced some instability on cold power-on. Oscilloscope waveforms show a lot of noise on the 5V line after jamming the power cable in, and the 5V regulator subsequently shuts itself off. 
+</p><p>Adding another 22uF cap on the 5V output filtering (C23N DNP-&gt;populated) eliminates this noise and the system seems to perform stably across multiple cold power-on events.
+</p><p>Issued to factory as ECO-0002 against PVT2 rev A on October 15 2014. 
+</p>
+<table class="wikitable sortable">
+
+<tbody><tr>
+<th scope="col">PVT1
+</th>
+<th scope="col">PVT2
+</th>
+<th scope="col">Notes
+</th></tr>
+<tr>
+<td>C23N 22uF, 10V, X5R 20% (DNP)</td>
+<td>C23N 22uF, 10V, X5R 20%
+</td></tr></tbody></table>
+
+<!-- 
+NewPP limit report
+Cached time: 20260502231317
+Cache expiry: 0
+Dynamic content: true
+CPU time usage: 0.124 seconds
+Real time usage: 0.138 seconds
+Preprocessor visited node count: 95/1000000
+Preprocessor generated node count: 100/1000000
+Post‐expand include size: 0/2097152 bytes
+Template argument size: 0/2097152 bytes
+Highest expansion depth: 2/40
+Expensive parser function count: 0/100
+Unstrip recursion depth: 0/20
+Unstrip post‐expand size: 0/5000000 bytes
+-->
+<!--
+Transclusion expansion time report (%,ms,calls,template)
+100.00%    0.000      1 -total
+-->
+</div></div>					<div class="printfooter">
