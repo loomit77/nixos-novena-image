@@ -1052,3 +1052,131 @@ Es wurde kein Patch 0007 erstellt und kein bereits abgeschlossener
 H3-1R-Test wiederholt.
 
 Block 3.14A ist damit als Read-only-Rekonstruktionsblock abgeschlossen.
+
+## 2026-09-18 – Block 3.14B: Read-only Controller-/START-Rekonstruktion
+
+Block 3.14B wurde ohne neuen Build, Bootversuch, Kernel-Patch oder
+Hardwareeingriff durchgeführt.
+
+Verwendet wurden die bereits mit Diagnose-Patch 0006 gesicherten
+Cold-Boot- und Same-Boot-Beobachtungen sowie der vorhandene
+Linux-6.18.49-Analysebaum:
+
+`/home/loomit/novena-analysis/linux-6.18.49-i2c-0006`
+
+Untersucht wurde:
+
+`drivers/i2c/busses/i2c-imx.c`
+
+Ausgangspunkt war der bereits gesicherte Vergleich:
+
+Cold-Boot-FAIL:
+
+`A=81/80 -> M0=93/80`
+
+Same-Boot-LDB-Rebind-PASS:
+
+`A=81/80 -> M0=81/a0`
+
+Die Analyse des Diagnosecodes bestätigt, dass Patch 0006 unmittelbar
+nach dem Schreiben von `I2CR_MSTA` acht geordnete Registerpaare M0 bis
+M7 erfasst.
+
+Jedes Paar besteht aus zwei aufeinanderfolgenden MMIO-Lesezugriffen:
+
+1. I2SR
+2. I2CR
+
+Die beiden Werte eines M-Samples sind deshalb nicht als atomar
+gleichzeitiger Registerzustand zu interpretieren.
+
+Beim Cold-Boot-FAIL wurde bereits gesichert:
+
+`M0=93/80 M1=93/80 M2=93/80 M3=93/80 M4=93/80 M5=93/80 M6=93/80 M7=93/80`
+
+Die Registerauflösung ergibt für M0:
+
+- I2SR `0x93`: `ICF`, `IAL`, `IIF` und `RXAK`
+- I2CR `0x80`: `IEN`
+
+Damit ist bei der ersten beobachtbaren I2SR-Lesung nach dem
+MSTA-Schreibzugriff `IAL` bereits gesetzt und `IBB` nicht gesetzt.
+
+Bei der unmittelbar folgenden I2CR-Lesung ist `MSTA` nicht gesetzt.
+
+Für einen erfolgreichen START liegt dagegen unter anderem folgende
+gesicherte M0-bis-M7-Folge vor:
+
+`M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=a1/a0 M7=a1/a0`
+
+Dabei gilt:
+
+- I2SR `0x81`: `ICF` und `RXAK`
+- I2CR `0xa0`: `IEN` und `MSTA`
+- I2SR `0xa1`: `ICF`, `IBB` und `RXAK`
+
+Im erfolgreichen Fall ist `MSTA` somit bereits bei M0 gesetzt.
+`IBB` wird in dieser gesicherten Folge erst bei M6 sichtbar.
+
+Die Divergenz zwischen FAIL und PASS liegt damit bereits im sehr
+kleinen Fenster zwischen dem MSTA-Schreibzugriff und der ersten
+danach ausgeführten I2SR-Lesung M0.
+
+Die Analyse von `i2c_imx_bus_busy()` erklärt außerdem den weiteren
+Cold-Boot-Fehlerpfad.
+
+Der Treiber liest I2SR und prüft im Multi-Master-Modus `I2SR_IAL`.
+
+Ist `IAL` gesetzt, führt er aus:
+
+`i2c_imx_clear_irq(i2c_imx, I2SR_IAL);`
+
+und gibt anschließend:
+
+`-EAGAIN`
+
+zurück.
+
+Damit ist die beobachtete Folge:
+
+`B=93/80 -> C=83/80 -> ret=-11`
+
+direkt durch den Treiberpfad erklärt.
+
+Die Differenz zwischen I2SR `0x93` und `0x83` ist das vom Treiber
+gelöschte `IAL`-Bit `0x10`.
+
+`-11` entspricht `-EAGAIN`.
+
+Die Prüfung der Initialisierung von `multi_master` ergab:
+
+`i2c_imx->multi_master = !of_property_read_bool(pdev->dev.of_node, "single-master");`
+
+Der Linux-6.18.49-Treiber aktiviert Multi-Master-Behandlung damit
+standardmäßig, solange die Device-Tree-Property `single-master` nicht
+gesetzt ist.
+
+Dies erklärt die softwareseitige Behandlung des Hardware-IAL-Bits.
+
+Es beweist keinen tatsächlich konkurrierenden zweiten physischen
+I2C-Master.
+
+Die vorhandene Instrumentierung kann nicht bestimmen:
+
+- welcher interne Controllerzustand zwischen MSTA-Schreibzugriff und
+  M0 vorlag,
+- ob `MSTA` intern kurz angenommen und anschließend wieder gelöscht
+  wurde,
+- wie lange dieser Übergang dauerte,
+- welcher elektrische Mechanismus das IAL-Ereignis auslöste.
+
+Es wurde kein Patch 0007 erstellt.
+
+Es wurden keine Retry-, Delay- oder Bus-Recovery-Maßnahmen eingeführt.
+
+Die bestehende Board-Konfiguration mit dauerhaft aktiviertem
+`es8328-power` bleibt unverändert.
+
+Vollständige Synthese:
+
+`research/03-root-cause-synthesis/block-3.14b-controller-start-zustandsrekonstruktion.md`

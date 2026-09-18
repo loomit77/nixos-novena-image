@@ -3536,3 +3536,140 @@ Block 3.14A ist damit inhaltlich abgeschlossen.
 Vollständige Synthese:
 
 `research/03-root-cause-synthesis/block-3.14a-power-i2c3-zustandsrekonstruktion.md`
+
+## 2026-09-18 – Block 3.14B: Controllerseitige START-Zustandsrekonstruktion
+
+Block 3.14B rekonstruiert den bereits mit Diagnose-Patch 0006
+beobachteten I2C3-START-Fehler auf Ebene des i.MX6-I2C-Controllers.
+
+Es wurden keine neuen Kernel-Patches, Builds, Bootversuche oder
+Hardwaremessungen durchgeführt.
+
+Als Quellbasis diente der vorhandene Linux-6.18.49-Analysebaum mit
+Diagnose-Patch 0006:
+
+`/home/loomit/novena-analysis/linux-6.18.49-i2c-0006`
+
+Untersucht wurde:
+
+`drivers/i2c/busses/i2c-imx.c`
+
+Der entscheidende bereits gesicherte Vergleich lautet:
+
+Cold-Boot-FAIL:
+
+`A=81/80 -> M0=93/80`
+
+Same-Boot-LDB-Rebind-PASS:
+
+`A=81/80 -> M0=81/a0`
+
+A ist damit in beiden Fällen gleich.
+
+Die Divergenz entsteht erst nach dem Schreiben von `I2CR_MSTA`.
+
+Die Registerwerte wurden anhand der Definitionen des untersuchten
+Treiberstands aufgelöst.
+
+Für I2SR gilt insbesondere:
+
+- `0x81`: `ICF` und `RXAK`
+- `0x93`: `ICF`, `IAL`, `IIF` und `RXAK`
+- `0x83`: `ICF`, `IIF` und `RXAK`
+- `0xa1`: `ICF`, `IBB` und `RXAK`
+
+Für I2CR gilt insbesondere:
+
+- `0x80`: `IEN`
+- `0xa0`: `IEN` und `MSTA`
+- `0xf8`: `IEN`, `IIEN`, `MSTA`, `MTX` und `TXAK`
+
+Patch 0006 liest für jedes M-Sample zuerst I2SR und danach I2CR.
+Die beiden Werte eines Paares sind deshalb keine atomar gleichzeitig
+erfassten Registerzustände.
+
+Beim Cold-Boot-FAIL wurde gesichert:
+
+`M0=93/80 M1=93/80 M2=93/80 M3=93/80 M4=93/80 M5=93/80 M6=93/80 M7=93/80`
+
+Damit ist bereits bei der ersten beobachtbaren I2SR-Lesung nach dem
+MSTA-Schreibzugriff `IAL` gesetzt und `IBB` nicht gesetzt.
+
+Bei der unmittelbar danach ausgeführten I2CR-Lesung ist `MSTA` bereits
+nicht gesetzt.
+
+Im erfolgreichen Same-Boot-Vergleich wurde dagegen ein direkter
+Post-MSTA-Zustand mit:
+
+`M0=81/a0`
+
+beobachtet.
+
+Eine gesicherte erfolgreiche M0-bis-M7-Folge lautet:
+
+`M0=81/a0 M1=81/a0 M2=81/a0 M3=81/a0 M4=81/a0 M5=81/a0 M6=a1/a0 M7=a1/a0`
+
+Damit wird beim erfolgreichen START zunächst `MSTA=1` beobachtet,
+während `IBB` noch nicht gesetzt ist. Erst einige unmittelbar folgende
+Registerlesungen später wird `IBB=1` sichtbar.
+
+Der Fehler ist damit controllerseitig auf das sehr kleine Fenster
+zwischen dem MSTA-Schreibzugriff und der ersten danach ausgeführten
+I2SR-Lesung M0 eingegrenzt.
+
+Der anschließende Fehlerpfad ist durch den Linux-6.18.49-Treiber
+vollständig erklärbar.
+
+`i2c_imx_bus_busy()` erkennt im standardmäßig aktiven
+Multi-Master-Modus das gesetzte `I2SR_IAL`, löscht dieses Bit über
+`i2c_imx_clear_irq()` und gibt `-EAGAIN` zurück.
+
+Dadurch erklärt sich die bekannte Sequenz:
+
+`B=93/80`
+
+`-> C=83/80`
+
+`-> ret=-11`
+
+Die Differenz zwischen I2SR `0x93` und `0x83` ist genau das zuvor
+gelöschte `I2SR_IAL`-Bit `0x10`.
+
+`-11` entspricht `-EAGAIN`.
+
+Der Multi-Master-Modus stammt aus dem normalen Linux-6.18.49-Treiber:
+
+`i2c_imx->multi_master = !of_property_read_bool(..., "single-master");`
+
+Ohne die Device-Tree-Property `single-master` ist er standardmäßig
+aktiv.
+
+Dies erklärt die softwareseitige Behandlung von `IAL`, beweist aber
+keinen tatsächlich konkurrierenden zweiten physischen I2C-Master.
+
+Direkt bewiesen ist lediglich, dass der i.MX6-I2C-Controller beim
+fehlgeschlagenen START sein `I2SR_IAL`-Hardwarebit meldet.
+
+Nicht bestimmt werden können mit der vorhandenen Instrumentierung:
+
+- der interne Controllerzustand zwischen MSTA-Schreibzugriff und M0,
+- ob `MSTA` intern kurz angenommen und anschließend wieder gelöscht
+  wurde,
+- die genaue Dauer dieses Fensters,
+- ein tatsächlich konkurrierender zweiter physischer I2C-Master,
+- der mikroskopische elektrische Mechanismus hinter dem IAL-Ereignis.
+
+Block 3.14B ändert deshalb die bestehende Board-Entscheidung nicht.
+
+**`es8328-power` bleibt dauerhaft mit `regulator-always-on`
+eingeschaltet.**
+
+Es wird aus Block 3.14B kein Patch 0007, Retry-, Delay- oder
+Bus-Recovery-Workaround abgeleitet.
+
+Die Diagnose-Patches 0003 bis 0006 bleiben
+Entwicklungsinstrumentierung.
+
+Vollständige Synthese:
+
+`research/03-root-cause-synthesis/block-3.14b-controller-start-zustandsrekonstruktion.md`
