@@ -3451,3 +3451,88 @@ Neu beziehungsweise erweitert wurden:
 - `research/03-root-cause-synthesis/block-3.13f-primaerquellen-eingrenzung.md`
 
 Damit ist Block 3.13F dokumentarisch abgeschlossen.
+
+
+## 2026-09-18 – Block 3.14A: Power-/I2C3-Zustandsrekonstruktion
+
+Block 3.14A rekonstruiert den zeitlichen und logischen Zusammenhang
+zwischen der Abschaltung von `es8328-power` und der späteren
+I2C3-Fehlersignatur.
+
+Die exakte Kernelquelle des untersuchten Linux-6.18.49-Stands ist:
+
+`/nix/store/z4dyijrrjydyb7avcwm7vp5vadrmwqkv-linux-6.18.49.tar.xz`
+
+Die direkte Analyse von `drivers/regulator/core.c` bestätigt:
+
+- `regulator_init_complete()` plant den Cleanup mit 30000 ms
+  Verzögerung nach dem Late-Initcall.
+- `regulator_late_cleanup()` überspringt `always_on`-Regulatoren.
+- Ein Regulator mit aktivem `use_count` wird nicht abgeschaltet.
+- Für einen aktivierten, unbenutzten und abschaltbaren Regulator wird
+  `disabling` protokolliert und danach `_regulator_do_disable()`
+  ausgeführt.
+
+Damit ist die Baseline-Meldung:
+
+`[   33.761742] es8328-power: disabling`
+
+direkt dem Linux-6.18.49-Regulator-Late-Cleanup zuzuordnen.
+
+Die Schaltung zeigt gleichzeitig:
+
+- ES8328-/Audio-Versorgung über die geschaltete Domain `AUD_P3.3V`,
+- Codec-seitige I2C3-Pull-ups R10B/R11B aus `P3.3V_DELAYED`,
+- I2C3-Anbindung des Codecs über R26A/R27A.
+
+Damit kann nach der Audio-Regulator-Abschaltung ein
+Power-Domain-Grenzzustand bestehen, in dem der Codec unversorgt ist,
+während seine externen I2C-Leitungen weiterhin hochgezogen werden.
+
+Die relevante Baseline-Reihenfolge lautet:
+
+- 33.761742 s: `es8328-power: disabling`
+- 42.097171 s: IT6251 `bridge_attach`
+- 42.395240 s: `bridge_pre_enable`
+- 42.395351 s: IT6251 `regulator_enable`
+- 43.172998 s: `imx-es8328 sound: Unable to register: -517`
+- 44.471549 s: IT6251-Regulator aktiviert
+- 44.471609 s: `product ID attempt 1/5`
+- 44.478167 s: erste log-sichtbare problematische I2C3-Transaktion,
+  `arbitration lost`, `I2SR=0x93`
+- 44.478235 s:
+  `START failure A=81/80 B=93/80 C=83/80 ret=-11`
+
+Der Abstand von 10.716425 s zwischen der Regulator-Abschaltung und der
+ersten log-sichtbaren problematischen I2C3-Transaktion ist keine
+nachgewiesene elektrische Fehlerlatenz.
+
+Zwischen diesen Zeitpunkten ist im vorhandenen Log kein weiterer
+I2C3-Transfer nachweisbar. Daraus darf nicht geschlossen werden, dass
+garantiert kein Transfer stattgefunden hat.
+
+`-517` entspricht `EPROBE_DEFER`, ist aber nicht als Ursache der
+I2C3-Störung belegt.
+
+Direkt nachgewiesen ist außerdem, dass `regulator-always-on` im exakten
+Linux-6.18.49-Regulator-Core den Late-Cleanup dieses Regulators
+verhindert.
+
+Dies ist konsistent mit H3-1R, bei dem fünf von fünf vorregistrierten
+echten POR-Kaltstarts ohne die bekannte `93/80`-/Arbitration-Loss-
+Signatur erfolgreich waren.
+
+Der genaue elektrische Mechanismus bleibt unbestimmt. Insbesondere
+sind Clamp, Backfeeding, Teilversorgung und Abschalttransient nicht als
+einzelner Mechanismus bewiesen.
+
+Die bestehende Board-Entscheidung bleibt deshalb unverändert:
+
+**`es8328-power` bleibt dauerhaft mit `regulator-always-on`
+eingeschaltet.**
+
+Block 3.14A ist damit inhaltlich abgeschlossen.
+
+Vollständige Synthese:
+
+`research/03-root-cause-synthesis/block-3.14a-power-i2c3-zustandsrekonstruktion.md`

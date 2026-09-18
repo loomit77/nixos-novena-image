@@ -971,3 +971,84 @@ Projektdokumentation und die gesicherten Testartefakte als maßgebliche
 Quelle. Gesprächserinnerungen dienen nur als zusätzliche Orientierung
 und dürfen verifizierten Repository- oder Messdaten nicht vorgezogen
 werden.
+
+
+## 2026-09-18 – Block 3.14A: Read-only Power-/I2C3-Zustandsrekonstruktion
+
+Block 3.14A wurde ohne neuen Build, Bootversuch, Kernel-Patch oder
+Hardwareeingriff durchgeführt.
+
+Verwendet wurden die bereits gesicherten Baseline- und H3-1R-Logs, die
+Novena-Schaltungsanalyse, historische Novena-Quellen und der exakte
+Linux-6.18.49-Quellstand.
+
+Exakte Kernelquelle:
+
+`/nix/store/z4dyijrrjydyb7avcwm7vp5vadrmwqkv-linux-6.18.49.tar.xz`
+
+Die direkte Analyse von `drivers/regulator/core.c` bestätigt, dass der
+Linux-6.18.49-Regulator-Core einen verzögerten Late-Cleanup ausführt.
+
+Für einen aktivierten, unbenutzten, abschaltbaren und nicht mit
+`always_on` markierten Regulator protokolliert
+`regulator_late_cleanup()`:
+
+`disabling`
+
+und führt anschließend den Disable-Pfad aus.
+
+Damit ist:
+
+`[   33.761742] es8328-power: disabling`
+
+dem Regulator-Late-Cleanup des tatsächlich untersuchten
+Linux-6.18.49-Stands zugeordnet.
+
+`regulator-always-on` verhindert diesen Cleanup-Pfad direkt.
+
+Die Baseline-Zeitrekonstruktion ergibt:
+
+`33.761742 es8328-power: disabling`
+
+`42.097171 IT6251 bridge_attach`
+
+`42.395240 bridge_pre_enable`
+
+`42.395351 power_up: regulator_enable`
+
+`43.172998 imx-es8328 sound: Unable to register: -517`
+
+`44.471549 IT6251 regulator enabled`
+
+`44.471609 product ID attempt 1/5`
+
+`44.478167 arbitration lost, I2SR=0x93`
+
+`44.478235 START failure A=81/80 B=93/80 C=83/80 ret=-11`
+
+Zwischen der Abschaltmeldung und der ersten log-sichtbaren
+Arbitration-Loss-Meldung liegen 10.716425 s.
+
+Dieser Abstand ist keine nachgewiesene elektrische Fehlerlatenz.
+
+Im vorhandenen Log ist zwischen beiden Ereignissen kein weiterer
+I2C3-Transfer nachweisbar; das beweist nicht die physische Abwesenheit
+jedes Transfers.
+
+Die Schaltung bestätigt gleichzeitig den Power-Domain-Grenzzustand:
+
+- ES8328-/Audio-Domain auf `AUD_P3.3V`,
+- Codec-seitige I2C-Pull-ups aus `P3.3V_DELAYED`.
+
+Damit ist die kausale Beteiligung der Audio-Power-Domain weiter stark
+gestützt.
+
+Nicht bestimmt wurde der mikroskopische elektrische Mechanismus.
+
+Insbesondere bleiben Clamp, Backfeeding, Teilversorgung und
+Abschalttransient unbewiesen.
+
+Es wurde kein Patch 0007 erstellt und kein bereits abgeschlossener
+H3-1R-Test wiederholt.
+
+Block 3.14A ist damit als Read-only-Rekonstruktionsblock abgeschlossen.
