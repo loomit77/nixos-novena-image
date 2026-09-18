@@ -3052,3 +3052,402 @@ Der verifizierte historische Primärquellen-Auszug befindet sich unter:
 Die korrigierte elektrische Topologie befindet sich unter:
 
 `research/01-original-novena-docs/notes/pvt2-a-i2c3-topology.md`
+
+## Checkpoint Block 3.13F – Primärquellenbasierte Eingrenzung von FPGA und ES8328 – 2026-09-18
+
+### Ausgangspunkt
+
+Block 3.13F setzte die quellenbasierte Untersuchung aus Block 3.13E fort.
+
+Da keine elektrischen Messgeräte zur Verfügung stehen und keine
+Hardwaremessungen durchgeführt werden, wurden zwei verbleibende
+Fragestellungen ausschließlich anhand von Schaltungsunterlagen,
+Herstellerdokumentation, historischen Novena-Quellen und bereits
+gesicherter experimenteller Evidence untersucht:
+
+1. Kann der direkt an I2C3 angeschlossene Spartan-6-FPGA während
+   Power-on, Initialisierung oder Konfiguration eine plausible primäre
+   Busbelastung darstellen?
+
+2. Lassen sich die verbleibenden ES8328-Mechanismuskandidaten M1 bis M4
+   anhand belastbarer Quellen weiter voneinander trennen?
+
+Die bereits in Block 3.13E erreichte Aussage zur kausalen Beteiligung
+der ES8328-/Audio-Power-Domain wurde dabei nicht zurückgenommen.
+
+### Weiterhin maßgebliche experimentelle Evidence
+
+Der Versuch H3-1R änderte ausschließlich die ES8328-Versorgung auf
+`regulator-always-on`.
+
+Danach waren fünf von fünf vorregistrierten echten POR-Kaltstarts
+erfolgreich.
+
+Dabei verschwanden im untersuchten I2C3-Pfad:
+
+- die bekannte Signatur `A=81/80 -> M0=93/80`,
+- der untersuchte `arbitration lost`,
+- der IT6251-Initialisierungsfehler.
+
+Der Bildschirm funktionierte in allen fünf Läufen.
+
+Diese experimentelle Evidence bleibt die maßgebliche aktuelle
+Interventionsevidenz.
+
+### Archivierte Spartan-6-Primärquellen
+
+Für Block 3.13F wurden zwei offizielle AMD/Xilinx-Dokumente archiviert:
+
+- Spartan-6 FPGA Configuration User Guide, UG380, Version 2.11,
+  2019-03-22,
+- Spartan-6 FPGA SelectIO Resources User Guide, UG381, Version 1.7,
+  2015-10-21.
+
+Archivdateien:
+
+`research/01-original-novena-docs/sources/amd-xilinx-ug380-spartan6-configuration.pdf`
+
+SHA-256:
+
+`4afb6472018a9b3fa3bc1be906a0d15f86a17567d1dd7e930debfce3de362c9b`
+
+und
+
+`research/01-original-novena-docs/sources/amd-xilinx-ug381-spartan6-selectio.pdf`
+
+SHA-256:
+
+`4a0fc9078af54edc1104452fe5fa2bfaa82118b5501ba9fd000c1e1e2310821a`
+
+Die HTTP-Header beider Downloads wurden ebenfalls archiviert.
+
+Alle vier Dateien wurden in
+
+`research/01-original-novena-docs/SHA256SUMS`
+
+aufgenommen.
+
+Die Gesamtprüfung des bestehenden Quellenarchivs ergab vor Erstellung
+dieses Checkpoints:
+
+- 55 geprüfte Einträge,
+- 0 Prüfsummenfehler.
+
+### FPGA-Verbindung mit I2C3
+
+Die PVT2-A-Schaltung zeigt:
+
+- FPGA-Pin P4 = `IO_L2P_3` = `I2C3_SCL`,
+- FPGA-Pin P3 = `IO_L2N_3` = `I2C3_SDA`.
+
+P3 und P4 sind damit direkt an I2C3 angeschlossene normale
+Spartan-6-User-I/Os.
+
+Die visuelle Schaltplanprüfung korrigierte außerdem ein früheres
+Text-Extraktionsartefakt:
+
+`FPGA_HSWAPEN` ist nicht mit `EIM_DA14` gleichzusetzen.
+
+### HSWAPEN-Beschaltung
+
+Die PVT2-A-Schaltung zeigt:
+
+- R13F = 4,7 kOhm von `P3.3V_DELAYED` nach `FPGA_HSWAPEN`,
+- R12F = 4,7 kOhm von `FPGA_HSWAPEN` nach GND,
+- R12F ist `DNP`.
+
+Damit wird `FPGA_HSWAPEN` in der dokumentierten Bestückung nach High
+gezogen.
+
+UG380 und UG381 dokumentieren:
+
+- HSWAPEN Low aktiviert die internen Pull-ups der User-I/Os,
+- HSWAPEN High deaktiviert diese Pull-ups.
+
+Damit sind die HSWAPEN-gesteuerten internen User-I/O-Pull-ups auf
+Novena während der relevanten Konfigurationsphase deaktiviert.
+
+### FPGA-I/O-Zustand während Power-on und Konfiguration
+
+UG380 und UG381 dokumentieren, dass die normalen User-I/O-Ausgangstreiber
+während Power-on, Initialisierung und Konfiguration High-Z sind.
+
+Für P3/P4 ergibt sich damit während dieser Phase:
+
+- Ausgangstreiber High-Z,
+- HSWAPEN-gesteuerte interne Pull-ups deaktiviert.
+
+Ein einfacher Fehlermechanismus, bei dem der FPGA bereits durch seinen
+normalen POR-/Initialisierungs-/Konfigurationszustand I2C3 aktiv treibt,
+wird dadurch deutlich geschwächt.
+
+### Grenze des FPGA-Befunds
+
+Der High-Z-Befund gilt nicht automatisch für den gesamten Bootvorgang.
+
+Nach Freigabe von GTS während der Spartan-6-Startup-Sequenz gehen die
+User-I/Os in den vom geladenen User-Design bestimmten Zustand über.
+
+Daher bleiben formal offen:
+
+- Zeitpunkt und Zustand eines eventuell aktiven FPGA-Designs,
+- Zustand von P3/P4 nach GTS-Freigabe,
+- ein möglicher Post-Configuration-Einfluss auf I2C3.
+
+Für einen solchen Post-Configuration-Fehler wurde in den untersuchten
+Quellen jedoch kein konkreter positiver Novena-spezifischer Beleg
+gefunden.
+
+### Historischer U-Boot-Befund zum FPGA
+
+Die untersuchten historischen Novena-U-Boot-Quellen definieren
+
+`NOVENA_FPGA_RESET_N_GPIO`
+
+als GPIO5_IO07.
+
+Der historische SPL setzt dieses Signal auf Low.
+
+In den untersuchten Novena-spezifischen U-Boot-Stellen wurde keine
+FPGA-Bitstream-Ladeoperation gefunden.
+
+`FPGA_RESET_N` darf anhand dieser Quellen nicht mit dem dedizierten
+Spartan-6-Konfigurationssignal `PROGRAM_B` gleichgesetzt werden.
+
+Aus `FPGA_RESET_N = 0` folgt deshalb nicht, dass P3/P4 dauerhaft High-Z
+sein müssen.
+
+### ES8328-Dokumentationslage
+
+Im lokalen Quellenbestand wurde kein ES8328-Herstellerdatenblatt
+gefunden.
+
+Ein zusätzlicher direkter Downloadversuch über einen öffentlich
+indexierten Datenblattspiegel endete mit HTTP 404.
+
+Das dabei entstandene Artefakt verblieb ausschließlich unter `/tmp` und
+wurde nicht archiviert.
+
+Eine anschließende lokale Suche auf der foobox fand ebenfalls keine
+ES8328-Datenblatt-PDF.
+
+Weitere schwach nachvollziehbare Datenblattspiegel wurden bewusst nicht
+akkumuliert.
+
+### Lokale ES8328-Linux-Quelle
+
+Untersucht wurde der lokale historische Quellbestand:
+
+Repository:
+
+`https://github.com/novena-next/linux.git`
+
+HEAD:
+
+`1fda06deecb61538ca3d07d256eb7c43d4e3432a`
+
+Betreff:
+
+`FIXME: ITE workaround`
+
+Datum:
+
+`2020-01-27T05:13:57+01:00`
+
+Die daraus abgeleiteten Aussagen werden ausdrücklich diesem
+untersuchten historischen Quellstand zugeordnet.
+
+### ES8328-Supply-Modell
+
+Die lokale Datei
+
+`Documentation/devicetree/bindings/sound/es8328.txt`
+
+beschreibt:
+
+- `DVDD-supply` als Versorgung des digitalen Kerns mit 1,8 bis 3,6 V,
+- `PVDD-supply` als Versorgung der digitalen I/Os mit 1,8 bis 3,6 V.
+
+Für die Root-Cause-Frage ist insbesondere belegt:
+
+**PVDD wird in diesem historischen Linux-Binding als Digital-I/O-Supply
+des ES8328 modelliert.**
+
+### ES8328-Regulator-Handling
+
+Der lokale Codec-Treiber
+
+`sound/soc/codecs/es8328.c`
+
+verwaltet:
+
+- DVDD,
+- AVDD,
+- PVDD,
+- HPVDD
+
+als Regulator-Supplies.
+
+Der untersuchte Suspend-Pfad kann diese Supplies gemeinsam über
+
+`regulator_bulk_disable()`
+
+abschalten.
+
+Beim Resume werden sie über
+
+`regulator_bulk_enable()`
+
+wieder eingeschaltet und der Regcache anschließend synchronisiert.
+
+Im untersuchten I2C-Treiber wurde keine besondere Powered-off-Sequenz
+für CCLK/CDATA gefunden.
+
+Aus dem Fehlen einer solchen Sequenz folgt keine Aussage darüber, ob ein
+unversorgter ES8328 die extern hochgezogenen I2C-Leitungen elektrisch
+beeinflusst.
+
+### Belegter Power-Domain-Grenzzustand
+
+Die Kombination aus Linux-Supply-Modell und Novena-Schaltung ergibt
+folgenden direkt gestützten Zustand:
+
+- ES8328 DVDD liegt an `AUD_P3.3V`,
+- ES8328 PVDD liegt an `AUD_P3.3V`,
+- `AUD_P3.3V` kann abgeschaltet werden,
+- PVDD wird im untersuchten Linux-Binding als Digital-I/O-Supply
+  beschrieben,
+- `AUD_I2C3_SCL` bleibt über R10B = 1 kOhm aus `P3.3V_DELAYED`
+  hochgezogen,
+- `AUD_I2C3_SDA` bleibt über R11B = 1 kOhm aus `P3.3V_DELAYED`
+  hochgezogen.
+
+Damit können Digital-Core- und Digital-I/O-Versorgung des ES8328
+abgeschaltet sein, während die externen Codec-seitigen I2C-Pull-ups
+weiter versorgt werden.
+
+Der interne elektrische Effekt dieses Grenzzustands ist nicht bestimmt.
+
+### M1 – Clamp oder statische Busbelastung
+
+Status:
+
+**offen; mit der Topologie vereinbar; nicht belegt.**
+
+Nicht belegt sind insbesondere:
+
+- interne CCLK/CDATA-Schutzstrukturen,
+- ein konkreter Clamp-Pfad,
+- resultierende Pinspannungen,
+- resultierende Ströme.
+
+### M2 – Backfeeding
+
+Status:
+
+**offen; mit der Topologie vereinbar; nicht belegt.**
+
+Nicht belegt sind:
+
+- ein konkreter interner Backfeed-Pfad,
+- Stromrichtung und Stromgröße,
+- eine mögliche Teilversorgung des Codecs,
+- ein direkter Zusammenhang mit der beobachteten I2C3-Signatur.
+
+### M3 – Pull-up-/Power-Domain-Interaktion
+
+Status:
+
+**stark gestützter Power-Domain-Grenzzustand; exakter elektrischer
+Mechanismus nicht bewiesen.**
+
+Von M1 bis M4 ist M3 am unmittelbarsten durch die Kombination aus
+Novena-Schaltung und lokalem Linux-Supply-Modell gestützt.
+
+Belegt ist dabei der Grenzzustand und nicht ein bestimmter interner
+Clamp- oder Backfeed-Mechanismus.
+
+### M4 – Abschalttransient
+
+Status:
+
+**offen; mit der Schaltung vereinbar; ohne Messung nicht nachgewiesen.**
+
+Der aktive Audio-Power-Schaltkreis mit Q11A, Q10A und Q12A lässt einen
+zeitabhängigen Abschaltmechanismus als Untersuchungsrichtung offen.
+
+Mangels elektrischer Zeit-, Spannungs- und Strommessungen ist ein
+solcher Transient nicht nachgewiesen.
+
+### Quellenübergreifende Root-Cause-Eingrenzung
+
+Nach Block 3.13F zeigen mehrere voneinander verschiedene Evidenzlinien
+auf denselben kausalen Bereich:
+
+1. Die Novena-Schaltung dokumentiert den ES8328-Power-Domain-Grenzzustand.
+
+2. Der historische Novena-Commit
+   `e48619edadbde342d79655e73654f0b21fc5e20b`
+   dokumentiert, dass das Abschalten von `es8328-power` nach damaliger
+   Beobachtung I2C3 störte und unter anderem Bildschirm, EEPROM und
+   Senoko beeinträchtigte.
+
+3. Der unabhängige aktuelle H3-1R-Versuch beseitigte mit
+   `regulator-always-on` die untersuchte Störung in fünf von fünf
+   vorregistrierten echten POR-Kaltstarts.
+
+4. Die Spartan-6-Primärquellen schwächen den normalen
+   FPGA-POR-/Konfigurationszustand als einfache konkurrierende
+   Busbelastung deutlich.
+
+Damit ist die ES8328-/Audio-Power-Domain-Abschaltung als kausaler Bereich
+der untersuchten I2C3-Kaltstartstörung stark eingegrenzt.
+
+### Aussagegrenze
+
+Nicht bewiesen sind:
+
+- ein interner ES8328-Clamp-Pfad,
+- ein konkreter Backfeed-Pfad,
+- bestimmte Spannungen oder Ströme,
+- ein bestimmter Abschalttransient,
+- die vollständige Ausschließung eines FPGA-Einflusses nach
+  GTS-Freigabe,
+- die elektrische Identität jedes historischen I2C3-Fehlers mit der
+  aktuellen Signatur `A=81/80 -> M0=93/80`.
+
+Ohne zusätzliche belastbare Herstellerinformation zum unversorgten
+CCLK/CDATA-Verhalten oder elektrische Hardwaremessungen lassen sich M1,
+M2, M3 und M4 nicht seriös bis auf einen einzelnen mikroskopischen
+Mechanismus auflösen.
+
+### Entscheidung nach Block 3.13F
+
+Die praktische Board-Konfiguration bleibt unverändert:
+
+**`es8328-power` bleibt dauerhaft eingeschaltet.**
+
+Block 3.13F liefert keinen Anlass für:
+
+- Patch 0007,
+- eine erneute STMPE811-Isolation,
+- eine Wiederholung der Single-Master-Isolation,
+- zusätzliche IT6251-Delay-/Retry-Experimente,
+- eine routinemäßige Rücknahme von `regulator-always-on`.
+
+Die verbleibende Unsicherheit betrifft den exakten elektrischen
+Mechanismus und nicht die praktische Board-Konfiguration.
+
+### Dokumentationsartefakte
+
+Neu beziehungsweise erweitert wurden:
+
+- `research/01-original-novena-docs/SHA256SUMS`
+- `research/01-original-novena-docs/notes/spartan6-i2c3-configuration-state.md`
+- `research/01-original-novena-docs/sources/amd-xilinx-ug380-spartan6-configuration.pdf`
+- `research/01-original-novena-docs/sources/amd-xilinx-ug380-spartan6-configuration.http-headers.txt`
+- `research/01-original-novena-docs/sources/amd-xilinx-ug381-spartan6-selectio.pdf`
+- `research/01-original-novena-docs/sources/amd-xilinx-ug381-spartan6-selectio.http-headers.txt`
+- `research/03-root-cause-synthesis/block-3.13f-primaerquellen-eingrenzung.md`
+
+Damit ist Block 3.13F dokumentarisch abgeschlossen.

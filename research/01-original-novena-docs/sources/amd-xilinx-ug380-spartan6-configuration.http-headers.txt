@@ -1,0 +1,28 @@
+HTTP/2 200 
+date: Fri, 18 Sep 2026 18:07:58 GMT
+content-type: application/pdf
+content-length: 5685031
+set-cookie: AWSALB=REJEYGEcUp4qjcFy43aEWQSc7NZ2kx1EGvnOAWh9hbWSV9tWpZtljWAEdmCt/IcvhJb5wxIm7N2Oq+ujW6AUP0sTQkQ9vUL1EkqHi7mvbOqmFkp6tepaTovGgoBN; Expires=Fri, 25 Sep 2026 18:07:58 GMT; Path=/
+set-cookie: AWSALBCORS=REJEYGEcUp4qjcFy43aEWQSc7NZ2kx1EGvnOAWh9hbWSV9tWpZtljWAEdmCt/IcvhJb5wxIm7N2Oq+ujW6AUP0sTQkQ9vUL1EkqHi7mvbOqmFkp6tepaTovGgoBN; Expires=Fri, 25 Sep 2026 18:07:58 GMT; Path=/; SameSite=None; Secure
+server: Apache
+ft-req-id: dvlots
+ft-called-app: ft/server
+ft-called-app-version: 5.3.50:c1ca4c847b4c649c8c0f1d4f21d151efe6452aec
+ft-called-app-instance: vbl44
+vary: Origin,Access-Control-Request-Method,Access-Control-Request-Headers
+x-content-type-options: nosniff
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: same-origin
+reporting-endpoints: csp-violation-endpoint="https://docs.amd.com/internal/api/debug/csp-violations"
+content-security-policy: frame-ancestors 'self' http://10.254.48.114:3001 http://10.31.201.119:8080 http://172.31.138.4:3001 http://172.31.15.48:3001 http://172.31.15.48:5173 http://192.168.1.189:3001 http://tdltoolbox.xilinx.com:91 http://tdltoolbox.xilinx.com:93 https://xilinx-staging.fluidtopics.net; report-uri https://docs.amd.com/internal/api/debug/csp-violations; report-to csp-violation-endpoint
+link: <https://docs.amd.com/go/en-US/ug380>; rel="canonical"
+etag: "4afb6472018a9b3fa3bc1be906a0d15f86a17567d1dd7e930debfce3de362c9b"
+accept-ranges: bytes
+last-modified: Sun, 30 Mar 2025 02:41:26 GMT
+cache-control: no-cache, must-revalidate
+content-disposition: inline; filename="ug380.pdf"; filename*=UTF-8''ug380.pdf
+set-cookie: INGRESSCOOKIE=91ee426784b50f790d78b7bc4e3e7365|f26ab6c6584ca58b2288595d1d151363; Path=/; Secure; HttpOnly; SameSite=None
+set-cookie: FT_SESSION=58984874-17f9-46a0-8562-18ad6d9fed9a; Path=/; Max-Age=2592000; Expires=Sun, 18-Oct-2026 18:07:58 GMT; Secure; HttpOnly; SameSite=none
+set-cookie: SERVERID=server7; path=/
+front: front04 vtr
+
