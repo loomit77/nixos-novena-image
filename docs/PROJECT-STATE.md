@@ -2601,3 +2601,454 @@ während die eigentliche Codec-Versorgung aus dem separat geschalteten
 
 Clamp, Rückspeisung, Power-Domain-Wechselwirkung und Abschalttransient
 bleiben voneinander zu unterscheidende Hypothesen.
+
+## Checkpoint Block 3.13E – quellenbasierte Eingrenzung ohne Hardwaremessung – 2026-09-18
+
+### Ausgangspunkt
+
+Block 3.13D hatte die elektrische Topologie des ES8328-/I2C3-Pfads
+aus den PVT2-A-Unterlagen weiter präzisiert und daraus eine physische
+Messplanung abgeleitet.
+
+Für die weitere Untersuchung stehen jedoch keine elektrischen Messgeräte
+zur Verfügung. Es werden deshalb keine Hardwaremessungen durchgeführt und
+keine Messwerte simuliert.
+
+Block 3.13E wechselte folgerichtig auf eine rein quellenbasierte
+Eingrenzung der noch offenen elektrischen Root-Cause-Kandidaten.
+
+Die dauerhafte Board-Konfiguration
+
+`es8328-power = regulator-always-on`
+
+blieb während der gesamten Untersuchung unverändert.
+
+Kernel-Patch `0007` wurde nicht begonnen.
+
+
+### Weiterhin maßgebliche experimentelle Evidenz
+
+Die aktuelle experimentelle Evidenz bleibt die kontrollierte H3-1R-Serie.
+
+Im gesicherten Baseline-Cold-FAIL wird `es8328-power` während des
+Bootvorgangs automatisch abgeschaltet.
+
+Später tritt die instrumentierte I2C3-Fehlersignatur
+
+`A=81/80 -> M0=93/80`
+
+mit `IAL` und nicht gesetztem `MSTA` auf.
+
+Der erfolgreiche Same-Boot-LDB-Rebind zeigt dagegen:
+
+`A=81/80 -> M0=81/a0`.
+
+H3-1R änderte als einzige semantische Device-Tree-Eigenschaft am
+bestehenden Audio-Regulator die dauerhafte Aktivierung durch
+`regulator-always-on`.
+
+Unter dieser kontrollierten Intervention bestanden fünf von fünf
+vorregistrierten echten POR-Cold-Boots.
+
+In keinem dieser fünf vollständigen Kernel-Logs trat die untersuchte
+`93/80`-/`arbitration lost`-Signatur auf.
+
+IT6251 initialisierte erfolgreich und das Display funktionierte.
+
+Damit bleibt ein kausaler Beitrag des Abschaltens des ES8328-Power-Domains
+zur untersuchten Fehlerklasse stark experimentell gestützt.
+
+
+### Relevante elektrische Topologie
+
+Die zuvor korrigierte PVT2-A-Auswertung bleibt Grundlage der
+Root-Cause-Eingrenzung:
+
+- `I2C3_SCL -> R26A 330R -> AUD_I2C3_SCL -> ES8328E`,
+- `I2C3_SDA -> R27A 330R -> AUD_I2C3_SDA -> ES8328E`,
+- R10B zieht `AUD_I2C3_SCL` über 1 kOhm nach `P3.3V_DELAYED`,
+- R11B zieht `AUD_I2C3_SDA` über 1 kOhm nach `P3.3V_DELAYED`,
+- ES8328-DVDD liegt an `AUD_P3.3V`,
+- ES8328-PVDD liegt an `AUD_P3.3V`,
+- `AUD_P3.3V` ist separat geschaltet,
+- die I2C-Pull-ups des Audiozweigs werden dagegen aus
+  `P3.3V_DELAYED` versorgt.
+
+Damit ist schaltungstechnisch ein Zustand möglich, in dem der Codec
+unversorgt ist, während seine I2C-Leitungen weiterhin über Widerstände
+in Richtung einer aktiven 3,3-V-Versorgung gezogen werden.
+
+Diese Topologie macht Clamp-/Bus-Loading, Rückspeisung,
+Pull-up-/Power-Domain-Wechselwirkung und Abschalttransient zu konkreten
+Hypothesen.
+
+Sie beweist keinen dieser Mechanismen.
+
+
+### ES8328-Komponentendokumentation
+
+Die Suche nach zusätzlicher frei zugänglicher ES8328-Dokumentation
+lieferte keinen ausreichend belastbaren neuen Primärbeleg für die interne
+I/O-Struktur im unversorgten Zustand.
+
+Insbesondere wird aus sichtbaren absoluten Eingangsspannungsgrenzen nicht
+auf eine konkrete interne Schutzdiode oder einen bestimmten
+Backpower-Strompfad geschlossen.
+
+Weiterhin nicht belegt beziehungsweise nicht gemessen sind:
+
+- interne Clamp-Struktur des ES8328,
+- konkreter Rückspeisepfad,
+- tatsächliche SDA-/SCL-Spannung am abgeschalteten Codec,
+- Strom durch R26A oder R27A,
+- Spannung auf `AUD_P3.3V` während des kritischen Zustands.
+
+M1 und M2 bleiben damit plausibel, aber nicht bewiesen.
+
+
+### Historische ES8328-Power-Management-Commits
+
+Im historischen Repository `xobs/novena-linux` wurden die Commits
+
+`468b85c56f0942b518a8b03ac0b6293fe6df8408`
+
+und
+
+`ff010f4fa0b44fceefd60a3449cf80af4379ca1b`
+
+gezielt untersucht.
+
+`468b85c...` aktiviert die normale ASoC-Power-Management-Integration des
+i.MX6-ES8328-Machine-Drivers.
+
+Der Commit dokumentiert keine I2C3-Störung.
+
+`ff010f4...` entfernt einen Codec-spezifischen Suspend-/Resume-Pfad.
+Der entfernte Suspend-Code schaltete Clock und ES8328-Versorgungen
+ausdrücklich ab; der Resume-Code aktivierte sie wieder und synchronisierte
+den Codec-Zustand.
+
+Die Commit-Nachricht begründet die Entfernung mit der bereits vorhandenen
+ASoC-Power-Behandlung.
+
+Damit ist historisch belegt, dass Softwarepfade das Abschalten der
+ES8328-Versorgungen ausdrücklich vorsahen.
+
+Diese beiden Commits belegen für sich jedoch keine I2C3-Störung und keine
+Notwendigkeit von `regulator-always-on`.
+
+
+### Ältere Novena-DTS-Stände
+
+Direkt geprüfte Novena-DTS-Stände aus `xobs/novena-linux` zeigen für
+`es8328-power` zunächst `regulator-boot-on`.
+
+Dies gilt unter anderem für:
+
+- `d0bbd1497c117cd9661bc98685e25a5db23506c8`,
+- `70a8c03bd9eea54fcd2616302403b80c20729db9`,
+- den untersuchten Repository-HEAD
+  `d9d2e8b619f17e8394d62c08d60b4ea17154e9d6`.
+
+Damit ist die frühe beziehungsweise ältere Novena-Konfiguration nicht als
+generelles `regulator-always-on` zu interpretieren.
+
+
+### Methodische Korrektur früherer Git-Suchen
+
+Breite Git-Suchen nach der Zeichenfolge `regulator-always-on` hatten
+zwischenzeitlich Treffer geliefert, die nicht zuverlässig dem
+ES8328-Regulator zugeordnet werden konnten.
+
+Insbesondere beweist
+
+`git log -Sregulator-always-on`
+
+nur, dass die Zeichenfolge im jeweiligen Diff vorkommt.
+
+Sie beweist nicht, dass sie im `es8328-power`-Knoten geändert wurde.
+
+Auch eine spätere Auswertung mit festem `grep`-Kontext um
+`es8328-power` war ungeeignet, weil benachbarte Regulator-Knoten in den
+Kontext geraten konnten.
+
+Diese Treffer werden nicht als ES8328-spezifische Evidenz verwendet.
+
+Die direkt geprüften Regulator-Knoten und vollständigen Commit-Diffs haben
+Vorrang.
+
+
+### Provenienz von e48619 erneut geklärt
+
+Zwischenzeitlich entstand Unsicherheit über den bereits dokumentierten
+historischen Commit
+
+`e48619edadbde342d79655e73654f0b21fc5e20b`.
+
+Der Commit war zunächst weder im untersuchten `xobs/novena-linux` noch im
+lokalen Objektbestand von `~/novena-linux` auffindbar.
+
+Die Provenienzprüfung zeigte, dass diese Nichtfunde kein Gegenbeleg waren.
+
+Der Commit stammt aus:
+
+`https://github.com/novena-next/linux.git`
+
+und nicht aus `xobs/novena-linux`.
+
+Der vorhandene lokale Clone `~/novena-linux` zeigt zwar auf dieses
+Repository, ist aber ein Shallow Clone und enthält lokal ausschließlich
+den Branch `nvn_v5.7-rc2`.
+
+Zum Prüfzeitpunkt galt:
+
+`HEAD=1fda06deecb61538ca3d07d256eb7c43d4e3432a`
+
+und
+
+`SHALLOW=true`.
+
+Der gesuchte Commit, sein Parent und der historische Repository-HEAD waren
+deshalb nicht im lokalen Objektbestand vorhanden.
+
+
+### Archivierter Primärquellen-Auszug
+
+Im Projekt war der frühere Primärquellen-Auszug weiterhin vorhanden:
+
+`research/02-historical-software/extracts/quellenuebergreifend/novena-next-linux-es8328-i2c3-wechselwirkung.txt`
+
+SHA-256:
+
+`35bbe085ce6c199f15596e0edaa5106e10b1ef1db4a8a416491e0437b27e19a4`
+
+Er dokumentiert:
+
+Repository:
+
+`https://github.com/novena-next/linux.git`
+
+Repository-HEAD:
+
+`18bf34080c4c3beb6699181986cc97dd712498fe`
+
+Commit:
+
+`e48619edadbde342d79655e73654f0b21fc5e20b`
+
+Parent:
+
+`16aae414f47116b568c837a131ba9d9250cf3b48`
+
+Autor:
+
+Jookia
+
+Datum:
+
+2020-04-01
+
+Betreff:
+
+`ARM: dts: imx6q-novena: Always enable the es8328-power regulator`
+
+Die archivierte Commit-Nachricht beschreibt ausdrücklich, dass Linux den
+`es8328-power`-Regulator abschaltet, wenn der Codec nicht verwendet wird,
+und dass dies nach damaliger Beobachtung den I2C3-Bus beeinträchtigt und
+dadurch unter anderem Bildschirm, EEPROM und Senoko stört.
+
+Der archivierte DTS-Diff ersetzt für genau diesen Regulator
+
+`regulator-boot-on`
+
+durch
+
+`regulator-always-on`.
+
+
+### Erneute unabhängige Remote-Prüfung
+
+Die Repository-Provenienz wurde am 2026-09-18 erneut gegen den öffentlich
+erreichbaren Remote-Zustand geprüft.
+
+`git ls-remote` für `novena-next/linux` meldete:
+
+`18bf34080c4c3beb6699181986cc97dd712498fe refs/heads/master`
+
+Der gleiche Commit wurde als Default-HEAD des Remote-Repositorys
+zurückgegeben.
+
+Damit stimmt der aktuelle Remote-`master` exakt mit dem im archivierten
+Primärquellen-Auszug dokumentierten Repository-HEAD überein.
+
+Die öffentliche Commitquelle bestätigte zusätzlich Commit-ID, Autor,
+Parent, Betreff, Commit-Nachricht und DTS-Änderung.
+
+`e48619edadbde342d79655e73654f0b21fc5e20b` wird deshalb als
+verifizierter historischer Novena-Primärbeleg behandelt.
+
+
+### Zusätzlicher Shallow-History-Versuch
+
+Für eine zusätzliche lokale Reproduktion wurde ein separates temporäres
+Repository unter `/tmp` verwendet.
+
+Der gesuchte Commit war nach einem begrenzten Shallow-Fetch und einer
+anschließenden Vertiefung noch nicht lokal vorhanden.
+
+Wegen der stark verzweigten Linux-Kernel-Historie erzeugte diese Methode
+bereits eine sehr große erreichbare Commitmenge und wurde nicht weiter
+verfolgt.
+
+Das temporäre Repository wurde anschließend entfernt beziehungsweise war
+bei der abschließenden Aufräumkontrolle nicht mehr vorhanden.
+
+Das Projekt-Repository und der vorhandene `~/novena-linux`-Clone blieben
+unverändert.
+
+
+### Quellenübergreifendes Ergebnis
+
+Nach Block 3.13E stehen zwei unabhängige Evidenzlinien nebeneinander.
+
+Historisch dokumentiert `e48619...` auf realer Novena-Hardware eine
+Wechselwirkung zwischen dem Abschalten von `es8328-power` und der
+Funktionsfähigkeit von I2C3.
+
+Die historische Gegenmaßnahme war:
+
+`regulator-always-on`.
+
+Unabhängig davon zeigt die aktuelle kontrollierte H3-1R-Serie:
+
+- Baseline mit Abschaltung von `es8328-power`,
+- später untersuchte I2C3-Fehlersignatur,
+- Änderung ausschließlich der Regulator-Policy,
+- fünf von fünf erfolgreiche echte POR-Cold-Boots,
+- kein Auftreten der untersuchten `93/80`-/`arbitration lost`-Signatur.
+
+Historische Quelle und aktuelles Experiment stützen damit unabhängig
+voneinander dieselbe boardspezifische Gegenmaßnahme.
+
+
+### Aussagegrenze
+
+Die quellenübergreifende Übereinstimmung beweist nicht den konkreten
+elektrischen Mechanismus.
+
+Insbesondere ist weiterhin nicht bewiesen:
+
+- dass das historische Fehlerereignis exakt dem heutigen
+  `A=81/80 -> M0=93/80` entspricht,
+- dass M1, M2, M3 oder M4 der konkrete elektrische Mechanismus ist,
+- dass eine interne ES8328-Schutzdiode beteiligt ist,
+- dass tatsächlich Rückspeisung nach `AUD_P3.3V` stattfindet,
+- welcher Strom durch R26A oder R27A fließt,
+- welche Spannungsverläufe während des kritischen Zustands auftreten.
+
+Ohne elektrische Messungen lassen sich M1 bis M4 aus der derzeitigen
+Quellenlage nicht eindeutig voneinander trennen.
+
+
+### Kandidatenstatus nach Block 3.13E
+
+M1, Clamp-/Bus-Loading am unversorgten ES8328:
+
+Hohe Priorität, mit der bekannten Schaltungstopologie vereinbar,
+nicht bewiesen.
+
+M2, Rückspeisung des Audio-Power-Domains:
+
+Hohe Priorität, mit der bekannten Schaltungstopologie vereinbar,
+nicht bewiesen.
+
+M3, Pull-up-/Power-Domain-Wechselwirkung:
+
+Hohe Priorität und durch die getrennten Versorgungen besonders konkret,
+nicht bewiesen.
+
+M4, Abschalttransient:
+
+Weiterhin offen und nicht bewiesen.
+
+M5, primärer IT6251-Power-/Reset-/POR-Fehler:
+
+Als alleinige Primärursache gegenüber M1 bis M4 weniger naheliegend;
+als nachgelagerter Zustand weiterhin möglich.
+
+M6, primärer U-Boot-I2C3-Handoff-Fehler:
+
+Als alleinige Primärursache gegenüber der Audio-Regulator-Abhängigkeit
+weniger naheliegend; ein beitragender Ausgangszustand ist nicht vollständig
+ausgeschlossen.
+
+M7, interner i.MX6Q-Controller-/Clock-/Pinmux-Zustand:
+
+Nicht vollständig ausgeschlossen, aber niedriger priorisiert.
+
+M8, primäre Linux-6.18-START-/IAL-Regression:
+
+Durch die historische unabhängige ES8328-/I2C3-Beobachtung und H3-1R
+weiter geschwächt.
+
+M9, STMPE811:
+
+Für die untersuchte Fehlerklasse experimentell ausgeschlossen.
+
+M10, Single-Master-Hypothese:
+
+Für das untersuchte IAL-Ereignis experimentell ausgeschlossen.
+
+M11, altes beziehungsweise stehengebliebenes IAL-Bit:
+
+Durch Patch 0006 stark ausgeschlossen.
+
+M12, separates I2C0-`arbitration lost`:
+
+Bleibt ein eigenständiger offener Befund.
+
+
+### Entscheidung nach Block 3.13E
+
+Die dauerhafte Novena-Board-Konfiguration
+
+`es8328-power = regulator-always-on`
+
+bleibt bestehen.
+
+Es wird derzeit nicht:
+
+- zur Baseline-Regulator-Konfiguration zurückgekehrt,
+- ein zusätzlicher IT6251-Retry eingeführt,
+- eine zusätzliche Verzögerung als Ersatzfix eingebaut,
+- STMPE811 erneut isoliert,
+- die Single-Master-Hypothese erneut getestet,
+- Kernel-Patch `0007` begonnen.
+
+Die weitere Root-Cause-Arbeit darf sich auf die noch offene elektrische
+Mechanismusfrage konzentrieren.
+
+Da keine Hardwaremessungen durchgeführt werden, wird zunächst nur noch
+geprüft, ob vorhandene Originalunterlagen, Komponentenquellen oder
+historische Entwicklungsquellen M1 bis M4 weiter diskriminieren können.
+
+Falls daraus keine zusätzliche belastbare Evidenz entsteht, wird die
+Erkenntnisgrenze ausdrücklich akzeptiert:
+
+Die boardspezifische Gegenmaßnahme ist experimentell und historisch stark
+abgesichert; der genaue elektrische Mechanismus bleibt ohne Messung offen.
+
+
+### Dokumentationsartefakte
+
+Die vollständige Synthese von Block 3.13E befindet sich unter:
+
+`research/03-root-cause-synthesis/block-3.13e-quellenbasierte-eingrenzung.md`
+
+Der verifizierte historische Primärquellen-Auszug befindet sich unter:
+
+`research/02-historical-software/extracts/quellenuebergreifend/novena-next-linux-es8328-i2c3-wechselwirkung.txt`
+
+Die korrigierte elektrische Topologie befindet sich unter:
+
+`research/01-original-novena-docs/notes/pvt2-a-i2c3-topology.md`
