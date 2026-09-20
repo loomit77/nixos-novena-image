@@ -3752,3 +3752,205 @@ I2C0-Arbitration-Lost bleibt ein separates Thema.
 Vollständige Synthese:
 
 `research/03-root-cause-synthesis/block-3.14c-imx6-start-arbitration-semantik.md`
+
+
+## 2026-09-20 – Block 3.15W – Historische Root-Cause-Synthese ES8328/I2C3
+
+Nach der controllerseitigen Eingrenzung aus Block 3.14B/3.14C wurde
+die noch offene elektrische ES8328-/I2C3-Frage durch eine gezielte
+historische Quellenrecherche weiter untersucht.
+
+Ziel war insbesondere die Frage, ob die Mechanismuskandidaten M1 bis
+M4 ohne neue elektrische Messungen weiter unterschieden werden können.
+
+### Neu archivierte Kosagi-Primärquellen
+
+Zwei historische Kosagi-Wiki-Seiten wurden erneut direkt abgerufen und
+unverändert im Repository archiviert:
+
+- `Novena_EVT_to_DVT_changes.html`
+  - SHA-256:
+    `98626b8de199d68449c86225994802ed302ea03f7335153199bb12e5954bcb42`
+- `Novena_Issue_Log.html`
+  - SHA-256:
+    `02a2314f7b3548d625b75719815e9d05c5f04012cb5173702abb8a253920d6d4`
+
+Archivverzeichnis:
+
+`research/02-historical-software/sources/kosagi-hardware-history/`
+
+Die Abrufmetadaten und die Einordnung der Quellen sind dort in
+`README.md` dokumentiert.
+
+### Historischer EVT-Befund
+
+Der `Novena Issue Log` dokumentiert für den Audio-Power-off-Pulldown
+einen Ausgangszustand mit R21A = 100 Ohm.
+
+Dabei wurden ungefähr 10 mA über Leckpfade beobachtet, die zu ungefähr
+1 V auf der Audio-Versorgung führten.
+
+Als unmittelbare Änderung wurde R21A auf 10 Ohm reduziert. Der Eintrag
+vermerkt, dass diese Änderung zu diesem Zeitpunkt nur auf einem Board
+durchgeführt worden war.
+
+Diese 10-mA-/1-V-Werte sind historische EVT-Messwerte und wurden nicht
+auf dem aktuell untersuchten PVT2-Board nachgemessen.
+
+### Historischer EVT-zu-DVT-Befund
+
+Die Kosagi-Seite `Novena EVT to DVT changes` beschreibt unter ECO8
+die elektrische Ursache genauer.
+
+Dort wird dokumentiert, dass der Audiochip während des Power-down
+Leistung über den I2C-Bus zurückleckt und dass der Power-off-Pulldown
+verstärkt werden muss, um den Chip vollständig zurückzusetzen und
+gegen die I2C-Pull-ups anzukämpfen.
+
+Die dokumentierte Entwicklung von R21A lautet:
+
+- EVT-Ausgangszustand: 100 Ohm,
+- unmittelbarer Versuch auf EVT1A: 10 Ohm,
+- DVT-Spezifikation: 20 Ohm.
+
+Die Werte 100, 10 und 20 Ohm sind damit kein Widerspruch, sondern
+aufeinanderfolgende Entwicklungszustände.
+
+Die untersuchten PVT2-Boardquellen zeigen R21A ebenfalls mit 20 Ohm.
+
+### Verbindung zur PVT2-Topologie
+
+Die bereits untersuchten PVT2-Quellen zeigen weiterhin die für diese
+historische Beobachtung relevante Power-Domain-Grenze:
+
+- I2C3_SCL -> R26A 330 Ohm -> AUD_I2C3_SCL,
+- I2C3_SDA -> R27A 330 Ohm -> AUD_I2C3_SDA,
+- R10B/R11B mit jeweils 1 kOhm von P3.3V_DELAYED auf die
+  Audio-seitigen I2C-Leitungen,
+- separat schaltbares AUD_P3.3V,
+- Q11A als Audio-Power-Schalter,
+- Q12A/R21A als aktiver Power-off-Pulldown,
+- R21A = 20 Ohm.
+
+Damit blieb die historisch relevante elektrische Power-Domain-Grenze
+auch in PVT2 grundsätzlich vorhanden.
+
+### Verbindung zum Novena-next-Linux-Befund von 2020
+
+Der bereits verifizierte Commit
+
+`e48619edadbde342d79655e73654f0b21fc5e20b`
+
+aus `novena-next/linux` änderte `es8328-power` von
+`regulator-boot-on` auf `regulator-always-on`.
+
+Die historische Commit-Beschreibung dokumentiert unabhängig davon,
+dass das Abschalten dieser Versorgung I2C3 beeinträchtigte und unter
+anderem Bildschirm, EEPROM und Senoko störte.
+
+Damit ist belegt, dass die praktische ES8328-Power-/I2C3-Wechselwirkung
+auch nach den EVT-/DVT-Hardwareänderungen weiterhin softwareseitig
+relevant war.
+
+### Verbindung zum aktuellen H3-1R-Test
+
+Die historische Evidenz stimmt mit dem unabhängig durchgeführten
+aktuellen H3-1R-Test überein.
+
+H3-1R änderte gegenüber dem Baseline-DT ausschließlich die
+ES8328-Power-Policy durch `regulator-always-on`.
+
+Die vorregistrierte Serie ergab 5/5 erfolgreiche echte POR-Cold-Boots.
+
+In keinem dieser Läufe traten die vorherige automatische
+`es8328-power`-Abschaltung, das charakteristische unmittelbare
+`M0=93/80` oder der untersuchte I2C3-Arbitration-Lost-Fehler auf.
+
+Damit ist die ES8328-Power-Policy für den aktuellen Fehler kausal
+relevant.
+
+### Verbindung zu Block 3.14B/3.14C
+
+Block 3.14B lokalisierte die sichtbare Controllerreaktion auf das
+Fenster unmittelbar zwischen dem MSTA-Schreibzugriff und der ersten
+Post-MSTA-I2SR-Lesung M0.
+
+Cold-Fail:
+
+`A=81/80 -> M0=93/80`
+
+PASS:
+
+`A=81/80 -> M0=81/a0`
+
+Block 3.14C zeigte anschließend, dass IAL=1 zusammen mit einem wieder
+gelöschten MSTA mit dokumentiertem i.MX-Verhalten bei fehlgeschlagenem
+Master-Erwerb vereinbar ist.
+
+Die später sichtbare Linux-Reaktion `-EAGAIN` beziehungsweise `-11`
+bleibt Folge und nicht Ursprung dieses Hardwarezustands.
+
+### Fortschreibung von M1 bis M4
+
+Die früheren Blöcke behandelten M1 bis M4 mit dem damals verfügbaren
+Wissensstand korrekt als noch nicht ausreichend unterschiedene
+elektrische Mechanismuskandidaten.
+
+Die neu archivierten historischen Primärquellen erweitern diese
+Evidenzbasis.
+
+M1 – Clamp beziehungsweise Bus-Loading:
+
+- ein belastender elektrischer Effekt auf I2C wird stark gestützt;
+- ein konkreter interner Clamp- oder Schutzdiodenpfad im ES8328 ist
+  weiterhin nicht bestimmt.
+
+M2 – Backfeeding:
+
+- eine Rückspeisungs-/Leakage-Wechselwirkung über I2C ist für
+  historische Novena-Hardware direkt dokumentiert;
+- der konkrete interne Strompfad während unseres PVT2-Fehlers wurde
+  nicht direkt gemessen.
+
+M3 – Pull-up-/Power-Domain-Wechselwirkung:
+
+- ECO8 nennt die I2C-Pull-ups ausdrücklich als Gegenlast des
+  Power-off-Pulldowns;
+- die relevante getrennte Versorgungs-/Pull-up-Topologie ist auch in
+  PVT2 vorhanden.
+
+M4 – Power-down-Transient:
+
+- ein zusätzlicher transienter Effekt bleibt möglich;
+- er ist jedoch nicht erforderlich, um die funktionale Root Cause und
+  die notwendige Board-Konfiguration zu erklären.
+
+### Funktionaler Root-Cause-Abschluss
+
+Die unabhängigen historischen und aktuellen Befunde bilden zusammen
+eine konsistente Evidenzkette.
+
+Damit gilt die elektrische Wechselwirkung der abgeschalteten
+ES8328-Audio-Power-Domain mit I2C3 als funktionale Root Cause der
+untersuchten Kaltstartstörung.
+
+Nicht bestimmt sind weiterhin der exakte interne Leckstrompfad im
+ES8328 und der genaue analoge Spannungs- und Stromverlauf während des
+aktuellen PVT2-Cold-Fails.
+
+Diese mikroskopische Detailfrage ist für die funktionale
+Board-Konfiguration nicht erforderlich.
+
+**`es8328-power` bleibt dauerhaft mit `regulator-always-on`
+eingeschaltet.**
+
+Für den funktionalen Root-Cause-Abschluss sind keine weiteren
+POR-Wiederholungen, kein Patch 0007, kein weiteres PCB-/Via-Mapping
+und keine Anschaffung elektrischer Messgeräte erforderlich.
+
+Eine spätere analoge Messung wäre nur noch eine optionale
+Charakterisierung des mikroskopischen Mechanismus.
+
+Vollständige Synthese:
+
+`research/03-root-cause-synthesis/block-3.15w-es8328-i2c3-historische-root-cause.md`

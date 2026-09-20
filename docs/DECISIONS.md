@@ -103,3 +103,52 @@ durch diese Entscheidung nicht als bewiesen betrachtet.
 Für diese Board-Konfiguration wird kein zusätzlicher Kernel-Patch
 `0007` eingeführt. Die Lösung bleibt eine Device-Tree-Eigenschaft des
 bestehenden Audio-Power-Regulators.
+
+
+## 2026-09-20 – Funktionale ES8328/I2C3-Root-Cause-Untersuchung abgeschlossen
+
+Die am 15. September 2026 getroffene Entscheidung, `es8328-power`
+dauerhaft mit `regulator-always-on` zu konfigurieren, bleibt
+unverändert bestehen.
+
+Block 3.15W erweitert die Begründung dieser bestehenden Entscheidung
+durch wiederentdeckte historische Kosagi-Primärquellen.
+
+Der historische `Novena Issue Log` dokumentiert im EVT-Zustand mit
+R21A = 100 Ohm ungefähr 10 mA Leakage und ungefähr 1 V Restspannung
+auf der Audio-Versorgung.
+
+Die historische EVT-zu-DVT-Dokumentation ordnet die elektrische
+Wechselwirkung ausdrücklich einer Rückspeisung über I2C zu und nennt
+die I2C-Pull-ups als Gegenlast des Power-off-Pulldowns.
+
+R21A wurde im Entwicklungsverlauf von 100 Ohm über einen
+10-Ohm-EVT-Versuch auf 20 Ohm für DVT geändert. PVT2 verwendet
+ebenfalls 20 Ohm.
+
+Zusammen mit dem historischen Novena-next-Linux-Commit
+`e48619edadbde342d79655e73654f0b21fc5e20b`, der aktuellen
+H3-1R-Serie mit 5/5 erfolgreichen POR-Cold-Boots und der
+Controlleranalyse aus Block 3.14B/3.14C ist die elektrische
+Wechselwirkung der abgeschalteten ES8328-Audio-Power-Domain mit I2C3
+als funktionale Root Cause der untersuchten Kaltstartstörung
+ausreichend belegt.
+
+Nicht als bestimmt gelten weiterhin der exakte interne Leckstrompfad
+im ES8328 und der genaue analoge Spannungs- und Stromverlauf während
+des Fehlers auf dem aktuellen PVT2-Board.
+
+Diese Detailfragen sind für die funktionale Board-Konfiguration nicht
+erforderlich.
+
+Daher werden für den Abschluss dieser Root-Cause-Untersuchung keine
+weiteren elektrischen Messungen, kein Patch 0007 und keine bloßen
+Wiederholungen bereits abgeschlossener Boot- oder `single-master`-
+Tests verlangt.
+
+Eine spätere analoge Untersuchung bleibt als optionale
+Hardwarecharakterisierung möglich, ist aber kein offener Blocker.
+
+Vollständige Synthese:
+
+`research/03-root-cause-synthesis/block-3.15w-es8328-i2c3-historische-root-cause.md`

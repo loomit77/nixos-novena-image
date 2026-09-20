@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html class="client-nojs" lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<title>Novena Issue Log - Studio Kousagi Wiki</title>
+<script>document.documentElement.className = document.documentElement.className.replace( /(^|\s)client-nojs(\s|$)/, "$1client-js$2" );</script>
+<script>(window.RLQ=window.RLQ||[]).push(function(){mw.config.set({"wgCanonicalNamespace":"","wgCanonicalSpecialPageName":false,"wgNamespaceNumber":0,"wgPageName":"Novena_Issue_Log","wgTitle":"Novena Issue Log","wgCurRevisionId":826,"wgRevisionId":826,"wgArticleId":245,"wgIsArticle":true,"wgIsRedirect":false,"wgAction":"view","wgUserName":null,"wgUserGroups":["*"],"wgCategories":[],"wgBreakFrames":false,"wgPageContentLanguage":"en","wgPageContentModel":"wikitext","wgSeparatorTransformTable":["",""],"wgDigitTransformTable":["",""],"wgDefaultDateFormat":"dmy","wgMonthNames":["","January","February","March","April","May","June","July","August","September","October","November","December"],"wgMonthNamesShort":["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"wgRelevantPageName":"Novena_Issue_Log","wgRelevantArticleId":245,"wgRequestId":"afaFCbTrPPX795T4BVGEcQAABcY","wgIsProbablyEditable":false,"wgRelevantPageIsProbablyEditable":false,"wgRestrictionEdit":[],"wgRestrictionMove":[]});mw.loader.state({"site.styles":"ready","noscript":"ready","user.styles":"ready","user":"ready","site":"ready","user.options":"ready","user.tokens":"loading","mediawiki.legacy.shared":"ready","mediawiki.legacy.commonPrint":"ready","mediawiki.sectionAnchor":"ready","mediawiki.skinning.interface":"ready","skins.vector.styles":"ready"});mw.loader.implement("user.tokens@1l0nz12",function($,jQuery,require,module){/*@nomin*/mw.user.tokens.set({"editToken":"+\\","patrolToken":"+\\","watchToken":"+\\","csrfToken":"+\\"});
+});mw.loader.load(["mediawiki.page.startup","mediawiki.user","mediawiki.hidpi","mediawiki.page.ready","jquery.tablesorter","mediawiki.toc","mediawiki.searchSuggest","skins.vector.js"]);});</script>
+<link rel="stylesheet" href="load.php%3Fdebug=false&amp;lang=en&amp;modules=mediawiki.legacy.commonPrint,shared|mediawiki.sectionAnchor|mediawiki.skinning.interface|skins.vector.styles&amp;only=styles&amp;skin=vector.css"/>
+<script async="" src="load.php%3Fdebug=false&amp;lang=en&amp;modules=startup&amp;only=scripts&amp;skin=vector"></script>
+<meta name="ResourceLoaderDynamicStyles" content=""/>
+<meta name="generator" content="MediaWiki 1.31.0"/>
+<link rel="shortcut icon" href="../favicon.ico"/>
+<link rel="search" type="application/opensearchdescription+xml" href="opensearch_desc.php" title="Studio Kousagi Wiki (en)"/>
+<link rel="EditURI" type="application/rsd+xml" href="api.php%3Faction=rsd"/>
+<link rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"/>
+<link rel="alternate" type="application/atom+xml" title="Studio Kousagi Wiki Atom feed" href="./index.php%3Ftitle=Special:RecentChanges&amp;feed=atom"/>
+<!--[if lt IE 9]><script src="/w/load.php?debug=false&amp;lang=en&amp;modules=html5shiv&amp;only=scripts&amp;skin=vector&amp;sync=1"></script><![endif]-->
+</head>
+<body class="mediawiki ltr sitedir-ltr mw-hide-empty-elt ns-0 ns-subject page-Novena_Issue_Log rootpage-Novena_Issue_Log skin-vector action-view">		<div id="mw-page-base" class="noprint"></div>
+		<div id="mw-head-base" class="noprint"></div>
+		<div id="content" class="mw-body" role="main">
+			<a id="top"></a>
+			<div class="mw-indicators mw-body-content">
+</div>
+<h1 id="firstHeading" class="firstHeading" lang="en">Novena Issue Log</h1>			<div id="bodyContent" class="mw-body-content">
+				<div id="siteSub" class="noprint">From Studio Kousagi Wiki</div>				<div id="contentSub"></div>
+								<div id="jump-to-nav" class="mw-jump">
+					Jump to:					<a href="index.php%3Ftitle=Novena_Issue_Log.html#mw-head">navigation</a>, 					<a href="index.php%3Ftitle=Novena_Issue_Log.html#p-search">search</a>
+				</div>
+				<div id="mw-content-text" lang="en" dir="ltr" class="mw-content-ltr"><div class="mw-parser-output"><div id="toc" class="toc"><div class="toctitle" lang="en" dir="ltr"><h2>Contents</h2></div>
+<ul>
+<li class="toclevel-1 tocsection-1"><a href="index.php%3Ftitle=Novena_Issue_Log.html#Bringup_status_by_subsystem"><span class="tocnumber">1</span> <span class="toctext">Bringup status by subsystem</span></a></li>
+<li class="toclevel-1 tocsection-2"><a href="index.php%3Ftitle=Novena_Issue_Log.html#Power_consumption_notes"><span class="tocnumber">2</span> <span class="toctext">Power consumption notes</span></a></li>
+<li class="toclevel-1 tocsection-3"><a href="index.php%3Ftitle=Novena_Issue_Log.html#Known_issues"><span class="tocnumber">3</span> <span class="toctext">Known issues</span></a>
+<ul>
+<li class="toclevel-2 tocsection-4"><a href="index.php%3Ftitle=Novena_Issue_Log.html#Hardware"><span class="tocnumber">3.1</span> <span class="toctext">Hardware</span></a>
+<ul>
+<li class="toclevel-3 tocsection-5"><a href="index.php%3Ftitle=Novena_Issue_Log.html#Unknown_Issues"><span class="tocnumber">3.1.1</span> <span class="toctext">Unknown Issues</span></a></li>
+<li class="toclevel-3 tocsection-6"><a href="index.php%3Ftitle=Novena_Issue_Log.html#DDR3_Bringup"><span class="tocnumber">3.1.2</span> <span class="toctext">DDR3 Bringup</span></a></li>
+</ul>
+</li>
+<li class="toclevel-2 tocsection-7"><a href="index.php%3Ftitle=Novena_Issue_Log.html#ECO_list"><span class="tocnumber">3.2</span> <span class="toctext">ECO list</span></a></li>
+<li class="toclevel-2 tocsection-8"><a href="index.php%3Ftitle=Novena_Issue_Log.html#Software"><span class="tocnumber">3.3</span> <span class="toctext">Software</span></a>
+<ul>
+<li class="toclevel-3 tocsection-9"><a href="index.php%3Ftitle=Novena_Issue_Log.html#U-boot"><span class="tocnumber">3.3.1</span> <span class="toctext">U-boot</span></a></li>
+<li class="toclevel-3 tocsection-10"><a href="index.php%3Ftitle=Novena_Issue_Log.html#Linux"><span class="tocnumber">3.3.2</span> <span class="toctext">Linux</span></a></li>
+<li class="toclevel-3 tocsection-11"><a href="index.php%3Ftitle=Novena_Issue_Log.html#Gbit_Ethernet_Characterization"><span class="tocnumber">3.3.3</span> <span class="toctext">Gbit Ethernet Characterization</span></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toclevel-1 tocsection-12"><a href="index.php%3Ftitle=Novena_Issue_Log.html#Software_notes"><span class="tocnumber">4</span> <span class="toctext">Software notes</span></a>
+<ul>
+<li class="toclevel-2 tocsection-13"><a href="index.php%3Ftitle=Novena_Issue_Log.html#GPIO_management"><span class="tocnumber">4.1</span> <span class="toctext">GPIO management</span></a></li>
+<li class="toclevel-2 tocsection-14"><a href="index.php%3Ftitle=Novena_Issue_Log.html#Writing_to_SPI"><span class="tocnumber">4.2</span> <span class="toctext">Writing to SPI</span></a></li>
+<li class="toclevel-2 tocsection-15"><a href="index.php%3Ftitle=Novena_Issue_Log.html#FPGA"><span class="tocnumber">4.3</span> <span class="toctext">FPGA</span></a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+<h2><span class="mw-headline" id="Bringup_status_by_subsystem">Bringup status by subsystem</span></h2>
+<table class="wikitable sortable">
+<caption>Bringup status by subsystem
+</caption>
+<tbody><tr>
+<th scope="col">Subsystem
+</th>
+<th scope="col">basic status
+</th>
+<th scope="col">extended status
+</th>
+<td scope="col" class="unsortable">notes
+</td></tr>
+<tr>
+<td>Sleep/suspend</td>
+<td></td>
+<td></td>
+<td>Need CI testbench for sleep/suspend to verify extended status
+</td></tr>
+<tr>
+<td>PMIC base</td>
+<td>OK</td>
+<td></td>
+<td>voltages nominal, but on high side for CPU (1.35V) -- need PMIC DVFS driver to dial it back
+</td></tr>
+<tr>
+<td>PMIC advanced</td>
+<td></td>
+<td></td>
+<td>needs driver for further testing
+</td></tr>
+<tr>
+<td>RTC backup battery</td>
+<td></td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>RTC</td>
+<td>OK</td>
+<td>REV</td>
+<td>7-day run (619337 seconds to be precise) shows a drift of 52 seconds too fast = +84PPM stability referenced to Lenovo T61 RTC. New xtal being chosen for V2 due to obsoletion of current crystal, so will have to retest anyways. Run on SN007.
+</td></tr>
+<tr>
+<td>debug console</td>
+<td>OK</td>
+<td>OK</td>
+<td>
+</td></tr>
+<tr>
+<td>SDHC3 (microSD boot)</td>
+<td>OK</td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>SDHC3 power switch</td>
+<td>OK</td>
+<td></td>
+<td>works as-designed; no detail test of power-off since that kills the root partition, but the card does reset cleanly between reboots, which is the primary purpose of the switch.
+</td></tr>
+<tr>
+<td>DDR3 base</td>
+<td>OK</td>
+<td>OK</td>
+<td>functions at 1066 MT/s, 4 GB 1 and 2 rank configured, using <a rel="nofollow" class="external free" href="http://memtester.sourcearchive.com/documentation/4.0.8/files.html">http://memtester.sourcearchive.com/documentation/4.0.8/files.html</a> for testing in userspace
+</td></tr>
+<tr>
+<td>DDR3 extended</td>
+<td>OK</td>
+<td>OK</td>
+<td>tested with 1 and 2 rank DIMMs, 1-4 GB configurations. Boards repeatedly surviving 200-hour stress testing runs.
+</td></tr>
+<tr>
+<td>I2C1 (SMB)</td>
+<td>OK</td>
+<td></td>
+<td>can read out DDR3 I2C config using i2cdump
+</td></tr>
+<tr>
+<td>I2C2</td>
+<td>OK</td>
+<td></td>
+<td>can read out accelerometer, PMIC bits using i2cdump
+</td></tr>
+<tr>
+<td>I2C3</td>
+<td>OK</td>
+<td></td>
+<td>Can talk to audio codec
+</td></tr>
+<tr>
+<td>reset button</td>
+<td>OK</td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>USB hub 1</td>
+<td>OK</td>
+<td></td>
+<td>tested with thumb drive, needs performance testing
+</td></tr>
+<tr>
+<td>USB hub 2</td>
+<td>OK</td>
+<td></td>
+<td>ditto
+</td></tr>
+<tr>
+<td>USB ext1</td>
+<td>OK</td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>USB ext1 power switch</td>
+<td>OK</td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>USB ext2</td>
+<td>OK</td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>USB ext2 power switch</td>
+<td>OK</td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>ASIX ethernet</td>
+<td>OK</td>
+<td>OK</td>
+<td>96 Mbps measured. Note that MAC address must be generated and assigned (not fixed in hardware ROM)
+</td></tr>
+<tr>
+<td>Gbit ethernet</td>
+<td>OK</td>
+<td>OK</td>
+<td>Close to 400 Mbps performance achieved in optimized speed tests, with correct PHY tuning parameters. This is apparently close to the theoretical maximum limit per erratum <a rel="nofollow" class="external text" href="http://cache.freescale.com/files/32bit/doc/errata/IMX6DQCE.pdf?fsrch=1&amp;sr=5">ERR004512</a>.
+</td></tr>
+<tr>
+<td>SDHC2</td>
+<td>OK</td>
+<td></td>
+<td>CD and RO pins both work.  Can access card.  Haven't tested speeds yet.
+</td></tr>
+<tr>
+<td>utility EEPROM</td>
+<td>OK</td>
+<td></td>
+<td>use 16-bit mode for access. eeprom tools need some tweaking, just wrote a couple bytes and declared success.
+</td></tr>
+<tr>
+<td>audio base</td>
+<td>OK</td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>audio power switch</td>
+<td>OK</td>
+<td></td>
+<td>Connected to gpio145; requires ECO to strengthen "off" pulldown
+</td></tr>
+<tr>
+<td>speakers</td>
+<td>OK</td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>headphone</td>
+<td>OK</td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>analog mic in</td>
+<td>OK</td>
+<td></td>
+<td>requires DLRCK and ALRCK to be separated; see ECO notes below
+</td></tr>
+<tr>
+<td>digital mic</td>
+<td>N/A</td>
+<td></td>
+<td>dropping feature in favor of using headset mic. Active requests to isolate passive input devices from system for security/privacy concerns.
+</td></tr>
+<tr>
+<td>USB keyboard/mouse port</td>
+<td>N/A</td>
+<td></td>
+<td>not testing because "it should just work" -- other ports on hub are shown to work and this is a direct pin-out of wires going to low-speed or at best case full-speed devices (so no concerns about high speed signal integrity issues)
+</td></tr>
+<tr>
+<td>USB keyboard/mouse power switch</td>
+<td>OK</td>
+<td></td>
+<td>Both power switches work
+</td></tr>
+<tr>
+<td>USB high current (1.5A) charging</td>
+<td>OK</td>
+<td></td>
+<td>charges my note II just fine&#160;:)
+</td></tr>
+<tr>
+<td>USB OTG</td>
+<td>OK</td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>HDMI</td>
+<td>OK</td>
+<td></td>
+<td>Needs HPD to be inverted.
+</td></tr>
+<tr>
+<td>FPGA</td>
+<td>OK</td>
+<td></td>
+<td>Need to enable clock by running <i>devmem2 0x020c8160 w 0x00000920</i>, check values in PMU_REG_MISC1 under LVDS2_CLK_SEL
+</td></tr>
+<tr>
+<td>FPGA apoptosis option</td>
+<td></td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>on-board USB wifi</td>
+<td></td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>wifi power switch</td>
+<td>OK</td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>PCI-express</td>
+<td>OK</td>
+<td></td>
+<td>Tested Atheros wifi card.  Comes up on boot, can do long wifi transfers.
+</td></tr>
+<tr>
+<td>PCI-express power switch</td>
+<td>OK</td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>PCI-express embedded USB</td>
+<td></td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>USIM</td>
+<td>N/A</td>
+<td></td>
+<td>not validating, no target hardware to test against
+</td></tr>
+<tr>
+<td>USIM power switch</td>
+<td>N/A</td>
+<td></td>
+<td>not validating, no target hardware to test against
+</td></tr>
+<tr>
+<td>LCD port</td>
+<td>OK</td>
+<td></td>
+<td>via eDP to retina display
+</td></tr>
+<tr>
+<td>LCD port USB</td>
+<td></td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>LCD VCC power switch</td>
+<td>OK</td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>LCD backlight power switch</td>
+<td>OK</td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>touchscreen</td>
+<td>OK</td>
+<td></td>
+<td>coarse validation of I2C connectivity
+</td></tr>
+<tr>
+<td>user function button</td>
+<td>OK</td>
+<td></td>
+<td>Connected to IOMUXC_IOMUXC_SW_MUX_CTL_PAD_KEY_ROW4 (GPIO4[15]) and IOMUXC_IOMUXC_SW_MUX_CTL_PAD_KEY_COL4 (GPIO4[14]).  Set gpio110 to output a 1, and read gpio111 to get the button state.
+</td></tr>
+<tr>
+<td>uart 3</td>
+<td>OK</td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>uart 4</td>
+<td>OK</td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>accelerometer</td>
+<td>OK</td>
+<td></td>
+<td>i2cset -y 0 0x1d 0x16 0x01; i2cdump -y -r 6-8 0 0x1d . seems to accelerometate just fine.
+</td></tr>
+<tr>
+<td>SATA</td>
+<td>OK</td>
+<td></td>
+<td>hotswap works
+</td></tr>
+<tr>
+<td>SATA power switch</td>
+<td>OK</td>
+<td></td>
+<td>tied to gpio94
+</td></tr>
+<tr>
+<td>battery interface</td>
+<td></td>
+<td></td>
+<td>
+</td></tr>
+<tr>
+<td>boot option headers</td>
+<td>OK</td>
+<td></td>
+<td>Was able to load U-Boot from SDHC3, SDHC2, and SATA
+</td></tr>
+<tr>
+<td>JTAG</td>
+<td>N/A</td>
+<td></td>
+<td>not needed, not tested
+</td></tr>
+<tr>
+<td>FPGA SPI memory</td>
+<td>N/A</td>
+<td></td>
+<td>refactoring FPGA, likely to eliminate feature
+</td></tr>
+<tr>
+<td>FPGA SPINOR memory</td>
+<td>N/A</td>
+<td></td>
+<td>refactoring FPGA, probably keeping this feature but re-pinning out
+</td></tr>
+<tr>
+<td>FPGA ADC</td>
+<td>N/A</td>
+<td></td>
+<td>refactoring FPGA, likely to eliminate feature; redundant with touchscreen ADC gpio pins and external high-speed ADC  headers
+</td></tr>
+<tr>
+<td>Rapsberry Pi peripheral header</td>
+<td>N/A</td>
+<td></td>
+<td>dropping feature on rev 2
+</td></tr></tbody></table>
+<h2><span class="mw-headline" id="Power_consumption_notes">Power consumption notes</span></h2>
+<p>System at idle with no PM code running and 1GB standard RAM consumes 11.3V, 0.34A (measured at input regulator cap)
+</p>
+<h2><span class="mw-headline" id="Known_issues">Known issues</span></h2>
+<h3><span class="mw-headline" id="Hardware">Hardware</span></h3>
+<ul><li>Inrush current limiting for 3.3V_DELAYED turnon: R38N should be increased to 10k. C30N increased to 1uF. This causes the ramp time to be about 2-3ms. Ramp is fairly smooth, with a small glitch as it crosses about 2.3V.
+<ul><li>SN001 has 33k -- revised to 10k to match other boards</li>
+<li>SN004 has 10k (CPU did not boot at all with 47k)</li>
+<li>SN003 has 10k (PMIC does not respond to commands post-boot with 47k)</li>
+<li>SN002 has 10k, but has other problems preventing boot</li></ul></li></ul>
+<ul><li>Fix bug where reset button does not work due to FPGA pulling boot fuses to look at SATA instead of SD card. Resolution is to change HSWAPEN to high, which turns off FPGA pull-ups. ECO applied to all 5 boards.</li></ul>
+<ul><li>1Gbit PHY reset circuit (per Micrel datasheet) interferes with driver timing. The reset rises too slowly, driver checks MII status immediately and never retries dynamically (does a static read-out of MII data). Fix is to remove the local reset circuit. ECO applied to all 5 boards.</li></ul>
+<ul><li>PCIE_PWRON signal wasn't connected. Oops! In next rev, it will go to GPIO_16, pad R1. For now, it will be hard-wired to powered on. Fix done on all 5 boards.</li></ul>
+<ul><li>1Gbit PHY magnetics termination is incorrect. Remove R14G to improve performance to gigabit-speeds. This was a lucky shot in the dark, however, I don't actually understand what's going on with the center-tap termination, and what the trade-offs are. The link still needs to be deeply characterized for NEXT, FEXT, etc. to verify that it is optimally terminated.</li></ul>
+<ul><li>1Gbit refclock stability (sourced by the PHY chip) looks poor. Termination seems to be causing some signal amplitude degradation. Doesn't seem to have fundamental jitter, rather the waveform's shape is unstable which causes the crossing to shift as the waveform changes shape. This needs to be investigated further. Shorting across R21G improves signal integrity to the point where the link has both Tx and Rx stability on all 4 characterizeable boards; change done on all 5 boards.</li></ul>
+<ul><li>HDMI HPD sense is inverted. Need to add Q17L, R29L, and swap R28L/R27L to fix the issue. Done to four boards (Jacob's board is unavailable).</li></ul>
+<ul><li>Audio power-off pulldown is too small. Reduced from 100ohms to 10ohms. About 10mA (leading to 1V on power rail) is observed to flow from leakage paths through when 100 ohm resistor is used. Replace R21A with 10 ohm resistor. Done to only to one board (sean's board -- SN has rubbed off)</li></ul>
+<ul><li>Inrush current limit on 5.0V_DELAYED needs adjusting (similar to 3.3V_DELAYED). Too fast turn-on causes charge-sharing to deplete the filter capacitors and causes the regulator to believe a short circuit condition has happened. R29N increased to 10k, C27N increased to 1uF. Turn-on transient is about 2-3ms. Ramp is not monotonic. After voltage passes about 2V, a 'comb' appears in the transient for just under 2ms. This 'comb' is presumably due to slave regulators powering on and drawing current through the turn-on transient.</li></ul>
+<ul><li>Default reset timing from PMIC is insufficient to allow for the various turn-on ramps in the system. Therefore, an APX803 reset monitor must be added, watching the +5V line. This forces reset to be active for ~200ms past +5V stabilization. Tested with a threshold of 4.2V-4.38V; final trip point should be fine in range of 4.2V-4.5V.</li></ul>
+<ul><li>Power-down leakage on main power input rail is sufficiently small that a fault condition on the +5V regulator does not clear until several seconds have passed, and the voltage on the input rail has dropped below about 1V. Add a 2.2k resistor on the router version of the board in shunt with the input rail to bleed input caps in case of fault condition. For battery powered version, must add an actively switched pull-down transistor on the battery board to bleed the caps.</li></ul>
+<ul><li>ALRCK needs to be independent of DLRCK on the ES8328. Merging them together causes the clocks to fight. Cut pin 9 and jumper to LCD_BL_ON (as it is muxed with an audio clock pin). LCD_BL_ON needs to find a new home as a GPIO, i.e. CSI0_DAT14.</li></ul>
+<h4><span class="mw-headline" id="Unknown_Issues">Unknown Issues</span></h4>
+<p>Or, the journal of unreproducible artifacts.
+</p>
+<ul><li>C21N (22uF, 10V X5R 20%) on SN004 developed a spontaneous short-circuit. Device was in idle operation at the time of the incident, with no operator present to observe the failure instant. C21N showed signs of asymmetric internal delamination of internal dielectric layers; top surface was anisotropcially cracked. C21N internal impedance near zero (&lt; 0.02 ohms). NCP3020B did its job and went into self-protect mode, circuitry was not permanently damaged. C21N replaced with 10uF, 16V X5R capacitor and device has resumed normal operation. Working hypotheses for cause of crack are: (1) mechanical damage due to proximity to L10N, and vibration (either induced through handling or acoustic parasitic coupling of eddy currents) causing the capacitor to crack/delaminate; (2) thermal expansion mismatch of substrate vs capacitor causing stress to build up and crack the capacitor; (3) overstress of capacitor (excessive current, overshoot) causing failure of internal dielectric layers, possibly worsened through thermal internal stresses; (4) material defect in capacitor.</li></ul>
+<p><br />
+</p>
+<h4><span class="mw-headline" id="DDR3_Bringup">DDR3 Bringup</span></h4>
+<ul><li>See <a href="index.php%3Ftitle=Novena_ddr3_notes.html" title="Novena ddr3 notes">novena ddr3 notes</a> for ddr3 bringup notes.</li></ul>
+<h3><span class="mw-headline" id="ECO_list">ECO list</span></h3>
+<ul><li>R38N change to 10k, 1% 0402 (resolve inrush current limit issue)</li>
+<li>R12F to DNP, R13F to 4.7k, 1% 0402 (resolve boot fuse issue with FPGA pull-ups)</li>
+<li>remove C32G, D12G, R20G, D11G; short across D12G with wire jumper or 0805 resistor, 0 ohm (resolve gbit ethernet reset issue)</li>
+<li>remove R11X, tie gate of Q10X to P3.3V_DELAYED (off of pin 2 of Q11X) (resolve PCIE power on issue)</li>
+<li>remove R14G (possibly resolve magnetics termination issue)</li>
+<li>replace R21G with 0-ohm resistor or shunt (partially resolve Gbit refclock stability issue)</li>
+<li>move R28L to R27L (HDMI HPD swap)</li>
+<li>add Q17L (HDMI HPD swap)</li>
+<li>add R29L (HDMI HPD swap)</li>
+<li>change R21A from 100 ohms to 10 ohms</li>
+<li>C30N changed to 1uF</li>
+<li>R29N changed to 10k, 1%</li>
+<li>C27N changed to 1uF</li>
+<li>APX803-44SAG-7 added, monitoring the P5.0V line, and pulling down the RESETBMCU line.</li>
+<li>probably all instances of RC timing for power switches need to be improved (see 10k/1uF patch)</li>
+<li>add 2.2k resistor in shunt with input capacitor network (BATT_PWR to ground)</li>
+<li>Cut ALRCK trace to U11A, and jumper pin 9 of U11A to LCD_BL_ON</li>
+<li>Rewire LCD_BL_ON to a new GPIO on the i.MX6 (final GPIO TBD)</li>
+<li>Connect PICE_PWRON to i.MX6 (final GPIO TBD)</li></ul>
+<p>Summarized: <a href="index.php%3Ftitle=Novena_EVT_to_DVT_changes.html" title="Novena EVT to DVT changes">Novena EVT to DVT changes</a>
+</p>
+<h3><span class="mw-headline" id="Software">Software</span></h3>
+<h4><span class="mw-headline" id="U-boot">U-boot</span></h4>
+<ul><li>DDR3: need to come up with alternate poke files for different SO-DIMM types</li>
+<li>DDR3: need to figure out how to configure u-boot to recognize greater amounts of DRAM</li>
+<li>MMC: USDHC3 has to have the CD check return 1 at all times.</li></ul>
+<h4><span class="mw-headline" id="Linux">Linux</span></h4>
+<ul><li>MMC: device tree novena.dts descriptor edited to note that USDHC3 port is non-removable in order to enable boot</li>
+<li>Power: Driver for power currently assumes fixed regulators, an incorrect assumption. This needs to be changed to use the PFUZE PMIC. Currently, no drivers exist in the source tree (based off of the sabrelite). Recommend using Sabre board for smart devices as the base image instead of sabrelite - todo xobs</li>
+<li>USB/Power: PMIC does not turn on the USB VBUS by default, which causes internal root hub to fail. To fix this:
+<ul><li>add i2c2 to device tree (added to novena.dts)</li>
+<li>run this to set CPU voltage to 1.25V rather than 1.375V:</li></ul></li></ul>
+<pre>i2cset -y 1 0x08 0x20 38
+</pre>
+<ul><li><ul><li>run this command to turn on the boost regulator:</li></ul></li></ul>
+<pre>devmem2 0x20e03a0 w 0x1b848  # set i2c bus speeds to something sane
+devmem2 0x20e03a4 w 0x1b848 
+i2cset -y 1 0x08 0x66 0x48   # actually set the regulator using i2c
+</pre>
+<ul><li>once USB is on, I can verify/see USB drives in both USB ports. See this:</li></ul>
+<pre>root@novena:~# lsusb 
+Bus 002 Device 002: ID 05e3:0614 Genesys Logic, Inc. 
+Bus 002 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+Bus 002 Device 007: ID 0b95:772b ASIX Electronics Corp. 
+Bus 002 Device 004: ID 05e3:0614 Genesys Logic, Inc. 
+Bus 002 Device 006: ID 058f:6387 Alcor Micro Corp. Transcend JetFlash Flash Drive
+Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+</pre>
+<ul><li>ASIX driver module isn't built into current image. Need to figure out how to turn that on.
+<ul><li>Configuring ASIX:</li></ul></li></ul>
+<pre>ip link set dev eth1 down
+ip link set dev eth1 address de:ad:fe:ed:00:01
+ip link set dev eth1 up
+</pre>
+<h4><span class="mw-headline" id="Gbit_Ethernet_Characterization">Gbit Ethernet Characterization</span></h4>
+<ul><li>Performance results benchmarking 1000Gbit ethernet (run on SN004):</li></ul>
+<pre>bunnie@crashbox:/var/www/bunnie$ iperf -s
+------------------------------------------------------------
+Server listening on TCP port 5001
+TCP window size: 85.3 KByte (default)
+------------------------------------------------------------
+[  4] local 10.0.39.142 port 5001 connected with 10.0.39.241 port 55445
+------------------------------------------------------------
+Client connecting to 10.0.39.241, TCP port 5001
+TCP window size: 47.0 KByte (default)
+------------------------------------------------------------
+[  6] local 10.0.39.142 port 38307 connected with 10.0.39.241 port 5001
+[ ID] Interval       Transfer     Bandwidth
+[  6]  0.0-10.0 sec   280 MBytes   234 Mbits/sec
+[  4]  0.0-11.0 sec  6.01 MBytes  4.57 Mbits/sec
+[  5] local 10.0.39.142 port 5001 connected with 10.0.39.241 port 55446
+------------------------------------------------------------
+Client connecting to 10.0.39.241, TCP port 5001
+TCP window size: 47.0 KByte (default)
+------------------------------------------------------------
+[  6] local 10.0.39.142 port 38308 connected with 10.0.39.241 port 5001
+[  6]  0.0-10.0 sec   286 MBytes   239 Mbits/sec
+[  5]  0.0-10.1 sec  3.77 MBytes  3.12 Mbits/sec
+[  4] local 10.0.39.142 port 5001 connected with 10.0.39.241 port 55447
+------------------------------------------------------------
+Client connecting to 10.0.39.241, TCP port 5001
+TCP window size: 47.0 KByte (default)
+------------------------------------------------------------
+[  6] local 10.0.39.142 port 38309 connected with 10.0.39.241 port 5001
+[  6]  0.0-10.0 sec   286 MBytes   240 Mbits/sec
+[  4]  0.0-10.1 sec  3.48 MBytes  2.88 Mbits/sec
+[  5] local 10.0.39.142 port 5001 connected with 10.0.39.241 port 55448
+
+from running
+
+root@novena:~# iperf -c 10.0.39.142 -d
+
+three times over
+</pre>
+<p>Server is a Supermicro X9SCL with a Xeon E3-1230 CPU and 8GB ram, running off of an SSD using Ubuntu 12.04.1 LTS.
+</p><p>Both client and server are plugged into a TP-Link 5-port gigabit desktop switch, TL-SG1005D.
+</p><p>Not sure why the asymmetry in the result. Seems to be real, the upload speed from Novena is pretty slow. 
+</p><p>Note that the fastest speed I've ever seen on my network is about 240 Mbps, even between "big, mature" computers. Maybe it's the $20 switches that I buy.
+</p><p>Poor Tx performance is board-specific, indicating a hardware issue on Tx path. 
+</p><p>running on SN 001 gives
+</p>
+<pre>------------------------------------------------------------
+Client connecting to 10.0.239.142, TCP port 5001
+TCP window size: 20.7 KByte (default)
+------------------------------------------------------------
+[  5] local 10.0.239.241 port 54666 connected with 10.0.239.142 port 5001
+[  4] local 10.0.239.241 port 5001 connected with 10.0.239.142 port 38386
+[ ID] Interval       Transfer     Bandwidth
+[  4]  0.0-10.0 sec    230 MBytes    193 Mbits/sec
+[  5]  0.0-10.2 sec  55.3 MBytes  45.5 Mbits/sec
+</pre>
+<p>One possible culprit is the TX clock signal integrity (on the RGMII side) looks pretty bad. The Tx signal jitter is also correspondingly poor. This could be because of bad PLL stability inside the iMX6, or could be because of ground bounce, power supply unsteadiness, etc.
+</p><p>Note RGMII_REF_CLK also has likewise unstability. Odd. Measuring RGMII_REF_CLK causes bitrate of Tx side to drop dramatically. Seems like we have some correlation here.
+</p><p>Shorting out the termination on RGMII_REF_CLK vastly improves Tx performance:
+</p>
+<pre>------------------------------------------------------------
+Client connecting to 10.0.239.142, TCP port 5001
+TCP window size: 20.7 KByte (default)
+------------------------------------------------------------
+[  4] local 10.0.239.241 port 44027 connected with 10.0.239.142 port 5001
+[  5] local 10.0.239.241 port 5001 connected with 10.0.239.142 port 38477
+[ ID] Interval       Transfer     Bandwidth
+[  4]  0.0-10.0 sec    184 MBytes    154 Mbits/sec
+[  5]  0.0-10.0 sec    157 MBytes    131 Mbits/sec
+------------------------------------------------------------
+</pre>
+<p>However, the signal still shows some jitter. There are probably a couple of things going on inside the PHY that I'm not understanding, so it warrants further investigation with a high speed scope. As a stop-gap, it may be acceptable to short out the termination resistor R21G as it seems the drive strength of the KSZ9021RN isn't good enough to power through it. Currently, only SN001 has the fix.
+</p><p>SN003 with fix:
+</p>
+<pre>------------------------------------------------------------
+Client connecting to 10.0.239.142, TCP port 5001
+TCP window size: 45.5 KByte (default)
+------------------------------------------------------------
+[  5] local 10.0.239.241 port 50859 connected with 10.0.239.142 port 5001
+[  4] local 10.0.239.241 port 5001 connected with 10.0.239.142 port 38485
+[ ID] Interval       Transfer     Bandwidth
+[  5]  0.0-10.0 sec    180 MBytes    151 Mbits/sec
+[  4]  0.0-10.0 sec    160 MBytes    134 Mbits/sec
+</pre>
+<p>SN005 with fix:
+</p>
+<pre>Client connecting to 10.0.239.142, TCP port 5001
+TCP window size: 53.7 KByte (default)
+------------------------------------------------------------
+[  5] local 10.0.239.241 port 51507 connected with 10.0.239.142 port 5001
+[  4] local 10.0.239.241 port 5001 connected with 10.0.239.142 port 38488
+[ ID] Interval       Transfer     Bandwidth
+[  5]  0.0-10.0 sec    179 MBytes    150 Mbits/sec
+[  4]  0.0-10.0 sec    159 MBytes    133 Mbits/sec
+</pre>
+<p>SN004 with fix:
+</p>
+<pre>Client connecting to 10.0.239.142, TCP port 5001
+TCP window size: 53.7 KByte (default)
+------------------------------------------------------------
+[  5] local 10.0.239.241 port 57324 connected with 10.0.239.142 port 5001
+[  4] local 10.0.239.241 port 5001 connected with 10.0.239.142 port 38492
+[ ID] Interval       Transfer     Bandwidth
+[  5]  0.0-10.0 sec    176 MBytes    148 Mbits/sec
+[  4]  0.0-10.0 sec    161 MBytes    135 Mbits/sec
+</pre>
+<p>As a stop gap, it's ok, but the signal integrity of the refclk still looks like dogmeat.
+</p>
+<h2><span class="mw-headline" id="Software_notes">Software notes</span></h2>
+<h3><span class="mw-headline" id="GPIO_management">GPIO management</span></h3>
+<p>GPIO pins are exposed in /sys/class/gpio/.  To convert a pin from a flat GPIO referenced in the manual to a GPIO pin referenced in /sys/class/gpio/, use the following formula:
+</p>
+<pre>32*(bank-1)+pin
+</pre>
+<p>For example, the FPGA RESET pin is connected to GPIO5[7].  Using the formula above, we get 32*(5-1)+7 = gpio135.
+</p><p>To enable the pin for use, echo the pin number to /sys/class/gpio/export.  For example:
+</p>
+<pre>echo 135 &gt; /sys/class/gpio/export
+</pre>
+<p>A directory will appear with the pin name, in our case "gpio135".  To check the GPIO level, read the "value" file.  For example:
+</p>
+<pre>cat /sys/class/gpio/gpio135/value
+</pre>
+<p>To turn the GPIO into an output, set the "direction" to "out".  For example:
+</p>
+<pre>echo out &gt; /sys/class/gpio/gpio135/direction
+</pre>
+<p>Once a GPIO has been converted to an output, the "value" file becomes writeable.
+</p>
+<h3><span class="mw-headline" id="Writing_to_SPI">Writing to SPI</span></h3>
+<p>SPI attempts to fill the buffer with the entirety of your write().  By default, the size of writes exceeds the SPI buffer, causing no data to get written.  Use the "bs" argument to dd in order to get around this.  To send an FPGA firmware out the port, run a command similar to the following:
+</p>
+<pre>dd if=/home/root/novena_fpga.bit of=/dev/spidev32766.0 bs=128
+</pre>
+<h3><span class="mw-headline" id="FPGA">FPGA</span></h3>
+<p>A compact script to configure the FPGA and start the clock to the FPGA at CPU native crystal frequency (24 MHz):
+</p>
+<pre>echo "Setting export of reset pin"
+echo 135 &gt; /sys/class/gpio/export
+echo "setting reset pin to out"
+echo out &gt; /sys/class/gpio/gpio135/direction
+echo "flipping reset"                       
+echo 0 &gt; /sys/class/gpio/gpio135/value
+echo 1 &gt; /sys/class/gpio/gpio135/value
+                                      
+echo "configuring FPGA"               
+                                      
+dd if=/home/root/novena_fpga.bit of=/dev/spidev32766.0 bs=128
+                                                             
+echo "turning on clock to FPGA"                              
+devmem2 0x020c8160 w 0x00000D2B      
+</pre>
+<p>The FPGA is connected to the CPU via EIM. To configure EIM for use, some registers have to be poked. 
+</p><p>This command set below configures EIM for 16-bit synchronous.
+</p>
+<pre>devmem2 0x020c4080 w 0xfc3
+devmem2 0x021b8000 w 0x403104b1
+devmem2 0x021b8008 w 0x04000000
+devmem2 0x021b800c w 0x00000008
+devmem2 0x021b8010 w 0x04000000
+</pre>
+<p>This command set below configures EIM for 16-bit asynchronous.
+</p>
+<pre>devmem2 0x020c4080 w 0xfc3
+devmem2 0x021b8000 w 0x403104b1
+devmem2 0x021b8008 w 0x0b010000
+devmem2 0x021b800c w 0x00000008
+devmem2 0x021b8010 w 0x00040040
+</pre>
+<pre>devmem2 0x020c4080 w 0xfc3
+
+# EIM_CS0GCR1   0101 0 001 1 100 0 001 00 00 0 000 1 0 1 1 1 0 0 1 
+# 0101 0100 1100 0001 0000 0000 1011 1001 
+devmem2 0x21b8000 w 0x54c100b9
+# EIM_CS0GCR2   0000 0000 0000 0000 0001 00 0 0 0000 00 01
+# 0000 0000 0000 0000 0001 0000 0000 0001
+devmem2 0x21b8004 w 0x1001
+
+# EIM_CS0RCR1   00 000001 0 001 1 000 0 010 0 010 0 010 0 010
+# 0000 0001 0001 1000 0010 0010 0010 0010
+devmem2 0x21b8008 w 0x01182222
+# EIM_CS0RCR1   00 000100 0 010 0 000 0 000 0 000 0 000 0 000
+# 0000 0100 0010 0000 0000 0000 0000 0000
+devmem2 0x21b8008 w 0x04000000
+
+
+# EIM_CS0RCR2   0000 0000 0 000 00 01 0 001 0 001 
+# 0000 0000 0000 0001 0001 0001 
+devmem2 0x21b800c w 0x00000111
+
+# EIM_CS0WCR1   0100 0100 000 000 000 000 000 000 000 000
+devmem2 0x21b8010 w 0x44000000
+
+
+# EIM_WCR  0000 0000 0000 0000 0000 0 00 1 00 0 0 0 00 1
+# 0000 0000 0000 0000 0000 0001 0000 0001
+devmem2 0x21b8090 w 0x101
+
+# EIM_WIAR 0000 0000 0000 0000 0000 0000 000 1 0 0 0 0
+devmem2 0x21b8094 w 0x10
+</pre>
+<p>EIM CS0 starts at 0x08000000.
+</p><p><br />
+EIM DA0-15 pad configuration:
+</p>
+<pre>devmem2 0x020e0114 w 0x00000000
+devmem2 0x020e0428 w 0x0000b0b1
+devmem2 0x020e0118 w 0x00000000
+devmem2 0x020e042c w 0x0000b0b1
+devmem2 0x020e011c w 0x00000000
+devmem2 0x020e0430 w 0x0000b0b1
+devmem2 0x020e0120 w 0x00000000
+devmem2 0x020e0434 w 0x0000b0b1
+devmem2 0x020e0124 w 0x00000000
+devmem2 0x020e0438 w 0x0000b0b1
+devmem2 0x020e0128 w 0x00000000
+devmem2 0x020e043c w 0x0000b0b1
+devmem2 0x020e012c w 0x00000000
+devmem2 0x020e0440 w 0x0000b0b1
+devmem2 0x020e0130 w 0x00000000
+devmem2 0x020e0444 w 0x0000b0b1
+devmem2 0x020e0134 w 0x00000000
+devmem2 0x020e0448 w 0x0000b0b1
+devmem2 0x020e0138 w 0x00000000
+devmem2 0x020e044c w 0x0000b0b1
+devmem2 0x020e013c w 0x00000000
+devmem2 0x020e0450 w 0x0000b0b1
+devmem2 0x020e0140 w 0x00000000
+devmem2 0x020e0454 w 0x0000b0b1
+devmem2 0x020e0144 w 0x00000000
+devmem2 0x020e0458 w 0x0000b0b1
+devmem2 0x020e0148 w 0x00000000
+devmem2 0x020e045c w 0x0000b0b1
+devmem2 0x020e014c w 0x00000000
+devmem2 0x020e0460 w 0x0000b0b1
+devmem2 0x020e0150 w 0x00000000
+devmem2 0x020e0464 w 0x0000b0b1
+</pre>
+
+<!-- 
+NewPP limit report
+Cached time: 20260502231313
+Cache expiry: 0
+Dynamic content: true
+CPU time usage: 0.104 seconds
+Real time usage: 0.108 seconds
+Preprocessor visited node count: 145/1000000
+Preprocessor generated node count: 324/1000000
+Post‐expand include size: 0/2097152 bytes
+Template argument size: 0/2097152 bytes
+Highest expansion depth: 2/40
+Expensive parser function count: 0/100
+Unstrip recursion depth: 0/20
+Unstrip post‐expand size: 7814/5000000 bytes
+-->
+<!--
+Transclusion expansion time report (%,ms,calls,template)
+100.00%    0.000      1 -total
+-->
+</div></div>					<div class="printfooter">
+						Retrieved from "<a dir="ltr" href="index.php%3Ftitle=Novena_Issue_Log&amp;oldid=826.html">https://kosagi.com/w/index.php?title=Novena_Issue_Log&amp;oldid=826</a>"					</div>
+				<div id="catlinks" class="catlinks catlinks-allhidden" data-mw="interface"></div>				<div class="visualClear"></div>
+							</div>
+		</div>
+		<div id="mw-navigation">
+			<h2>Navigation menu</h2>
+			<div id="mw-head">
+									<div id="p-personal" role="navigation" class="" aria-labelledby="p-personal-label">
+						<h3 id="p-personal-label">Personal tools</h3>
+						<ul>
+							<li id="pt-login"><a href="./index.php%3Ftitle=Special:UserLogin&amp;returnto=Novena+Issue+Log.html" title="You are encouraged to log in; however, it is not mandatory [o]" accesskey="o">Log in</a></li><li id="pt-createaccount"><a href="./index.php%3Ftitle=Special:RequestAccount.html" title="You are encouraged to create an account and log in; however, it is not mandatory">Request account</a></li>						</ul>
+					</div>
+									<div id="left-navigation">
+										<div id="p-namespaces" role="navigation" class="vectorTabs" aria-labelledby="p-namespaces-label">
+						<h3 id="p-namespaces-label">Namespaces</h3>
+						<ul>
+							<li id="ca-nstab-main" class="selected"><span><a href="index.php%3Ftitle=Novena_Issue_Log.html" title="View the content page [c]" accesskey="c">Page</a></span></li><li id="ca-talk" class="new"><span><a href="https://kosagi.com/w/index.php?title=Talk:Novena_Issue_Log&amp;action=edit&amp;redlink=1" rel="discussion" title="Discussion about the content page (page does not exist) [t]" accesskey="t">Discussion</a></span></li>						</ul>
+					</div>
+										<div id="p-variants" role="navigation" class="vectorMenu emptyPortlet" aria-labelledby="p-variants-label">
+												<input type="checkbox" class="vectorMenuCheckbox" aria-labelledby="p-variants-label" />
+						<h3 id="p-variants-label">
+							<span>Variants</span>
+						</h3>
+						<div class="menu">
+							<ul>
+															</ul>
+						</div>
+					</div>
+									</div>
+				<div id="right-navigation">
+										<div id="p-views" role="navigation" class="vectorTabs" aria-labelledby="p-views-label">
+						<h3 id="p-views-label">Views</h3>
+						<ul>
+							<li id="ca-view" class="collapsible selected"><span><a href="index.php%3Ftitle=Novena_Issue_Log.html">Read</a></span></li><li id="ca-viewsource" class="collapsible"><span><a href="index.php%3Ftitle=Novena_Issue_Log&amp;action=edit.html" title="This page is protected.&#10;You can view its source [e]" accesskey="e">View source</a></span></li><li id="ca-history" class="collapsible"><span><a href="index.php%3Ftitle=Novena_Issue_Log&amp;action=history.html" title="Past revisions of this page [h]" accesskey="h">View history</a></span></li>						</ul>
+					</div>
+										<div id="p-cactions" role="navigation" class="vectorMenu emptyPortlet" aria-labelledby="p-cactions-label">
+						<input type="checkbox" class="vectorMenuCheckbox" aria-labelledby="p-cactions-label" />
+						<h3 id="p-cactions-label"><span>More</span></h3>
+						<div class="menu">
+							<ul>
+															</ul>
+						</div>
+					</div>
+										<div id="p-search" role="search">
+						<h3>
+							<label for="searchInput">Search</label>
+						</h3>
+						<form action="https://kosagi.com/w/index.php" id="searchform">
+							<div id="simpleSearch">
+								<input type="search" name="search" placeholder="Search Studio Kousagi Wiki" title="Search Studio Kousagi Wiki [f]" accesskey="f" id="searchInput"/><input type="hidden" value="Special:Search" name="title"/><input type="submit" name="fulltext" value="Search" title="Search the pages for this text" id="mw-searchButton" class="searchButton mw-fallbackSearchButton"/><input type="submit" name="go" value="Go" title="Go to a page with this exact name if it exists" id="searchButton" class="searchButton"/>							</div>
+						</form>
+					</div>
+									</div>
+			</div>
+			<div id="mw-panel">
+				<div id="p-logo" role="banner"><a class="mw-wiki-logo" href="../wiki.html"  title="Visit the main page"></a></div>
+						<div class="portal" role="navigation" id="p-navigation" aria-labelledby="p-navigation-label">
+			<h3 id="p-navigation-label">Navigation</h3>
+			<div class="body">
+								<ul>
+					<li id="n-mainpage-description"><a href="../wiki.html" title="Visit the main page [z]" accesskey="z">Main page</a></li><li id="n-recentchanges"><a href="https://kosagi.com/w/index.php?title=Special:RecentChanges" title="A list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li><li id="n-randompage"><a href="./index.php%3Ftitle=Special:Random.html" title="Load a random page [x]" accesskey="x">Random page</a></li><li id="n-help"><a href="https://www.mediawiki.org/wiki/Special:MyLanguage/Help:Contents" title="The place to find out">Help</a></li>				</ul>
+							</div>
+		</div>
+			<div class="portal" role="navigation" id="p-tb" aria-labelledby="p-tb-label">
+			<h3 id="p-tb-label">Tools</h3>
+			<div class="body">
+								<ul>
+					<li id="t-whatlinkshere"><a href="./index.php%3Ftitle=Special:WhatLinksHere%252FNovena_Issue_Log.html" title="A list of all wiki pages that link here [j]" accesskey="j">What links here</a></li><li id="t-recentchangeslinked"><a href="https://kosagi.com/w/index.php?title=Special:RecentChangesLinked/Novena_Issue_Log" rel="nofollow" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li><li id="t-specialpages"><a href="./index.php%3Ftitle=Special:SpecialPages.html" title="A list of all special pages [q]" accesskey="q">Special pages</a></li><li id="t-print"><a href="index.php%3Ftitle=Novena_Issue_Log&amp;printable=yes.html" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li><li id="t-permalink"><a href="index.php%3Ftitle=Novena_Issue_Log&amp;oldid=826.html" title="Permanent link to this revision of the page">Permanent link</a></li><li id="t-info"><a href="index.php%3Ftitle=Novena_Issue_Log&amp;action=info.html" title="More information about this page">Page information</a></li>				</ul>
+							</div>
+		</div>
+				</div>
+		</div>
+				<div id="footer" role="contentinfo">
+						<ul id="footer-info">
+								<li id="footer-info-lastmod"> This page was last edited on 12 July 2013, at 07:48.</li>
+								<li id="footer-info-copyright">Content is available under <a class="external" rel="nofollow" href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution Share Alike</a> unless otherwise noted.</li>
+							</ul>
+						<ul id="footer-places">
+								<li id="footer-places-privacy"><a href="https://kosagi.com/w/index.php?title=Studio_Kousagi_Wiki:Privacy_policy" title="Studio Kousagi Wiki:Privacy policy">Privacy policy</a></li>
+								<li id="footer-places-about"><a href="https://kosagi.com/w/index.php?title=Studio_Kousagi_Wiki:About" title="Studio Kousagi Wiki:About">About Studio Kousagi Wiki</a></li>
+								<li id="footer-places-disclaimer"><a href="https://kosagi.com/w/index.php?title=Studio_Kousagi_Wiki:General_disclaimer" title="Studio Kousagi Wiki:General disclaimer">Disclaimers</a></li>
+							</ul>
+										<ul id="footer-icons" class="noprint">
+										<li id="footer-copyrightico">
+						<a href="http://creativecommons.org/licenses/by-sa/3.0/"><img src="resources/assets/licenses/cc-by-sa.png" alt="Creative Commons Attribution Share Alike" width="88" height="31"/></a>					</li>
+										<li id="footer-poweredbyico">
+						<a href="https://www.mediawiki.org/"><img src="resources/assets/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" srcset="resources/assets/poweredby_mediawiki_132x47.png 1.5x, resources/assets/poweredby_mediawiki_176x62.png 2x" width="88" height="31"/></a>					</li>
+									</ul>
+						<div style="clear: both;"></div>
+		</div>
+		<script>(window.RLQ=window.RLQ||[]).push(function(){mw.config.set({"wgPageParseReport":{"limitreport":{"cputime":"0.104","walltime":"0.108","ppvisitednodes":{"value":145,"limit":1000000},"ppgeneratednodes":{"value":324,"limit":1000000},"postexpandincludesize":{"value":0,"limit":2097152},"templateargumentsize":{"value":0,"limit":2097152},"expansiondepth":{"value":2,"limit":40},"expensivefunctioncount":{"value":0,"limit":100},"unstrip-depth":{"value":0,"limit":20},"unstrip-size":{"value":7814,"limit":5000000},"timingprofile":["100.00%    0.000      1 -total"]},"cachereport":{"timestamp":"20260502231313","ttl":0,"transientcontent":true}}});});</script><script>(window.RLQ=window.RLQ||[]).push(function(){mw.config.set({"wgBackendResponseTime":461});});</script>
+	</body>
+</html>
