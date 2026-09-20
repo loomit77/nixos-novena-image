@@ -1180,3 +1180,84 @@ Die bestehende Board-Konfiguration mit dauerhaft aktiviertem
 Vollständige Synthese:
 
 `research/03-root-cause-synthesis/block-3.14b-controller-start-zustandsrekonstruktion.md`
+
+
+## 2026-09-20 – Block 3.14C: i.MX6-START- und Arbitration-Lost-Semantik
+
+Block 3.14C wurde als reine Quellen- und Zustandsanalyse durchgeführt.
+
+Es erfolgten kein neuer Kernel-Build, kein Novena-Bootversuch und kein
+neuer Diagnose-Patch.
+
+Ausgangspunkt war die in Block 3.14B eingegrenzte Cold-Fail-Sequenz:
+
+`A=81/80 -> M0=93/80`
+
+Die erneute Prüfung der Diagnose-Patches 0004 und 0006 bestätigt, dass
+zwischen dem MMIO-Schreibzugriff, der `I2CR_MSTA` setzt, und der ersten
+Post-MSTA-I2SR-Lesung M0 keine weitere Softwareoperation liegt.
+
+Eine zusätzliche Softwareprobe vor M0 ist damit nicht möglich.
+
+Der lokal archivierte historische Novena-U-Boot-Treiber
+`drivers/i2c/mxc_i2c.c` wurde anschließend auf seine START- und
+IAL-Behandlung untersucht.
+
+Sein START-Pfad folgt dem Schema:
+
+`Bus Idle abwarten -> MSTA setzen -> Bus Busy erwarten`
+
+Während des Wartens wird `I2SR_IAL` vor der erwarteten
+Buszustandsbedingung geprüft und ausdrücklich als `Arbitration lost`
+behandelt.
+
+Damit ist die Cold-Fail-Signatur mit einem fehlgeschlagenen Übergang
+des i.MX-I2C-Controllers in den Masterzustand vereinbar.
+
+Beim Cold-Fail ist bereits bei der ersten beobachtbaren
+Post-MSTA-Probe:
+
+- `IAL=1`,
+- `IBB=0`.
+
+Bei der unmittelbar folgenden I2CR-Lesung ist `MSTA=0`.
+
+Zwischen MSTA-Schreibzugriff und diesen Beobachtungen liegt kein
+Linux-Code, der `MSTA` löscht.
+
+Der spätere Übergang:
+
+`93/80 -> 83/80 -> ret=-11`
+
+bleibt vollständig als nachgelagerte Linux-Reaktion auf das bereits
+vorhandene IAL-Hardwarebit erklärt.
+
+Die vorhandene lokale Linux-Historie wurde außerdem gegen
+`ERR007805` abgeglichen.
+
+Dieses Erratum betrifft die SCL-Low-Zeit bei 400-kHz-Betrieb und
+erklärt weder den MSTA-zu-IAL-Übergang noch die
+`A=81/80 -> M0=93/80`-Signatur.
+
+Ein passendes bekanntes i.MX6DQ-Silicon-Erratum wurde nicht
+identifiziert.
+
+Nicht bewiesen sind weiterhin ein zweiter physischer I2C-Master oder
+der konkrete elektrische SDA-/SCL-Zustand im kritischen Fenster.
+
+Die elektrischen Mechanismen M1 bis M4 bleiben ohne Messung
+voneinander ununterschieden.
+
+Es wurde kein Patch 0007 erstellt.
+
+Es werden keine Retry-, Delay- oder Bus-Recovery-Maßnahmen aus diesem
+Befund abgeleitet.
+
+Die bestehende Boardentscheidung bleibt unverändert:
+
+**`es8328-power` bleibt dauerhaft mit `regulator-always-on`
+eingeschaltet.**
+
+Vollständige Synthese:
+
+`research/03-root-cause-synthesis/block-3.14c-imx6-start-arbitration-semantik.md`

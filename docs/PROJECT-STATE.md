@@ -3673,3 +3673,82 @@ Entwicklungsinstrumentierung.
 Vollständige Synthese:
 
 `research/03-root-cause-synthesis/block-3.14b-controller-start-zustandsrekonstruktion.md`
+
+
+## 2026-09-20 – Block 3.14C: i.MX6-START-/Arbitration-Lost-Semantik
+
+Block 3.14C erweitert die in Block 3.14B erreichte
+controllerseitige Eingrenzung durch eine quellenbasierte Untersuchung
+der START- und Arbitration-Lost-Semantik.
+
+Der unmittelbar beobachtete Cold-Fail bleibt:
+
+`A=81/80 -> M0=93/80`
+
+Die Prüfung der Instrumentierung bestätigt:
+
+Zwischen dem Schreiben von `I2CR_MSTA` und M0, der ersten danach
+ausgeführten I2SR-Lesung, liegt keine weitere Softwareoperation.
+
+Damit ist die softwareseitige zeitliche Auflösung dieses Fensters
+ausgeschöpft.
+
+Der historische lokal archivierte Novena-U-Boot-Treiber prüft vor
+einem START auf Bus Idle, setzt anschließend `I2CR_MSTA` und wartet
+danach auf `I2SR_IBB`.
+
+`I2SR_IAL` wird in diesem Wartepfad vorrangig als
+`Arbitration lost` behandelt.
+
+Die beobachtete Cold-Fail-Signatur ist damit mit einem
+fehlgeschlagenen Übergang des i.MX-I2C-Controllers in den
+Masterzustand vereinbar:
+
+`MSTA schreiben`
+
+`-> IAL bereits bei erster Post-MSTA-Probe gesetzt`
+
+`-> IBB nicht gesetzt`
+
+`-> MSTA bei unmittelbar folgender I2CR-Lesung nicht gesetzt`
+
+Der Linux-6.18.49-Treiber erzeugt den später sichtbaren
+`-EAGAIN`-/`-11`-Fehler erst nach diesem Hardwarezustand.
+
+Die Linux-Fehlerbehandlung bleibt damit Folge und nicht Ursprung des
+beobachteten START-Fehlers.
+
+Die vorhandene lokale Errata-/Treiberhistorie bestätigt außerdem, dass
+`ERR007805` die SCL-Low-Zeit bei hohen I2C-Busfrequenzen betrifft.
+
+Dieses Erratum erklärt die untersuchte
+`A=81/80 -> M0=93/80`-Signatur nicht.
+
+Ein passendes bekanntes i.MX6DQ-Silicon-Erratum wurde nicht
+identifiziert.
+
+Block 3.14C beweist weiterhin nicht:
+
+- einen tatsächlich konkurrierenden zweiten physischen I2C-Master,
+- einen bestimmten SDA-Pegel im kritischen Fenster,
+- einen bestimmten SCL-Pegel im kritischen Fenster,
+- den mikroskopischen elektrischen Mechanismus,
+- eine Unterscheidung zwischen M1, M2, M3 und M4.
+
+Die durch H3-1R nachgewiesene Abhängigkeit von der
+ES8328-/Audio-Power-Domain bleibt bestehen.
+
+**`es8328-power` bleibt dauerhaft mit `regulator-always-on`
+eingeschaltet.**
+
+Es wird kein Patch 0007 und kein Retry-, Delay- oder
+Bus-Recovery-Workaround aus Block 3.14C abgeleitet.
+
+Die Diagnose-Patches 0003 bis 0006 bleiben
+Entwicklungsinstrumentierung.
+
+I2C0-Arbitration-Lost bleibt ein separates Thema.
+
+Vollständige Synthese:
+
+`research/03-root-cause-synthesis/block-3.14c-imx6-start-arbitration-semantik.md`
