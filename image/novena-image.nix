@@ -60,7 +60,7 @@ let
         $out
     '';
 
-  rootfsImage = pkgs.callPackage "${pkgs.path}/nixos/lib/make-ext4-fs.nix" {
+  rootfsImage = pkgs.callPackage ./make-ext4-fs-reproducible.nix {
     storePaths = [
       config.system.build.toplevel
     ];
@@ -76,6 +76,7 @@ let
 
     volumeLabel = "NIXOS_SD";
     uuid = "44444444-4444-4444-8888-888888888888";
+    hashSeed = "44444444-4444-4444-8888-888888888888";
   };
 
   firmwareImage = pkgs.runCommand "novena-firmware.img"
