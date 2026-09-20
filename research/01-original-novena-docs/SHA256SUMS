@@ -23,8 +23,8 @@ bfd2dcc24ef85025c88447ebf3e8fee84dd51992f849fdd60973d9707939b263  ./extracts/pvt
 b1d20027d5fc8f7a04a874825c6012866613c32c693ce4137608e975e0166ffc  ./extracts/u-boot-novena-content.html
 71bb3d7aa9f5c13de3245f5c5137fbbb759b2148c6445ddcf35d55a3d589be65  ./extracts/u-boot-pvt-notes-content.html
 57828074598edacc92b570e8e4cbccd209e5e792f95b8d22b422b8e347255cbd  ./notes/edp-adapter-dvt1-i2c-power.md
-c8abfe870f74969b4990d139cb7d69046022b7ae72b8b703d3dfeaa16f2f215a  ./notes/novena-pvt2-source-metadata.md
-dee3d093f305918cd579b9e8fee78350aaf7aa810ff3052b018f779720ff652d  ./notes/pvt2-a-i2c3-topology.md
+4e8edb86125410904f7674dcf51524c2d8e88dc6be8faabd9990b251018f95d0  ./notes/novena-pvt2-source-metadata.md
+64d647ced6e6f9cc54073b7df61414b8ee0b26c20458c6264f6696fbb3bdc0d1  ./notes/pvt2-a-i2c3-topology.md
 40547909fb840d7e877fb6eec6004697297445951951620241520b92deb28fe6  ./notes/pvt2-eco-analysis.md
 c830e716a1fb9c7f76a1ed27420102025928b4652b3f162a71150687c007b1f1  ./notes/pvt-issue-log-analysis.md
 e42368fa07b0cd5b8dd864020fd4264ce380b0633a81349d661814d1a92e24b6  ./notes/u-boot-documentation-analysis.md
@@ -52,3 +52,7 @@ a7c2ee078a5e6428d8b12f6880b068e5fb4e5ae21ea79bb49ee1e3f0d42995d9  ./sources/amd-
 4afb6472018a9b3fa3bc1be906a0d15f86a17567d1dd7e930debfce3de362c9b  ./sources/amd-xilinx-ug380-spartan6-configuration.pdf
 7abac9a97d15f938c9b205410057da82d4df6d53c3efb2504d264122819bef7a  ./sources/amd-xilinx-ug381-spartan6-selectio.http-headers.txt
 4a0fc9078af54edc1104452fe5fa2bfaa82118b5501ba9fd000c1e1e2310821a  ./sources/amd-xilinx-ug381-spartan6-selectio.pdf
+66664c73456ddf5458b1576709374402ca83238d820d747ccc40a3010207a319  ./sources/gerbers-novena_pvt2_a.zip
+55f7e8eca210462bc260d81607ede6fb3dd2c7adc93b3e9926c25d2deea3ed26  ./sources/gerbers-novena_pvt2_a.zip.http-headers.txt
+a8322aaa3147044ae3dbaf229de44980b92d9ec920f20d50e140769281ff5b4c  ./sources/novena_pvt2.zip
+3ee8e92ced880324f6f2721846a6608b874dc40747e9367169f11191db4d296a  ./sources/novena_pvt2.zip.http-headers.txt
