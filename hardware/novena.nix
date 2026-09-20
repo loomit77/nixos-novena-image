@@ -43,26 +43,6 @@
       name = "novena-innolux-n133hse-ea1";
       patch = ../kernel/0002-drm-panel-add-innolux-n133hse-ea1.patch;
     }
-
-    {
-      name = "novena-i2c-imx-debug-arbitration-lost";
-      patch = ../kernel/0003-i2c-imx-debug-arbitration-lost.patch;
-    }
-
-    {
-      name = "novena-i2c-imx-debug-start-state";
-      patch = ../kernel/0004-i2c-imx-debug-start-state.patch;
-    }
-
-    {
-      name = "novena-i2c-imx-debug-start-error";
-      patch = ../kernel/0005-i2c-imx-debug-start-error.patch;
-    }
-
-    {
-      name = "novena-i2c-imx-debug-start-transition";
-      patch = ../kernel/0006-i2c-imx-debug-start-transition.patch;
-    }
   ];
 
   hardware.deviceTree.overlays = [
