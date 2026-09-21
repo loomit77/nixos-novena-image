@@ -152,3 +152,148 @@ Hardwarecharakterisierung möglich, ist aber kein offener Blocker.
 Vollständige Synthese:
 
 `research/03-root-cause-synthesis/block-3.15w-es8328-i2c3-historische-root-cause.md`
+
+## 2026-09-21 – V1 muss ohne vorhandenen internen Bootloader starten
+
+Für Version 1 wird „universell“ so definiert, dass das externe
+NixOS-SD-Image auf einer frisch beschriebenen geeigneten SD-Karte
+unabhängig vom bereits installierten Betriebssystem und dessen Boot-
+oder Root-Dateien starten können muss.
+
+Die während Phase 4 erfolgreich durchgeführten drei POR-Cold-Boots
+erfüllen diese Anforderung noch nicht vollständig.
+
+Bei allen drei Tests wurde seriell folgende tatsächliche Bootgrenze
+beobachtet:
+
+`ROM -> interne microSD -> SPL/U-Boot 2015 -> externe SD boot.scr -> externer Kernel/Initrd/DTB -> externes Root-Dateisystem`
+
+Die Tests bestätigen damit die Funktionsfähigkeit des externen
+NixOS-Systems innerhalb dieser Bootgrenze. Sie bestätigen jedoch nicht
+den bisher im externen Image eingebetteten U-Boot 2020.07 als
+eigenständigen externen Bootpfad.
+
+Die Abhängigkeit von einem bereits vorhandenen internen U-Boot wird
+deshalb nicht als endgültiger V1-Zustand akzeptiert.
+
+
+## 2026-09-21 – P_EXT und externe SD bilden den eigenständigen V1-Bootpfad
+
+Für den eigenständigen externen V1-Bootpfad wird der dafür vorgesehene
+Novena-Boot-Select `P_EXT` verwendet.
+
+Der Zielpfad lautet:
+
+`P_EXT -> i.MX6 ROM -> externe SD/USDHC2 -> SPL -> U-Boot proper -> boot.scr -> Kernel/Initrd/DTB -> externes Root-Dateisystem`
+
+Für diesen V1-Pfad muss der SPL deshalb die externe SD-Schnittstelle
+USDHC2 verwenden.
+
+U-Boot proper soll anschließend die externe SD als erstes MMC-Bootziel
+verwenden. In der bestehenden Novena-Gerätenummerierung ist dies
+`mmc1`.
+
+Ein automatischer Rückfall auf `mmc0` wird für diesen MMC-Bootpfad
+nicht hinzugefügt, weil dies die Abhängigkeit von der internen
+microSD wieder in den definierten V1-Pfad einführen würde.
+
+Generische USB-, SATA-, PXE- und DHCP-Bootziele dürfen als nachgeordnete
+U-Boot-Fallbacks bestehen bleiben. Sie stellen keine versteckte
+Abhängigkeit von der internen microSD dar.
+
+
+## 2026-09-21 – U-Boot v2026.07 mit drei Novena-Anpassungen ist die neue Bootloader-Basis
+
+Der historische, im bisherigen Image eingebettete U-Boot 2020.07 wird
+für den neuen eigenständigen externen Bootpfad nicht als aktive
+Bootloader-Basis weitergeführt.
+
+Als neue Basis wird der stabile Upstream-Stand U-Boot `v2026.07`
+verwendet.
+
+Exakter Upstream-Commit:
+
+`ece349ade2973e220f524ce59e59711cc919263f`
+
+Darauf werden genau drei funktionale Novena-Anpassungen angewendet:
+
+1. U1 stellt den SPL für den externen V1-Pfad von USDHC3 auf USDHC2 um.
+2. U2 stellt das erste MMC-Bootziel von `mmc0` auf `mmc1` um und entfernt
+   die historischen lokalen MMC0-Linux- und SD-Update-Vorgaben aus der
+   Novena-Default-Umgebung.
+3. U3 entfernt das persistente MMC-Environment. Der Bootloader verwendet
+   stattdessen das nichtpersistente Default-Environment.
+
+Die ursprünglichen Implementierungscommits sind:
+
+* U1: `69c43c2cdae6196bdd3d77b4f2c8de8a908193ae`
+* U2: `a742f5f1b60d28eea887188a4c39b140eebe0968`
+* U3: `f8baca04e22de46111af34159afd54830b3e328a`
+
+Die drei Änderungen werden im Hauptprojekt als Patchserie unter
+`boot/u-boot/` versioniert.
+
+Die historischen Dateien unter `boot/reference/` bleiben weiterhin im
+Repository erhalten. Sie dienen der Provenienz und dem Vergleich, sind
+aber nach abgeschlossener Image-Integration nicht mehr als aktive
+Quelle des neuen Bootloader-Pfads vorgesehen.
+
+Der qualifizierte U-Boot-Komponentencheckpoint im Hauptprojekt ist:
+
+`8cd6d449284f20c29b549e837caad61762abf73b`
+
+Zum Zeitpunkt dieser Entscheidung ist dieser neue U-Boot noch nicht in
+`image/novena-image.nix` aktiviert und noch nicht per `P_EXT` auf realer
+Novena-Hardware getestet.
+
+
+## 2026-09-21 – Normaler pkgs.buildUBoot-Build ist der produktive U-Boot-Buildvertrag
+
+Der neue U-Boot wird im Projekt mit dem gepinnten Nixpkgs-
+`pkgs.buildUBoot`-Baustein gebaut.
+
+Quelle, Upstream-Commit, Patchserie, Source-Hash, Versionsidentität und
+`SOURCE_DATE_EPOCH` werden deterministisch festgelegt.
+
+Die feste Versionsidentität lautet:
+
+`2026.07-00003-gf8baca04e22d`
+
+Der verwendete `SOURCE_DATE_EPOCH` ist:
+
+`1789984363`
+
+Der normale `pkgs.buildUBoot`-Baustein setzt für U-Boot
+`hardeningDisable = [ "all" ]`. Dieser normale Nix-Buildvertrag wird
+für den produktiven Projektpfad beibehalten.
+
+Es wird kein zusätzliches Wrapper-Hardening erzwungen, nur um frühere
+manuell erzeugte Binärdateien byte-identisch nachzubilden.
+
+Begründung:
+
+Die zunächst beobachteten Größen- und Hash-Unterschiede zwischen den
+manuellen Builds und dem normalen `pkgs.buildUBoot`-Build wurden in
+einem kontrollierten A/B-Versuch vollständig auf den Hardening-Zustand
+des Nix-GCC-Wrappers zurückgeführt.
+
+Mit wieder aktiviertem Wrapper-Hardening reproduzierte der kontrollierte
+Nix-Build die früheren manuellen Artefakte byte-identisch. Damit war
+nachgewiesen, dass die Abweichung nicht durch fehlende Quellobjekte,
+eine andere U-Boot-Konfiguration, andere Linkbefehle oder eine
+unvollständige Cross-Kompilierung verursacht wurde.
+
+Der normale produktive `pkgs.buildUBoot`-Build wurde anschließend mit
+`nix-store --realise --check` erneut gebaut und reproduzierte seine
+Artefakte byte-identisch.
+
+Die qualifizierten produktiven Artefakte dieses Buildvertrags sind:
+
+* `SPL`: 52224 Byte,
+  SHA-256 `c79b6efadee73f461b564f0cfc3e11a4123dc5c61c1e6d6b7d229c0880bdbcf0`
+* `u-boot-dtb.img`: 602120 Byte,
+  SHA-256 `c5a2d0e7f2b9ebeae6387eee98630a43944f2cd2b52fc8a5a98a2e82ba55f9f7`
+
+Diese Entscheidung betrifft den Buildvertrag des U-Boot-Bausteins.
+Die reale Bootfähigkeit über `P_EXT` wird davon getrennt erst durch den
+späteren Hardwaretest nach vollständiger Image-Integration bestätigt.
