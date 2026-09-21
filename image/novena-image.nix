@@ -15,8 +15,9 @@ let
 
   initrd = "${config.system.build.initialRamdisk}/initrd";
 
-  referenceSpl = ../boot/reference/novena-imx6-spl.bin;
-  referenceUboot = ../boot/reference/u-boot-dtb.img;
+  novenaUboot = import ../boot/u-boot { inherit pkgs; };
+  novenaSpl = "${novenaUboot}/SPL";
+  novenaUbootImage = "${novenaUboot}/u-boot-dtb.img";
 
   bootCmd = pkgs.writeText "boot.cmd" ''
     setenv bootargs 'systemConfig=${system} init=${system}/init loglevel=7 console=ttymxc1,115200 console=tty0'
@@ -95,7 +96,7 @@ let
         -i 2178694E \
         $out
 
-      mcopy -i $out ${referenceUboot} ::u-boot-dtb.img
+      mcopy -i $out ${novenaUbootImage} ::u-boot-dtb.img
       mcopy -i $out ${zImage} ::zImage
       mcopy -i $out ${initrdUimg} ::initrd.uimg
       mcopy -i $out ${novenaDtb} ::novena.dtb
@@ -147,7 +148,7 @@ EOF
 
       # Raw Novena i.MX6 IVT/SPL at byte offset 0x400 = 1024.
       dd \
-        if=${referenceSpl} \
+        if=${novenaSpl} \
         of=$out \
         bs=1 \
         seek=1024 \
