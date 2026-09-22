@@ -1,0 +1,20 @@
+--- builtins/Makefile.in
++++ builtins/Makefile.in
+@@ -247,13 +247,18 @@
+ 
+ ulimit.o: pipesize.h
+ 
++ifdef NIX_CROSS_PIPESIZE
++pipesize.h:
++	printf "%s\n" "#define PIPESIZE $(NIX_CROSS_PIPESIZE)" > $@
++else
+ pipesize.h:	psize.aux
+ 	$(SHELL) $(srcdir)/psize.sh > $@
+ 
+ # Technically this is wrong; the pipe size should be for the target system,
+ # not the build host.
+ psize.aux:	psize.c
+ 	$(CC_FOR_BUILD) $(CCFLAGS_FOR_BUILD) ${LDFLAGS_FOR_BUILD} -o $@ $(srcdir)/psize.c
++endif
+ 
+ documentation: builtins.texi
