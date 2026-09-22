@@ -1,43 +1,173 @@
 # Project State
 
-Stand: 2026-09-21
+Stand: 2026-09-22
 
-## Aktueller Projektcheckpoint – Phase 4
+## Aktueller Projektcheckpoint – Phase 4.7
 
 Die funktionale ES8328/I2C3-Root-Cause-Untersuchung ist abgeschlossen.
 `es8328-power` mit `regulator-always-on` ist eine dauerhafte
-Novena-Board-Anforderung. Die Diagnosepatches des I2C-Controllers gehören
-nicht mehr zum produktiven Kernelstand.
+Novena-Board-Anforderung.
 
 Der abgeschlossene Root-Cause-Checkpoint ist:
 
 `064078baebe023976cbd48e51e433f7df86252cc`
 
-Danach wurde das Projekt auf die Fertigstellung eines universellen und
-reproduzierbaren externen NixOS-SD-Images zurückgeführt.
+Die temporären I2C-Diagnosepatches gehören nicht mehr zum produktiven
+Kernelstand.
 
-### Produktiver Image-Stand vor der Bootloader-Integration
+Der aktuelle Schwerpunkt ist das universelle und reproduzierbare
+externe NixOS-SD-Image.
 
-Die produktive Kernelkonfiguration enthält nur noch die für den Betrieb
-benötigten Novena-Anpassungen. Die temporären I2C-Diagnosepatches wurden aus
-dem Produktionspfad entfernt.
+### Produktiver Kernel- und Boardstand
 
-Der zugehörige Cleanup-Checkpoint ist:
+Der produktive Kernel ist Linux `6.18.49`.
+
+Die produktive Kernel-Patchserie enthält nur:
+
+1. `kernel/0001-drm-bridge-it6251.patch`
+2. `kernel/0002-drm-panel-add-innolux-n133hse-ea1.patch`
+
+Der produktive Device Tree enthält dauerhaft die für Novena notwendige
+ES8328-Versorgungsentscheidung:
+
+`regulator-always-on`
+
+Der Cleanup-Checkpoint nach Entfernung der Diagnoseinstrumentierung ist:
 
 `05a3052bebb297a61d37557abd976aec978017d5`
 
-Die Reproduzierbarkeit des ext4-Dateisystems wurde anschließend durch einen
-projektlokalen reproduzierbaren ext4-Erzeugungsschritt korrigiert. Insbesondere
-wird der ext4-`hash_seed` deterministisch aus der fest vorgegebenen UUID
-abgeleitet.
-
-Der reproduzierbare Image-Checkpoint ist:
+Die deterministische ext4-Erzeugung wurde im Checkpoint
 
 `80b73a776a960868f445dd164816f88e41384465`
 
-Das daraus erzeugte Produktionsimage ist:
+eingeführt.
 
-`/nix/store/hb2s0idzllgb22fnqgcrln6g89kfxk4y-nixos-novena-sd-image.img`
+### Hardwarestand vor der neuen Bootloader-Integration
+
+Mit dem damaligen reproduzierbaren Produktionsimage wurden drei
+vorregistrierte POR-Cold-Boots erfolgreich durchgeführt.
+
+Dabei funktionierten:
+
+* externes Root-Dateisystem;
+* CPU und RAM;
+* serielle Konsole;
+* internes Display mit IT6251;
+* I2C3 und ES8328;
+* Ethernet;
+* USB-Host.
+
+Die tatsächlich beobachtete Bootkette war jedoch:
+
+`ROM -> interne microSD -> SPL/U-Boot 2015 -> externe SD boot.scr -> externer Kernel/Initrd/DTB -> externes Root-Dateisystem`
+
+Diese Tests qualifizierten deshalb das externe NixOS-System, aber noch
+nicht einen eigenständigen Boot der externen SD ab dem i.MX6-ROM.
+
+### Definition von „universell“ für Version 1
+
+Version 1 soll auf einer frisch beschriebenen geeigneten externen
+SD-Karte unabhängig von einem bereits installierten Betriebssystem und
+dessen Boot- oder Root-Dateien starten.
+
+Der vorgesehene eigenständige Pfad ist:
+
+`P_EXT -> i.MX6 ROM -> externe SD/USDHC2 -> SPL -> U-Boot proper -> boot.scr -> Kernel/Initrd/DTB -> externes Root-Dateisystem`
+
+Eine Abhängigkeit vom vorhandenen internen U-Boot wird für diesen
+V1-Pfad nicht akzeptiert.
+
+### Projektlokaler U-Boot v2026.07
+
+Als neue Bootloader-Basis wird U-Boot `v2026.07` verwendet.
+
+Upstream-Commit:
+
+`ece349ade2973e220f524ce59e59711cc919263f`
+
+Darauf liegen drei Novena-spezifische Änderungen:
+
+1. U1 stellt den SPL für den externen V1-Pfad von USDHC3 auf USDHC2 um.
+2. U2 verwendet `mmc1` als erstes MMC-Bootziel und entfernt die
+   historischen lokalen MMC0-Linux- und Update-Vorgaben.
+3. U3 entfernt das persistente MMC-Environment und verwendet das
+   nichtpersistente Default-Environment.
+
+Die ursprünglichen Implementierungscommits sind:
+
+* U1: `69c43c2cdae6196bdd3d77b4f2c8de8a908193ae`
+* U2: `a742f5f1b60d28eea887188a4c39b140eebe0968`
+* U3: `f8baca04e22de46111af34159afd54830b3e328a`
+
+Der normale `pkgs.buildUBoot`-Build ist der produktive Buildvertrag.
+
+Qualifizierte Artefakte:
+
+* `SPL`: `52224` Byte,
+  SHA-256 `c79b6efadee73f461b564f0cfc3e11a4123dc5c61c1e6d6b7d229c0880bdbcf0`
+* `u-boot-dtb.img`: `602120` Byte,
+  SHA-256 `c5a2d0e7f2b9ebeae6387eee98630a43944f2cd2b52fc8a5a98a2e82ba55f9f7`
+
+Der U-Boot-Komponentencheckpoint ist:
+
+`8cd6d449284f20c29b549e837caad61762abf73b`
+
+Die Integration des projektlokalen U-Boot in das vollständige
+SD-Image erfolgte mit Commit:
+
+`49af2531f16f6f5602cb24c93aa9e5a13149ce32`
+
+Damit verwendet `image/novena-image.nix` nicht mehr die historischen
+SPL-/U-Boot-Referenzblobs als aktive Bootloaderquelle.
+
+### Clean-Store-Abweichung und Bash-Root-Cause
+
+Nach der U-Boot-Integration wurde das vollständige Image in einem
+isolierten Nix-Store neu gebaut.
+
+Dabei zeigte sich eine echte Byteabweichung zum Normal-Store-Build,
+obwohl Derivation und logischer Nix-Store-Ausgabepfad identisch waren.
+
+Die Abweichung wurde bis auf Bash eingegrenzt.
+
+Bash erzeugte beim Cross-Build `builtins/pipesize.h` anhand der
+dynamischen Pipe-Kapazität des Build-Hosts. Dadurch gelangten je nach
+Hostzustand unterschiedliche Werte in das ARM-Binary.
+
+Beobachtet wurden:
+
+* `65536`
+* `8192`
+
+Der zugrunde liegende Linux-Pipe-Mechanismus wurde kontrolliert
+reproduziert.
+
+Für den Novena-Cross-Build wird deshalb projektlokal deterministisch:
+
+`NIX_CROSS_PIPESIZE=4096`
+
+gesetzt.
+
+Der Fix gilt für beide benötigten Bash-Varianten und ausschließlich für
+Cross-Builds. Native Bash-Builds bleiben unverändert.
+
+Die finalen ARM-Binaries wurden direkt disassembliert und enthalten im
+relevanten Code den Wert `4096`. Die hostseitige
+`psize.aux`-/`psize.sh`-Messung wird dabei nicht mehr ausgeführt.
+
+Der Fix ist im Commit:
+
+`d06de5e30f294144d0be66cc7903fedb1ed6fe0a`
+
+versioniert.
+
+Dieser Commit ist auf Codeberg und GitHub synchronisiert.
+
+### Aktuelles qualifiziertes Image
+
+Das aktuelle Normal-Store-Image ist:
+
+`/nix/store/gxbxadqv2lpkx5k4b4pz08s9jw185q12-nixos-novena-sd-image.img`
 
 Größe:
 
@@ -45,158 +175,92 @@ Größe:
 
 SHA-256:
 
-`fac73d584ac5f7e48916a53981bc1051231c583ae89833dae0bee0dc4807c2a4`
+`8a2b8ac8681a78f9697b4a68582e6afcb1e0164e60a44286b7576d81242226dc`
 
-Zwei unabhängige Realisierungen dieses Images waren byte-identisch. Das Image
-bestand außerdem die statische Image-Prüfung und wurde auf eine frisch
-beschriebene externe SD-Karte übertragen; der Readback entsprach exakt dem
-gebauten Image.
+Die statische Qualifikation bestätigte:
 
-Der historische `result`-Symlink bleibt bewusst unverändert und zeigt weiterhin
-auf den früheren Golden Build:
+* DOS/MBR-Disk-ID `0x2178694e`;
+* Partition 1 ab Sektor `16384`;
+* Partition 2 ab Sektor `278528`;
+* SPL ab Byte-Offset `1024`;
+* exakten projektlokalen SPL-Hash;
+* exakten projektlokalen `u-boot-dtb.img`-Hash;
+* Kernel, Initrd, DTB und Bootskript in der FAT-Partition;
+* explizite Ladevorgänge von `mmc 1:1`.
+
+Der historische `result`-Symlink bleibt unverändert auf:
 
 `/nix/store/sz31gh0cxpm9yksi89vc990k4nid7k4y-nixos-novena-sd-image.img`
 
-### Tatsächlich getestete Bootkette
+SHA-256:
 
-Mit dem reproduzierbaren Produktionsimage wurden drei vorregistrierte
-POR-Cold-Boots erfolgreich durchgeführt.
+`5e65bfa6b7c599bdf507c2f1957c99136255e74eff01dec0dfb0bf8fb31ab94b`
 
-Alle drei Starts erreichten exakt den erwarteten NixOS-Systemabschluss:
+### G2X – Same-Host-/Separate-Store-Reproduzierbarkeit
 
-`/nix/store/5j66p871j1z2ldgyyzz2b020l80g2npg-nixos-system-novena-26.05.20260903.a5cc6f2`
+Aus exakt Commit
 
-Dabei funktionierten insbesondere:
+`d06de5e30f294144d0be66cc7903fedb1ed6fe0a`
 
-* Root-Dateisystem von der externen SD-Karte
-* CPU und RAM
-* serielle Konsole
-* internes Display mit IT6251
-* I2C3 und ES8328
-* Ethernet
-* USB-Host
+und Tree
 
-Die Tests zeigten jedoch zugleich eine wichtige Grenze: Der i.MX6-ROM-Code
-startete bei diesen Versuchen nicht den im externen Image enthaltenen
-U-Boot-2020.07-Bootloader. Stattdessen wurde zunächst der bereits vorhandene
-Bootloader von der internen microSD verwendet.
+`4fb8a30d07273d2eb288f6aed49423ea30eb12a1`
 
-Die tatsächlich beobachtete Kette war:
+wurde ein vollständiger Neubau in einem neu angelegten isolierten
+Nix-Store durchgeführt.
 
-`ROM -> interne microSD -> SPL/U-Boot 2015 -> externe SD boot.scr -> externer Kernel/Initrd/DTB -> externes Root-Dateisystem`
+Das Clean-Store-Image besitzt exakt:
 
-Damit sind die drei POR-Tests gültige Funktionstests des externen
-NixOS-Systems innerhalb dieser Bootgrenze. Sie sind jedoch kein Nachweis dafür,
-dass der bisher im Image eingebettete U-Boot 2020.07 von der externen SD-Karte
-gestartet werden kann.
+* Größe: `2581291008` Byte;
+* SHA-256:
+  `8a2b8ac8681a78f9697b4a68582e6afcb1e0164e60a44286b7576d81242226dc`.
 
-### Definition von „universell“ für Version 1
+Der direkte Vergleich mit dem Normal-Store-Image ergab:
 
-Für Version 1 bedeutet „universell“ ein vollständiges, reproduzierbar erzeugtes
-externes SD-Image für die Novena-Plattform, das auf einer frisch beschriebenen
-geeigneten SD-Karte unabhängig vom bereits installierten Betriebssystem und
-dessen Boot- oder Root-Dateien starten kann und die definierte
-Novena-Basishardware zuverlässig unterstützt.
+`CMP_STATUS=0`
 
-Daraus folgt, dass die Abhängigkeit vom vorhandenen internen U-Boot nicht als
-endgültiger V1-Bootpfad akzeptiert wird.
+und:
 
-Der vorgesehene eigenständige Bootpfad verwendet den Novena-Boot-Select
-`P_EXT`:
+`BYTE_IDENTICAL=YES`
 
-`P_EXT -> i.MX6 ROM -> externe SD -> SPL -> U-Boot proper -> boot.scr -> Kernel/Initrd/DTB -> externes Root-Dateisystem`
+Damit ist die Same-Host-/Separate-Store-Reproduzierbarkeit des
+vollständigen aktuellen Images bytegenau nachgewiesen.
 
-### Neuer reproduzierbarer U-Boot-Baustein
+Ein späterer Build auf dem L14 bleibt als davon unabhängiger
+Cross-Host-Reproduzierbarkeitstest vorgesehen.
 
-Für diesen externen Bootpfad wurde U-Boot `v2026.07` als stabile Basis
-ausgewählt.
+### Aktuelle Aussagegrenze und nächster Hardwaretest
 
-Exakter Upstream-Stand:
+Der aktuelle Softwarestand ist reproduzierbar gebaut und statisch
+qualifiziert.
 
-`ece349ade2973e220f524ce59e59711cc919263f`
+Noch nicht auf realer Hardware nachgewiesen ist die vollständige
+eigenständige Bootkette:
 
-Darauf liegen drei kleine Novena-spezifische Änderungen:
+`P_EXT -> i.MX6 ROM -> externe SD/USDHC2 -> SPL v2026.07 -> U-Boot v2026.07 -> boot.scr -> Kernel/Initrd/DTB -> externes Root-Dateisystem`
 
-1. U1: Der SPL initialisiert für den externen V1-Pfad USDHC2 statt USDHC3.
-2. U2: U-Boot proper verwendet `mmc1` als erstes MMC-Bootziel und die
-   historischen internen MMC0-Linux- und Update-Vorgaben wurden entfernt.
-3. U3: Das persistente MMC-Environment wurde entfernt; der Build verwendet
-   das nichtpersistente Default-Environment.
+Vor diesem Test wird exakt das qualifizierte Image mit SHA-256
 
-Die ursprünglichen Implementierungscommits dieser drei Änderungen sind:
+`8a2b8ac8681a78f9697b4a68582e6afcb1e0164e60a44286b7576d81242226dc`
 
-* U1: `69c43c2cdae6196bdd3d77b4f2c8de8a908193ae`
-* U2: `a742f5f1b60d28eea887188a4c39b140eebe0968`
-* U3: `f8baca04e22de46111af34159afd54830b3e328a`
+auf die externe SD geschrieben und durch vollständigen Readback
+verifiziert.
 
-Die Änderungen liegen im Hauptprojekt als projektlokaler
-`pkgs.buildUBoot`-Baustein unter `boot/u-boot/`.
+Für den Hardwaretest gilt:
 
-Der zugehörige Projektcheckpoint ist:
+* Novena vor der Jumperänderung vollständig ausgeschaltet;
+* `P_EXT` gesetzt;
+* `P_USB` nicht gesetzt;
+* `P_SATA` nicht gesetzt;
+* `P_FUSE` nicht gesetzt;
+* serielle Aufzeichnung vor dem Einschalten aktiv.
 
-`8cd6d449284f20c29b549e837caad61762abf73b`
+Der Test muss insbesondere zeigen, dass der i.MX6-ROM-Code den
+projektlokalen SPL von der externen SD startet und anschließend der
+projektlokale U-Boot v2026.07 verwendet wird.
 
-Dieser Checkpoint ist auf Codeberg und GitHub gesichert.
-
-### Reproduzierbarkeit und Build-Vertrag des neuen U-Boot
-
-Die U-Boot-Quelle, der Upstream-Commit, die drei Patches, der Source-Hash, die
-Versionsidentität und `SOURCE_DATE_EPOCH` sind im Projekt fest vorgegeben.
-
-Die feste Versionsidentität lautet:
-
-`2026.07-00003-gf8baca04e22d`
-
-`SOURCE_DATE_EPOCH`:
-
-`1789984363`
-
-Der normale Nix-`pkgs.buildUBoot`-Build erzeugt reproduzierbar:
-
-* `SPL`: 52224 Byte,
-  SHA-256 `c79b6efadee73f461b564f0cfc3e11a4123dc5c61c1e6d6b7d229c0880bdbcf0`
-* `u-boot-dtb.img`: 602120 Byte,
-  SHA-256 `c5a2d0e7f2b9ebeae6387eee98630a43944f2cd2b52fc8a5a98a2e82ba55f9f7`
-
-Eine zweite Realisierung mit `nix-store --realise --check` reproduzierte diese
-Artefakte byte-identisch.
-
-Ein zuvor beobachteter Unterschied zu manuellen Builds wurde kontrolliert
-aufgelöst: Die manuellen Builds liefen mit den Hardening-Flags des
-Nix-GCC-Wrappers, während `pkgs.buildUBoot` für U-Boot absichtlich
-`hardeningDisable = [ "all" ]` setzt. Ein kontrollierter A/B-Build mit wieder
-aktiviertem Wrapper-Hardening reproduzierte die früheren manuellen Artefakte
-byte-identisch. Der Unterschied war damit auf den Build-Vertrag und nicht auf
-fehlende Quellen, Konfigurationen oder Objekte zurückzuführen.
-
-Für den produktiven Projektpfad gilt der normale `pkgs.buildUBoot`-Build ohne
-zusätzlich erzwungenes Wrapper-Hardening.
-
-### Aktuelle Integrationsgrenze
-
-Der neue U-Boot-Baustein ist zum Stand dieses Dokuments:
-
-* aus exakt gepinnter Quelle reproduzierbar gebaut,
-* mit U1/U2/U3 statisch qualifiziert,
-* im tatsächlichen NixOS-`pkgs`-Cross-Kontext ausgewertet,
-* auf Codeberg und GitHub gesichert.
-
-Er ist jedoch noch nicht:
-
-* in `image/novena-image.nix` als aktiver Bootloader eingebunden,
-* Bestandteil eines neu qualifizierten vollständigen SD-Images,
-* über `P_EXT` auf echter Novena-Hardware gebootet.
-
-Das derzeit aktive Image-Rezept verwendet deshalb weiterhin die historischen
-Referenzblobs:
-
-* `boot/reference/novena-imx6-spl.bin`
-* `boot/reference/u-boot-dtb.img`
-
-Der nächste technische Schritt ist die minimale Umstellung von
-`image/novena-image.nix` auf den projektlokalen U-Boot-Baustein. Danach folgen
-ein vollständiger reproduzierbarer Image-Build, die statische Image-Prüfung und
-erst anschließend der vorregistrierte reale `P_EXT`-Bootversuch.
+Bis zu diesem Test wird nicht behauptet, dass der vollständige
+P_EXT-Bootpfad hardwareseitig qualifiziert ist.
 
 Die folgenden Abschnitte dieses Dokuments enthalten die historische
 Untersuchungs- und Entwicklungsdokumentation. Aussagen über damalige

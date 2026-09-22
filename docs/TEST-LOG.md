@@ -1366,3 +1366,109 @@ eingeschaltet.**
 Vollständige Synthese:
 
 `research/03-root-cause-synthesis/block-3.15w-es8328-i2c3-historische-root-cause.md`
+
+
+## 2026-09-22 – Clean-Store-Root-Cause und Bash-Reproduzierbarkeitsfix
+
+Nach der Integration des projektlokalen U-Boot v2026.07 wurde ein
+vollständiger Neubau des Images in einem separaten Nix-Store
+durchgeführt.
+
+Der erste Clean-Store-Test erzeugte trotz identischem
+input-adressiertem Image-Pfad ein vom Normal-Store-Build abweichendes
+Image.
+
+Die Abweichung wurde schrittweise lokalisiert:
+
+`Image -> FAT -> initrd.uimg -> CPIO -> ARM-Bash -> .text`
+
+Im Bash-Binary unterschieden sich nur wenige Bytes. Zwei relevante
+ARM-Instruktionen verglichen gegen unterschiedliche Konstanten:
+
+* Normal-Store-Build: `65536`
+* Clean-Store-Build: `8192`
+
+Die Werte stammten aus Bashs Cross-Build-Erzeugung von
+`builtins/pipesize.h`.
+
+Die hostseitige Pipe-Kapazität wurde anschließend kontrolliert
+untersucht. Unter einem isolierten Benutzer mit definiertem
+`RLIMIT_NOFILE` ließ sich beim Erreichen des Linux-Pipe-Soft-Limits
+reproduzierbar der Übergang von `65536` auf `8192` Byte für neu
+erzeugte Pipes beobachten.
+
+Damit war der Mechanismus der Nichtreproduzierbarkeit erklärt.
+
+Der Projektfix setzt beim Cross-Build deterministisch:
+
+`NIX_CROSS_PIPESIZE=4096`
+
+und umgeht damit die hostseitige `psize.aux`-/`psize.sh`-Messung.
+
+Der Fix wird nur bei Cross-Builds auf `bash` und
+`bashNonInteractive` angewendet.
+
+Native Bash-Derivationen wurden separat verglichen und blieben
+unverändert.
+
+Die finalen ARM-Binaries wurden anschließend direkt geprüft. Beide
+Bash-Varianten enthalten im relevanten Code den Wert `4096`.
+
+Der Fix wurde als Commit
+
+`d06de5e30f294144d0be66cc7903fedb1ed6fe0a`
+
+versioniert und auf Codeberg und GitHub synchronisiert.
+
+
+## 2026-09-22 – Vollständiger G2X-Clean-Store-Reproduzierbarkeitstest
+
+Aus exakt dem Commit
+
+`d06de5e30f294144d0be66cc7903fedb1ed6fe0a`
+
+wurde eine neue saubere Source-Kopie erstellt.
+
+Für den Test wurde ein neuer isolierter Nix-Store unter:
+
+`/var/tmp/novena-g2x-clean-store`
+
+angelegt.
+
+Der normale `/nix/store` wurde nicht als Quelle bereits realisierter
+Novena-spezifischer Outputs verwendet.
+
+Der vollständige Clean-Store-Build endete erfolgreich:
+
+`CLEAN_IMAGE_BUILD_STATUS=0`
+
+Normal-Store-Referenz:
+
+`/nix/store/gxbxadqv2lpkx5k4b4pz08s9jw185q12-nixos-novena-sd-image.img`
+
+Clean-Store-Ergebnis, logisch:
+
+`/nix/store/gxbxadqv2lpkx5k4b4pz08s9jw185q12-nixos-novena-sd-image.img`
+
+Beide Images besitzen:
+
+* Größe: `2581291008` Byte
+* SHA-256:
+  `8a2b8ac8681a78f9697b4a68582e6afcb1e0164e60a44286b7576d81242226dc`
+
+Der direkte Bytevergleich ergab:
+
+`CMP_STATUS=0`
+
+und:
+
+`BYTE_IDENTICAL=YES`
+
+Damit ist die Same-Host-/Separate-Store-Reproduzierbarkeit des
+vollständigen Images nachgewiesen.
+
+Dieser Test bestätigt noch nicht die Reproduzierbarkeit auf einem
+anderen Build-Host und noch nicht den realen P_EXT-Bootpfad.
+
+Der Clean Store bleibt bis zum Dokumentations- und
+Sicherungscheckpoint erhalten.

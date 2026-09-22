@@ -297,3 +297,95 @@ Die qualifizierten produktiven Artefakte dieses Buildvertrags sind:
 Diese Entscheidung betrifft den Buildvertrag des U-Boot-Bausteins.
 Die reale Bootfähigkeit über `P_EXT` wird davon getrennt erst durch den
 späteren Hardwaretest nach vollständiger Image-Integration bestätigt.
+
+
+## 2026-09-22 – Bash-Pipegröße im Cross-Build wird deterministisch festgelegt
+
+Ein vollständiger Image-Neubau in einem getrennten Nix-Store zeigte,
+dass das ARM-Bash-Binary trotz identischer Derivation unterschiedliche
+Bytes enthalten konnte.
+
+Die Abweichung wurde bis auf zwei Instruktionen in
+`do_redirection_internal.constprop.0` eingegrenzt.
+
+Dabei wurden unterschiedliche eingebaute Werte beobachtet:
+
+* `65536`
+* `8192`
+
+Bash erzeugt `builtins/pipesize.h` normalerweise über das auf dem
+Build-Host kompilierte Hilfsprogramm `psize.aux` und `psize.sh`.
+
+Die Bash-Builddatei weist selbst darauf hin, dass dieses Verfahren bei
+einem Cross-Build technisch falsch ist, weil damit die Pipegröße des
+Build-Hosts statt des Zielsystems ermittelt wird.
+
+Auf der foobox wurde experimentell bestätigt, dass sich die
+beobachteten Werte aus dem dynamischen Linux-Pipe-Zustand des
+Build-Hosts ergeben können. Beim Erreichen des Pipe-Soft-Limits sank
+die Kapazität neu erzeugter Pipes reproduzierbar von `65536` auf
+`8192` Byte.
+
+Damit war der Mechanismus der Image-Nichtreproduzierbarkeit bestimmt.
+
+Für den Novena-Cross-Build wird deshalb projektlokal:
+
+`NIX_CROSS_PIPESIZE=4096`
+
+gesetzt.
+
+Der Wert `4096` wird als deterministischer konservativer Zielwert auf
+Basis von Linux `PIPE_BUF` verwendet. Er wird nicht als feste
+tatsächliche Pipe-Kapazität des laufenden Zielsystems interpretiert.
+
+Die Änderung wird ausschließlich bei Cross-Builds angewendet.
+Native Bash-Builds bleiben unverändert.
+
+Sowohl der interaktive als auch der nichtinteraktive ARM-Bash-Build
+werden erfasst.
+
+Die tatsächlichen ARM-Binaries wurden nach dem Fix disassembliert.
+Beide enthalten im relevanten Code den Wert `4096`, während die
+hostseitige Erzeugung über `psize.aux` und `psize.sh` im qualifizierten
+Cross-Build nicht mehr stattfindet.
+
+Der Fix ist im Commit
+
+`d06de5e30f294144d0be66cc7903fedb1ed6fe0a`
+
+versioniert.
+
+
+## 2026-09-22 – Image-Reproduzierbarkeit wird durch unabhängigen Bytevergleich qualifiziert
+
+Ein identischer Derivation- oder Nix-Store-Pfad allein wird im Projekt
+nicht als ausreichender Nachweis für Byte-Reproduzierbarkeit behandelt.
+
+Diese Entscheidung folgt aus dem zuvor beobachteten Bash-Fall, bei dem
+derselbe input-adressierte Buildpfad in getrennten Stores
+unterschiedliche Binärinhalte erzeugte.
+
+Für den aktuellen Image-Checkpoint wurde deshalb ein neuer isolierter
+Nix-Store angelegt und das vollständige Image aus exakt dem
+versionierten Commit
+
+`d06de5e30f294144d0be66cc7903fedb1ed6fe0a`
+
+neu gebaut.
+
+Normal-Store- und Clean-Store-Ergebnis besitzen jeweils:
+
+* Größe: `2581291008` Byte
+* SHA-256:
+  `8a2b8ac8681a78f9697b4a68582e6afcb1e0164e60a44286b7576d81242226dc`
+
+Der direkte Bytevergleich ergab:
+
+`cmp = 0`
+
+Damit gilt die Same-Host-/Separate-Store-Reproduzierbarkeit dieses
+Image-Stands als nachgewiesen.
+
+Dieser Nachweis wird ausdrücklich von einem späteren
+Cross-Host-Reproduzierbarkeitstest getrennt. Ein solcher Test soll
+später unabhängig auf dem L14 erfolgen.
