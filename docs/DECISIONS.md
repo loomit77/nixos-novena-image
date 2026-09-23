@@ -473,3 +473,52 @@ festgelegt:
 Diese Entscheidung definiert ausschließlich den nächsten
 Diagnoseschritt. Sie ist kein Nachweis einer funktionalen oder
 Hardware-Root-Cause.
+
+## 2026-09-23 – D21A-D21D-Hardwaretest erst nach SPL-Größenqualifikation
+
+Der präregistrierte D21A-D21D-Diagnosetest bleibt der nächste
+zulässige P_EXT-Hardwaretest.
+
+Vor einem Schreibzugriff auf die externe Novena-Test-SD wurde die
+gegenüber D0-D36 vergrößerte SPL deshalb unabhängig auf
+Buildidentität, Imageaufbau und Größenlimits geprüft.
+
+Der qualifizierte D21A-D21D-SPL besitzt:
+
+* Größe `0xDC00` = `56320` Byte;
+* SHA-256
+  `6b16b53c6f2346b24ea010a1b6bb3b44beedfe09f61652450cf76e84180133d0`.
+
+Ein im exakt durch `flake.lock` festgelegten Nixpkgs-Kontext
+erzeugter Analyse-Buildbaum liefert einen byteidentischen SPL.
+
+Die Raw-SPL besitzt `0xC048` Byte und liegt unter
+`CONFIG_SPL_MAX_SIZE=0x10000`. Das finale i.MX-Boot-Image besitzt
+`0xDC00` Byte und liegt unter `CONFIG_SPL_SIZE_LIMIT=0x11000`.
+
+Der erzeugte i.MX-Boot-Data-Header enthält eine Größe von `0xE000`.
+Der Raw-Payload beginnt innerhalb der finalen SPL-Datei bei Offset
+`0xC00`.
+
+Für die Novena-SD-Ablage ab Medienoffset `0x400` gilt:
+
+`[0x400,0xE000)`
+
+als exakt zu sichernder und bei einem später freigegebenen Test zu
+beschreibender SPL-Bereich.
+
+Die initiale 4-KiB-Laderegion des i.MX6-ROM-Bootpfads wird nicht als
+maximale SPL-Gesamtgröße interpretiert.
+
+Vor dem tatsächlichen Schreibvorgang muss die physische externe
+Novena-Test-SD erneut eindeutig identifiziert werden. Der vollständige
+Zielbereich ist vor dem Schreiben zu sichern. Anschließend darf nur
+die exakt qualifizierte SPL geschrieben und durch einen bytegenauen
+Readback verifiziert werden.
+
+Erst danach ist genau ein D21A-D21D-P_EXT-Hardwareboot mit bereits
+aktiver serieller Aufzeichnung zulässig.
+
+Aus der Größenqualifikation wird keine Aussage darüber abgeleitet,
+welcher der beiden `calloc()`-Aufrufe den zuvor beobachteten
+`-ENOMEM`-Pfad verursacht.

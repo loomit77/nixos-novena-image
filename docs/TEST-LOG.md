@@ -1646,3 +1646,64 @@ vor Patch, Build und einem weiteren Hardwaretest festgelegt.
 
 Bis zu diesem Folgetest wird aus dem beobachteten `-ENOMEM` insbesondere
 kein physischer RAM-Mangel als Root Cause abgeleitet.
+
+## 2026-09-23 – D21A-D21D-Build- und SPL-Größenqualifikation
+
+Der präregistrierte D21A-D21D-Diagnosetest wurde gebaut, aber zu
+diesem Checkpoint noch nicht auf realer Hardware ausgeführt.
+
+Der qualifizierte SPL besitzt:
+
+* Größe: `56320` Byte = `0xDC00`;
+* SHA-256:
+  `6b16b53c6f2346b24ea010a1b6bb3b44beedfe09f61652450cf76e84180133d0`.
+
+Ein Analyse-Buildbaum wurde anschließend aus dem durch `flake.lock`
+festgelegten Nixpkgs-Kontext erzeugt. Sein `SPL` ist byteidentisch mit
+dem qualifizierten installierten SPL.
+
+Relevante Zwischenartefakte:
+
+* `spl/u-boot-spl.bin`: `49224` Byte = `0xC048`,
+  SHA-256
+  `71416e4bcdb438bf7ff423cbe5a8ff4fbb92d00c334c52f716cdde501849637e`;
+* finales `SPL`: `56320` Byte = `0xDC00`,
+  SHA-256
+  `6b16b53c6f2346b24ea010a1b6bb3b44beedfe09f61652450cf76e84180133d0`.
+
+Die Linkergrenze `_image_binary_end=0x00914048` und
+`CONFIG_SPL_TEXT_BASE=0x00908000` ergeben exakt die Raw-SPL-Größe
+`0xC048`.
+
+Der finale SPL wird mit `mkimage -T imximage` erzeugt. Die
+qualifizierte Ausgabe meldet:
+
+* i.MX-Boot-Image Version 2;
+* Load Address `0x00907420`;
+* Entry Point `0x00908000`;
+* Boot-Data-Size `0xE000`.
+
+Der Raw-Payload beginnt innerhalb des finalen SPL bei Offset `0xC00`.
+Dies wurde durch direkten Bytevergleich mit `spl/u-boot-spl.bin`
+bestätigt.
+
+Bei Ablage des finalen `0xDC00` Byte großen SPL ab Medienoffset
+`0x400` ergibt sich der exklusive Medienendoffset `0xE000`. Dieser
+entspricht der Boot-Data-Size im erzeugten i.MX-Header.
+
+Die Größenprüfungen ergaben:
+
+* `0xC048 <= CONFIG_SPL_MAX_SIZE 0x10000`,
+  Reserve `0x3FB8`;
+* `0xDC00 <= CONFIG_SPL_SIZE_LIMIT 0x11000`,
+  Reserve `0x3400`;
+* SPL-Medienbereich `[0x400,0xE000)`;
+* erste Partition ab `0x800000`;
+* Reserve bis zur ersten Partition `0x7F2000`.
+
+Die initiale 4-KiB-ROM-Laderegion des i.MX6-SD-Bootpfads ist im Image
+vollständig vorhanden und wird nicht als maximale Gesamtgröße des
+Boot-Images interpretiert.
+
+In diesem Qualifikationsblock erfolgten weder ein Schreibzugriff auf
+die Test-SD noch ein D21A-D21D-Hardwareboot.

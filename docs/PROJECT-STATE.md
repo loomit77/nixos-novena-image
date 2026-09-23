@@ -4397,3 +4397,153 @@ Die präregistrierte Ergebnismatrix unterscheidet:
 `<malloc.h>` bereits ein. Für die geplante Diagnose sind daher keine
 neuen `extern`-Deklarationen und keine funktionalen Allocatoränderungen
 notwendig.
+
+## 2026-09-23 – D21A-D21D-SPL reproduziert und Größen-/i.MX-Container qualifiziert
+
+Der präregistrierte D21A-D21D-Diagnosetest wurde als minimale
+Erweiterung der bereits qualifizierten D0-D36-Instrumentierung gebaut.
+
+Die Diagnose beobachtet ausschließlich:
+
+* `mem_malloc_start`;
+* `mem_malloc_end`;
+* `mem_malloc_brk`;
+* den Rückgabewert der bestehenden `priv`-Allokation;
+* den Rückgabewert der bestehenden `plat`-Allokation.
+
+Kontrollfluss, Allokationsgrößen, Freigaben und Rückgabesemantik von
+`fsl_esdhc_initialize()` bleiben unverändert.
+
+Der qualifizierte D21A-D21D-SPL besitzt:
+
+* Größe: `56320` Byte = `0xDC00`;
+* SHA-256:
+  `6b16b53c6f2346b24ea010a1b6bb3b44beedfe09f61652450cf76e84180133d0`.
+
+### Byteidentischer Locked-Debug-Build
+
+Ein zunächst separat erzeugter Debug-Build wurde wegen eines
+abweichenden Nixpkgs-/Toolchain-Kontexts nicht als Identitätsnachweis
+verwendet.
+
+Anschließend wurde der Debug-Build aus dem durch `flake.lock`
+festgelegten Nixpkgs-Kontext erzeugt. Der verwendete Nixpkgs-Commit
+lautet:
+
+`a5cc6f2c37bf518436dc8d1c288ccd0c43c2f4c4`
+
+Der Locked-Debug-Build verwendete dieselben qualifizierten
+Toolchain-Komponenten wie die reguläre Derivation.
+
+Sein erzeugter `SPL` besitzt ebenfalls:
+
+* Größe: `56320` Byte;
+* SHA-256:
+  `6b16b53c6f2346b24ea010a1b6bb3b44beedfe09f61652450cf76e84180133d0`.
+
+Damit ist der installierte D21A-D21D-SPL byteidentisch mit dem SPL des
+erhaltenen Analyse-Buildbaums.
+
+### Qualifizierte SPL-Zwischenartefakte
+
+Der byteidentische Analyse-Buildbaum liefert:
+
+* `spl/u-boot-spl`: `936972` Byte,
+  SHA-256
+  `3424c88913378d93ad86002fe20945d393d47b952bf7b3cc43e501580ba82ac2`;
+* `spl/u-boot-spl.bin`: `49224` Byte = `0xC048`,
+  SHA-256
+  `71416e4bcdb438bf7ff423cbe5a8ff4fbb92d00c334c52f716cdde501849637e`;
+* `spl/u-boot-spl.map`: `227046` Byte,
+  SHA-256
+  `1b4da7f374ccb4bda6b99c7e17f7c771b00e667ac43419decf4d12e2fcdd1475`;
+* `spl/u-boot-spl.sym`: `23967` Byte,
+  SHA-256
+  `fa73dd4de67c12568b8b96f382478f23bb6bc5cd77d5299743be6bd10b206489`;
+* finales `SPL`: `56320` Byte = `0xDC00`,
+  SHA-256
+  `6b16b53c6f2346b24ea010a1b6bb3b44beedfe09f61652450cf76e84180133d0`.
+
+Das gelinkte Image beginnt bei `CONFIG_SPL_TEXT_BASE=0x00908000`.
+`__image_copy_end`, `_end` und `_image_binary_end` liegen bei
+`0x00914048`. Daraus ergibt sich exakt die Raw-Binärgröße:
+
+`0x00914048 - 0x00908000 = 0xC048`
+
+Damit entspricht die Größe von `spl/u-boot-spl.bin` exakt dem
+gelinkten Load-Image ohne BSS.
+
+### i.MX-Boot-Image
+
+Der finale SPL wird mit:
+
+`mkimage -T imximage -e 0x00908000`
+
+aus `spl/u-boot-spl.bin` erzeugt.
+
+`mkimage` identifiziert das Ergebnis als Freescale-i.MX-Boot-Image
+Version 2 für i.MX53/6/7 mit DCD.
+
+Für den qualifizierten SPL gelten:
+
+* Load Address: `0x00907420`;
+* Entry Point: `0x00908000`;
+* Boot-Data-Start: `0x00907000`;
+* Boot-Data-Size: `0xE000`;
+* Raw-Payload innerhalb des finalen SPL ab Dateioffset `0xC00`.
+
+Der direkte Bytevergleich bestätigt, dass der Inhalt des finalen SPL
+ab Offset `0xC00` mit `spl/u-boot-spl.bin` beginnt.
+
+Die finale Datei besitzt `0xDC00` Byte. Bei der für Novena verwendeten
+Ablage ab Medienoffset `0x400` ergibt sich deshalb:
+
+`0x400 + 0xDC00 = 0xE000`
+
+Der exklusive Medienendoffset des SPL entspricht damit exakt der im
+i.MX-Boot-Data-Header eingetragenen Größe `0xE000`.
+
+### Größen-Gates
+
+Die qualifizierte Raw-SPL liegt unter:
+
+`CONFIG_SPL_MAX_SIZE=0x10000`
+
+mit:
+
+`0x10000 - 0xC048 = 0x3FB8`
+
+Reserve.
+
+Das finale i.MX-SPL liegt unter:
+
+`CONFIG_SPL_SIZE_LIMIT=0x11000`
+
+mit:
+
+`0x11000 - 0xDC00 = 0x3400`
+
+Reserve.
+
+Für SD/MMC liegt der i.MX6-IVT-Medienoffset bei `0x400`. Die initiale
+4-KiB-ROM-Laderegion ist vollständig im Image vorhanden. Diese
+initiale Laderegion wird nicht als maximale Größe des gesamten
+Boot-Images interpretiert.
+
+Die erste Partition der Novena-Test-SD beginnt bei `0x800000`. Der
+qualifizierte SPL würde im Bereich:
+
+`[0x400,0xE000)`
+
+liegen. Damit verbleiben bis zum Beginn der ersten Partition:
+
+`0x7F2000`
+
+Byte.
+
+Die Größen-, Container- und Mediengrenzen sind damit für den
+D21A-D21D-Test qualifiziert.
+
+Zu diesem Checkpoint wurde der D21A-D21D-SPL noch nicht auf die
+Test-SD geschrieben und noch kein D21A-D21D-P_EXT-Hardwareboot
+durchgeführt.
