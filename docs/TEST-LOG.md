@@ -1707,3 +1707,235 @@ Boot-Images interpretiert.
 
 In diesem Qualifikationsblock erfolgten weder ein Schreibzugriff auf
 die Test-SD noch ein D21A-D21D-Hardwareboot.
+
+## 2026-09-23 – D21A-D21D-Hardwaretest lokalisiert den Fehler vor der ersten Allokation
+
+Der qualifizierte D21A-D21D-SPL wurde nach erneuter eindeutiger
+Identifikation der externen Novena-Test-SD und Sicherung des vorhandenen
+SPL-Bereichs auf die SD geschrieben. Der anschließende Readback war
+byteidentisch mit dem qualifizierten SPL.
+
+Der Hardwaremitschnitt
+
+`test-logs/p-ext-2026-09-23/p-ext-d21a-d21d-boot-01.log`
+
+besitzt:
+
+* Größe: `627` Byte
+* Zeilen: `14`
+* SHA-256:
+  `f123e33b91abdc530a8c3fc440f59d41ece1f1f16b90815f067a97b999466c95`
+
+Beobachtet wurde unter anderem:
+
+```text
+NOVENA-DIAG D21A before priv calloc start=18300000 end=18400000 brk=00000000
+NOVENA-DIAG D21B after priv calloc priv=? brk=00000000
+NOVENA-DIAG D32 after fsl_esdhc_initialize ret=-12
+NOVENA-DIAG D33 after board_mmc_init ret=-12
+```
+Die vollständige D21A-D21D-Auswertung lokalisiert den `-ENOMEM`-Pfad
+auf die erste `calloc()`-Allokation von `priv`. Bereits unmittelbar vor
+dieser Allokation gelten:
+
+```text
+mem_malloc_start = 0x18300000
+mem_malloc_end   = 0x18400000
+mem_malloc_brk   = 0x00000000
+```
+
+Die Heapgrenzen sind damit korrekt gesetzt, während
+`mem_malloc_brk` außerhalb des gültigen Intervalls liegt. Der
+Allocatorzustand ist folglich bereits vor dem ersten `calloc()`
+inkonsistent.
+
+Aus diesem Befund wird weiterhin weder physische RAM-Erschöpfung noch
+DDR-Korruption als Root Cause abgeleitet.
+
+## 2026-09-23 – P0/P1-Hardwaretest qualifiziert Fall C
+
+Zur Eingrenzung des Zeitfensters, in dem `mem_malloc_brk` den Wert Null
+annimmt, wurde anschließend die minimale P0/P1-Instrumentierung
+qualifiziert.
+
+Der hierfür qualifizierte SPL besitzt:
+
+* Größe: `56320` Byte = `0xDC00`
+* SHA-256:
+  `a4c85598132fe313c625a30bcf81d03024b896944bb4d6455e95c88ac0e8f1fc`
+
+Vor dem Schreiben wurde der vorhandene D21A-D21D-SPL-Bereich erneut
+gesichert. Der P0/P1-SPL wurde exakt einmal geschrieben. Ein
+anschließender ausgerichteter Readback des Bereichs
+`[0x400,0xE000)` war byteidentisch mit dem qualifizierten SPL.
+
+Danach wurde genau ein P_EXT-Hardwareboot durchgeführt.
+
+Der Mitschnitt
+
+`test-logs/p-ext-2026-09-23/p-ext-p0-p1-boot-01.log`
+
+besitzt:
+
+* Größe: `729` Byte
+* Zeilen: `16`
+* SHA-256:
+  `3f732abfdde8122068752c13aa2d6a6418e926ec89836566e683345e0743507e`
+
+Die relevanten Messpunkte lauten:
+
+```text
+NOVENA-DIAG P0 after mem_malloc_init brk=00000000
+NOVENA-DIAG P1 before loader callback brk=00000000
+NOVENA-DIAG D21A before priv calloc start=18300000 end=18400000 brk=00000000
+```
+
+Der Mitschnitt verwendet CRLF-Zeilenenden. Eine zunächst
+fehlgeschlagene exakte Bash-Zeichenkettenprüfung wurde deshalb als
+Fehler der Verifikationsmethode und nicht als Hardwarewiderspruch
+klassifiziert. Nach ausschließlich temporärer Entfernung der
+Carriage-Return-Zeichen aus den Vergleichsvariablen wurden P0, P1 und
+D21A jeweils exakt einmal bestätigt. Der Rohmitschnitt selbst wurde
+nicht verändert.
+
+Damit ist der vorregistrierte Fall C qualifiziert:
+
+```text
+P0   = 0x00000000
+P1   = 0x00000000
+D21A = 0x00000000
+```
+`mem_malloc_brk` ist somit bereits am ersten Messpunkt unmittelbar nach
+der Rückkehr aus `mem_malloc_init()` Null. Der spätere Loader-Callback
+und der MMC-/eSDHC-Pfad können den bereits bei P0 beobachteten Nullwert
+nicht erst verursacht haben.
+
+Mit diesem Test wurden insgesamt zwei P_EXT-Hardwareboots dieser
+D21A-D21D-/P0-P1-Untersuchungsserie durchgeführt. Vor der weiteren
+statischen Analyse wurde kein weiterer Hardwareboot freigegeben.
+
+## 2026-09-23 – Byteidentische P0/P1-ELF-Analyse grenzt das Übergangsfenster ein
+
+Für die statische Analyse wurde ein Locked-Debug-Build erzeugt. Dessen
+installierter SPL ist byteidentisch mit dem auf der Hardware getesteten
+P0/P1-SPL.
+
+Qualifizierter Analyse-SPL:
+
+* Größe: `56320` Byte
+* SHA-256:
+  `a4c85598132fe313c625a30bcf81d03024b896944bb4d6455e95c88ac0e8f1fc`
+
+Analyse-ELF:
+
+* Größe: `937244` Byte
+* SHA-256:
+  `324fb304109f97aa42e1d3d14e3668ffd4dbcf60a3e9d70ca6458dff455f17f4`
+
+Die exakte ARM-Disassembly von `mem_malloc_init()` bestätigt folgende
+Schreibreihenfolge:
+
+```text
+mem_malloc_start @ 0x18200044 <- 0x18300000
+mem_malloc_end   @ 0x18200040 <- 0x18400000
+mem_malloc_brk   @ 0x1820003c <- 0x18300000
+```
+
+Anschließend erfolgt ein Tail-Call von:
+
+```text
+memset(0x18300000, 0, 0x00100000)
+```
+
+Der Heap-Clear beschreibt damit ausschließlich:
+
+```text
+[0x18300000,0x18400000)
+```
+
+`mem_malloc_brk` liegt dagegen bei `0x1820003c` und damit außerhalb
+dieses Intervalls.
+
+Die exakte Disassembly von `spl_set_bd()` bestätigt außerdem, dass das
+Register mit der Heapgröße `0x00100000` vor dem Aufruf von
+`mem_malloc_init()` nicht verändert wird.
+
+Die SPL-BSS liegt bei:
+
+```text
+__bss_start = 0x18200000
+__bss_end   = 0x1820015c
+```
+
+Die drei Malloc-Zustandsvariablen liegen vollständig innerhalb dieser
+BSS:
+
+```text
+mem_malloc_brk   = 0x1820003c
+mem_malloc_end   = 0x18200040
+mem_malloc_start = 0x18200044
+```
+
+Im Heapintervall `[0x18300000,0x18400000)` befinden sich keine
+gelinkten Symbole.
+
+Damit sind für den exakt auf der Hardware getesteten SPL insbesondere
+folgende einfachen Erklärungen ausgeschlossen:
+
+* der Compiler habe den Store nach `mem_malloc_brk` weggelassen;
+* P0 lese eine andere gelinkte Variable oder Adresse;
+* `spl_set_bd()` habe die Heapgröße vor `mem_malloc_init()` verändert;
+* der reguläre Heap-`memset` überlappe `mem_malloc_brk`;
+* normaler `sbrk()`-Kontrollfluss setze `mem_malloc_brk` in diesem
+  Zeitfenster auf Null.
+
+Nicht nachgewiesen ist damit, dass der von der CPU ausgeführte Store
+nach `mem_malloc_brk` auf der realen Hardware unmittelbar anschließend
+als `0x18300000` zurückgelesen werden kann.
+
+## 2026-09-23 – Präregistrierung des Drei-Punkt-Tests Q1/Q2/P0
+
+Vor einer weiteren Hardwareausführung wurde deshalb ein minimaler
+Drei-Punkt-Test für den bestehenden `mem_malloc_init()`-Pfad
+festgelegt.
+
+Die öffentliche Signatur von `mem_malloc_init()` wird nicht verändert.
+Es werden keine neuen globalen oder statischen Objekte angelegt.
+
+Die Messpunkte sind:
+
+* Q1: echter `volatile`-Load von `mem_malloc_brk` unmittelbar nach dem
+  bestehenden Store und vor dem Heap-`memset`;
+* Q2: neuer echter `volatile`-Load von `mem_malloc_brk` unmittelbar
+  nach Rückkehr aus dem Heap-`memset`;
+* P0: der bereits vorhandene Messpunkt unmittelbar nach Rückkehr aus
+  `mem_malloc_init()`.
+
+Q1 wird in einer lokalen automatischen `ulong`-Variable gehalten. Vor
+dem Heap-`memset` erfolgt keine Diagnoseausgabe. Q1 und Q2 werden erst
+nach Q2 gemeinsam ausgegeben.
+
+Die Präzisierung von Q2 gegenüber dem vorherigen Entwurf ist
+ausdrücklich dokumentiert: Q2 beobachtet nun das Ende des
+Heap-`memset`-Fensters innerhalb von `mem_malloc_init()`. Der bereits
+vorhandene P0-Messpunkt erhält die Beobachtung nach Rückkehr aus
+`mem_malloc_init()`.
+
+Vorregistrierte Fälle:
+
+* 7A: Q1=`0x18300000`, Q2=`0x18300000`, P0=`0x18300000`
+* 7B: Q1=`0x18300000`, Q2=`0x00000000`, P0=`0x00000000`
+* 7C: Q1=`0x00000000`, Q2=`0x00000000`, P0=`0x00000000`
+* 7E: Q1=`0x18300000`, Q2=`0x18300000`, P0=`0x00000000`
+* 7D: jede andere Kombination
+
+Für einen späteren Build muss die erzeugte Maschine zusätzlich
+bestätigen, dass Q1 und Q2 jeweils echte Loads aus
+`0x1820003c` sind, zwischen Q1 und dem Heap-`memset` kein `printf`
+liegt, Q1 über den `memset` erhalten bleibt, das BSS-Layout nicht durch
+persistente Diagnoseobjekte verändert wird und die bisherigen
+SPL-Größen- und ROM-Grenzen weiterhin eingehalten werden.
+
+Zu diesem Checkpoint ist der vorhandene Patch `0007` noch nicht als
+Hardwaretest qualifiziert. Ein weiterer P_EXT-Hardwareboot ist nicht
+freigegeben.

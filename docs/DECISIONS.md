@@ -522,3 +522,86 @@ aktiver serieller Aufzeichnung zulässig.
 Aus der Größenqualifikation wird keine Aussage darüber abgeleitet,
 welcher der beiden `calloc()`-Aufrufe den zuvor beobachteten
 `-ENOMEM`-Pfad verursacht.
+
+## 2026-09-23 – Vor einem Allocator-Fix wird Q1/Q2/P0 präregistriert
+
+Der inzwischen ausgeführte D21A-D21D-Hardwaretest zeigt bereits vor der
+ersten `calloc()`-Allokation einen inkonsistenten Full-Malloc-Zustand:
+
+* `mem_malloc_start=0x18300000`;
+* `mem_malloc_end=0x18400000`;
+* `mem_malloc_brk=0x00000000`.
+
+Die vollständige D21A-D21D-Auswertung lokalisiert den beobachteten
+`-ENOMEM`-Pfad auf die erste `calloc()`-Allokation von `priv`.
+
+Der anschließende präregistrierte P0/P1-Test qualifiziert Fall C:
+`mem_malloc_brk` ist bereits unmittelbar nach der Rückkehr aus
+`mem_malloc_init()` Null und bleibt an P1 sowie D21A Null.
+
+Ein byteidentischer Analyse-Build des auf der Hardware getesteten
+P0/P1-SPL bestätigt gleichzeitig, dass der erzeugte Maschinencode in
+`mem_malloc_init()` den Wert `0x18300000` nach `mem_malloc_brk` bei
+`0x1820003c` speichert. Der anschließend ausgeführte Heap-`memset()`
+beschreibt ausschließlich `[0x18300000,0x18400000)` und überlappt
+`mem_malloc_brk` damit im normalen Adressintervall nicht.
+
+Aus diesen Befunden wird noch kein funktionaler Allocator-Fix
+abgeleitet. Insbesondere wird nicht behauptet, dass der erzeugte Store
+auf der realen Hardware unmittelbar anschließend bereits als
+`0x18300000` zurückgelesen werden kann.
+
+Als nächster zulässiger Diagnoseschritt wird deshalb ausschließlich ein
+minimaler Drei-Punkt-Test Q1/Q2/P0 festgelegt:
+
+* Q1 liest `mem_malloc_brk` per echtem `volatile`-Load unmittelbar nach
+  dem bestehenden Store und vor dem Heap-`memset()`;
+* Q1 wird ausschließlich in einer lokalen automatischen `ulong`-Variable
+  gehalten;
+* zwischen Q1 und dem Heap-`memset()` erfolgt keine Diagnoseausgabe;
+* Q2 liest `mem_malloc_brk` per echtem `volatile`-Load unmittelbar nach
+  Rückkehr aus dem Heap-`memset()`;
+* Q1 und Q2 werden erst nach Q2 gemeinsam ausgegeben;
+* P0 bleibt als bestehende Beobachtung unmittelbar nach Rückkehr aus
+  `mem_malloc_init()` erhalten;
+* P1 und D21A bleiben ebenfalls erhalten.
+
+Die öffentliche Signatur von `mem_malloc_init()` wird für diesen Test
+nicht verändert. Es erfolgen keine Headeränderung und keine neue globale
+oder statische Diagnosevariable.
+
+Die Position von Q2 ist gegenüber dem vorherigen Entwurf ausdrücklich
+präzisiert: Q2 liegt innerhalb von `mem_malloc_init()` unmittelbar nach
+dem Heap-`memset()`. P0 bleibt davon getrennt der Messpunkt nach Rückkehr
+aus `mem_malloc_init()`.
+
+Die vorregistrierte Ergebnismatrix lautet:
+
+* 7A: Q1=`0x18300000`, Q2=`0x18300000`, P0=`0x18300000`;
+* 7B: Q1=`0x18300000`, Q2=`0x00000000`, P0=`0x00000000`;
+* 7C: Q1=`0x00000000`, Q2=`0x00000000`, P0=`0x00000000`;
+* 7E: Q1=`0x18300000`, Q2=`0x18300000`, P0=`0x00000000`;
+* 7D: jede andere Kombination.
+
+Vor einer Hardwarefreigabe muss die erzeugte Maschine statisch
+qualifiziert werden. Dabei müssen insbesondere echte Q1-/Q2-Loads aus
+`0x1820003c`, die unveränderte Heap-`memset()`-Semantik, das Fehlen
+neuer persistenter BSS-Diagnoseobjekte sowie die SPL-Größen-, ROM-,
+Container- und Mediengrenzen bestätigt werden.
+
+Der derzeit vorhandene Patch
+`boot/u-boot/0007-novena-diag-brk-q1-q2.patch` ist nur ein älteres
+Source-Experiment und noch nicht die Implementierung dieser Entscheidung.
+Er ist nicht in `default.nix` eingebunden und nicht hardwarequalifiziert.
+
+Bis zur Implementierung und vollständigen statischen Qualifikation
+dieses Drei-Punkt-Tests gilt:
+
+* kein Schreibzugriff auf die Novena-Test-SD;
+* kein weiterer P_EXT-Hardwareboot;
+* kein funktionaler Allocator-Fix;
+* keine Wiederholung bereits qualifizierter D0-D36-, D21A-D21D- oder
+  P0/P1-Hardwaretests.
+
+Die abgeschlossene I2C3-/ES8328-Untersuchung wird dadurch nicht wieder
+geöffnet.
