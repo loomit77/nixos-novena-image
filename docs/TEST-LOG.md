@@ -1559,3 +1559,90 @@ Für die nächste Testserie gilt:
 * kein zweiter Boot ohne vorherige Entscheidung anhand des ersten Logs;
 * der letzte beobachtete Marker lokalisiert nur einen Korridor und wird
   nicht allein als Root-Cause-Nachweis interpretiert.
+
+## 2026-09-23 – D0-bis-D36-P_EXT-Hardwaretest und D21-D22-Eingrenzung
+
+Die zuvor statisch qualifizierte D0-bis-D36-SPL wurde nach Sicherung
+des vorhandenen SPL-Bereichs exakt einmal auf die externe
+Novena-Test-SD geschrieben. Der gepufferte Readback war byteidentisch
+mit der qualifizierten SPL.
+
+Qualifizierte Raw-SPL:
+
+* Größe: `52224` Byte
+* SHA-256:
+  `a9f53d7a84053b6e177b47d32454430a8f247bbc4c93a15763acb5e80253d9c6`
+
+Danach wurde genau ein P_EXT-Hardwareboot mit bereits aktiver serieller
+Aufzeichnung durchgeführt. Ein zweiter P_EXT-Boot wurde nicht
+ausgeführt.
+
+Der Mitschnitt
+
+`test-logs/p-ext-2026-09-23/p-ext-d0-d36-boot-01.log`
+
+besitzt:
+
+* Größe: `492` Byte
+* Zeilen: `12`
+* SHA-256:
+  `28b9b3c79b98e8f9d8548fa6c48755973fa5ea6ce61407a44e0c25bc85d65c67`
+
+Beobachtet wurde in dieser Reihenfolge:
+
+```text
+U-Boot SPL 2026.07-00003-gf8baca04e22d (Sep 21 2026 - 09:52:43 +0000)
+Trying to boot from MMC1
+NOVENA-DIAG D0 before spl_mmc_find_device dev=0
+NOVENA-DIAG D16 enter mmc_initialize
+NOVENA-DIAG D17 after mmc_list_init
+NOVENA-DIAG D18 enter board_mmc_init
+NOVENA-DIAG D19 before mxc_get_clock
+NOVENA-DIAG D20 after mxc_get_clock clk=198000000
+NOVENA-DIAG D21 enter fsl_esdhc_initialize
+NOVENA-DIAG D32 after fsl_esdhc_initialize ret=-12
+NOVENA-DIAG D33 after board_mmc_init ret=-12
+```
+
+D22 bis D31 wurden nicht beobachtet. Damit liegt der beobachtete
+Fehlerkorridor innerhalb von `fsl_esdhc_initialize()` zwischen D21 und
+D22. `fsl_esdhc_initialize()` gab `-12` zurück; `board_mmc_init()`
+propagierte denselben Rückgabewert.
+
+Die anschließende statische Quell-, ELF-, DWARF- und
+Disassembly-Analyse grenzte diesen Korridor auf die beiden
+`calloc()`-Aufrufe vor D22 ein:
+
+* `priv`: 120 Byte
+* `plat`: 480 Byte
+
+Beide Pfade können bei einer fehlgeschlagenen Allokation `-ENOMEM`
+zurückgeben. Die erzeugte SPL bestätigt die beiden Aufrufe und den
+gemeinsamen Rückgabepfad `-12`. Aus dem Hardwaremitschnitt folgt daher,
+dass mindestens einer der beiden `calloc()`-Aufrufe `NULL` liefert.
+Welcher der beiden Aufrufe fehlschlägt, ist damit noch nicht bestimmt.
+
+Die Full-Malloc-Region der SPL ist statisch als
+`[0x18300000,0x18400000)` mit einer Größe von 1 MiB bestimmt.
+`board_init_r()` initialisiert diesen Bereich vor dem später erreichten
+D21-Pfad mit `mem_malloc_init()` und setzt
+`GD_FLG_FULL_MALLOC_INIT`.
+
+Damit erklären weder eine Erschöpfung des 8-KiB-`malloc_f` noch eine
+fehlende Full-Malloc-Initialisierung oder eine allein aufgrund ihrer
+konfigurierten Größe zu kleine Full-Malloc-Region den beobachteten
+Pfad.
+
+Nicht nachgewiesen sind insbesondere physische RAM-Erschöpfung,
+DDR-Korruption, dlmalloc-Korruption oder die Identität der
+fehlgeschlagenen `calloc()`-Allokation.
+
+Vor einer weiteren SPL-Änderung wurde deshalb der minimale
+D21A-D21D-Diagnosetest präregistriert. Er beobachtet ausschließlich
+`mem_malloc_start`, `mem_malloc_end`, `mem_malloc_brk` sowie die
+Rückgabewerte der beiden bestehenden `calloc()`-Aufrufe. Die
+Ergebnisfälle A bis E und die erwarteten Allocator-Invarianten wurden
+vor Patch, Build und einem weiteren Hardwaretest festgelegt.
+
+Bis zu diesem Folgetest wird aus dem beobachteten `-ENOMEM` insbesondere
+kein physischer RAM-Mangel als Root Cause abgeleitet.

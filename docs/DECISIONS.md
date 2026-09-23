@@ -417,3 +417,59 @@ Boot zulässig ist.
 Der letzte beobachtete Marker dient ausschließlich zur Lokalisierung
 des nächsten Untersuchungskorridors und gilt nicht für sich allein als
 Nachweis einer Root Cause.
+
+## 2026-09-23 – D21-D22-Diagnose wird vor weiterem P_EXT-Test präregistriert
+
+Der präregistrierte D0 bis D36-Hardwaretest wurde genau einmal
+durchgeführt. Der Mitschnitt erreichte D21 beim Eintritt in
+`fsl_esdhc_initialize()`, aber keinen der Marker D22 bis D31.
+`fsl_esdhc_initialize()` gab `-12` zurück, `board_mmc_init()`
+propagierte denselben Rückgabewert.
+
+Die anschließende statische Analyse grenzte den D21-D22-Korridor
+auf zwei bestehende `calloc()`-Aufrufe ein:
+
+* `priv`: 120 Byte
+* `plat`: 480 Byte
+
+Mindestens einer dieser beiden Aufrufe liefert auf dem beobachteten
+Pfad `NULL`. Der bisherige Hardwaremitschnitt unterscheidet nicht,
+welcher der beiden Aufrufe fehlschlägt.
+
+Die statische Prüfung bestätigt zudem, dass der Full-Malloc-Bereich
+von `0x18300000` bis `0x18400000` vor D21 initialisiert wird. Eine
+Erschöpfung des 8-KiB-`malloc_f`, eine fehlende Full-Malloc-Initialisierung
+oder eine allein aufgrund der konfigurierten Größe zu kleine 1-MiB-Region werden daher nicht als Erklärung des beobachteten
+Pfads weiterverfolgt.
+
+Aus `-12` beziehungsweise `-ENOMEM` wird insbesondere kein physischer
+RAM-Mangel, keine DDR-Korruption und keine dlmalloc-Korruption als
+Root Cause abgeleitet.
+
+Der unveränderte D0-bis-D36-Hardwaretest wird daher nicht wiederholt.
+Ebenso werden vor der nächsten Beobachtung keine funktionalen
+Änderungen an MMC-Nummerierung, USDHC-Auswahl, IOMUX, Clock-Timing,
+Timeouts, Allocatorgröße, Heaplayout oder Rückgabesemantik
+vorgenommen.
+
+Als nächster zulässiger Hardwaretest wird ausschließlich ein minimaler
+D21A-D21D-Diagnosetest präregistriert. Er beobachtet die
+Allocator-Grenzen `mem_malloc_start`, `mem_malloc_end` und
+`mem_malloc_brk` sowie die Rückgabewerte der beiden bestehenden
+`calloc()`-Aufrufe. Der bestehende D22-Marker bleibt erhalten.
+
+Vor Patch, Build und Hardwaretest werden die Ergebnisfälle A bis E
+festgelegt:
+
+* A: die erste Allokation `priv` liefert `NULL`.
+* B: `priv` liefert einen Wert, die zweite Allokation `plat` liefert `NULL`.
+* C: beide Allokationen sind erfolgreich und D22 erscheint; die bisherige
+  D21-D22-Zuordnung wird neu bewertet.
+* D: die neue Zustandsdiagnose beeinflusst den Pfad; A, B oder C werden
+  nicht zugewiesen.
+* E: die erwarteten Allocator-Invarianten sind bereits vor dem
+  ersten `calloc()` verletzt.
+
+Diese Entscheidung definiert ausschließlich den nächsten
+Diagnoseschritt. Sie ist kein Nachweis einer funktionalen oder
+Hardware-Root-Cause.

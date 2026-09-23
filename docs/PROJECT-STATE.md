@@ -4305,3 +4305,95 @@ Noch nicht nachgewiesen:
 
 Aus dem bisherigen D0-Befund wird keine funktionale U-Boot-Änderung
 und keine konkrete Hardware-Root-Cause abgeleitet.
+
+## P_EXT-SPL-Diagnose - statischer D21-D22-Checkpoint vom 2026-09-23
+
+Der einmalige Hardwaretest der qualifizierten D0-D36-SPL hat den
+P_EXT-Fehlerpfad weiter eingegrenzt.
+
+Beobachtet wurde:
+
+- D21 wurde beim Eintritt in `fsl_esdhc_initialize()` erreicht.
+- D22 bis D31 wurden nicht beobachtet.
+- `fsl_esdhc_initialize()` gab `-12` zurück.
+- `board_mmc_init()` propagierte `-12`.
+
+Die statische Quell- und Binäranalyse lokalisiert den Korridor
+zwischen D21 und D22 auf zwei `calloc()`-Aufrufe in
+`fsl_esdhc_initialize()`:
+
+- `priv`: 120 Byte
+- `plat`: 480 Byte
+
+Beide Allokationspfade können `-ENOMEM` zurückgeben. Die
+Disassemblierung bestätigt die beiden Aufrufe und den Rückgabepfad
+`-12`.
+
+Damit ist für den beobachteten Pfad eingegrenzt, dass mindestens
+einer der beiden `calloc()`-Aufrufe `NULL` liefert. Der vorhandene
+Hardwaremitschnitt unterscheidet noch nicht, welcher Aufruf
+fehlschlägt.
+
+Die SPL-Malloc-Konfiguration wurde statisch überprüft. Der
+Full-Malloc-Bereich ist:
+
+```text
+[0x18300000,0x18400000)
+Größe: 1 MiB
+```
+
+`board_init_r()` führt `mem_malloc_init()` vor dem später
+erreichten D21-Pfad aus und setzt `GD_FLG_FULL_MALLOC_INIT`.
+
+Damit sind als unmittelbare Erklärung des D21-Fehlers statisch
+ausgeschlossen:
+
+* Erschöpfung des 8-KiB-`malloc_f`;
+* fehlende Full-Malloc-Initialisierung vor D21;
+* eine allein aufgrund ihrer konfigurierten Größe unzureichende
+  1-MiB-Full-Malloc-Region;
+* eine offensichtliche Überlappung mit SPL-BSS oder SPL-Image;
+* eine in diesen Heapbereich verlagerte SPL-Stack-Konfiguration.
+
+Nicht nachgewiesen sind weiterhin:
+
+* physische RAM-Erschöpfung;
+* DDR-Korruption;
+* dlmalloc-Korruption;
+* welcher der beiden `calloc()`-Aufrufe `NULL` liefert.
+
+Die statische Untersuchung dieses Korridors ist damit ausgeschöpft.
+Vor einer weiteren SPL-Änderung wurde deshalb ein minimaler
+D21A-D21D-Diagnosetest präregistriert. Er soll ausschließlich
+`mem_malloc_start`, `mem_malloc_end`, `mem_malloc_brk` und die
+Rückgabewerte der beiden bestehenden `calloc()`-Aufrufe beobachten.
+
+Die Ergebnisfälle A bis E sind vor Patch, Build und Hardwaretest
+festgelegt. Der bestehende D22-Marker bleibt erhalten. Allokationen,
+Freigaben und Rückgabesemantik dürfen durch die Diagnose nicht
+verändert werden.
+
+Bis zu diesem Test wird aus `-ENOMEM` insbesondere kein physischer
+RAM-Mangel als Root Cause abgeleitet.
+
+Erwartete Allocator-Invarianten vor der ersten Allokation:
+
+```text
+mem_malloc_start = 0x18300000
+mem_malloc_end   = 0x18400000
+mem_malloc_start <= mem_malloc_brk <= mem_malloc_end
+```
+
+Die präregistrierte Ergebnismatrix unterscheidet:
+
+* A: D21B zeigt `priv=NULL` - erste Allokation ist der beobachtete `-ENOMEM`-Pfad.
+* B: `priv != NULL`, D21D zeigt `plat=NULL` - zweite Allokation ist der beobachtete `-ENOMEM`-Pfad.
+* C: beide Allokationen sind erfolgreich und D22 erscheint - die bisherige D21-D22-Zuordnung muss neu bewertet werden.
+* D: die neue Zustandsdiagnose beeinflusst den Pfad - keine Einordnung als A, B oder C.
+* E: die Allocator-Invarianten sind bereits vor dem ersten `calloc()` verletzt - der Allocatorzustand ist bereits vorher inkonsistent.
+
+`include/malloc.h` exportiert `mem_malloc_start`, `mem_malloc_end` und
+`mem_malloc_brk` bereits. `drivers/mmc/fsl_esdhc_imx.c` bindet
+`<malloc.h>` bereits ein. Für die geplante Diagnose sind daher keine
+neuen `extern`-Deklarationen und keine funktionalen Allocatoränderungen
+notwendig.
