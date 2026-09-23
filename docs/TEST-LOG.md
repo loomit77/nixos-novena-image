@@ -1472,3 +1472,90 @@ anderen Build-Host und noch nicht den realen P_EXT-Bootpfad.
 
 Der Clean Store bleibt bis zum Dokumentations- und
 Sicherungscheckpoint erhalten.
+
+## 2026-09-23 – P_EXT-Hardwaretest und SPL-Diagnose D0 bis D36
+
+### Produktions-P_EXT-Test
+
+Der reale P_EXT-Test erreichte den aktuellen projektlokalen SPL
+v2026.07 von der externen SD. Beobachtet wurden mindestens:
+
+`U-Boot SPL 2026.07-00003-gf8baca04e22d (Sep 21 2026 - 09:52:43 +0000)`
+
+`Trying to boot from MMC1`
+
+U-Boot proper v2026.07 wurde über diesen P_EXT-Pfad nicht beobachtet.
+
+Der aktuell vorhandene Mitschnitt
+
+`test-logs/p-ext-2026-09-22/p-ext-boot-01.log`
+
+besitzt:
+
+* Größe: `35434` Byte
+* Zeilen: `502`
+* SHA-256:
+  `506f8eaf409b8d9a6e40fced1da822df43b865df507d08d094d9106046e7debb`
+
+Dieser aktuelle Dateizustand enthält zusätzlichen seriellen Inhalt nach
+dem ersten P_EXT-SPL-Versuch. Er darf nicht stillschweigend mit dem
+ursprünglich dokumentierten kurzen Capture gleichgesetzt werden. Die
+Provenienz dieser Abweichung ist separat ungeklärt.
+
+### Erster Diagnoseboot D0 bis D15
+
+Der Mitschnitt
+
+`test-logs/p-ext-2026-09-22/p-ext-diag-boot-01.log`
+
+besitzt:
+
+* Größe: `148` Byte
+* Zeilen: `4`
+* SHA-256:
+  `4773f008e9dda2c0c6cfbf5695a73877b60178bb45ba2c755a2a431921dabc41`
+
+Beobachtet wurde:
+
+`NOVENA-DIAG D0 before spl_mmc_find_device dev=0`
+
+D1 bis D15 wurden nicht beobachtet.
+
+Der Test wurde nach diesem ersten Diagnoseboot nicht wiederholt.
+
+### Zweite Diagnoseserie D0 bis D36
+
+Die zweite Instrumentierung wurde vor einem Hardwaretest vollständig
+gebaut und statisch qualifiziert.
+
+Diagnose-Diff SHA-256:
+
+`81d0daa23a86a2d7a2f235dfae2fbe15861b54ebaf105c66bab7e773106f2863`
+
+Qualifizierte Raw-SPL:
+
+* Größe: `52224` Byte
+* SHA-256:
+  `a9f53d7a84053b6e177b47d32454430a8f247bbc4c93a15763acb5e80253d9c6`
+
+Analyse-ELF SHA-256:
+
+`5b8c09e27c8efc235b72c61f6f01330865fe78202c59b3bcaf501381a4a6a3eb`
+
+Die statische ELF-/DWARF-/Disassembly-Prüfung bestätigte den relevanten
+erzeugten MMC-/eSDHC-Pfad. `spl_mmc_find_device` wurde dabei
+ausdrücklich als inlined bestätigt. Das Fehlen eigenständiger
+ELF-Symbole weiterer untersuchter Hilfsfunktionen wird nicht allein als
+Nachweis fehlenden Codes oder als eindeutiger Inlining-Nachweis
+interpretiert.
+
+Der D0-bis-D36-Hardwaretest wurde noch nicht ausgeführt.
+
+Für die nächste Testserie gilt:
+
+* maximal ein initialer P_EXT-Boot;
+* serielle Aufzeichnung vor dem Einschalten aktiv;
+* nach dem Boot zuerst vollständige Auswertung;
+* kein zweiter Boot ohne vorherige Entscheidung anhand des ersten Logs;
+* der letzte beobachtete Marker lokalisiert nur einen Korridor und wird
+  nicht allein als Root-Cause-Nachweis interpretiert.

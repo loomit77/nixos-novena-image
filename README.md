@@ -62,12 +62,17 @@ SHA-256:
 
 `8a2b8ac8681a78f9697b4a68582e6afcb1e0164e60a44286b7576d81242226dc`
 
-Noch nicht hardwareseitig qualifiziert ist der vollständige
-eigenständige externe Bootpfad:
+Der reale P_EXT-Hardwaretest hat inzwischen den ersten Teil des
+eigenständigen externen Bootpfads bestätigt:
 
-`P_EXT -> i.MX6 ROM -> externe SD/USDHC2 -> SPL v2026.07 -> U-Boot v2026.07 -> boot.scr -> Kernel/Initrd/DTB -> externes Root-Dateisystem`
+`P_EXT -> i.MX6 ROM -> externe SD/USDHC2 -> SPL v2026.07`
 
-Dieser vorregistrierte P_EXT-Test ist der nächste Hardware-Nachweis.
+Noch nicht hardwareseitig nachgewiesen ist der anschließende Pfad:
+
+`SPL v2026.07 -> U-Boot v2026.07 -> boot.scr -> Kernel/Initrd/DTB -> externes Root-Dateisystem`
+
+Die aktuelle Untersuchung grenzt den Stillstand innerhalb der
+SPL-seitigen MMC-Initialisierung diagnostisch weiter ein.
 
 ## Golden Build
 
@@ -116,7 +121,9 @@ erzeugte ein byteidentisches Image mit demselben SHA-256-Wert.
 Der historische `result`-Symlink bleibt bewusst unverändert und dient
 weiterhin als Referenz auf den früheren Golden Build.
 
-Der reale P_EXT-Hardwaretest dieses aktuellen Images steht noch aus.
+Der reale P_EXT-Hardwaretest dieses Stands wurde begonnen. Der i.MX6-ROM-Code
+lädt den aktuellen SPL von der externen SD; U-Boot proper v2026.07 wurde
+über diesen eigenständigen P_EXT-Pfad bisher noch nicht erreicht.
 
 ## Build-Host
 

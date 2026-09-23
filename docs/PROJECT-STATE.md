@@ -229,38 +229,36 @@ vollständigen aktuellen Images bytegenau nachgewiesen.
 Ein späterer Build auf dem L14 bleibt als davon unabhängiger
 Cross-Host-Reproduzierbarkeitstest vorgesehen.
 
-### Aktuelle Aussagegrenze und nächster Hardwaretest
+### Aktuelle Aussagegrenze und P_EXT-Hardwarediagnose
 
 Der aktuelle Softwarestand ist reproduzierbar gebaut und statisch
 qualifiziert.
 
-Noch nicht auf realer Hardware nachgewiesen ist die vollständige
-eigenständige Bootkette:
+Der erste reale P_EXT-Test hat folgenden Teil der eigenständigen
+Bootkette nachgewiesen:
 
-`P_EXT -> i.MX6 ROM -> externe SD/USDHC2 -> SPL v2026.07 -> U-Boot v2026.07 -> boot.scr -> Kernel/Initrd/DTB -> externes Root-Dateisystem`
+`P_EXT -> i.MX6 ROM -> externe SD/USDHC2 -> SPL v2026.07`
 
-Vor diesem Test wird exakt das qualifizierte Image mit SHA-256
+Der SPL meldete:
 
-`8a2b8ac8681a78f9697b4a68582e6afcb1e0164e60a44286b7576d81242226dc`
+`Trying to boot from MMC1`
 
-auf die externe SD geschrieben und durch vollständigen Readback
-verifiziert.
+U-Boot proper v2026.07 wurde über diesen Pfad noch nicht erreicht.
+Damit ist der anschließende Pfad
 
-Für den Hardwaretest gilt:
+`SPL v2026.07 -> U-Boot v2026.07 -> boot.scr -> Kernel/Initrd/DTB -> externes Root-Dateisystem`
 
-* Novena vor der Jumperänderung vollständig ausgeschaltet;
-* `P_EXT` gesetzt;
-* `P_USB` nicht gesetzt;
-* `P_SATA` nicht gesetzt;
-* `P_FUSE` nicht gesetzt;
-* serielle Aufzeichnung vor dem Einschalten aktiv.
+weiterhin nicht hardwareseitig nachgewiesen.
 
-Der Test muss insbesondere zeigen, dass der i.MX6-ROM-Code den
-projektlokalen SPL von der externen SD startet und anschließend der
-projektlokale U-Boot v2026.07 verwendet wird.
+Ein erster Diagnose-SPL erreichte D0 unmittelbar vor
+`spl_mmc_find_device()`. D1 bis D15 wurden nicht beobachtet. Dieser
+Befund grenzt den untersuchten Korridor ein, beweist aber noch keine
+konkrete Root Cause.
 
-Bis zu diesem Test wird nicht behauptet, dass der vollständige
-P_EXT-Bootpfad hardwareseitig qualifiziert ist.
+Eine zweite serielle Diagnoseinstrumentierung D0 bis D36 wurde
+anschließend gebaut und statisch qualifiziert. Ihr Hardwaretest steht
+noch aus und wird weiterhin nach der vorregistrierten Ein-Boot-Regel
+durchgeführt.
 
 Die folgenden Abschnitte dieses Dokuments enthalten die historische
 Untersuchungs- und Entwicklungsdokumentation. Aussagen über damalige
@@ -4219,3 +4217,91 @@ Charakterisierung des mikroskopischen Mechanismus.
 Vollständige Synthese:
 
 `research/03-root-cause-synthesis/block-3.15w-es8328-i2c3-historische-root-cause.md`
+
+## 2026-09-23 – P_EXT-Boot bis SPL nachgewiesen und zweite Diagnose qualifiziert
+
+Der formale P_EXT-Hardwaretest wurde mit gesetztem `P_EXT` und der
+vorbereiteten externen SD durchgeführt.
+
+Die serielle Ausgabe des aktuellen U-Boot-Stands begann mit:
+
+`U-Boot SPL 2026.07-00003-gf8baca04e22d (Sep 21 2026 - 09:52:43 +0000)`
+
+und anschließend:
+
+`Trying to boot from MMC1`
+
+Damit ist auf realer Hardware nachgewiesen, dass der i.MX6-ROM-Code
+über P_EXT von der externen SD startet und den projektlokalen
+SPL v2026.07 ausführt.
+
+U-Boot proper v2026.07 wurde über diesen Bootpfad nicht erreicht.
+
+### Erste Diagnose D0 bis D15
+
+Für die erste Diagnose wurde ausschließlich serielle Instrumentierung
+ergänzt. Der erste und einzige initiale Diagnoseboot erreichte:
+
+`NOVENA-DIAG D0 before spl_mmc_find_device dev=0`
+
+D1 bis D15 wurden nicht beobachtet.
+
+D0 liegt unmittelbar vor `spl_mmc_find_device()`. Der Befund zeigt
+damit, dass die erfolgreiche Rückkehr aus diesem Aufruf nicht
+beobachtet wurde. Er lokalisiert einen Untersuchungskorridor, beweist
+aber weder MMC/USDHC2 allgemein noch einen bestimmten Unterpfad als
+Root Cause.
+
+### Zweite Diagnose D0 bis D36
+
+Die zweite Diagnoseserie erweitert die rein serielle Instrumentierung
+bis in den tatsächlich im SPL verwendeten Legacy-MMC-/i.MX-eSDHC-Pfad.
+
+Der statisch bestätigte Pfad lautet:
+
+`spl_mmc_find_device -> mmc_initialize -> mmc_probe -> board_mmc_init -> mxc_get_clock(MXC_ESDHC2_CLK) -> fsl_esdhc_initialize -> fsl_esdhc_init -> esdhc_reset -> mmc_create -> mmc_do_preinit -> find_mmc_device`
+
+Die Diagnoseänderung umfasst D0 bis D36 und verändert weder
+Kontrollfluss noch Timeoutwerte, MMC-Nummerierung, USDHC-Auswahl,
+IOMUX, Clock-Konfiguration, FAT-/Payload-Logik oder das
+Produktionsimage.
+
+Der qualifizierte Diagnose-Diff besitzt SHA-256:
+
+`81d0daa23a86a2d7a2f235dfae2fbe15861b54ebaf105c66bab7e773106f2863`
+
+Die für den nächsten Hardwaretest qualifizierte Raw-SPL besitzt:
+
+* Größe: `52224` Byte
+* SHA-256:
+  `a9f53d7a84053b6e177b47d32454430a8f247bbc4c93a15763acb5e80253d9c6`
+
+Für die statische Analyse wurde zusätzlich dieselbe Buildkonfiguration
+mit installiertem `u-boot-spl`-ELF erzeugt. Dessen SHA-256 lautet:
+
+`5b8c09e27c8efc235b72c61f6f01330865fe78202c59b3bcaf501381a4a6a3eb`
+
+Die Analyse bestätigte den erzeugten MMC-/eSDHC-Codepfad.
+`spl_mmc_find_device` ist durch die DWARF-Informationen ausdrücklich als
+inlined bestätigt. Für weitere untersuchte Hilfsfunktionen fehlen
+teilweise eigenständige ELF-Symbole; die bisherige Analyse belegt für
+diese Funktionen jedoch nicht in jedem Fall eindeutig die Ursache
+dieses Symbolbefunds.
+
+Der zweite D0-bis-D36-Hardwaretest wurde zu diesem Checkpoint noch
+nicht ausgeführt. Für ihn gilt weiterhin maximal ein initialer Boot;
+vor jedem weiteren Boot muss zunächst die serielle Ausgabe ausgewertet
+werden.
+
+### Aussagegrenze
+
+Nachgewiesen:
+
+`P_EXT -> i.MX6 ROM -> externe SD/USDHC2 -> SPL v2026.07`
+
+Noch nicht nachgewiesen:
+
+`SPL v2026.07 -> U-Boot proper v2026.07 -> boot.scr -> Kernel/Initrd/DTB -> externes Root-Dateisystem`
+
+Aus dem bisherigen D0-Befund wird keine funktionale U-Boot-Änderung
+und keine konkrete Hardware-Root-Cause abgeleitet.

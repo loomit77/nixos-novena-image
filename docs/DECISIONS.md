@@ -389,3 +389,31 @@ Image-Stands als nachgewiesen.
 Dieser Nachweis wird ausdrücklich von einem späteren
 Cross-Host-Reproduzierbarkeitstest getrennt. Ein solcher Test soll
 später unabhängig auf dem L14 erfolgen.
+
+## 2026-09-23 – P_EXT-Diagnose bleibt rein beobachtend
+
+Der erste reale P_EXT-Test bestätigt den Bootpfad vom i.MX6-ROM über
+die externe SD bis zum projektlokalen SPL v2026.07.
+
+Der anschließende Übergang zu U-Boot proper v2026.07 ist noch nicht
+nachgewiesen.
+
+Der erste Diagnoseboot erreichte D0 unmittelbar vor
+`spl_mmc_find_device()`, aber keinen der nachfolgenden Marker D1 bis
+D15.
+
+Aus diesem Befund wird bewusst keine funktionale Änderung an
+MMC-Nummerierung, USDHC-Auswahl, IOMUX, Clock-Konfiguration,
+Timeoutwerten oder Boot-Payload abgeleitet.
+
+Stattdessen wird der bestehende Kontrollfluss mit einer zweiten,
+ausschließlich seriellen Diagnoseinstrumentierung D0 bis D36 weiter
+beobachtet.
+
+Für deren Hardwaretest gilt eine Ein-Boot-Regel: Nach maximal einem
+initialen P_EXT-Boot wird die Ausgabe ausgewertet, bevor ein weiterer
+Boot zulässig ist.
+
+Der letzte beobachtete Marker dient ausschließlich zur Lokalisierung
+des nächsten Untersuchungskorridors und gilt nicht für sich allein als
+Nachweis einer Root Cause.

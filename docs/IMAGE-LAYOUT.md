@@ -214,9 +214,15 @@ Bootartefakten verwechselt werden.
 Die statische Image-Prüfung bestätigt den Aufbau und die eingebetteten
 Artefakte.
 
-Noch nicht durch einen realen Hardwaretest bestätigt ist die vollständige
-Bootkette:
+Auf realer Novena-Hardware ist inzwischen folgender Teil der
+eigenständigen Bootkette bestätigt:
 
-`P_EXT -> i.MX6 ROM -> externe SD/USDHC2 -> SPL v2026.07 -> U-Boot v2026.07 -> boot.scr -> Kernel/Initrd/DTB -> externes Root-Dateisystem`
+`P_EXT -> i.MX6 ROM -> externe SD/USDHC2 -> SPL v2026.07`
 
-Dieser P_EXT-Test bleibt der nächste Hardware-Nachweis.
+Noch nicht bestätigt ist der anschließende Pfad:
+
+`SPL v2026.07 -> U-Boot v2026.07 -> boot.scr -> Kernel/Initrd/DTB -> externes Root-Dateisystem`
+
+Der aktuelle Hardwarebefund lokalisiert den noch offenen Übergang in
+der SPL-seitigen MMC-Initialisierung; er ändert den statisch
+qualifizierten Image-Aufbau nicht.

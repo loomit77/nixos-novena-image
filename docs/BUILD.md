@@ -219,17 +219,23 @@ SHA-256:
 
 Dadurch bleibt die historische Referenz unverändert erhalten.
 
-## Noch ausstehende Qualifikation
+## Hardware-Qualifikation
 
 Der Software-Build und die Same-Host-/Separate-Store-Reproduzierbarkeit
 sind qualifiziert.
 
-Noch nicht nachgewiesen ist der vollständige reale Bootpfad:
+Der reale P_EXT-Test auf der Novena weist inzwischen folgenden Teil der
+Bootkette nach:
 
-`P_EXT -> i.MX6 ROM -> externe SD/USDHC2 -> SPL v2026.07 -> U-Boot v2026.07 -> boot.scr -> Kernel/Initrd/DTB -> externes Root-Dateisystem`
+`P_EXT -> i.MX6 ROM -> externe SD/USDHC2 -> SPL v2026.07`
 
-Dieser Nachweis erfolgt getrennt durch einen vorregistrierten
-Hardwaretest auf der Novena.
+Noch nicht nachgewiesen ist der anschließende vollständige Pfad:
+
+`SPL v2026.07 -> U-Boot v2026.07 -> boot.scr -> Kernel/Initrd/DTB -> externes Root-Dateisystem`
+
+Der SPL erreicht bei der laufenden Diagnose die MMC-Initialisierung.
+Die weitere Hardwarequalifikation erfolgt mit einer getrennt
+vorregistrierten seriellen Diagnoseinstrumentierung.
 
 ## Kernel-Arbeitsverzeichnisse
 
