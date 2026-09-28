@@ -4756,3 +4756,174 @@ Schreibzugriff auf die Test-SD.
 
 Die abgeschlossene I2C3-/ES8328-Untersuchung bleibt von dieser
 P_EXT-/Allocator-Untersuchung getrennt und wird nicht wieder geöffnet.
+
+## 2026-09-23 – P_EXT-/Allocator-Checkpoint nach Q1/Q2/P0-Fall 7C
+
+Der im vorherigen Checkpoint präregistrierte Drei-Punkt-Test wurde
+anschließend vollständig umgesetzt, statisch qualifiziert und genau
+einmal auf der realen Novena ausgeführt.
+
+### Qualifizierter Patch 0007
+
+Der endgültige Diagnosepatch ist:
+
+`boot/u-boot/0007-novena-diag-brk-q1-q2.patch`
+
+Seine qualifizierte Identität lautet:
+
+* Größe: `732` Byte;
+* SHA-256:
+  `60ff3d4206f52646312ff493b853667514e1c5f0256328cd8aae2a97e9287849`.
+
+`boot/u-boot/default.nix` bindet Patch `0007` nach den Diagnosepatches
+`0004`, `0005` und `0006` ein.
+
+Die qualifizierte Identität von `default.nix` lautet:
+
+* Größe: `1008` Byte;
+* SHA-256:
+  `19204a0c51f8d38423ee3cc0ee6fb09027087b0d9bf6a881e12145a3fe01b47b`.
+
+Die vollständige Patchkette `0001` bis `0007` wurde gegen den exakten
+U-Boot-Quellstand angewendet und qualifiziert.
+
+Der resultierende U-Boot-Derivation-Pfad ist:
+
+`/nix/store/73y4plhdih7kx2fqk13dx6ng1jdh3gjn-uboot-novena_defconfig-armv7l-unknown-linux-gnueabihf-2026.07.drv`
+
+Der resultierende Output ist:
+
+`/nix/store/88xdinpydfvwn8v0mr4s5dysbwd7fm6a-uboot-novena_defconfig-armv7l-unknown-linux-gnueabihf-2026.07`
+
+Der qualifizierte SPL besitzt:
+
+* Größe: `56320` Byte = `0xDC00`;
+* SHA-256:
+  `4fae745cb415d2db1be960e9ce7447a7371fda136dd85733e4e0b41ece568da8`.
+
+Die bestehenden SPL-, ROM-, Container- und Mediengrenzen bleiben
+eingehalten.
+
+### Maschinencode-Qualifikation des Drei-Punkt-Tests
+
+Der Locked-Debug-Build reproduziert den qualifizierten SPL byteidentisch.
+
+Für `mem_malloc_init()` wurde im exakten Maschinencode bestätigt:
+
+```text
+bestehender Store nach mem_malloc_brk
+Q1: echter Load von mem_malloc_brk
+Heap-memset
+Q2: neuer echter Load von mem_malloc_brk
+gemeinsame Q1/Q2-Ausgabe
+```
+
+Q1 liegt unmittelbar nach dem bestehenden Store und vor dem
+Heap-`memset()`. Zwischen Q1 und dem Heap-`memset()` befindet sich keine
+Diagnoseausgabe.
+
+Q1 wird in einem lokalen automatischen Wert über den Heap-`memset()`
+erhalten. Q2 ist ein davon unabhängiger neuer Load unmittelbar nach
+Rückkehr aus dem Heap-`memset()`.
+
+Beide Loads greifen auf:
+
+```text
+mem_malloc_brk = 0x1820003c
+```
+
+zu.
+
+Es wurde keine neue persistente Diagnosevariable eingeführt.
+
+### Einmaliger SD-Schreibvorgang und Hardwaretest
+
+Vor dem Schreibvorgang wurde der vorhandene SPL-Bereich der eindeutig
+identifizierten Test-SD gesichert.
+
+Der qualifizierte 0007-SPL wurde exakt einmal auf die Test-SD
+geschrieben. Der anschließende Readback war byteidentisch mit dem
+qualifizierten Build.
+
+Es erfolgte kein zweiter 0007-Schreibvorgang.
+
+Der Q1/Q2/P0-SPL wurde anschließend genau einmal mit gesetztem `P_EXT`
+auf der realen Novena gestartet. Dies war insgesamt der dritte
+P_EXT-Hardwareboot der laufenden Untersuchung.
+
+Das unveränderte serielle Rohlog ist:
+
+`test-logs/p-ext-2026-09-23/p-ext-q1-q2-p0-boot-01.log`
+
+* Größe: `772` Byte;
+* LF-Zeilen: `16`;
+* SHA-256:
+  `5fa66b25959c862e7b985022a1c76037b3668942fa10741f8b3cd7754ba25d54`.
+
+Die drei präregistrierten Messwerte lauten:
+
+```text
+Q1 = 0x00000000
+Q2 = 0x00000000
+P0 = 0x00000000
+```
+
+Damit ist der Hardwarebefund eindeutig der präregistrierte Fall `7C`.
+
+Das Rohlog enthält zwischen der Q1/Q2-Ausgabe und P0 ein literales
+Backslash-n. Die Bytes wurden als `0x5c 0x6e` bestätigt. Dies ist ein
+reiner Formatierungsfehler der Diagnoseausgabe und ändert die
+Messwerte nicht.
+
+### Aktuelle Aussagegrenze
+
+Der reale Q1-Load von `mem_malloc_brk` unmittelbar nach dem bestehenden
+Store liest bereits `0x00000000`.
+
+Damit können folgende spätere Vorgänge den bei Q1 bereits vorhandenen
+Nullwert nicht erst verursacht haben:
+
+* der Heap-`memset()`;
+* die Rückkehr aus `mem_malloc_init()`;
+* der P0-zu-P1-Pfad;
+* der Loader-Callback;
+* der nachfolgende MMC-/eSDHC-Pfad.
+
+Insbesondere ist damit der präregistrierte Fall `7B` ausgeschlossen.
+
+Fall `7C` beweist jedoch noch nicht, warum der unmittelbar auf den
+bestehenden Store folgende reale Load Null liefert. Eine konkrete
+Root Cause für dieses Store-/Load-Verhalten ist noch nicht
+nachgewiesen.
+
+Das verbleibende Untersuchungsfenster liegt damit am bestehenden Store,
+dessen tatsächlichem Eingangswert und dem unmittelbar folgenden
+Q1-Load.
+
+### Aktuelle Sperren und nächster Schritt
+
+Der Hardwarestatus lautet nun:
+
+```text
+TOTAL_P_EXT_HARDWAREBOOT_COUNT=3
+Q1_Q2_P0_HARDWAREBOOT_COUNT=1
+SECOND_Q1_Q2_P0_BOOT_ALLOWED=NO
+ANOTHER_BOOT_ALLOWED=NO
+TOTAL_0007_SD_WRITE_COUNT=1
+SECOND_0007_SD_WRITE_ALLOWED=NO
+PREREGISTERED_RESULT_CLASS=7C
+```
+
+Patch `0007` erhält keinen zweiten Q1/Q2/P0-Hardwaretest.
+
+Vor einem weiteren Diagnosepatch, SD-Schreibvorgang oder
+P_EXT-Hardwareboot muss zuerst ein neuer falsifizierbarer Test
+definiert werden, der den tatsächlichen Eingangswert des bestehenden
+Stores und das unmittelbar folgende Store-/Load-Verhalten weiter
+trennt.
+
+Die historische Untersuchung des P_EXT-Bootpfads und insbesondere die
+Zuordnung von externer SD, USDHC2 und USDHC3 wird getrennt von diesem
+7C-Hardwarebefund behandelt.
+
+Die abgeschlossene I2C3-/ES8328-Untersuchung bleibt geschlossen.

@@ -605,3 +605,72 @@ dieses Drei-Punkt-Tests gilt:
 
 Die abgeschlossene I2C3-/ES8328-Untersuchung wird dadurch nicht wieder
 geöffnet.
+
+## 2026-09-23 – Fall 7C verschiebt die nächste Diagnose vor den Heap-memset
+
+Der präregistrierte Q1/Q2/P0-Test wurde nach vollständiger statischer
+Qualifikation genau einmal auf der realen Novena ausgeführt.
+
+Die Messwerte lauten:
+
+```text
+Q1 = 0x00000000
+Q2 = 0x00000000
+P0 = 0x00000000
+```
+
+Damit ist der präregistrierte Fall `7C` qualifiziert.
+
+Die statische Maschinencode-Qualifikation bestätigt, dass Q1 ein echter
+Load von `mem_malloc_brk` bei `0x1820003c` unmittelbar nach dem
+bestehenden Store und vor dem Heap-`memset()` ist. Zwischen dem
+bestehenden Store, Q1 und dem anschließenden Heap-`memset()` befindet
+sich keine Diagnoseausgabe.
+
+Aus Fall `7C` wird deshalb entschieden:
+
+* der Heap-`memset()` wird nicht als erstmalige Ursache des bereits bei
+  Q1 beobachteten Nullwerts weiterverfolgt;
+* die Rückkehr aus `mem_malloc_init()`, der P0-zu-P1-Pfad, der
+  Loader-Callback und der MMC-/eSDHC-Pfad werden ebenfalls nicht als
+  erstmalige Ursache dieses Nullwerts weiterverfolgt;
+* Fall `7B` ist durch den Hardwarebefund ausgeschlossen;
+* aus Fall `7C` wird weiterhin kein funktionaler Allocator-Fix
+  abgeleitet;
+* insbesondere wird noch keine konkrete Root Cause für das beobachtete
+  Store-/Load-Verhalten behauptet.
+
+Der nächste Diagnoseschritt muss das verbleibende Fenster um den
+bestehenden Store weiter zerlegen. Vor einer Implementierung muss ein
+neuer falsifizierbarer Test präregistriert werden, der insbesondere den
+tatsächlichen Eingangswert des bestehenden Stores von dessen
+unmittelbarem Store-/Load-Verhalten unterscheidet.
+
+Bis zu dieser neuen Präregistrierung gilt:
+
+* kein Patch `0008`;
+* kein weiterer Schreibzugriff auf die Novena-Test-SD;
+* kein weiterer P_EXT-Hardwareboot;
+* keine Wiederholung des Q1/Q2/P0-Hardwaretests;
+* keine Wiederholung der bereits qualifizierten D0-D36-,
+  D21A-D21D- oder P0/P1-Hardwaretests.
+
+Der aktuelle Hardwarestatus ist:
+
+```text
+TOTAL_P_EXT_HARDWAREBOOT_COUNT=3
+Q1_Q2_P0_HARDWAREBOOT_COUNT=1
+SECOND_Q1_Q2_P0_BOOT_ALLOWED=NO
+ANOTHER_BOOT_ALLOWED=NO
+TOTAL_0007_SD_WRITE_COUNT=1
+SECOND_0007_SD_WRITE_ALLOWED=NO
+PREREGISTERED_RESULT_CLASS=7C
+PATCH_0008_ALLOWED=NO
+```
+
+Die historische Untersuchung des P_EXT-Bootpfads, einschließlich der
+Zuordnung von externer SD, USDHC2 und USDHC3, bleibt ein davon
+getrennter Untersuchungsstrang. Aus ihr wird keine Erklärung für den
+bereits vor dem MMC-/eSDHC-Pfad beobachteten Fall `7C` abgeleitet.
+
+Die abgeschlossene I2C3-/ES8328-Untersuchung bleibt geschlossen.

@@ -1939,3 +1939,95 @@ SPL-Größen- und ROM-Grenzen weiterhin eingehalten werden.
 Zu diesem Checkpoint ist der vorhandene Patch `0007` noch nicht als
 Hardwaretest qualifiziert. Ein weiterer P_EXT-Hardwareboot ist nicht
 freigegeben.
+
+## 2026-09-23 – Q1/Q2/P0-Hardwaretest qualifiziert Fall 7C
+
+Nach der statischen Qualifikation des Diagnose-Patches `0007` wurde der
+Q1/Q2/P0-Test genau einmal auf der realen Novena ausgeführt.
+
+Der qualifizierte SPL wurde genau einmal auf die Test-SD geschrieben und
+anschließend bytegenau zurückgelesen. Ein zweiter Schreibvorgang wurde
+nicht durchgeführt.
+
+Vor dem Hardwareboot wurde der serielle FTDI-Adapter eindeutig als
+`/dev/ttyUSB0` mit der Seriennummer `BH00304A` identifiziert. Der
+privilegierte Capture lief bereits vor dem Einschalten der Novena.
+
+Der Test war insgesamt der dritte P_EXT-Hardwareboot und der einzige
+Hardwareboot des Q1/Q2/P0-Diagnose-SPL.
+
+Unverändertes Rohlog:
+
+`test-logs/p-ext-2026-09-23/p-ext-q1-q2-p0-boot-01.log`
+
+* Größe: `772` Byte
+* LF-Zeilen: `16`
+* SHA-256:
+  `5fa66b25959c862e7b985022a1c76037b3668942fa10741f8b3cd7754ba25d54`
+
+Die entscheidende Diagnoseausgabe lautet:
+
+```text
+NOVENA-DIAG Q1/Q2 q1=00000000 q2=00000000\nNOVENA-DIAG P0 after mem_malloc_init brk=00000000
+```
+
+Die folgenden späteren Messpunkte lesen ebenfalls weiterhin Null:
+
+```text
+NOVENA-DIAG P1 before loader callback brk=00000000
+NOVENA-DIAG D21A before priv calloc start=18300000 end=18400000 brk=00000000
+```
+
+Das Rohlog wurde anschließend bytegenau qualifiziert. Die Zeichenfolge
+`\n` zwischen der Q1/Q2-Ausgabe und P0 besteht tatsächlich aus den beiden
+Bytes `0x5c 0x6e`. Es handelt sich damit um ein literales Backslash-n in
+der Diagnoseausgabe und nicht um einen Zeilenumbruch. Dieser
+Formatierungsfehler verändert die beobachteten Messwerte nicht.
+
+Die drei präregistrierten Messwerte sind:
+
+```text
+Q1 = 0x00000000
+Q2 = 0x00000000
+P0 = 0x00000000
+```
+
+Damit entspricht der einmalige Hardwaretest exakt dem vorab definierten
+Fall `7C`.
+
+Die bereits vor dem Hardwaretest qualifizierte Maschinenanalyse zeigt,
+dass Q1 ein echter Load von `mem_malloc_brk` an `0x1820003c`
+unmittelbar nach dem bestehenden Store nach `mem_malloc_brk` und vor
+dem Heap-`memset()` ist. Zwischen diesem Q1-Load und dem Heap-`memset()`
+liegt keine Diagnoseausgabe.
+
+Der Hardwarebefund lautet daher:
+
+`mem_malloc_brk` wird bereits beim ersten realen Q1-Load unmittelbar
+nach dem bestehenden Store als `0x00000000` beobachtet.
+
+Damit können folgende spätere Vorgänge den bei Q1 bereits beobachteten
+Nullwert nicht erst verursacht haben:
+
+* der Heap-`memset`;
+* die Rückkehr aus `mem_malloc_init()`;
+* der P0-zu-P1-Pfad;
+* der Loader-Callback;
+* der nachfolgende MMC-/eSDHC-Pfad.
+
+Insbesondere ist damit Fall `7B`, bei dem erst der Heap-`memset` den
+Übergang auf Null markiert hätte, durch diesen Hardwaretest
+ausgeschlossen.
+
+Nicht geklärt ist mit Fall `7C`, warum der unmittelbar auf den
+bestehenden Store folgende reale Load den Wert `0x00000000` liefert.
+Der Befund beweist insbesondere noch keine konkrete Root Cause für das
+Store-/Load-Verhalten.
+
+Vor einem weiteren Diagnosepatch oder Hardwareboot muss deshalb zuerst
+ein neuer falsifizierbarer Test definiert werden, der das verbleibende
+Fenster um den bestehenden Store, dessen tatsächlichen Eingangswert und
+den unmittelbar folgenden Load weiter trennt.
+
+Patch `0007` erhält keinen weiteren Q1/Q2/P0-Hardwareboot. Ein vierter
+P_EXT-Hardwareboot ist zu diesem Checkpoint nicht freigegeben.
