@@ -4927,3 +4927,101 @@ Zuordnung von externer SD, USDHC2 und USDHC3 wird getrennt von diesem
 7C-Hardwarebefund behandelt.
 
 Die abgeschlossene I2C3-/ES8328-Untersuchung bleibt geschlossen.
+
+## 2026-09-28 – Historische Medien- und Image-Provenienz konsolidiert
+
+Die vom aktuellen P_EXT-/Allocator-Fall getrennte Untersuchung historischer
+Novena-Medien und Imagequellen ist als eigener Dokumentationscheckpoint
+konsolidiert.
+
+Die vollständige Evidenz, Quellenchronologie, Aussagegrenzen und offenen
+Fragen sind dokumentiert unter:
+
+`docs/HISTORICAL-MEDIA.md`
+
+Das zusammen mit der Novena erhaltene historische USB-Medium ist kein
+nachgewiesenes unverändertes Factory Image. Sein heutiger Zustand kombiniert
+Merkmale verschiedener historischer Novena-Pfade.
+
+Direkt beobachtet wurden insbesondere:
+
+- DOS-Disk-ID `0x4e6f7653`;
+- eine 32-MiB-Bootpartition;
+- eine 32-MiB-Swap-Partition;
+- eine ext4-Rootpartition mit der UUID
+  `fa7f372b-d890-4a8c-877e-7e201e997682`;
+- eine auf den internen USDHC/MMC-Pfad verweisende historische `fstab`;
+- ein direkt im Rohmedium bei Offset `0x400` vorhandener
+  U-Boot-SPL-Stand vom 2014-10-17;
+- weitere U-Boot-Generationen auf der FAT-Bootpartition und im Rootfs.
+
+Die historische Image-Erzeugung und zusätzliche Installer-Quellen bestätigen
+die ursprüngliche Semantik:
+
+```text
+NovM / 0x4e6f764d = MMC beziehungsweise Recovery
+NovS / 0x4e6f7653 = SATA-Rootfs
+```
+
+Damit ist die NovM-/NovS-Zuordnung für die historische Untersuchung geklärt.
+Nicht geklärt ist dagegen, durch welche konkrete historische Transformation
+das untersuchte USB-Medium seinen heutigen Hybridzustand aus NovS-Disk-ID und
+MMC-artiger Partitions-/Rootfs-Struktur erhielt.
+
+Für das veröffentlichte `novena-mmc-disk-r1.img` sind Dateiname,
+historische Prüfsummen, eine Größenangabe von ungefähr 2,3 GB sowie der
+vollständige Schreibpfad per `dd` historisch dokumentiert. Eine bytegenau
+verifizierte vollständige lokale Kopie dieses veröffentlichten Images liegt
+derzeit nicht vor. Seine exakte ursprüngliche Partitionsgeometrie bleibt
+deshalb offen.
+
+Die spätere Novena-Debian-Installer-Linie ist als eigener historischer
+Derivatpfad qualifiziert. Ihre Quellen dokumentieren ausdrücklich die
+Verwendung des Standard-r1-MicroSD-Images als Ausgangsbasis. Daraus folgt
+jedoch kein nachgewiesener kausaler Zusammenhang zwischen einem
+Installer-Image und dem untersuchten historischen USB-Medium.
+
+Das physische USB-Medium wurde nach einem fehlgeschlagenen ersten
+Voll-Leseversuch mit GNU ddrescue erneut vollständig gelesen. Der
+ddrescue-Lauf endete mit 100 Prozent geretteten Daten, null Lesefehlern und
+null Bad Areas.
+
+Das daraus erzeugte lokale vollständige Raw-Master-Image wurde qualifiziert.
+Seine SHA-256-Prüfsumme lautet:
+
+`7e9028d5b127ead9bf20867bd8d6882ae5ff6b256f0504c21de5fe8267f3ead9`
+
+Zusätzlich stimmt der gesamte beim ersten fehlgeschlagenen Leseversuch
+erhaltene Präfix bytegenau mit demselben Bereich des vollständigen
+Raw-Masters überein.
+
+Der Schutzstatus lautet:
+
+```text
+LOCAL_RAW_MASTER=VERIFIED
+PHYSICAL_HISTORICAL_USB=RETIRED_FROM_ACTIVE_ANALYSIS
+Q1_HISTORICAL_USB_HYBRID_TRANSFORMATION=UNRESOLVED
+Q2_NOVM_NOVS=RESOLVED
+Q3_R1_EXACT_PARTITION_GEOMETRY=OPEN
+R1_VERIFIED_LOCAL_COPY=NO
+CAUSAL_LINK_INSTALLER_TO_HISTORICAL_USB=NOT_PROVEN
+```
+
+Für weitere historische Analysen wird ausschließlich das verifizierte lokale
+Raw-Master-Image verwendet. Das physische historische USB-Medium bleibt aus
+der normalen Analyse ausgeschieden und soll nicht durch unnötige weitere
+Voll-Lesedurchläufe belastet werden.
+
+Die historische Medienuntersuchung ändert den P_EXT-/Allocator-Checkpoint
+`7C` nicht. Insbesondere wird aus den historischen Befunden keine Erklärung
+für den unmittelbar nach dem bestehenden Store beobachteten Nullwert von Q1
+abgeleitet.
+
+Die abgeschlossene I2C3-/ES8328-Untersuchung bleibt ebenfalls geschlossen.
+
+Eine Fortsetzung dieses historischen Untersuchungsstrangs ist erst
+gerechtfertigt, wenn neue Primärevidenz hinzukommt, insbesondere eine gegen
+die dokumentierte SHA-256-Prüfsumme verifizierbare Kopie von
+`novena-mmc-disk-r1.img`, exakte zeitgenössische Partitionsmetadaten dieses
+Images oder ein belastbarer Beleg für die konkrete Transformation des
+historischen USB-Mediums.

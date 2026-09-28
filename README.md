@@ -268,3 +268,13 @@ Die allgemeine Dokumentation der realen Novena-Hardware, Bootpfade,
 Recovery-Strategie und historischen Systeme befindet sich separat unter:
 
 `~/novena-system`
+
+## Historische Medien und Image-Provenienz
+
+Die historische Novena-Medien-, Bootloader- und Image-Provenienz ist separat
+vom aktuellen P_EXT-/Allocator-Untersuchungsstrang dokumentiert:
+
+- [`docs/HISTORICAL-MEDIA.md`](docs/HISTORICAL-MEDIA.md) – historische
+  USB-Medienstruktur, U-Boot-Generationen, NovM-/NovS-Zuordnung,
+  `novena-mmc-disk-r1.img`, Debian-Installer-Linie, verifiziertes lokales
+  Raw-Master-Image sowie offene Provenienzfragen.

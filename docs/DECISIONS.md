@@ -674,3 +674,43 @@ getrennter Untersuchungsstrang. Aus ihr wird keine Erklärung für den
 bereits vor dem MMC-/eSDHC-Pfad beobachteten Fall `7C` abgeleitet.
 
 Die abgeschlossene I2C3-/ES8328-Untersuchung bleibt geschlossen.
+
+## 2026-09-28 – Historische Medien werden getrennt und beweisorientiert behandelt
+
+Die historische Medien- und Image-Provenienz ist ein eigener
+Untersuchungsstrang und wird nicht mit der aktuellen P_EXT-/Allocator-Diagnose
+oder der abgeschlossenen I2C3-/ES8328-Root-Cause-Untersuchung vermischt.
+
+Für historische Originalmedien gilt:
+
+- Ein beobachteter historischer Zustand wird nicht ohne direkten Nachweis als
+  unverändertes „Factory Image“ bezeichnet.
+- Beobachtete Tatsachen, Primärquellenbefunde, starke Korrelationen und nicht
+  nachgewiesene Kausalzusammenhänge werden ausdrücklich getrennt.
+- Das historische physische USB-Medium wird nach Erstellung und Verifikation
+  des vollständigen lokalen Raw-Master-Images nicht mehr als normale
+  Analysequelle verwendet.
+- Weitere Analysen erfolgen am verifizierten lokalen Raw-Master-Image; dieses
+  wird nicht in-place verändert.
+- Unnötige weitere Voll-Lesedurchläufe des physischen historischen
+  USB-Mediums werden vermieden.
+- Eine gefundene Kopie von `novena-mmc-disk-r1.img` darf erst nach
+  bytegenauer Prüfung gegen die dokumentierte historische SHA-256-Prüfsumme
+  als verifiziertes r1-Image behandelt werden.
+- Historische Befunde werden nicht ohne eigenen Nachweis als Erklärung des
+  aktuellen P_EXT-/Allocator-Falls `7C` verwendet.
+
+Der aktuelle historische Forschungsstand und die dazugehörigen
+Aussagegrenzen sind in `docs/HISTORICAL-MEDIA.md` dokumentiert.
+
+Insbesondere bleiben folgende Grenzen bestehen:
+
+```text
+Q1_HISTORICAL_USB_HYBRID_TRANSFORMATION=UNRESOLVED
+Q2_NOVM_NOVS=RESOLVED
+Q3_R1_EXACT_PARTITION_GEOMETRY=OPEN
+CAUSAL_LINK_INSTALLER_TO_HISTORICAL_USB=NOT_PROVEN
+```
+
+Neue historische Untersuchungen sollen erst dann eröffnet werden, wenn neue
+Primärevidenz eine der offenen Fragen tatsächlich weiter diskriminieren kann.
