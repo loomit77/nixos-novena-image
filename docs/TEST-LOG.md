@@ -2135,3 +2135,73 @@ HARDWARE_TEST_RESULT=NOT_RUN
 ROOT_CAUSE=UNRESOLVED
 ROOT_CAUSE_CLAIM_ALLOWED=NO
 ```
+
+## 2026-09-30 – Block 4.10O-1N-7B bis 7E – vollständiger Pre-POR-Imagezustand
+
+Nach der statischen Patch-0008-Qualifikation wurde das vollständige SD-Image neu gebaut.
+
+Erfolgreicher Full-Image-Build:
+
+```text
+IMAGE=/nix/store/0b97xgj92hhrj0p5998k4rmazknaaag2-nixos-novena-sd-image.img
+IMAGE_SIZE=2581291008
+IMAGE_SHA256=90405b094423b8e515d670f3a72cb3146c68d0ad5f65d5d71d88a965966f0fe3
+SPL_SHA256=4611111bf2412257bf537a0c3b95a79b796d7359a8ff4de54046cbe2fe56a25c
+U_BOOT_DTB_IMG_SHA256=af608b67beb8c250a08d1b5fe9e96ef6096df4df0b9a2833b128396c4c195104
+```
+
+Die anschließende read-only Imagequalifikation endete mit:
+
+```text
+IMAGE_IDENTITY_GATE=PASS
+SPL_GATE=PASS
+IMAGE_END_GATE=PASS
+FULL_IMAGE_QUALIFICATION_GATE=PASS
+```
+
+Ein Vergleich mit der zu diesem Zeitpunkt vorhandenen Test-SD zeigte, dass der bereits separat geschriebene SPL byteidentisch war, die SD als Gesamtimage aber nicht. Insbesondere unterschied sich das vorhandene `u-boot-dtb.img`. Das Root-Dateisystem der SD zeigte außerdem Spuren eines früheren Boots beziehungsweise einer Aktivierung.
+
+Daraufhin wurde das vollständige neue Image auf `/dev/sda` geschrieben. Der Schreibvorgang endete mit `DD_WRITE_STATUS=0`. Der anschließende exakte Readback des vollständigen Imagebereichs ergab:
+
+```text
+EXPECTED_IMAGE_SHA256=90405b094423b8e515d670f3a72cb3146c68d0ad5f65d5d71d88a965966f0fe3
+READBACK_SHA256=90405b094423b8e515d670f3a72cb3146c68d0ad5f65d5d71d88a965966f0fe3
+WRITE_GATE=PASS
+FULL_READBACK_GATE=PASS
+MBR_GATE=PASS
+POSTWRITE_SPL_GATE=PASS
+UBOOT_GATE=PASS
+FINAL_WRITE_GATE=PASS
+```
+
+Eine folgende read-only Inventur bestätigte:
+
+```text
+DEVICE=/dev/sda
+DEVICE_SIZE=31914983424
+DISK_ID=0x2178694e
+P1_START=16384
+P1_SIZE=262144
+P1_LABEL=FIRMWARE
+P1_UUID=2178-694E
+P2_START=278528
+P2_SIZE=4761008
+P2_LABEL=NIXOS_SD
+P2_UUID=44444444-4444-4444-8888-888888888888
+SD_IMAGE_RANGE_SHA256=90405b094423b8e515d670f3a72cb3146c68d0ad5f65d5d71d88a965966f0fe3
+SD_SPL_SHA256=4611111bf2412257bf537a0c3b95a79b796d7359a8ff4de54046cbe2fe56a25c
+```
+
+Es wurde nach diesem Readback noch kein Hardwareboot durchgeführt.
+
+```text
+FULL_IMAGE_REBUILD_GATE=PASS
+FULL_IMAGE_QUALIFICATION_GATE=PASS
+FULL_IMAGE_WRITE_GATE=PASS
+FULL_IMAGE_READBACK_GATE=PASS
+PRE_POR_MEDIA_STATE_QUALIFIED=YES
+HARDWARE_BOOT_ATTEMPTED=NO
+HARDWARE_TEST_RESULT=NOT_RUN
+ROOT_CAUSE=UNRESOLVED
+ROOT_CAUSE_CLAIM_ALLOWED=NO
+```

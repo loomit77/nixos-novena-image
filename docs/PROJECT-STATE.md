@@ -5627,3 +5627,54 @@ ROOT_CAUSE_CLAIM_ALLOWED=NO
 ```
 
 Die SD ist technisch für den präregistrierten Hardwaretest vorbereitet. Dieser Abschnitt enthält noch keine Hardwarebeobachtung und keine Root-Cause-Aussage.
+
+### BLOCK 4.10O-1N-7B bis 7E – vollständiges Patch-0008-Image als Pre-POR-Zustand qualifiziert
+
+Nach der statischen Qualifikation von Patch `0008` wurde vor dem präregistrierten Hardwaretest zusätzlich der vollständige NixOS-Imagepfad neu gebaut und qualifiziert. Damit wird der kommende Hardwaretest nicht von einer gemischten SD-Konfiguration aus unterschiedlichen Buildständen durchgeführt.
+
+Der erfolgreiche vollständige Neubau erzeugte:
+
+```text
+IMAGE=/nix/store/0b97xgj92hhrj0p5998k4rmazknaaag2-nixos-novena-sd-image.img
+IMAGE_SIZE=2581291008
+IMAGE_SHA256=90405b094423b8e515d670f3a72cb3146c68d0ad5f65d5d71d88a965966f0fe3
+SPL_SIZE=56320
+SPL_SHA256=4611111bf2412257bf537a0c3b95a79b796d7359a8ff4de54046cbe2fe56a25c
+U_BOOT_DTB_IMG_SIZE=603536
+U_BOOT_DTB_IMG_SHA256=af608b67beb8c250a08d1b5fe9e96ef6096df4df0b9a2833b128396c4c195104
+```
+
+Die read-only Full-Image-Qualifikation bestätigte die erwartete DOS-Partitionstabelle mit Disk-ID `0x2178694e`, die 128-MiB-FIRMWARE-Partition, das ext4-Root-Dateisystem `NIXOS_SD`, den qualifizierten Patch-0008-SPL und die Bootdateien des neu gebauten Images.
+
+Vor dem vollständigen Überschreiben wurde die vorhandene Test-SD mit dem neuen Image verglichen. Dabei waren MBR, Pre-P1-Bereich und der bereits zuvor separat geschriebene Patch-0008-SPL identisch. Die vorhandene SD war jedoch nicht als Gesamtimage byteidentisch: insbesondere stammte `u-boot-dtb.img` noch aus einem anderen Buildstand. Das vorhandene Root-Dateisystem war außerdem bereits gebootet beziehungsweise aktiviert worden. Dieser Vergleich wird nicht als Fehler des neuen Images gewertet, sondern begründet den anschließenden vollständigen Image-Schreibvorgang.
+
+Das neu gebaute Image wurde danach vollständig auf die qualifizierte Test-SD `/dev/sda` geschrieben. Der Schreibvorgang endete erfolgreich. Anschließend wurde der gesamte Imagebereich von exakt `2581291008` Byte von der SD zurückgelesen. Der SHA-256 des Readbacks stimmt exakt mit dem Image überein:
+
+```text
+IMAGE_SHA256=90405b094423b8e515d670f3a72cb3146c68d0ad5f65d5d71d88a965966f0fe3
+SD_IMAGE_RANGE_SHA256=90405b094423b8e515d670f3a72cb3146c68d0ad5f65d5d71d88a965966f0fe3
+SD_SPL_SHA256=4611111bf2412257bf537a0c3b95a79b796d7359a8ff4de54046cbe2fe56a25c
+FULL_READBACK_GATE=PASS
+MBR_GATE=PASS
+POSTWRITE_SPL_GATE=PASS
+UBOOT_GATE=PASS
+FINAL_WRITE_GATE=PASS
+```
+
+Die physische SD ist größer als das Image. Die Byteidentität bezieht sich deshalb ausdrücklich auf den vollständigen vom Image belegten Bereich von `2581291008` Byte; der physische Bereich dahinter gehört nicht zum erzeugten Image.
+
+Eine unmittelbar anschließende read-only Pre-POR-Inventur bestätigte diesen Zustand erneut. Die Partitionen waren nicht gemountet und der vollständige Imagebereich sowie der SPL besaßen weiterhin die erwarteten SHA-256-Werte.
+
+Damit ist der Datenträgerzustand für den präregistrierten Patch-0008-Test qualifiziert. Diese Qualifikation ist noch kein Hardwareergebnis. Die präregistrierten Ergebnisfälle `8A` bis `8X` und ihre Einschränkungen bleiben unverändert.
+
+```text
+FULL_IMAGE_REBUILD_GATE=PASS
+FULL_IMAGE_QUALIFICATION_GATE=PASS
+FULL_IMAGE_WRITE_GATE=PASS
+FULL_IMAGE_READBACK_GATE=PASS
+PRE_POR_MEDIA_STATE_QUALIFIED=YES
+HARDWARE_BOOT_ATTEMPTED=NO
+HARDWARE_TEST_RESULT=NOT_RUN
+ROOT_CAUSE=UNRESOLVED
+ROOT_CAUSE_CLAIM_ALLOWED=NO
+```

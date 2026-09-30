@@ -903,3 +903,27 @@ ROOT_CAUSE_CLAIM_ALLOWED=NO
 ```
 
 Die präregistrierten Klassen 8A bis 8X und ihre Interpretationsgrenzen bleiben unverändert. Ein Hardwareergebnis wird erst durch einen gesondert freigegebenen POR-Test erzeugt.
+
+## 2026-09-30 – Block 4.10O-1N-7B bis 7E qualifiziert den vollständigen Pre-POR-Imagezustand
+
+Vor dem präregistrierten Patch-0008-Hardwaretest wird nicht mit der zuvor vorhandenen gemischten SD-Konfiguration weitergearbeitet. Stattdessen wurde das vollständige NixOS-SD-Image mit dem statisch qualifizierten Patch `0008` neu gebaut, read-only qualifiziert, vollständig auf die Test-SD geschrieben und über den gesamten Imagebereich zurückverifiziert.
+
+Das qualifizierte Image besitzt:
+
+```text
+IMAGE_SIZE=2581291008
+IMAGE_SHA256=90405b094423b8e515d670f3a72cb3146c68d0ad5f65d5d71d88a965966f0fe3
+SPL_SHA256=4611111bf2412257bf537a0c3b95a79b796d7359a8ff4de54046cbe2fe56a25c
+U_BOOT_DTB_IMG_SHA256=af608b67beb8c250a08d1b5fe9e96ef6096df4df0b9a2833b128396c4c195104
+```
+
+Der vollständige Readback der ersten `2581291008` Byte der Test-SD stimmt SHA-256-genau mit diesem Image überein. Damit stammen insbesondere SPL und `u-boot-dtb.img` für den kommenden Test aus dem gemeinsam qualifizierten aktuellen Buildstand.
+
+Diese Entscheidung verändert weder die Präregistrierung noch die Ergebnisinterpretation. Ein späteres Ergebnis wird weiterhin ausschließlich anhand der zuvor festgelegten Fälle `8A` bis `8X` klassifiziert. Aus der Image- oder Datenträgerqualifikation selbst wird keine Aussage über die DDR-Root-Cause abgeleitet.
+
+```text
+PRE_POR_MEDIA_STATE_QUALIFIED=YES
+HARDWARE_TEST_RESULT=NOT_RUN
+ROOT_CAUSE=UNRESOLVED
+ROOT_CAUSE_CLAIM_ALLOWED=NO
+```
