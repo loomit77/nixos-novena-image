@@ -2076,16 +2076,7 @@ mem_malloc_init
 
 Der Target-Pfad ist ebenfalls qualifiziert. `mem_malloc_brk` wird über `r4 = 0x1820003c` adressiert. Der Target-Store und Q1 verwenden denselben unveränderten `r4`-Wert. Zwischen beiden liegt kein Funktionsaufruf.
 
-Ein in 4.10O-1L-3C zunächst ausgegebenes `FINAL_TARGET_GATE=FAIL` wurde in 4.10O-1L-3C-R1 als Fehler des Prüfskripts und nicht als Fehler des qualifizierten SPL identifiziert. Die korrigierte Prüfung ergab:
-
-```text
-TARGET_SYMBOL_GATE=PASS
-TARGET_R4_LITERAL_GATE=PASS
-TARGET_STORE_Q1_SEQUENCE_GATE=PASS
-TARGET_ADDRESS_PROVENANCE_GATE=PASS
-FINAL_TARGET_GATE=PASS
-ARTIFACT_IDENTITY_RECHECK=PASS
-```
+Eine spätere Provenienzprüfung konnte keine ursprüngliche Primärausgabe der zuvor dokumentierten Blöcke `4.10O-1L-3C` beziehungsweise `4.10O-1L-3C-R1` auffinden. Die zuvor dokumentierte Abfolge eines `FINAL_TARGET_GATE=FAIL` und einer anschließenden Korrektur dieses Gates wird deshalb nicht als belegter Testablauf fortgeführt. Die statische Qualifikation bleibt durch die unabhängig erhaltene Artefakt- und Maschinencode-Evidenz gestützt.
 
 Abschlussstatus:
 
@@ -2101,3 +2092,46 @@ ROOT_CAUSE_CLAIM_ALLOWED=NO
 ```
 
 Es wurde in diesem Block kein Hardwareergebnis erzeugt. Die präregistrierten Fallklassen 8A bis 8X bleiben unverändert.
+
+
+## 2026-09-30 – Block 4.10O-1N – Pre-Hardware-Mediumqualifikation und SPL-Schreibvorgang
+
+Das Novena-Testmedium wurde vor dem Schreibzugriff erneut eindeutig identifiziert. Der vorhandene SPL-Bereich ab Offset `0x400` war 56.320 Byte groß und besaß SHA-256 `4fae745cb415d2db1be960e9ce7447a7371fda136dd85733e4e0b41ece568da8`.
+
+Der neue qualifizierte Patch-0008-SPL war ebenfalls 56.320 Byte groß und besaß SHA-256 `4611111bf2412257bf537a0c3b95a79b796d7359a8ff4de54046cbe2fe56a25c`.
+
+Der geprüfte Schreibbereich war:
+
+```text
+START=0x400
+END_EXCLUSIVE=0xe000
+P1_START=0x800000
+```
+
+Der MBR wurde dadurch nicht überlappt; die erste Partition beginnt deutlich hinter dem SPL-Bereich.
+
+Nach bestandenem Pre-Write-Gate wurden exakt 56.320 Byte ab Offset `0x400` geschrieben und synchronisiert. Der unmittelbare Readback ergab:
+
+```text
+AFTER_SHA256=4611111bf2412257bf537a0c3b95a79b796d7359a8ff4de54046cbe2fe56a25c
+READBACK_HASH_GATE=PASS
+READBACK_CMP_GATE=PASS
+MBR_UNCHANGED_GATE=PASS
+POST_SD_IDENTITY_GATE=PASS
+READBACK_HAS_C0_C1_C2=YES
+READBACK_HAS_Q1_Q2=YES
+POST_WRITE_GATE=PASS
+```
+
+Bei der anschließenden Dokumentations-Provenienzprüfung wurde keine ursprüngliche Primärausgabe der zuvor dokumentierten 3C/3C-R1-Gate-Abfolge gefunden. Die entsprechende historische Erzählung wird deshalb nicht als belegter Testablauf fortgeführt. Dies ändert nicht die unabhängig rekonstruierte statische Artefakt- und Maschinencode-Evidenz.
+
+Abschlussstatus:
+
+```text
+PATCH_0008_ON_SD=VERIFIED
+SD_WRITE_VERIFIED=YES
+HARDWARE_BOOT_ATTEMPTED=NO
+HARDWARE_TEST_RESULT=NOT_RUN
+ROOT_CAUSE=UNRESOLVED
+ROOT_CAUSE_CLAIM_ALLOWED=NO
+```

@@ -5539,18 +5539,9 @@ RAW_SPL_EMBED_OFFSET=0xc00
 
 Der installierte SPL des normalen Patch-0008-Builds und der SPL des Locked-Debug-Builds sind bitidentisch. Das Raw-SPL kommt im installierten Wrapper exakt einmal bei Offset `0xc00` vor.
 
-Ein zunächst in Block 4.10O-1L-3C ausgegebenes `FINAL_TARGET_GATE=FAIL` war kein Fehler des gebauten SPL. Ursache war eine fehlerhafte Auswertungsmethode des Prüfskripts für das Target-Literal beziehungsweise die Target-Sequenz. Block 4.10O-1L-3C-R1 prüfte das exakte Maschinencodefenster und bestätigte:
+Die statische Pre-Hardware-Qualifikation wurde anhand der erhaltenen Artefakte unabhängig rekonstruiert. Belegt sind insbesondere die Symboladressen, die Control-Sequenz, der Target-Store und Q1 über denselben unveränderten Target-Zeiger sowie die Artefaktidentität. Eine ursprüngliche Primärausgabe der zwischenzeitlich dokumentierten Blöcke `4.10O-1L-3C` beziehungsweise `4.10O-1L-3C-R1` konnte bei der späteren Provenienzprüfung nicht aufgefunden werden. Die zuvor dokumentierte Abfolge eines `FINAL_TARGET_GATE=FAIL` und einer anschließenden Korrektur dieses Gates wird deshalb nicht als belegte Projekthistorie fortgeführt.
 
-```text
-TARGET_SYMBOL_GATE=PASS
-TARGET_R4_LITERAL_GATE=PASS
-TARGET_STORE_Q1_SEQUENCE_GATE=PASS
-TARGET_ADDRESS_PROVENANCE_GATE=PASS
-FINAL_TARGET_GATE=PASS
-ARTIFACT_IDENTITY_RECHECK=PASS
-```
-
-Damit ist die statische Pre-Hardware-Qualifikation abgeschlossen:
+Damit ist die statische Pre-Hardware-Qualifikation auf Basis der unabhängig belegten technischen Evidenz abgeschlossen:
 
 ```text
 PATCH_0008_BUILD_QUALIFIED=YES
@@ -5566,3 +5557,73 @@ Die präregistrierte Ergebnisinterpretation bleibt unverändert. Insbesondere be
 Die statische Qualifikation beweist ausschließlich, dass der präregistrierte Test wie vorgesehen in dem qualifizierten Artefakt implementiert ist. Sie ist noch kein Hardwareergebnis und keine Root-Cause-Aussage.
 
 Ein SD-Schreibvorgang und ein weiterer P_EXT-Hardwareboot bleiben bis zu einer separaten Freigabe gesperrt.
+
+
+### BLOCK 4.10O-1N – Patch 0008 auf Testmedium geschrieben und verifiziert
+
+Nach Abschluss der statischen Qualifikation wurde das vorhandene Novena-Testmedium read-only identifiziert. Das Medium war `/dev/sda` im USB-Kartenleser mit MBR-Disk-ID `0x2178694e`. Die Partitionen und Dateisystemidentitäten entsprachen dem Projektimage:
+
+```text
+P1_LABEL=FIRMWARE
+P1_PARTUUID=2178694e-01
+P2_LABEL=NIXOS_SD
+P2_UUID=44444444-4444-4444-8888-888888888888
+P2_PARTUUID=2178694e-02
+```
+
+Vor dem Schreiben wurde ab Kartenoffset `0x400` ein 56.320 Byte großer SPL-Bereich gelesen. Er besaß den SHA-256-Wert des zuvor hardwarequalifizierten Patch-0007-SPL:
+
+```text
+OLD_SPL_SHA256=4fae745cb415d2db1be960e9ce7447a7371fda136dd85733e4e0b41ece568da8
+OLD_SPL_SIZE=56320
+```
+
+Der qualifizierte Patch-0008-SPL besitzt:
+
+```text
+NEW_SPL_SHA256=4611111bf2412257bf537a0c3b95a79b796d7359a8ff4de54046cbe2fe56a25c
+NEW_SPL_SIZE=56320
+```
+
+Der Schreibbereich wurde vor dem Schreibzugriff abgegrenzt:
+
+```text
+SPL_START=0x400
+SPL_END_EXCLUSIVE=0xe000
+SPL_LAST_BYTE=0xdfff
+P1_START=0x800000
+```
+
+Damit überlappt der Bereich weder den MBR bis `0x1ff` noch die erste Partition.
+
+Anschließend wurden exakt 56.320 Byte des qualifizierten Patch-0008-SPL ab Offset `0x400` geschrieben. Der Schreibvorgang endete erfolgreich und wurde synchronisiert. Der unmittelbar danach gelesene Bereich war byteidentisch zum qualifizierten SPL:
+
+```text
+AFTER_SHA256=4611111bf2412257bf537a0c3b95a79b796d7359a8ff4de54046cbe2fe56a25c
+AFTER_SIZE=56320
+READBACK_HASH_GATE=PASS
+READBACK_CMP_GATE=PASS
+```
+
+Der MBR war vor und nach dem Schreiben byteidentisch:
+
+```text
+MBR_SHA256=00cdba48c449231323c93046777307f067de4ab180d858d8db6967915d16316a
+MBR_UNCHANGED_GATE=PASS
+```
+
+Disk-ID, Labels, PARTUUIDs und Root-Dateisystem-UUID blieben unverändert. Im SPL-Readback sind sowohl C0/C1/C2 als auch Q1/Q2 vorhanden.
+
+Damit gilt:
+
+```text
+PATCH_0008_ON_SD=VERIFIED
+SD_WRITE_VERIFIED=YES
+POST_WRITE_GATE=PASS
+HARDWARE_BOOT_ATTEMPTED=NO
+HARDWARE_TEST_RESULT=NOT_RUN
+ROOT_CAUSE=UNRESOLVED
+ROOT_CAUSE_CLAIM_ALLOWED=NO
+```
+
+Die SD ist technisch für den präregistrierten Hardwaretest vorbereitet. Dieser Abschnitt enthält noch keine Hardwarebeobachtung und keine Root-Cause-Aussage.

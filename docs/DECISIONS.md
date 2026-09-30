@@ -864,9 +864,9 @@ Die Maschinencodeprüfung bestätigt C0, Store V, C1, Restore C0 und C2 in der v
 
 Die Raw-SPL-Provenienz ist ebenfalls geschlossen: Das Raw-SPL ist 49.480 Byte groß und kommt im 56.320 Byte großen installierten SPL-Wrapper exakt einmal bei Offset `0xc00` vor.
 
-Das zunächst in 4.10O-1L-3C beobachtete `FINAL_TARGET_GATE=FAIL` wird nicht als Artefaktfehler gewertet. Die korrigierte Prüfung 4.10O-1L-3C-R1 bestätigt Target-Symbol, Target-Literal, Store-Q1-Sequenz und Adressprovenienz. Der frühere FAIL war damit ein Fehler der Verifikationsmethode.
+Die statische Qualifikation stützt sich auf die unabhängig erhaltene Artefakt- und Maschinencode-Evidenz. Eine ursprüngliche Primärausgabe der zuvor dokumentierten Blöcke `4.10O-1L-3C` beziehungsweise `4.10O-1L-3C-R1` konnte bei der späteren Provenienzprüfung nicht aufgefunden werden. Die zuvor dokumentierte Abfolge eines `FINAL_TARGET_GATE=FAIL` und einer anschließenden Korrektur dieses Gates wird deshalb nicht als belegte Projekthistorie fortgeführt.
 
-Es gilt nun:
+Es gilt auf Basis der unabhängig belegten technischen Evidenz:
 
 ```text
 PATCH_0008_BUILD_QUALIFIED=YES
@@ -880,3 +880,26 @@ ROOT_CAUSE_CLAIM_ALLOWED=NO
 Die in Block 4.10O präregistrierten Klassen 8A bis 8X und ihre Interpretationsgrenzen werden nicht nachträglich geändert. Die mögliche Vorkonditionierung durch den C0-Load bleibt eine bekannte Einschränkung.
 
 Diese Entscheidung gibt noch keinen SD-Schreibvorgang und keinen P_EXT-Hardwareboot frei. Die Hardwarefreigabe wird separat auf Basis des dokumentierten Pre-Hardware-Checkpoints entschieden.
+
+
+## 2026-09-30 – Block 4.10O-1N: Patch 0008 ist verifiziert auf dem Testmedium
+
+Der qualifizierte Patch-0008-SPL wurde nach vollständiger Medium-, Bereichs- und Baseline-Prüfung gezielt ab Offset `0x400` auf das Novena-Testmedium geschrieben.
+
+Der anschließende Readback ist byteidentisch zum qualifizierten SPL und besitzt SHA-256 `4611111bf2412257bf537a0c3b95a79b796d7359a8ff4de54046cbe2fe56a25c`. Der MBR sowie Disk-ID, Partitionen und Dateisystemidentitäten blieben unverändert.
+
+Die spätere Provenienzprüfung der Dokumentation fand keine ursprüngliche Primärausgabe der zuvor dokumentierten 3C/3C-R1-Gate-Abfolge. Diese Abfolge wird deshalb nicht als belegte Projekthistorie verwendet. Die statische Qualifikation beruht weiterhin auf der unabhängig erhaltenen Artefakt- und Maschinencode-Evidenz.
+
+Es gilt:
+
+```text
+PATCH_0008_ON_SD=VERIFIED
+SD_WRITE_VERIFIED=YES
+POST_WRITE_GATE=PASS
+HARDWARE_BOOT_ATTEMPTED=NO
+HARDWARE_TEST_RESULT=NOT_RUN
+ROOT_CAUSE=UNRESOLVED
+ROOT_CAUSE_CLAIM_ALLOWED=NO
+```
+
+Die präregistrierten Klassen 8A bis 8X und ihre Interpretationsgrenzen bleiben unverändert. Ein Hardwareergebnis wird erst durch einen gesondert freigegebenen POR-Test erzeugt.
