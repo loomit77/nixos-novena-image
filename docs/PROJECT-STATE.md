@@ -5025,3 +5025,326 @@ die dokumentierte SHA-256-Prüfsumme verifizierbare Kopie von
 `novena-mmc-disk-r1.img`, exakte zeitgenössische Partitionsmetadaten dieses
 Images oder ein belastbarer Beleg für die konkrete Transformation des
 historischen USB-Mediums.
+
+## 2026-09-30 – BLOCK 4.10N – Statische Untersuchung des Falles 7C abgeschlossen
+
+Nach dem einmaligen hardwarequalifizierten Q1/Q2/P0-Test mit dem
+präregistrierten Ergebnis Fall `7C` wurde vor jedem weiteren Patch, Build,
+SD-Schreibvorgang oder Hardwareboot eine mehrstufige rein statische
+Untersuchung durchgeführt.
+
+Der untersuchte Hardwarebefund bleibt:
+
+```text
+Q1 = 0x00000000
+Q2 = 0x00000000
+P0 = 0x00000000
+```
+
+Q1 ist ein echter Load von `mem_malloc_brk` unmittelbar nach dem bestehenden
+Store nach derselben gelinkten Adresse und noch vor dem Heap-`memset()`.
+
+### Hardware- und Buildprovenienz
+
+Der hardwarequalifizierte finale SPL besitzt weiterhin:
+
+```text
+SHA-256 = 4fae745cb415d2db1be960e9ce7447a7371fda136dd85733e4e0b41ece568da8
+```
+
+Der exakt zugehörige Locked-Debug-Buildbaum ist:
+
+```text
+/nix/store/r2jk535cngajx5q0d179bgw4vbw7ha6z-uboot-novena_defconfig-locked-debug-tree-armv7l-unknown-linux-gnueabihf-2026.07-armv7l-unknown-linux-gnueabihf
+```
+
+Der finale SPL enthält die Raw-SPL genau einmal bei Offset `0xC00`.
+Die vollständigen 60 Byte von `mem_malloc_init()` aus dem zugehörigen
+Locked-ELF kommen im finalen SPL ebenfalls genau einmal vor.
+
+Damit ist für die weitere Analyse die zum real getesteten SPL gehörende
+Maschineninstruktionsfolge qualifiziert.
+
+### Exakte BSS- und Allocatoradressen
+
+Im Locked-SPL gelten:
+
+```text
+__bss_start      = 0x18200000
+mem_malloc_brk   = 0x1820003c
+mem_malloc_end   = 0x18200040
+mem_malloc_start = 0x18200044
+__bss_end        = 0x1820015c
+```
+
+`mem_malloc_brk` liegt damit innerhalb der SPL-BSS.
+
+Der reale `_main`-Pfad des Locked-SPL ist:
+
+```text
+board_init_f()
+    |
+    v
+BSS memset [0x18200000,0x1820015c)
+    |
+    v
+spl_relocate_stack_gd()
+    |
+    v
+board_init_r()
+```
+
+`spl_relocate_stack_gd()` kehrt im vorliegenden Build unmittelbar mit Null
+zurück. `CONFIG_SPL_STACK_R` ist nicht gesetzt. Eine zusätzliche
+Stack-/GD-Verlagerung in DDR findet an dieser Stelle daher nicht statt.
+
+Das reale BSS-`memset()` verwendet gewöhnliche CPU-Stores und umfasst auch
+`0x1820003c`.
+
+Damit wird vor `board_init_r()` ein Null-Store für die Adresse von
+`mem_malloc_brk` ausgegeben. Dies beweist, dass der Store ausgeführt wird;
+es beweist für sich allein nicht, dass dieser DDR-Schreibzugriff korrekt
+persistiert und anschließend korrekt zurückgelesen wird.
+
+### Exakte Store-/Q1-Instruktionsfolge
+
+`board_init_r()` ruft `mem_malloc_init()` mit:
+
+```text
+start = 0x18300000
+size  = 0x00100000
+```
+
+auf.
+
+Die korrigierte Thumb-Disassemblierung von `mem_malloc_init()` bestätigt
+sinngemäß:
+
+```text
+mem_malloc_start = 0x18300000
+mem_malloc_brk   = 0x18300000
+Q1               = load(mem_malloc_brk)
+mem_malloc_end   = 0x18400000
+memset(0x18300000, 0, 0x00100000)
+Q2               = load(mem_malloc_brk)
+```
+
+Der Store nach `mem_malloc_brk` und der unmittelbar folgende Q1-Load
+verwenden exakt dieselbe effektive Adresse `0x1820003c`.
+
+Zwischen diesem Store und Q1 wurde kein weiterer gewöhnlicher Softwarestore
+nach `0x1820003c` gefunden.
+
+Der reale Hardwarewert von Q1 ist dennoch `0x00000000`. Dieser Wert
+entspricht exakt dem Wert, der durch den vorhergehenden BSS-Clear an dieser
+Adresse vorgesehen ist.
+
+Diese Übereinstimmung ist eine starke zeitliche und inhaltliche Korrelation.
+Sie ist kein Beweis dafür, durch welchen Mechanismus der alte Nullwert bei Q1
+beobachtet wird.
+
+### CPU-, MMU- und Cachezustand
+
+Der tatsächliche `cpu_init_cp15()`-Maschinencode des Locked-SPL bestätigt
+für den relevanten frühen Bootpfad:
+
+```text
+MMU     = aus
+D-Cache = aus
+I-Cache = an
+```
+
+Vor Q1 wurde kein normaler Pfad gefunden, der MMU oder D-Cache wieder
+aktiviert.
+
+Eine normale MMU-Adressaliasierung oder ein gewöhnlicher stale
+D-Cache-Eintrag wird deshalb nicht als Erklärung des beobachteten
+Store-/Load-Verhaltens weiterverfolgt.
+
+Aus der Untersuchung ergibt sich ebenfalls kein Beleg dafür, dass zwischen
+dem Store und dem unmittelbar folgenden Load derselben normalen
+Speicheradresse lediglich eine fehlende `DMB`- oder `DSB`-Instruktion die
+beobachtete Rückgabe des alten Werts erklärt.
+
+### Cortex-A9 Store Buffer und Erratum 743622
+
+Der Cortex-A9 besitzt auch bei deaktiviertem D-Cache einen Store Buffer.
+Dies wurde bei der Bewertung ausdrücklich berücksichtigt.
+
+Der Locked-Build enthält:
+
+```text
+CONFIG_ARM_ERRATA_743622=y
+```
+
+und der tatsächliche `cpu_init_cp15()`-Maschinencode setzt den zu diesem
+U-Boot-Workaround gehörenden Bit-6-Zustand im Cortex-A9 Diagnostic Register.
+
+Erratum 743622 wird deshalb nicht als unbehandelter Kandidat für Fall `7C`
+weitergeführt.
+
+Dies ist keine allgemeine Aussage, dass jeder denkbare CPU-interne
+Speicherpfad experimentell ausgeschlossen wäre. Es bedeutet ausschließlich,
+dass der bekannte 743622-Fall im untersuchten Build nicht ohne seinen
+U-Boot-Workaround vorliegt.
+
+### DDR- und MMDC-Konfiguration
+
+Die Novena initialisiert den externen DDR vor der Rückkehr aus
+`board_init_f()`.
+
+Für den untersuchten Locked-Build wurden unter anderem folgende
+Konfigurationswerte bestätigt:
+
+```text
+mem_speed  = 1600
+density    = 4
+width      = 64
+banks      = 8
+rowaddr    = 16
+coladdr    = 10
+pagesz     = 2
+
+dsize      = 2
+cs_density = 32
+ncs        = 1
+bi_on      = 1
+```
+
+Der relevante DDR-Adressraum beginnt bei:
+
+```text
+PHYS_SDRAM = MMDC0_ARB_BASE_ADDR = 0x10000000
+```
+
+Für `mem_malloc_brk` ergibt sich:
+
+```text
+Adresse = 0x1820003c
+Offset  = 0x0820003c
+        = 136314940 Byte ab DDR-Basis
+```
+
+U-Boot programmiert die DDR-Adressabbildung unter anderem über die
+MMDC-Felder für `DSIZ`, `ROW`, `COL`, Bankanzahl, Bank-Interleaving und
+Chip-Select-Grenzen.
+
+Eine vollständige physische Zerlegung von `0x1820003c` in konkrete
+DRAM-CS-/Bank-/Row-/Column-Werte wird nicht aus einer generischen
+DDR3-Bitbelegung abgeleitet.
+
+Die verfügbaren Primärquellen bestätigen, dass diese Zuordnung von der
+konkreten MMDC-Konfiguration einschließlich Bank-Interleaving abhängt. Eine
+für diesen Fall ausreichend vollständig belegte Mapping-Regel wurde im
+statischen Quellenabgleich nicht gewonnen.
+
+Der konkrete CS-/Bank-/Row-/Column-Wert bleibt daher `UNKNOWN`. Dies ist
+eine bewusst dokumentierte Aussagegrenze und kein Anlass, die fehlende
+Zuordnung durch eine angenommene Standardabbildung zu ersetzen.
+
+### MMDC-Kalibrierung ist kein CPU-RAM-Test
+
+Die Novena führt vor dem BSS-Clear MMDC-DDR-Kalibrierung durch.
+
+Die untersuchte DQS-Kalibrierung verwendet unter anderem
+`MPSWDAR0[SW_DUMMY_WR]`, wodurch der MMDC einen Schreibzugriff auf externes
+DDR auslöst.
+
+Bei nicht gesetztem `CALIB_PER_CS` wird der untersuchte Kalibrierungspfad
+auf CS0 gerichtet.
+
+Diese Zugriffe sind MMDC-interne Kalibrierungsoperationen. Sie sind kein
+Nachweis dafür, dass ein gewöhnlicher ARM-CPU-Store und unmittelbar
+folgender ARM-CPU-Load speziell an `0x1820003c` korrekt funktionieren.
+
+Eine erfolgreiche DDR-Kalibrierung wird deshalb nicht mit einem
+erfolgreichen allgemeinen RAM-Test gleichgesetzt.
+
+### Statisch geschlossene Erklärungen
+
+Durch die Untersuchung werden für Fall `7C` insbesondere folgende einfache
+Erklärungen nicht weiterverfolgt:
+
+- falscher oder nicht hardwarezugehöriger SPL;
+- falscher Locked-Build;
+- anderer Store- und Q1-Zielort;
+- vom Compiler entfernter Store;
+- vom Compiler entfernter echter Q1-Load;
+- Überlappung von `mem_malloc_brk` mit dem normalen Heap-`memset()`;
+- gewöhnlicher Softwarestore auf Null zwischen dem Allocator-Store und Q1;
+- gewöhnlicher `sbrk()`-Kontrollfluss als Ursache des Nullwerts;
+- normale MMU-Adressübersetzung oder MMU-Aliasbildung;
+- normaler D-Cache-Stale-Read;
+- normale Aktivierung von MMU oder D-Cache vor Q1;
+- ein unbehandeltes Cortex-A9-Erratum 743622;
+- die Behauptung, erfolgreiche MMDC-Kalibrierung sei bereits ein
+  vollständiger CPU-RAM-Test.
+
+### Weiterhin nicht bewiesen
+
+Nicht bewiesen ist weiterhin der konkrete Mechanismus, durch den der
+unmittelbare Q1-Load auf der realen Novena den vorherigen Nullwert statt
+`0x18300000` beobachtet.
+
+Der verbleibende offene Korridor betrifft damit den physischen
+CPU-/DDR-/MMDC-Speicherpfad beziehungsweise einen anderen noch nicht
+nachgewiesenen Mechanismus außerhalb der bereits geschlossenen einfachen
+Softwareerklärungen.
+
+Insbesondere wird daraus derzeit nicht abgeleitet:
+
+- dass der DDR physisch defekt ist;
+- dass eine bestimmte DRAM-Bank, Row oder Column fehlerhaft ist;
+- dass die SO-DIMM-Geometrie falsch programmiert ist;
+- dass Bank-Interleaving die Root Cause ist;
+- dass ein bestimmtes MMDC-Erratum vorliegt;
+- dass der BSS-Clear selbst die Root Cause ist.
+
+### Abschluss von BLOCK 4.10N
+
+Die statische Untersuchung von Fall `7C` ist mit den Teilblöcken
+4.10N-3A bis 4.10N-4D und dem anschließenden Primärquellenabgleich
+ausgeschöpft.
+
+Der Status lautet:
+
+```text
+BLOCK_4_10N_STATIC_PHASE=CLOSED
+Q1_VALUE_ZERO=PROVEN
+STORE_AND_Q1_SAME_ADDRESS=PROVEN
+Q1_BEFORE_HEAP_MEMSET=PROVEN
+PRIOR_BSS_ZERO_STORE=PROVEN_AS_ISSUED_CPU_STORE
+Q1_MATCHES_PRIOR_BSS_VALUE=CORRELATED_NOT_CAUSAL
+NORMAL_MMU_DCACHE_EXPLANATION=STRONGLY_EXCLUDED
+ARM_ERRATUM_743622_WORKAROUND=PROVEN_PRESENT
+EXACT_DRAM_CS_BANK_ROW_COLUMN=UNKNOWN
+PHYSICAL_DDR_MMDC_MECHANISM=UNRESOLVED
+ROOT_CAUSE=UNRESOLVED
+```
+
+Die bestehenden Hardware-Sperren bleiben bestehen:
+
+```text
+TOTAL_P_EXT_HARDWAREBOOT_COUNT=3
+Q1_Q2_P0_HARDWAREBOOT_COUNT=1
+SECOND_Q1_Q2_P0_BOOT_ALLOWED=NO
+ANOTHER_BOOT_ALLOWED=NO
+TOTAL_0007_SD_WRITE_COUNT=1
+SECOND_0007_SD_WRITE_ALLOWED=NO
+PREREGISTERED_RESULT_CLASS=7C
+PATCH_0008_ALLOWED=NO
+```
+
+Es wird insbesondere kein Patch `0008` allein deshalb erzeugt, um weitere
+unspezifische Beobachtungspunkte hinzuzufügen.
+
+Vor einem weiteren Build, SD-Schreibvorgang oder P_EXT-Hardwareboot muss
+zuerst ein einzelner neuer falsifizierbarer Test definiert und
+präregistriert werden, der mindestens zwei noch plausible Mechanismen des
+verbleibenden physischen Speicherpfads voneinander unterscheiden kann.
+
+Bis dahin erfolgen keine weiteren P_EXT-Hardwareboots.
+
+Die abgeschlossene I2C3-/ES8328-Untersuchung bleibt geschlossen. Die
+historische Medien- und Image-Provenienz bleibt ebenfalls ein davon
+getrennter Untersuchungsstrang.

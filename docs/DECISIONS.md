@@ -714,3 +714,65 @@ CAUSAL_LINK_INSTALLER_TO_HISTORICAL_USB=NOT_PROVEN
 
 Neue historische Untersuchungen sollen erst dann eröffnet werden, wenn neue
 Primärevidenz eine der offenen Fragen tatsächlich weiter diskriminieren kann.
+
+## 2026-09-30 – Block 4.10N wird als statische Untersuchungsphase abgeschlossen
+
+Nach dem hardwarequalifizierten Q1/Q2/P0-Ergebnis Fall `7C` wurde das
+verbleibende Store-/Load-Fenster ohne weiteren Hardwareboot statisch
+untersucht.
+
+Für den exakt hardwarezugehörigen Locked-Build ist nachgewiesen:
+
+- `mem_malloc_brk` liegt bei `0x1820003c` innerhalb der SPL-BSS;
+- der BSS-Clear gibt vor `board_init_r()` gewöhnliche CPU-Null-Stores über
+  diese Adresse aus;
+- `mem_malloc_init()` speichert anschließend `0x18300000` nach exakt
+  `0x1820003c`;
+- Q1 lädt unmittelbar danach aus exakt derselben Adresse;
+- der reale Hardwarewert von Q1 ist trotzdem `0x00000000`;
+- dieser Nullwert entspricht dem vorher durch den BSS-Clear vorgesehenen
+  Wert, ohne dass daraus ein kausaler Mechanismus abgeleitet wird;
+- MMU und D-Cache sind auf dem relevanten Pfad deaktiviert;
+- der Locked-Build enthält den U-Boot-Workaround für Cortex-A9-Erratum
+  743622;
+- die MMDC-DDR-Kalibrierung ist kein Nachweis eines gewöhnlichen
+  CPU-Store-/Load-Tests an `0x1820003c`.
+
+Die vollständige physische Zerlegung von `0x1820003c` in
+CS/Bank/Row/Column wird nicht aus einer angenommenen generischen
+DDR3-Bitbelegung konstruiert. Die MMDC-Abbildung hängt von der konkreten
+Konfiguration einschließlich `DSIZ`, `ROW`, `COL`, Bankanzahl,
+Bank-Interleaving und Chip-Select-Grenzen ab.
+
+Mangels einer für diesen konkreten Fall vollständig belegten Mapping-Regel
+wird die exakte CS-/Bank-/Row-/Column-Zuordnung als `UNKNOWN` dokumentiert.
+
+Diese verbleibende Aussagegrenze verhindert nicht den Abschluss der
+statischen Phase. Die bisher verfügbaren statischen Projekt- und
+Primärquellen wurden für das Store-/Q1-Fenster ausgeschöpft.
+
+Daraus wird entschieden:
+
+```text
+BLOCK_4_10N_STATIC_PHASE=CLOSED
+ROOT_CAUSE=UNRESOLVED
+PHYSICAL_DDR_MMDC_MECHANISM=UNRESOLVED
+EXACT_DRAM_CS_BANK_ROW_COLUMN=UNKNOWN
+PATCH_0008_ALLOWED=NO
+ANOTHER_BOOT_ALLOWED=NO
+```
+
+Es wird kein weiterer unspezifischer Diagnosepatch erzeugt und kein
+weiterer P_EXT-Hardwareboot durchgeführt.
+
+Ein zukünftiger Patch `0008` darf erst präregistriert werden, wenn ein
+einzelner falsifizierbarer Test vorliegt, der mindestens zwei noch
+plausible Mechanismen des verbliebenen physischen CPU-/DDR-/MMDC-Pfads
+voneinander unterscheiden kann.
+
+Insbesondere werden weder ein DDR-Defekt noch eine bestimmte
+Bank-/Row-/Column-Störung, falsches Bank-Interleaving, ein MMDC-Erratum oder
+der BSS-Clear selbst ohne zusätzliche Evidenz zur Root Cause erklärt.
+
+Die I2C3-/ES8328-Untersuchung bleibt geschlossen. Die historische Medien-
+und Image-Provenienz bleibt ein separater Untersuchungsstrang.
