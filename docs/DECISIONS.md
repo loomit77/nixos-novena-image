@@ -776,3 +776,66 @@ der BSS-Clear selbst ohne zusätzliche Evidenz zur Root Cause erklärt.
 
 Die I2C3-/ES8328-Untersuchung bleibt geschlossen. Die historische Medien-
 und Image-Provenienz bleibt ein separater Untersuchungsstrang.
+
+## 2026-09-30 – Block 4.10O präregistriert einen adressvergleichenden Folgetest für Fall 7C
+
+Nach Abschluss von Block 4.10N wurde der verbleibende Evidenzraum in
+4.10O-1A bis 4.10O-1D ausschließlich read-only ausgewertet. Dabei wurde kein
+bereits vorhandener unabhängiger früher CPU-DDR-Kontrollzugriff gefunden, der
+den beobachteten Store-/Q1-Fall an `mem_malloc_brk` bereits diskriminiert.
+
+Als Kontrolladresse wird `max_total_mem` bei `0x18200030` präregistriert. Die
+Problemadresse bleibt `mem_malloc_brk` bei `0x1820003c`. Für beide Vergleiche
+wird der Wert `0x18300000` verwendet.
+
+Die Kontrolle soll unmittelbar vor dem normalen `mem_malloc_init()`-Aufruf in
+`board_init_r()` den Ausgangswert C0 lesen, `0x18300000` speichern, den
+unmittelbaren Wert C1 laden, anschließend C0 wiederherstellen und den Restore
+als C2 kontrollieren. Der bestehende reale Store mit unmittelbar folgendem Q1
+in `mem_malloc_init()` bleibt unverändert der Target-Test.
+
+Präregistrierte Resultatklassen:
+
+```text
+8A = CONTROL_PASS_TARGET_FAIL
+8B = CONTROL_FAIL_TARGET_FAIL
+8C = CONTROL_PASS_TARGET_PASS
+8D = CONTROL_FAIL_TARGET_PASS
+8E = UNEXPECTED
+8X = TEST_INVALID
+```
+
+Ein gültiger Test verlangt, dass der gemessene Ausgangszustand mit dem
+BSS-Clear vereinbar ist und nach dem Restore wiederhergestellt wurde. Eine
+verletzte Kontrollbedingung führt zu `8X`; daraus wird keine
+Mechanismusentscheidung abgeleitet.
+
+Die Resultatklassen sind keine Root-Cause-Klassen. Insbesondere beweist `8A`
+keine bestimmte DRAM-Bank-/Row-/Column-/Byte-Lane- oder MMDC-Ursache und `8B`
+keinen allgemeinen DDR-Defekt.
+
+Vor einem Hardwaretest muss ein zukünftiger Patch `0008` zunächst gebaut und
+statisch qualifiziert werden. Die Disassemblierung muss insbesondere den
+beabsichtigten unmittelbaren Kontroll-Store/Load, die Zieladressen, den Restore,
+die bestehende Target-Sequenz, das BSS-Layout sowie die SPL-Größen- und
+ROM-Grenzen bestätigen.
+
+Die Freigaben werden deshalb nicht zusammengezogen. Mit dieser Entscheidung
+wird nur der Testentwurf präregistriert. Noch nicht freigegeben sind:
+
+```text
+PATCH_0008_ALLOWED=NOT_YET
+BUILD_ALLOWED=NOT_YET
+SD_WRITE_ALLOWED=NO
+HARDWARE_BOOT_ALLOWED=NO
+ROOT_CAUSE=UNRESOLVED
+ROOT_CAUSE_CLAIM_ALLOWED=NO
+```
+
+Erst nach Dokumentation und Prüfung dieser Präregistrierung darf in einem
+separaten Schritt entschieden werden, Patch `0008` zu erstellen und einen rein
+statischen Build durchzuführen. Ein SD-Schreibvorgang und ein weiterer
+P_EXT-Hardwareboot benötigen danach weiterhin eine eigene Freigabe.
+
+Die I2C3-/ES8328-Untersuchung bleibt geschlossen. Die historische Medien- und
+Image-Provenienz bleibt ein separater Untersuchungsstrang.

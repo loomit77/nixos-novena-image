@@ -5348,3 +5348,145 @@ Bis dahin erfolgen keine weiteren P_EXT-Hardwareboots.
 Die abgeschlossene I2C3-/ES8328-Untersuchung bleibt geschlossen. Die
 historische Medien- und Image-Provenienz bleibt ebenfalls ein davon
 getrennter Untersuchungsstrang.
+
+### BLOCK 4.10O – Fall 7C: diskriminierenden Folgetest herleiten und präregistrieren
+
+Nach Abschluss der statischen Phase 4.10N wurde ohne weiteren Build, ohne
+Schreibzugriff auf die Novena-Test-SD und ohne weiteren P_EXT-Hardwareboot der
+verbleibende Evidenzraum für Fall `7C` erneut ausgewertet.
+
+Die Teilblöcke 4.10O-1A bis 4.10O-1D bestätigen:
+
+- der hardwarequalifizierte Q1-Befund bleibt unverändert: der bestehende Store
+  schreibt `0x18300000` nach `mem_malloc_brk` bei `0x1820003c`, während der
+  unmittelbar folgende echte Q1-Load `0x00000000` beobachtet;
+- es wurde kein späterer Software-Schreiber gefunden, der diesen bereits bei Q1
+  vorhandenen Nullwert erklären könnte;
+- erfolgreiche MMDC-DDR-Kalibrierung ist weiterhin kein gewöhnlicher
+  CPU-Store-/Load-Test an der Zieladresse;
+- für ein gewöhnliches Cortex-A9-Store-Buffer-Verhalten beziehungsweise einen
+  bloß fehlenden DMB/DSB wurde keine Primärquellengrundlage gefunden, die das
+  konkrete gleiche-Adresse-STR->LDR-Ergebnis von Fall `7C` erklärt;
+- vor Q1 existiert im bisher qualifizierten SPL kein unabhängiger früher
+  CPU-DDR-Kontrollzugriff mit bekanntem Nichtnull-Store und anschließend
+  verifiziertem Load, der bereits als geeignete Kontrolle dienen könnte;
+- das relevante BSS-Fenster enthält unmittelbar vor `mem_malloc_brk` die
+  Variablen `max_total_mem` bei `0x18200030`, `max_sbrked_mem` bei
+  `0x18200034` und `top_pad` bei `0x18200038`;
+- `mem_malloc_end` bei `0x18200040` und `mem_malloc_start` bei `0x18200044`
+  werden durch `mem_malloc_init()` selbst beschrieben und werden deshalb nicht
+  als unabhängige Kontrolladressen verwendet;
+- `stdio_devices` bei `0x18200048` wird als reale Datenstruktur verwendet und
+  wird ebenfalls nicht als Kontrolladresse verwendet.
+
+Aus diesen Befunden wird für den nächsten einzelnen Folgetest folgende
+Präregistrierung festgelegt:
+
+```text
+BLOCK_4_10O_1E=TEST_DESIGN_PREREGISTERED
+
+CONTROL_ADDRESS=0x18200030
+CONTROL_SYMBOL=max_total_mem
+TARGET_ADDRESS=0x1820003c
+TARGET_SYMBOL=mem_malloc_brk
+TEST_VALUE=0x18300000
+
+RESULT_8A=CONTROL_PASS_TARGET_FAIL
+RESULT_8B=CONTROL_FAIL_TARGET_FAIL
+RESULT_8C=CONTROL_PASS_TARGET_PASS
+RESULT_8D=CONTROL_FAIL_TARGET_PASS
+RESULT_8E=UNEXPECTED
+RESULT_8X=TEST_INVALID
+```
+
+Die Kontrollmessung wird konzeptionell unmittelbar vor dem normalen Aufruf von
+`mem_malloc_init()` in `board_init_r()` ausgeführt. Der Ausgangswert der
+Kontrolladresse wird zuerst gelesen, danach wird `0x18300000` geschrieben und
+unmittelbar wieder gelesen. Anschließend wird der zuvor gelesene Ausgangswert
+zurückgeschrieben und durch einen weiteren Load kontrolliert.
+
+Die vorgesehenen Kontrollmesspunkte lauten:
+
+```text
+C0 = Ausgangswert von 0x18200030 vor dem Kontroll-Store
+C1 = unmittelbarer Load nach Store von 0x18300000 nach 0x18200030
+C2 = Load nach Wiederherstellung von C0
+```
+
+Für einen gültigen Lauf wird aufgrund des vorherigen BSS-Clears erwartet:
+
+```text
+C0 = 0x00000000
+C2 = 0x00000000
+```
+
+C0 wird jedoch nicht vorausgesetzt, sondern tatsächlich gemessen. Ist C0
+unerwartet nicht Null oder bestätigt C2 die Wiederherstellung des gemessenen
+Ausgangswerts nicht, wird der Lauf als `8X / TEST_INVALID` behandelt. Aus C1
+und Q1 wird dann keine Mechanismusentscheidung abgeleitet.
+
+Der Target-Test wird nicht durch einen zweiten künstlichen Store ersetzt. Die
+bereits qualifizierte reale Sequenz in `mem_malloc_init()` bleibt der
+Target-Test:
+
+```text
+Store 0x18300000 -> 0x1820003c
+unmittelbarer Load <- 0x1820003c = Q1
+```
+
+Die präregistrierten Ergebnisbedeutungen sind bewusst begrenzt:
+
+- `8A`: C1 beobachtet `0x18300000`, Q1 weiterhin `0x00000000`. Damit wird eine
+  Erklärung geschwächt, nach der jeder vergleichbare frühe CPU-DDR-Store/Load
+  gleichermaßen versagt. Das Ergebnis beweist keine bestimmte DRAM-Bank-,
+  Row-, Column-, Byte-Lane- oder MMDC-Ursache.
+- `8B`: C1 und Q1 beobachten jeweils `0x00000000`. Damit wird eine ausschließlich
+  auf `0x1820003c` beschränkte Erklärung geschwächt. Zwei nahe fehlerhafte
+  Adressen beweisen keinen allgemeinen DDR-Defekt.
+- `8C`: C1 und Q1 beobachten jeweils `0x18300000`. Fall `7C` reproduziert sich
+  in diesem Lauf nicht; Zustands-, Lauf- oder Timingabhängigkeit muss dann vor
+  einer weiteren Mechanismuszuweisung berücksichtigt werden.
+- `8D`: C1 beobachtet `0x00000000`, Q1 dagegen `0x18300000`. Eine einfache
+  allgemeine frühe DDR-Store-Hypothese reicht auch für dieses Ergebnis nicht
+  aus.
+- `8E`: jede andere gültige Kombination wird als unerwartet behandelt und vor
+  einer weiteren Schlussfolgerung statisch ausgewertet.
+- `8X`: ungültiger Test aufgrund verletzter Kontrollbedingungen; daraus wird
+  keine Root-Cause-Aussage abgeleitet.
+
+Vor einem Hardwareeinsatz muss die konkrete Implementierung zusätzlich auf
+Maschinenebene qualifiziert werden. Insbesondere muss die Disassemblierung des
+gebauten SPL nachweisen, dass der Kontroll-Store und der zugehörige C1-Load die
+beabsichtigte enge CPU-Instruktionsfolge bilden und dass zwischen beiden keine
+Diagnoseausgabe oder unbeabsichtigte zusätzliche DDR-Operation eingefügt wurde.
+Der Restore der Kontrolladresse muss erst nach C1 erfolgen.
+
+Damit ist der Testentwurf präregistriert, aber noch nicht als Hardwaretest
+qualifiziert. Die nächsten Schritte werden strikt getrennt:
+
+1. Patch `0008` auf Basis dieser Präregistrierung entwerfen;
+2. den resultierenden SPL bauen;
+3. Maschinencode, Adressen, Instruktionsreihenfolge, BSS-Layout, SPL-Größe und
+   bestehende ROM-Grenzen statisch qualifizieren;
+4. erst danach gesondert über einen Schreibzugriff auf die Test-SD und genau
+   einen weiteren P_EXT-Hardwareboot entscheiden.
+
+Bis zum erfolgreichen Abschluss dieser statischen Patch- und
+Maschinencodequalifikation gilt:
+
+```text
+BLOCK_4_10O_1F=PREREGISTRATION_DOCUMENTED
+ROOT_CAUSE=UNRESOLVED
+ROOT_CAUSE_CLAIM_ALLOWED=NO
+PATCH_0008_ALLOWED=NOT_YET
+BUILD_ALLOWED=NOT_YET
+SD_WRITE_ALLOWED=NO
+HARDWARE_BOOT_ALLOWED=NO
+SECOND_0007_SD_WRITE_ALLOWED=NO
+SECOND_Q1_Q2_P0_BOOT_ALLOWED=NO
+```
+
+Die exakte physische Zerlegung der beteiligten DDR-Adressen in
+CS/Bank/Row/Column bleibt `UNKNOWN`. Die abgeschlossene I2C3-/ES8328-Untersuchung
+bleibt geschlossen. Die historische Medien- und Image-Provenienz bleibt ein
+separater Untersuchungsstrang.
