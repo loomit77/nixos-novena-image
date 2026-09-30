@@ -2031,3 +2031,73 @@ den unmittelbar folgenden Load weiter trennt.
 
 Patch `0007` erhält keinen weiteren Q1/Q2/P0-Hardwareboot. Ein vierter
 P_EXT-Hardwareboot ist zu diesem Checkpoint nicht freigegeben.
+
+## 2026-09-30 – Block 4.10O-1L/1M – statische Patch-0008-Qualifikation
+
+Für den in Block 4.10O präregistrierten adressvergleichenden Folgetest wurde Patch `0008-novena-diag-control-c0-c2.patch` implementiert und vor einem weiteren Hardwareboot statisch qualifiziert.
+
+Qualifizierte Adressen:
+
+```text
+CONTROL_SYMBOL=max_total_mem
+CONTROL_ADDRESS=0x18200030
+TARGET_SYMBOL=mem_malloc_brk
+TARGET_ADDRESS=0x1820003c
+CONTROL_TO_TARGET_BYTES=12
+TEST_VALUE=0x18300000
+```
+
+Qualifizierte Artefakte:
+
+```text
+SPL_SHA256=4611111bf2412257bf537a0c3b95a79b796d7359a8ff4de54046cbe2fe56a25c
+RAW_SPL_SHA256=42b47045d5aa9cde5e7ec04c6579ececed596cd36643961f7e4ae66f96c307f3
+ELF_SHA256=69bb3a4dd2efe059cefc197cad244f13459b0ef08ccb17c886059337ca25e469
+MAP_SHA256=0fcf601af9d23c6997bd1cbd944fa56f580ed86dc34099fda89ce0ce26d1bf54
+CONFIG_SHA256=48f2371872392021f1caaba6590fc7c4344b115ee117ca1386925f427da6eddb
+SPL_SIZE=56320
+RAW_SPL_SIZE=49480
+RAW_SPL_EMBED_COUNT=1
+RAW_SPL_EMBED_OFFSET=0xc00
+```
+
+Der normale Patch-0008-Build und der Locked-Debug-Build besitzen einen bitidentischen installierten SPL.
+
+Die Control-Sequenz ist maschinencode-seitig qualifiziert:
+
+```text
+C0 load
+store 0x18300000
+C1 load
+restore C0
+C2 load
+mem_malloc_init
+```
+
+Der Target-Pfad ist ebenfalls qualifiziert. `mem_malloc_brk` wird über `r4 = 0x1820003c` adressiert. Der Target-Store und Q1 verwenden denselben unveränderten `r4`-Wert. Zwischen beiden liegt kein Funktionsaufruf.
+
+Ein in 4.10O-1L-3C zunächst ausgegebenes `FINAL_TARGET_GATE=FAIL` wurde in 4.10O-1L-3C-R1 als Fehler des Prüfskripts und nicht als Fehler des qualifizierten SPL identifiziert. Die korrigierte Prüfung ergab:
+
+```text
+TARGET_SYMBOL_GATE=PASS
+TARGET_R4_LITERAL_GATE=PASS
+TARGET_STORE_Q1_SEQUENCE_GATE=PASS
+TARGET_ADDRESS_PROVENANCE_GATE=PASS
+FINAL_TARGET_GATE=PASS
+ARTIFACT_IDENTITY_RECHECK=PASS
+```
+
+Abschlussstatus:
+
+```text
+PATCH_0008_BUILD_QUALIFIED=YES
+MACHINE_CODE_QUALIFIED=YES
+STATIC_QUALIFICATION_GATE=PASS
+SD_WRITE_ALLOWED=NO
+HARDWARE_BOOT_ALLOWED=NO
+HARDWARE_TEST_RESULT=NOT_RUN
+ROOT_CAUSE=UNRESOLVED
+ROOT_CAUSE_CLAIM_ALLOWED=NO
+```
+
+Es wurde in diesem Block kein Hardwareergebnis erzeugt. Die präregistrierten Fallklassen 8A bis 8X bleiben unverändert.

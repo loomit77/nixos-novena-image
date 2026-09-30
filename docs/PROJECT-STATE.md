@@ -5490,3 +5490,79 @@ Die exakte physische Zerlegung der beteiligten DDR-Adressen in
 CS/Bank/Row/Column bleibt `UNKNOWN`. Die abgeschlossene I2C3-/ES8328-Untersuchung
 bleibt geschlossen. Die historische Medien- und Image-Provenienz bleibt ein
 separater Untersuchungsstrang.
+
+### BLOCK 4.10O-1L/1M – Patch 0008 statisch qualifiziert
+
+Der in Block 4.10O präregistrierte adressvergleichende Folgetest für Fall `7C` wurde vor jedem weiteren Hardwarezugriff implementiert, reproduzierbar gebaut und statisch qualifiziert.
+
+Patch `0008-novena-diag-control-c0-c2.patch` ergänzt unmittelbar vor `mem_malloc_init()` einen Kontrollzugriff auf das BSS-Wort `max_total_mem`. Die präregistrierten Adressen und der Testwert sind:
+
+```text
+CONTROL_SYMBOL=max_total_mem
+CONTROL_ADDRESS=0x18200030
+TARGET_SYMBOL=mem_malloc_brk
+TARGET_ADDRESS=0x1820003c
+CONTROL_TO_TARGET_BYTES=12
+TEST_VALUE=0x18300000
+```
+
+Die Kontrollsequenz lautet logisch:
+
+```text
+C0 = volatile load CONTROL
+store TEST_VALUE -> CONTROL
+C1 = volatile load CONTROL
+store C0 -> CONTROL
+C2 = volatile load CONTROL
+mem_malloc_init(...)
+```
+
+Damit wird der ursprüngliche Wert vor dem Eintritt in `mem_malloc_init()` wiederhergestellt. C0 und C2 müssen für einen gültigen Test beide `0x00000000` sein.
+
+Die statische Maschinencodeprüfung bestätigt die beabsichtigte Kontrollsequenz. Der Kontrollzeiger wird auf `0x18200030` gebildet; C0, Store V, C1, Restore C0 und C2 erscheinen in der vorgesehenen Reihenfolge. Der Testwert V ist maschinencode-seitig als `0x18300000` qualifiziert. Der dazwischen aufgerufene `spl_set_bd()` verändert in der tatsächlich gebauten Implementierung `r0` nicht.
+
+Auch die bestehende Target-Sequenz in `mem_malloc_init()` wurde erneut qualifiziert. `r4` wird aus dem Literal `0x1820003c` geladen. Der Store nach `mem_malloc_brk` und der Q1-Load benutzen denselben unveränderten `r4`-Wert. Zwischen Target-Store und Q1 liegen nur ein PC-relativer Literalpool-Load nach `r3` und ein Register-Move; es gibt dort keinen Funktionsaufruf und keine Änderung von `r4`.
+
+Das qualifizierte Locked-Debug-Artefakt besitzt:
+
+```text
+SPL_SHA256=4611111bf2412257bf537a0c3b95a79b796d7359a8ff4de54046cbe2fe56a25c
+RAW_SPL_SHA256=42b47045d5aa9cde5e7ec04c6579ececed596cd36643961f7e4ae66f96c307f3
+ELF_SHA256=69bb3a4dd2efe059cefc197cad244f13459b0ef08ccb17c886059337ca25e469
+MAP_SHA256=0fcf601af9d23c6997bd1cbd944fa56f580ed86dc34099fda89ce0ce26d1bf54
+CONFIG_SHA256=48f2371872392021f1caaba6590fc7c4344b115ee117ca1386925f427da6eddb
+SPL_SIZE=56320
+RAW_SPL_SIZE=49480
+RAW_SPL_EMBED_COUNT=1
+RAW_SPL_EMBED_OFFSET=0xc00
+```
+
+Der installierte SPL des normalen Patch-0008-Builds und der SPL des Locked-Debug-Builds sind bitidentisch. Das Raw-SPL kommt im installierten Wrapper exakt einmal bei Offset `0xc00` vor.
+
+Ein zunächst in Block 4.10O-1L-3C ausgegebenes `FINAL_TARGET_GATE=FAIL` war kein Fehler des gebauten SPL. Ursache war eine fehlerhafte Auswertungsmethode des Prüfskripts für das Target-Literal beziehungsweise die Target-Sequenz. Block 4.10O-1L-3C-R1 prüfte das exakte Maschinencodefenster und bestätigte:
+
+```text
+TARGET_SYMBOL_GATE=PASS
+TARGET_R4_LITERAL_GATE=PASS
+TARGET_STORE_Q1_SEQUENCE_GATE=PASS
+TARGET_ADDRESS_PROVENANCE_GATE=PASS
+FINAL_TARGET_GATE=PASS
+ARTIFACT_IDENTITY_RECHECK=PASS
+```
+
+Damit ist die statische Pre-Hardware-Qualifikation abgeschlossen:
+
+```text
+PATCH_0008_BUILD_QUALIFIED=YES
+MACHINE_CODE_QUALIFIED=YES
+STATIC_QUALIFICATION_GATE=PASS
+HARDWARE_TEST_RESULT=NOT_RUN
+ROOT_CAUSE=UNRESOLVED
+ROOT_CAUSE_CLAIM_ALLOWED=NO
+```
+
+Die präregistrierte Ergebnisinterpretation bleibt unverändert. Insbesondere beweist ein späteres Ergebnis 8A keinen physisch adressspezifischen DDR-Defekt und ein Ergebnis 8B keinen allgemeinen DDR-Defekt. Die C0-Vorablesung kann den DRAM-Zustand beziehungsweise die relevante Row vorkonditionieren; daraus wird keine physische Bank-/Row-/Column-Zuordnung abgeleitet.
+
+Die statische Qualifikation beweist ausschließlich, dass der präregistrierte Test wie vorgesehen in dem qualifizierten Artefakt implementiert ist. Sie ist noch kein Hardwareergebnis und keine Root-Cause-Aussage.
+
+Ein SD-Schreibvorgang und ein weiterer P_EXT-Hardwareboot bleiben bis zu einer separaten Freigabe gesperrt.

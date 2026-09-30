@@ -839,3 +839,44 @@ P_EXT-Hardwareboot benötigen danach weiterhin eine eigene Freigabe.
 
 Die I2C3-/ES8328-Untersuchung bleibt geschlossen. Die historische Medien- und
 Image-Provenienz bleibt ein separater Untersuchungsstrang.
+
+## 2026-09-30 – Block 4.10O-1L/1M schließt die statische Patch-0008-Qualifikation ab
+
+Die in Block 4.10O präregistrierte Voraussetzung für einen späteren adressvergleichenden Hardwaretest ist erfüllt.
+
+Patch `0008-novena-diag-control-c0-c2.patch` wurde gebaut und anhand eines Locked-Debug-Builds bis auf Maschinencodeebene qualifiziert. Der normale Patch-0008-Build und der Locked-Debug-Build liefern einen bitidentischen installierten SPL.
+
+Die präregistrierte Kontrolladresse ist weiterhin:
+
+```text
+max_total_mem = 0x18200030
+```
+
+Das bestehende Target ist weiterhin:
+
+```text
+mem_malloc_brk = 0x1820003c
+```
+
+Der Abstand beträgt 12 Byte. Der Kontrollwert ist `0x18300000`.
+
+Die Maschinencodeprüfung bestätigt C0, Store V, C1, Restore C0 und C2 in der vorgesehenen Reihenfolge. Sie bestätigt außerdem für das Target den Store nach `mem_malloc_brk` und den anschließenden Q1-Load über denselben unveränderten Target-Zeiger.
+
+Die Raw-SPL-Provenienz ist ebenfalls geschlossen: Das Raw-SPL ist 49.480 Byte groß und kommt im 56.320 Byte großen installierten SPL-Wrapper exakt einmal bei Offset `0xc00` vor.
+
+Das zunächst in 4.10O-1L-3C beobachtete `FINAL_TARGET_GATE=FAIL` wird nicht als Artefaktfehler gewertet. Die korrigierte Prüfung 4.10O-1L-3C-R1 bestätigt Target-Symbol, Target-Literal, Store-Q1-Sequenz und Adressprovenienz. Der frühere FAIL war damit ein Fehler der Verifikationsmethode.
+
+Es gilt nun:
+
+```text
+PATCH_0008_BUILD_QUALIFIED=YES
+MACHINE_CODE_QUALIFIED=YES
+STATIC_QUALIFICATION_GATE=PASS
+HARDWARE_TEST_RESULT=NOT_RUN
+ROOT_CAUSE=UNRESOLVED
+ROOT_CAUSE_CLAIM_ALLOWED=NO
+```
+
+Die in Block 4.10O präregistrierten Klassen 8A bis 8X und ihre Interpretationsgrenzen werden nicht nachträglich geändert. Die mögliche Vorkonditionierung durch den C0-Load bleibt eine bekannte Einschränkung.
+
+Diese Entscheidung gibt noch keinen SD-Schreibvorgang und keinen P_EXT-Hardwareboot frei. Die Hardwarefreigabe wird separat auf Basis des dokumentierten Pre-Hardware-Checkpoints entschieden.
