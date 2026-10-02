@@ -1,6 +1,20 @@
 # Build
 
-Stand: 2026-09-22
+Einordnung vom 2026-10-02: Die nachfolgend genannten
+U-Boot-/Image-Identitäten und der Same-Host-/Separate-Store-Nachweis
+beziehen sich auf den historischen G2X-Referenzstand vom 2026-09-22.
+
+Das später vollständig gebaute und zurückverifizierte
+Patch-0008-Diagnoseimage ist ein eigener Stand. Seine Qualifikation
+ist in `docs/PROJECT-STATE.md` unter „BLOCK 4.10O-1N-7B bis 7E –
+vollständiges Patch-0008-Image als Pre-POR-Zustand qualifiziert“
+dokumentiert. Der G2X-Reproduzierbarkeitsnachweis wird nicht auf
+dieses Diagnoseimage übertragen.
+
+Der einmalige Hardwaretest vom 2026-10-01 ergab
+`8B = CONTROL_FAIL_TARGET_FAIL`; Durchführung und Grenzen stehen
+in `docs/TEST-LOG.md`. Ein vollständiger eigenständiger P_EXT-Boot
+und eine konkrete Root Cause sind weiterhin nicht nachgewiesen.
 
 ## Build-System
 

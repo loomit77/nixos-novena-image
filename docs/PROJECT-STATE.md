@@ -1,6 +1,30 @@
 # Project State
 
-Stand: 2026-09-22
+## Maßgeblicher Wiedereinstieg – 2026-10-02
+
+Für den aktuellen Stand ist der Schlussabschnitt
+„2026-10-02 – BLOCK 9C-44: statischer Dokumentationscheckpoint“
+zusammen mit dem
+[Rekonstruktionsbericht](../research/04-spl-ddr/block-9c-43-dokumentationscheckpoint.md)
+maßgeblich. Der Bericht wurde in 9C-44 erstellt und ist kein
+aufgefundenes 9C-43-Original.
+
+Der einmalige Patch-0008-Hardwaretest vom 2026-10-01 bleibt als
+Fall `8B = CONTROL_FAIL_TARGET_FAIL` dokumentiert. Die anschließende
+statische Rekonstruktion ist keine neue Hardwarebeobachtung und
+beweist keine Root Cause. Die A/B-Definitionen stammen aus
+Chat-/Auftragsangaben; ein erhaltener 9C-42-Originalbericht bestätigt
+sie nicht.
+
+Die funktionale ES8328/I2C3-Untersuchung ist abgeschlossen;
+`regulator-always-on` für `es8328-power` bleibt erforderlich.
+Implementierung, Build und Hardwaretest sind nicht freigegeben;
+ein zweiter Patch-0008-Boot ist nicht erlaubt.
+
+Der folgende frühere Kopfabschnitt beschreibt den historischen
+Projektstand vom 2026-09-22. Ältere „aktuell“-Aussagen und
+Testankündigungen sind im jeweiligen damaligen Kontext und zusammen
+mit den späteren datierten Ergebnissen zu lesen.
 
 ## Aktueller Projektcheckpoint – Phase 4.7
 
@@ -256,9 +280,14 @@ Befund grenzt den untersuchten Korridor ein, beweist aber noch keine
 konkrete Root Cause.
 
 Eine zweite serielle Diagnoseinstrumentierung D0 bis D36 wurde
-anschließend gebaut und statisch qualifiziert. Ihr Hardwaretest steht
-noch aus und wird weiterhin nach der vorregistrierten Ein-Boot-Regel
-durchgeführt.
+anschließend gebaut und statisch qualifiziert. Zum damaligen
+Vorbereitungscheckpoint stand ihr Hardwaretest noch aus.
+Er wurde danach am 2026-09-23 gemäß der vorregistrierten Ein-Boot-Regel
+genau einmal durchgeführt. Ergebnis und Aussagegrenzen sind im
+nachfolgenden Abschnitt „P_EXT-SPL-Diagnose - statischer
+D21-D22-Checkpoint vom 2026-09-23“ und in `docs/TEST-LOG.md` unter
+„2026-09-23 – D0-bis-D36-P_EXT-Hardwaretest und D21-D22-Eingrenzung“
+dokumentiert.
 
 Die folgenden Abschnitte dieses Dokuments enthalten die historische
 Untersuchungs- und Entwicklungsdokumentation. Aussagen über damalige

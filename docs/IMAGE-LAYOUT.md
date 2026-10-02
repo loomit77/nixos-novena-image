@@ -1,6 +1,23 @@
 # Image Layout
 
-Stand: 2026-09-22
+Einordnung vom 2026-10-02: Die nachfolgend aufgeführten
+Artefaktidentitäten und der Reproduzierbarkeitsnachweis beschreiben
+den historischen G2X-Referenzstand vom 2026-09-22. Sie dürfen nicht
+als Identitäten des späteren Patch-0008-Diagnoseimages gelesen werden.
+Dessen gesonderte Image- und Medienqualifikation ist in
+`docs/PROJECT-STATE.md` dokumentiert.
+
+Die frühere Lokalisierung des Stillstands in der SPL-seitigen
+MMC-Initialisierung bezeichnet einen damals beobachteten
+Untersuchungskorridor. Die späteren Q1- und Kontrollbefunde betreffen
+bereits den frühen Speicherpfad vor der MMC-Initialisierung.
+MMC ist damit kein nachgewiesener Ursprung; aus `ret=-12` folgt
+keine bewiesene DDR-Ursache.
+
+Der vollständige eigenständige P_EXT-Boot bleibt unbelegt.
+Der aktuelle Wiedereinstieg und die Grenzen von Fall 8B stehen
+im Dokumentationscheckpoint vom 2026-10-02 in
+`docs/PROJECT-STATE.md`.
 
 ## Historische Referenz
 

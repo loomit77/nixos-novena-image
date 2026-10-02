@@ -20,7 +20,19 @@ Dazu werden insbesondere benötigt:
 
 ## Aktueller Stand
 
-Stand: 2026-09-22
+Einordnung vom 2026-10-02: Der nachfolgende Überblick beschreibt den
+historischen G2X-Referenzstand vom 2026-09-22. Die dort genannten
+Image-Identitäten und der Same-Host-/Separate-Store-Nachweis gelten
+für diesen Referenzstand, nicht für das spätere Patch-0008-Diagnoseimage.
+
+Der aktuelle Wiedereinstieg ist in `docs/PROJECT-STATE.md` unter
+„2026-10-02 – BLOCK 9C-44: statischer Dokumentationscheckpoint“
+dokumentiert. Der einmalige Patch-0008-Hardwaretest vom 2026-10-01
+ergab Fall `8B = CONTROL_FAIL_TARGET_FAIL`. Die frühere Einordnung
+des Stillstands in der MMC-Initialisierung ist im Licht der späteren
+frühen Speicherbeobachtungen zu lesen; MMC ist kein nachgewiesener
+Ursprung. Der vollständige eigenständige P_EXT-Boot und die Root Cause
+bleiben unbelegt.
 
 Aktueller produktiver Kernel:
 
@@ -231,9 +243,10 @@ Working Tree gesammelt.
 Vor ihrer Entfernung werden relevante Dateien separat gesichert und
 überprüft.
 
-## Git-Stand
+## Historischer Git-Stand vom 2026-09-22
 
-Der aktuelle qualifizierte Softwarecheckpoint ist:
+Der für den damaligen G2X-Reproduzierbarkeitsnachweis verwendete
+Softwarecheckpoint war:
 
 `d06de5e30f294144d0be66cc7903fedb1ed6fe0a`
 
@@ -241,10 +254,10 @@ Commit-Beschreibung:
 
 `Make cross-built Bash reproducible`
 
-Der Commit ist auf beiden verwendeten Remotes synchronisiert und verifiziert:
-
-- Codeberg
-- GitHub
+Die Synchronisierung dieses Commits mit Codeberg und GitHub ist im
+Projektstand vom 2026-09-22 dokumentiert. Diese historische Angabe
+bezeichnet weder den heutigen HEAD noch eine erneute Prüfung der
+Remotes.
 
 ## Dokumentation
 

@@ -1,6 +1,22 @@
 # Golden Build – funktionierendes Novena-Display
 
-Stand: 2026-09-13
+Historischer Dokumentstand: 2026-09-13.
+
+Einordnung vom 2026-10-02: Dieses Dokument bewahrt die historische
+Golden-Referenz und die damaligen I2C-/Display-Diagnosezwischenstände.
+Aussagen über eine noch offene Root Cause, damalige Diagnosekernel
+und nächste Schritte sind in diesem historischen Kontext zu lesen.
+
+Die funktionale ES8328/I2C3-Untersuchung wurde später abgeschlossen;
+`regulator-always-on` für `es8328-power` bleibt eine dauerhafte
+Novena-Board-Anforderung. Der funktionale Abschluss ist in
+`docs/PROJECT-STATE.md` unter „2026-09-20 – Block 3.15W –
+Historische Root-Cause-Synthese ES8328/I2C3“ dokumentiert.
+Er bestimmt nicht den exakten internen Leckstrompfad oder die
+analogen Spannungs- und Stromverläufe des untersuchten Fehlers.
+
+Die historische Golden-Sicherung bleibt unverändert erhalten.
+Der aktuelle P_EXT-/SPL-Untersuchungsstrang ist davon getrennt.
 
 ## Zweck
 
@@ -884,9 +900,18 @@ Produktionsstand.
 Insbesondere ist der umfangreiche I2C-Diagnosepfad noch nicht für einen
 finalen Produktionskernel geeignet.
 
-Der neue `0004`-Diagnosekernel wurde erfolgreich gebaut und
-provenienzgeprüft, aber zum Stand dieses Dokuments noch nicht auf echter
-Novena-Hardware getestet.
+Der Diagnosekernel mit
+`kernel/0004-i2c-imx-debug-start-state.patch` wurde erfolgreich
+gebaut, provenienzgeprüft und am 2026-09-13 auf echter
+Novena-Hardware getestet. Der native Kaltstart schlug fehl;
+der anschließende Same-Boot-Rebind war erfolgreich.
+Die Hardwaretests sind in `docs/TEST-LOG.md` unter
+„2026-09-13 – Hardwaretest Diagnose-Patch 0004 mit single-master“
+und „2026-09-13 – isolierter Test ohne single-master“ dokumentiert.
+
+Dieser Kernelpatch ist von
+`boot/u-boot/0004-novena-uboot-diag-d0-d36.patch` zu unterscheiden,
+der zum separaten P_EXT-/SPL-Diagnosestrang gehört.
 
 ## Nächste Schritte
 
