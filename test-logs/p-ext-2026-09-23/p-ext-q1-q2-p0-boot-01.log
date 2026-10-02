@@ -1,0 +1,16 @@
+
+U-Boot SPL 2026.07-00003-gf8baca04e22d (Sep 21 2026 - 09:52:43 +0000)
+NOVENA-DIAG Q1/Q2 q1=00000000 q2=00000000\nNOVENA-DIAG P0 after mem_malloc_init brk=00000000
+Trying to boot from MMC1
+NOVENA-DIAG P1 before loader callback brk=00000000
+NOVENA-DIAG D0 before spl_mmc_find_device dev=0
+NOVENA-DIAG D16 enter mmc_initialize
+NOVENA-DIAG D17 after mmc_list_init
+NOVENA-DIAG D18 enter board_mmc_init
+NOVENA-DIAG D19 before mxc_get_clock
+NOVENA-DIAG D20 after mxc_get_clock clk=198000000
+NOVENA-DIAG D21 enter fsl_esdhc_initialize
+NOVENA-DIAG D21A before priv calloc start=18300000 end=18400000 brk=00000000
+NOVENA-DIAG D21B after priv calloc priv=? brk=00000000
+NOVENA-DIAG D32 after fsl_esdhc_initialize ret=-12
+NOVENA-DIAG D33 after board_mmc_init ret=-12

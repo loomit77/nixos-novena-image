@@ -1,0 +1,26 @@
+warning: Git tree '/home/loomit/nixos-novena-image' is dirty
+error:
+       … while calling the 'derivationStrict' builtin
+         at «nix-internal»/derivation-internal.nix:37:12:
+           36|
+           37|   strict = derivationStrict drvAttrs;
+             |            ^
+           38|
+
+       … while evaluating derivation 'nixos-novena-sd-image.img'
+         whose name attribute is located at «github:NixOS/nixpkgs/a5cc6f2c37bf518436dc8d1c288ccd0c43c2f4c4?narHash=sha256-r2f1oUwixlgq9zOdYLqJLfS/lWBT60/IITjhTKI59JU%3D»/pkgs/stdenv/generic/make-derivation.nix:647:11
+
+       … while evaluating attribute 'buildCommand' of derivation 'nixos-novena-sd-image.img'
+         at «github:NixOS/nixpkgs/a5cc6f2c37bf518436dc8d1c288ccd0c43c2f4c4?narHash=sha256-r2f1oUwixlgq9zOdYLqJLfS/lWBT60/IITjhTKI59JU%3D»/pkgs/build-support/trivial-builders/default.nix:81:17:
+           80|         enableParallelBuilding = true;
+           81|         inherit buildCommand name;
+             |                 ^
+           82|         passAsFile = [ "buildCommand" ] ++ (derivationArgs.passAsFile or [ ]);
+
+       (stack trace truncated; use '--show-trace' to show the full, detailed trace)
+
+       error: Path 'boot/u-boot/0004-novena-uboot-diag-d0-d36.patch' in the repository "/home/loomit/nixos-novena-image" is not tracked by Git.
+
+       To make it visible to Nix, run:
+
+       git -C "/home/loomit/nixos-novena-image" add -N "boot/u-boot/0004-novena-uboot-diag-d0-d36.patch"

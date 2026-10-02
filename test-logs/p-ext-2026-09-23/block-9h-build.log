@@ -1,0 +1,2 @@
+warning: you did not specify '--add-root'; the result might be removed by the garbage collector
+/nix/store/88xdinpydfvwn8v0mr4s5dysbwd7fm6a-uboot-novena_defconfig-armv7l-unknown-linux-gnueabihf-2026.07

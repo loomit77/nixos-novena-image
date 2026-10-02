@@ -1,0 +1,32 @@
+warning: Git tree '/home/loomit/nixos-novena-image' is dirty
+these 2 derivations will be built:
+  /nix/store/6xnvqqsijyn7x9fqlq92cva1ypdhzb1j-novena-firmware.img.drv
+  /nix/store/3yp813aa65y6y5039wyr4s53a3whf73k-nixos-novena-sd-image.img.drv
+building '/nix/store/6xnvqqsijyn7x9fqlq92cva1ypdhzb1j-novena-firmware.img.drv'...
+novena-firmware.img> mkfs.fat 4.2 (2021-01-31)
+building '/nix/store/3yp813aa65y6y5039wyr4s53a3whf73k-nixos-novena-sd-image.img.drv'...
+nixos-novena-sd-image.img> Checking that no-one is using this disk right now ... OK
+nixos-novena-sd-image.img> 
+nixos-novena-sd-image.img> Disk /nix/store/0b97xgj92hhrj0p5998k4rmazknaaag2-nixos-novena-sd-image.img: 2.4 GiB, 2581291008 bytes, 5041584 sectors
+nixos-novena-sd-image.img> Units: sectors of 1 * 512 = 512 bytes
+nixos-novena-sd-image.img> Sector size (logical/physical): 512 bytes / 512 bytes
+nixos-novena-sd-image.img> I/O size (minimum/optimal): 512 bytes / 512 bytes
+nixos-novena-sd-image.img> 
+nixos-novena-sd-image.img> >>> Script header accepted.
+nixos-novena-sd-image.img> >>> Script header accepted.
+nixos-novena-sd-image.img> >>> Script header accepted.
+nixos-novena-sd-image.img> >>> Script header accepted.
+nixos-novena-sd-image.img> >>> Created a new DOS (MBR) disklabel with disk identifier 0x2178694e.
+nixos-novena-sd-image.img> /nix/store/0b97xgj92hhrj0p5998k4rmazknaaag2-nixos-novena-sd-image.img1: Created a new partition 1 of type 'W95 FAT32 (LBA)' and of size 128 MiB.
+nixos-novena-sd-image.img> /nix/store/0b97xgj92hhrj0p5998k4rmazknaaag2-nixos-novena-sd-image.img2: Created a new partition 2 of type 'Linux' and of size 2.3 GiB.
+nixos-novena-sd-image.img> /nix/store/0b97xgj92hhrj0p5998k4rmazknaaag2-nixos-novena-sd-image.img3: Done.
+nixos-novena-sd-image.img> 
+nixos-novena-sd-image.img> New situation:
+nixos-novena-sd-image.img> Disklabel type: dos
+nixos-novena-sd-image.img> Disk identifier: 0x2178694e
+nixos-novena-sd-image.img> 
+nixos-novena-sd-image.img> Device                                                                 Boot  Start     End Sectors Size Id Type
+nixos-novena-sd-image.img> /nix/store/0b97xgj92hhrj0p5998k4rmazknaaag2-nixos-novena-sd-image.img1       16384  278527  262144 128M  c W95
+nixos-novena-sd-image.img> /nix/store/0b97xgj92hhrj0p5998k4rmazknaaag2-nixos-novena-sd-image.img2 *    278528 5039535 4761008 2.3G 83 Linu
+nixos-novena-sd-image.img> 
+nixos-novena-sd-image.img> The partition table has been altered.
