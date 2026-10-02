@@ -2328,3 +2328,54 @@ ROOT_CAUSE_CLAIM_ALLOWED=NO
 Vor weiteren Hardwaretests, Patches oder Builds erfolgt
 ein erneuter Abgleich mit der vorhandenen Projekt- und
 Primärquellendokumentation.
+
+## 2026-10-02 – BLOCK 9C-44: lokale statische Rekonstruktion und Dokumentation
+
+Durchgeführt wurde ausschließlich der lokale Dokumentationsabgleich mit
+AGENTS.md, README.md, vollständigen betroffenen Dokumenten, bestehenden
+Diffs, erhaltenem Locked-Debug-Baum und vollständigem Fall-8B-Rohlog.
+Keine Builds, Downloads, Netzwerk-/SSH-, Blockgeräte- oder Hardwarezugriffe.
+
+[Ausführlicher Bericht und Quellenidentitäten](../research/04-spl-ddr/block-9c-43-dokumentationscheckpoint.md).
+
+Erneut gemessen:
+
+- Referenz `REF/spl/u-boot-spl`: SHA256
+  `69bb3a4dd2efe059cefc197cad244f13459b0ef08ccb17c886059337ca25e469`.
+- `test-logs/2026-10-01/block-4.10o-1n-patch-0008-por-01.raw.log`:
+  830 Byte; SHA256
+  `9d4af3d5b5e846072ef14977eea947ba5b3c244c1079cd9389dcb23d0a32cf61`.
+- Raw-SPL: 49.480 Byte, genau einmal im 56.320-Byte-Wrapper ab `0xc00`;
+  SPL-, Raw-, Map- und Konfigurationshashes stimmen mit dem dokumentierten
+  Referenzstand überein.
+
+Die heutige Quellen-/Symbol-/Disassembly-Rekonstruktion bestätigt ignorierte
+WL-/DQS-Rückgaben und ignorierte Polling-Rückgaben, SRAM-Stack,
+BSS-Clear nach Kalibrierung, DQS-Tail-Branch sowie die hartcodierte
+Control-Adresse von Patch 0008. Sie ist keine neue Kalibrierungsmessung.
+Fall 8B bleibt CONTROL_FAIL_TARGET_FAIL; eine konkrete Root Cause folgt nicht.
+
+Die Originalberichte 9C-33 bis 9C-42 sind im Repository nicht erhalten.
+BLOCK-Zuordnung aus dem Auftrag ist eine Chat-/Auftragsangabe; dieser
+Checkpoint behauptet keine früheren Abläufe. ERR050070-Primärbeleg,
+MPDGHWST-Lesesemantik und lokale Verifikation der A/B-Definitionen bleiben offen.
+Die A/B-Gegenüberstellung führt gemäß Auftrag BLOCK 9C-49 Angaben aus dem
+früheren Chatbericht zu BLOCK 9C-42, keine lokal verifizierte
+Repository-Originalquelle: A ist eine lokal initialisierte Diagnose-Struktur
+auf dem SRAM-Stack mit Parameterweitergabe an WL-/DQS-Helfer; B ist ein
+initialisierter globaler Diagnosezustand in SRAM-`.data` bei unveränderten
+Funktionssignaturen. Optionaler Messumfang ist davon getrennt.
+
+PRE-HEAD: `6dca698a37b27283e92fc823a4b6869d441beac0`.
+Bestehende Nutzeränderungen an Patches, Nix und Dokumenten bleiben erhalten.
+Der Auftrag umfasst nur Dokumentation; der einmalige historische
+Patch-0008-Hardwarelauf wird hier weder wiederholt noch neu gezählt.
+
+```text
+ROOT_CAUSE=UNRESOLVED
+IMPLEMENTATION_ALLOWED=NO
+BUILD_AUTHORIZED=NO
+HARDWARE_TEST_AUTHORIZED=NO
+PATCH_0008_HARDWARE_BOOT_COUNT=1
+PATCH_0008_SECOND_BOOT_ALLOWED=NO
+```

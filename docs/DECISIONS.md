@@ -966,3 +966,37 @@ HARDWARE_TEST_RESULT=8B
 PATCH_0008_SECOND_BOOT_ALLOWED=NO
 ROOT_CAUSE=UNRESOLVED
 ROOT_CAUSE_CLAIM_ALLOWED=NO
+
+## 2026-10-02 – BLOCK 9C-44: Rekonstruktion erhalten, Umsetzung gesperrt
+
+Die lokal statisch rekonstruierbaren Themen aus dem Auftrag zu 9C-42/9C-43
+werden im [Dokumentationscheckpoint](../research/04-spl-ddr/block-9c-43-dokumentationscheckpoint.md)
+erhalten. Fehlende Repository-Originalberichte 9C-33 bis 9C-42 werden nicht
+durch eine erfundene Ablaufhistorie ersetzt.
+
+Ignorierte WL-/DQS- und Warte-Rückgaben begründen eine Diagnoselücke,
+keine bewiesene Ursache von Fall 8B. ERR050070 wird ohne zugänglichen
+Hersteller-Primärbeleg nicht zur verifizierten Ursache oder Fixgrundlage.
+MPDGHWST-Lesesemantik bleibt UNKNOWN; zusätzliche Lesungen werden nicht
+als automatisch nebenwirkungsfreie Diagnose vorausgesetzt.
+
+A/B werden im Checkpoint gemäß Auftrag BLOCK 9C-49 als Angaben aus dem
+früheren Chatbericht zu BLOCK 9C-42 geführt, nicht als lokal verifizierte
+Repository-Originalquelle: A ist eine lokal initialisierte Diagnose-Struktur
+auf dem SRAM-Stack mit Parameterweitergabe an WL-/DQS-Helfer; B ist ein
+initialisierter globaler Diagnosezustand in SRAM-`.data` bei unveränderten
+Funktionssignaturen. Optionaler Messumfang ist davon getrennt.
+Keine Variante ist ausgewählt, implementiert, präregistriert oder freigegeben.
+Vor einer späteren konkreten Freigabe wären Primärquellenlücken, SRAM-Stack-
+Bedarf, Erhaltung vor dem BSS-Clear, geänderter DQS-Tail-Pfad und erneute
+Qualifikation der hartcodierten Patch-0008-Control-/Targetadressen zu klären.
+Die Fallmatrix 8A–8X und ihre Aussagegrenzen werden nicht geändert.
+
+```text
+ROOT_CAUSE=UNRESOLVED
+IMPLEMENTATION_ALLOWED=NO
+BUILD_AUTHORIZED=NO
+HARDWARE_TEST_AUTHORIZED=NO
+PATCH_0008_HARDWARE_BOOT_COUNT=1
+PATCH_0008_SECOND_BOOT_ALLOWED=NO
+```

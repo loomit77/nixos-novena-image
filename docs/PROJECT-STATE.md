@@ -5707,3 +5707,52 @@ ROOT_CAUSE=UNRESOLVED
 ROOT_CAUSE_CLAIM_ALLOWED=NO
 
 Einschraenkung: Der vorausgehende C0-Load kann den beobachteten Speicherzustand vorkonditioniert haben. Aus Fall 8B folgt deshalb kein Nachweis eines bestimmten DDR-, MMDC-, Cache- oder sonstigen Speichermechanismus.
+
+## 2026-10-02 – BLOCK 9C-44: statischer Dokumentationscheckpoint
+
+Maßgeblicher neuer Wiedereinstieg:
+[Rekonstruktionsbericht](../research/04-spl-ddr/block-9c-43-dokumentationscheckpoint.md).
+Die Datei wurde in 9C-44 erstellt; sie ist kein aufgefundenes 9C-43-Original.
+
+Der lokale Abgleich bestätigt das qualifizierte Patch-0008-Referenz-ELF
+mit SHA256 `69bb3a4dd2efe059cefc197cad244f13459b0ef08ccb17c886059337ca25e469`
+und das unveränderte 830-Byte-Fall-8B-Originalrohlog mit SHA256
+`9d4af3d5b5e846072ef14977eea947ba5b3c244c1079cd9389dcb23d0a32cf61`.
+Fall 8B und seine bisherigen Aussagegrenzen bleiben unverändert.
+
+Aktuell statisch rekonstruiert: Der Boardpfad ignoriert WL-/DQS-Rückgaben;
+die Kalibrierung ignoriert die einschlägigen `wait_for_bit_le32`-Rückgaben.
+Ein weiterlaufender SPL und selbst eine Fehlerbitmaske Null würden deshalb
+keinen vollständigen Kalibrierungs-/Timeout-PASS beweisen. Die realen Werte
+sind im Originalrohlog nicht erfasst.
+
+Der frühe Stack liegt im SRAM; der DDR-BSS-Clear folgt auf die Kalibrierung.
+DQS wird im Referenz-ELF per Tail-Branch aufgerufen. Die Patch-0008-Kontrolle
+verwendet die hartcodierte Adresse `0x18200030`; ihre Symbolzuordnung muss
+bei jeder späteren Layoutänderung neu geprüft werden.
+
+MPDGHWST-Lesesemantik bleibt UNKNOWN. Für ERR050070 fehlt im geprüften
+lokalen Bestand der Hersteller-Primärbeleg; Inhalt, konkrete Anwendbarkeit
+und Ursächlichkeit werden hier nicht als verifiziert fortgeschrieben.
+Die Repository-Originalberichte 9C-33 bis 9C-42 fehlen ausdrücklich;
+die A/B-Definitionen werden gemäß Auftrag BLOCK 9C-49 als Angaben aus dem
+früheren Chatbericht zu BLOCK 9C-42 geführt, nicht als lokal verifizierte
+Repository-Originalquelle. A bezeichnet eine lokal initialisierte
+Diagnose-Struktur auf dem SRAM-Stack mit Parameterweitergabe an WL-/DQS-Helfer;
+B einen initialisierten globalen Diagnosezustand in SRAM-`.data` bei
+unveränderten Funktionssignaturen. Optionaler Messumfang ist davon getrennt.
+Originalbeleg, heutige Rekonstruktion, Chat-/Auftragsangabe und Hypothese sind
+im Bericht getrennt. Daraus folgen keine historische Präregistrierung und
+keine Implementierungsfreigabe.
+
+```text
+ROOT_CAUSE=UNRESOLVED
+IMPLEMENTATION_ALLOWED=NO
+BUILD_AUTHORIZED=NO
+HARDWARE_TEST_AUTHORIZED=NO
+PATCH_0008_HARDWARE_BOOT_COUNT=1
+PATCH_0008_SECOND_BOOT_ALLOWED=NO
+```
+
+Keine neue Hardwarebeobachtung und keine neue Build-/Medienqualifikation.
+Die abgeschlossene ES8328/I2C3-Untersuchung bleibt geschlossen.
