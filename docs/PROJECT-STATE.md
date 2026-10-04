@@ -1,30 +1,20 @@
 # Project State
 
-## Maßgeblicher Wiedereinstieg – 2026-10-02
+## Maßgeblicher Wiedereinstieg – Dokumentationsstand 2026-10-04
 
-Für den aktuellen Stand ist der Schlussabschnitt
-„2026-10-02 – BLOCK 9C-44: statischer Dokumentationscheckpoint“
-zusammen mit dem
-[Rekonstruktionsbericht](../research/04-spl-ddr/block-9c-43-dokumentationscheckpoint.md)
-maßgeblich. Der Bericht wurde in 9C-44 erstellt und ist kein
-aufgefundenes 9C-43-Original.
+BELEGT: Der einmalige, dokumentierte Patch-0008-POR/P_EXT-Hardwarelauf vom 2026-10-01 bleibt Fall `8B = CONTROL_FAIL_TARGET_FAIL`. Das Originalrohlog enthält C0=C1=C2=Q1=Q2=P0=P1=0; damit ist das präregistrierte Gültigkeitskriterium C0=C2=0 erfüllt. Eine DDR-Root-Cause ist nicht nachgewiesen.
 
-Der einmalige Patch-0008-Hardwaretest vom 2026-10-01 bleibt als
-Fall `8B = CONTROL_FAIL_TARGET_FAIL` dokumentiert. Die anschließende
-statische Rekonstruktion ist keine neue Hardwarebeobachtung und
-beweist keine Root Cause. Die A/B-Definitionen stammen aus
-Chat-/Auftragsangaben; ein erhaltener 9C-42-Originalbericht bestätigt
-sie nicht.
+Die erhaltene statische Rekonstruktion aus BLOCK 9C-44 und die späteren Quellenbefunde unter `research/05-gesamtanalyse/` sowie das lokal vorhandene NXP/Freescale Reference Manual Rev. 2 sind gemeinsam zu berücksichtigen. Der in 9C-44 erzeugte Dokumentationscheckpoint ist kein aufgefundenes Original von 9C-43.
 
-Die funktionale ES8328/I2C3-Untersuchung ist abgeschlossen;
-`regulator-always-on` für `es8328-power` bleibt erforderlich.
-Implementierung, Build und Hardwaretest sind nicht freigegeben;
-ein zweiter Patch-0008-Boot ist nicht erlaubt.
+Laut ausdrücklicher Auftragsangabe zu BLOCK 9C-47W-8H endete BLOCK 9C-47W-8G mit `STATIC_EVIDENCE_EXHAUSTED=YES` und `ROOT_CAUSE=UNRESOLVED`. Ein Originalbericht 9C-47W-8G ist in den für diesen Checkpoint gezielt geprüften Quellen nicht nachgewiesen. Seine Durchführung und Einzelbefunde werden nicht aus Blocknamen oder späteren Zusammenfassungen rekonstruiert. Die statische Untersuchung für Fall 8B gilt auf dieser Auftragsgrundlage vorerst als abgeschlossen.
 
-Der folgende frühere Kopfabschnitt beschreibt den historischen
-Projektstand vom 2026-09-22. Ältere „aktuell“-Aussagen und
-Testankündigungen sind im jeweiligen damaligen Kontext und zusammen
-mit den späteren datierten Ergebnissen zu lesen.
+OFFEN bleiben die Root Cause, reale Kalibrierungswerte und Warteergebnisse, die aktuelle DIMM-/Siliconidentität sowie die reale physische x64-Adresszuordnung.
+
+Implementierung, Build, Medienzugriff, Hardwaretest und Push sind nicht freigegeben. Ein zweiter Patch-0008-Boot ist verboten. Dieser Dokumentationsstand erteilt keine Aktionsfreigabe.
+
+Die funktionale I2C3-/ES8328-Untersuchung bleibt geschlossen. `regulator-always-on` für `es8328-power` bleibt eine dauerhafte Boardanforderung.
+
+Der folgende frühere Kopfabschnitt beschreibt den historischen Projektstand vom 2026-09-22. Ältere „aktuell“-Aussagen und Testankündigungen sind im jeweiligen damaligen Kontext und zusammen mit den späteren datierten Ergebnissen zu lesen.
 
 ## Aktueller Projektcheckpoint – Phase 4.7
 
@@ -5785,3 +5775,17 @@ PATCH_0008_SECOND_BOOT_ALLOWED=NO
 
 Keine neue Hardwarebeobachtung und keine neue Build-/Medienqualifikation.
 Die abgeschlossene ES8328/I2C3-Untersuchung bleibt geschlossen.
+
+## 2026-10-04 – Quellenstand nach dem historischen Checkpoint 9C-44
+
+Die Aussagen des Abschnitts vom 2026-10-02 bleiben als damaliger Kenntnisstand erhalten.
+
+BELEGT: Das inzwischen lokal vorhandene i.MX 6Dual/6Quad Reference Manual Rev. 2, Juni 2014, Teil 2 beschreibt in §44.11.3.1.2, Schritte 31–35, den Ergebnislesekontext nach dem angezeigten Abschluss der Hardware-DQS-Gating-Kalibrierung und die Einstellung auf den oberen Grenzwert minus einen halben Takt. Die Abschnitte §44.12.62 ff. beschreiben die MPDGHWST-Ergebnisfelder. Dies schließt die frühere vollständige Registerbeschreibungslücke für diese Revision teilweise. Eine allgemeine Nebenwirkungsfreiheit zusätzlicher, wiederholter oder außerhalb dieses Ablaufs eingefügter Lesungen ist damit nicht nachgewiesen.
+
+BELEGT als Softwarebefund: Der qualifizierte Locked-Debug-REF verwendet in `modify_dg_result()` weiterhin `0xc0`, während sein Kommentar `0x80` nennt. Der dokumentierte Reviewentwurf vom 22.12.2015 enthält diese Differenz bereits. Der später dokumentierte Mainline-Commit `cec2f200b4bfcc466e4a83196ed5fdd54678c1c7` ändert zwei Subtraktionen auf `0x80`. Nach der erhaltenen lokalen Graphprüfung ist er nicht in v2026.07 oder v2026.10-rc1 enthalten, jedoch in den geprüften Tags v2026.10-rc2 bis rc4. Dies beweist weder einen konkreten Fehler des Novena-DIMMs noch Kausalität für Fall 8B und begründet keinen Patchauftrag.
+
+BELEGT als dokumentierte Quellenprovenienz: Die frühere Originalinhaltsprüfung von IMX6DQCE Rev. 7, 02/2019, S. 143 beschreibt ERR050070 als Einschränkung der automatischen Write-Leveling-Fehleranzeige in MPWLGCR und nennt MPWLHWERR als alternatives Bewertungskriterium. Die lokale Original-PDF-Datei und ihr Bytehash fehlen weiterhin. Die konkrete Siliconanwendbarkeit und tatsächliche Auslösung im Fall 8B bleiben OFFEN.
+
+Die Decoderbeispiele des RM Rev. 2, §44.4.4.1, Tabellen 44-4/44-5, behandeln x16/x32 unter ausdrücklich vorgegebener Geometrie. Sie sind keine gemessene x64-Adresszuordnung der aktuellen Novena. Eine Zuordnung der Diagnoseadressen zu Lane, Chip, Bank, Row oder physischer Aliasierung bleibt OFFEN.
+
+RM Rev. 2 ersetzt weder RM Rev. 6 noch AN4467 Rev. 2. Für diese beiden Dokumente liegt in den geprüften Quellen kein lokal verifiziertes Original vor. Die Quellenbefunde ändern weder das Hardwareergebnis 8B noch die offenen realen Kalibrierungswerte oder die Freigabegrenzen.

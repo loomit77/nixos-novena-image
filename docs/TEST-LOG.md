@@ -1929,6 +1929,8 @@ Vorregistrierte Fälle:
 * 7E: Q1=`0x18300000`, Q2=`0x18300000`, P0=`0x00000000`
 * 7D: jede andere Kombination
 
+Einordnung vom 2026-10-04: 7A, 7B und 7E sind hier präregistrierte Ergebnisklassen, keine Nachweise entsprechend ausgeführter Hardwaretests. Der nachfolgend dokumentierte Q1/Q2/P0-Hardwarelauf ergab 7C. Davon getrennt sind der frühere P0/P1-Lauf mit seiner damaligen Klassifikation und der spätere Patch-0008-Lauf mit zusätzlicher C0/C1/C2-Instrumentierung und Ergebnis 8B. Gleiche Versionsbanner erlauben keine Gleichsetzung dieser Instrumentierungen oder ihrer vollständigen Artefakte. Die Kennung „4.10O-1N-7B bis 7E“ eines späteren Build-/Medienabschnitts bezeichnet ebenfalls keine zusätzlich ausgeführten Q1/Q2/P0-Ergebnisklassen.
+
 Für einen späteren Build muss die erzeugte Maschine zusätzlich
 bestätigen, dass Q1 und Q2 jeweils echte Loads aus
 `0x1820003c` sind, zwischen Q1 und dem Heap-`memset` kein `printf`
@@ -2279,6 +2281,10 @@ Der Text `priv=?` wird nicht als konkreter Zeigerwert interpretiert.
 Die Q1/Q2-Diagnose enthält weiterhin ein literales `\n`.
 Dies ist eine bekannte Eigenschaft des Diagnosepatches.
 
+Quellenpräzisierung vom 2026-10-04: `ret=-12` ist die protokollierte Rückgabe von `fsl_esdhc_initialize()` beziehungsweise deren Weitergabe durch `board_mmc_init()`. Der instrumentierte Quellpfad enthält nach `priv = calloc(...)` bei fehlgeschlagener Allokation die Rückgabe `-ENOMEM`. Das Rohlog enthält jedoch keinen numerisch bestimmbaren Rückgabepointer des Allocators: `priv=?` bleibt eine Ausgabegrenze. Die Zahl -12 ist insbesondere keine aufgezeichnete WL-, DQS- oder Wait-Rückgabe und kein Timeoutnachweis.
+
+Im Originalrohlog fehlen tatsächliche WL-/DQS-Fehlerbitmasken, Wait-Ergebnisse und MMDC-Kalibrierungsregisterwerte. Ein weiterlaufender SPL beweist deshalb keinen erfolgreichen WL- oder DQS-Abschluss.
+
 ### Präregistrierte Klassifikation
 
 Das Gültigkeitskriterium ist erfüllt:
@@ -2379,3 +2385,15 @@ HARDWARE_TEST_AUTHORIZED=NO
 PATCH_0008_HARDWARE_BOOT_COUNT=1
 PATCH_0008_SECOND_BOOT_ALLOWED=NO
 ```
+
+## 2026-10-04 – BLOCK 9C-47W-8H: read-only vorbereiteter Dokumentationscheckpoint
+
+Der Auftrag bereitete ausschließlich Dokumentationsvorschläge vor. Er führte keinen Build, keine Nix-Evaluierung, keinen Medienzugriff und keinen Hardwaretest aus. Der dokumentierte Patch-0008-Bootzähler bleibt eins; Fall 8B bleibt unverändert.
+
+Das vollständige Originalrohlog wurde lokal gelesen; Größe 830 Byte und SHA256 `9d4af3d5b5e846072ef14977eea947ba5b3c244c1079cd9389dcb23d0a32cf61` wurden bestätigt. Das erhaltene REF-SPL-ELF besitzt weiterhin SHA256 `69bb3a4dd2efe059cefc197cad244f13459b0ef08ccb17c886059337ca25e469`. Diese Identitätsprüfungen ersetzen keine erneute Hardware- oder Medienqualifikation.
+
+Die späteren Quellenbefunde unterscheiden lokale RM-Rev.-2-Originalbytes, dokumentierte frühere ERR050070-Originalinhaltsprüfung ohne lokales Bytearchiv und historische U-Boot-Softwarebelege. Die Hersteller- und Versionsgrenzen sind im Nachtrag zu `docs/PROJECT-STATE.md` und im Quellenverzeichnis festgehalten. Die Aussagen aus 9C-44 bleiben als damaliger Kenntnisstand erhalten.
+
+`STATIC_EVIDENCE_EXHAUSTED=YES` und `ROOT_CAUSE=UNRESOLVED` für BLOCK 9C-47W-8G werden ausschließlich gemäß ausdrücklicher Auftragsangabe übernommen. Ein Originalbericht 8G wurde in den gezielt geprüften Quellen nicht nachgewiesen und nicht rekonstruiert. Dieser Nachtrag belegt keinen früheren Analyseablauf.
+
+Codex führte in 8H keine Schreiboperationen aus. Eine spätere Aufnahme dieses vorbereiteten Textes ist ein gesonderter Dokumentationsschritt.

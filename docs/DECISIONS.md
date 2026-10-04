@@ -1000,3 +1000,27 @@ HARDWARE_TEST_AUTHORIZED=NO
 PATCH_0008_HARDWARE_BOOT_COUNT=1
 PATCH_0008_SECOND_BOOT_ALLOWED=NO
 ```
+
+## 2026-10-04 – Dokumentationscheckpoint nach vorläufigem Abschluss der statischen Fall-8B-Untersuchung
+
+Die statische Untersuchung für Fall 8B gilt gemäß ausdrücklicher Auftragsangabe zum Abschluss von BLOCK 9C-47W-8G vorerst als ausgeschöpft. Dies ist kein Nachweis einer DDR-Root-Cause und kein Ausschluss sämtlicher denkbarer Ursachen. Der fehlende Originalbericht wird nicht durch eine rekonstruierte Ablaufhistorie ersetzt.
+
+Der einmalige Patch-0008-Hardwarelauf bleibt Fall `8B = CONTROL_FAIL_TARGET_FAIL`; Kontrollgültigkeit und bisherige Aussagegrenzen bleiben unverändert. Er wird nicht wiederholt.
+
+Die inzwischen vorhandenen RM-Rev.-2-Originalpassagen erlauben eine präzisere Dokumentation von MPDGHWST-Ergebnisfeldern, Ergebnislesekontext und Halbtaktkorrektur. Sie begründen keine allgemeine Nebenwirkungsfreiheit zusätzlicher Lesungen. Die dokumentierte frühere ERR050070-Inhaltsprüfung wird von fehlenden lokalen Originalbytes, konkreter Siliconanwendbarkeit und unbewiesener Auslösung getrennt.
+
+Historische Codewerte `0xc0`, spätere Änderungen auf `0x80`, Fehlerbitmasken und ignorierte Rückgaben werden als Quellenbefunde erhalten. Daraus folgt keine Implementierungsentscheidung. Keine Diagnosearchitektur A/B wird ausgewählt oder freigegeben.
+
+Dieser Checkpoint erteilt keine Schreib-, Implementierungs-, Build-, Medien-, Hardwaretest- oder Pushfreigabe. Ein zweiter Patch-0008-Boot bleibt verboten.
+
+Die funktionale I2C3-/ES8328-Untersuchung bleibt geschlossen. `regulator-always-on` für `es8328-power` bleibt dauerhafte Boardanforderung.
+
+```text
+ROOT_CAUSE=UNRESOLVED
+STATIC_EVIDENCE_EXHAUSTED=YES
+IMPLEMENTATION_ALLOWED=NO
+BUILD_AUTHORIZED=NO
+HARDWARE_TEST_AUTHORIZED=NO
+PATCH_0008_SECOND_BOOT_ALLOWED=NO
+PUSH_AUTHORIZED=NO
+```
