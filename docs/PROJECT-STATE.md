@@ -5782,6 +5782,82 @@ Die Aussagen des Abschnitts vom 2026-10-02 bleiben als damaliger Kenntnisstand e
 
 BELEGT: Das inzwischen lokal vorhandene i.MX 6Dual/6Quad Reference Manual Rev. 2, Juni 2014, Teil 2 beschreibt in §44.11.3.1.2, Schritte 31–35, den Ergebnislesekontext nach dem angezeigten Abschluss der Hardware-DQS-Gating-Kalibrierung und die Einstellung auf den oberen Grenzwert minus einen halben Takt. Die Abschnitte §44.12.62 ff. beschreiben die MPDGHWST-Ergebnisfelder. Dies schließt die frühere vollständige Registerbeschreibungslücke für diese Revision teilweise. Eine allgemeine Nebenwirkungsfreiheit zusätzlicher, wiederholter oder außerhalb dieses Ablaufs eingefügter Lesungen ist damit nicht nachgewiesen.
 
+**BLOCK 9C-50D – Registerdetails und Provenienzgrenzen zu 9C-50B/50C:**
+Genaue Primärquelle ist das NXP/Freescale **i.MX6DQ RM (IMX6DQRM),
+Rev. 2, 06/2014**, vollständiger Titel *i.MX 6Dual/6Quad Applications
+Processor Reference Manual*, Teil 2. Lokal verwendet wurde
+[`IMX6DQRMr2_part2.pdf`](../research/nxp-reference-manuals/sources/IMX6DQRMr2_part2.pdf);
+die Aufnahmeprovenienz steht im
+[Quellenverzeichnis](../research/nxp-reference-manuals/README.md).
+Die in 9C-50C gemäß Auftragsangabe erarbeiteten Registerdetails wurden
+für diese Ergänzung an den lokalen Originalpassagen abgeglichen.
+
+BELEGT durch §44.12.62–44.12.65, gedruckte S. 3996–3999:
+MPDGHWST0–3 sind jeweils 32-Bit-Register mit Zugriff **R** (read-only)
+und Resetwert `0x00000000`. Die Offsets beziehen sich auf die jeweilige
+MMDC-Registerbasis:
+
+| Register | Abschnitt | Offset |
+|---|---|---|
+| MPDGHWST0 | §44.12.62 | `0x87c` |
+| MPDGHWST1 | §44.12.63 | `0x880` |
+| MPDGHWST2 | §44.12.64 | `0x884` |
+| MPDGHWST3 | §44.12.65 | `0x888` |
+
+Für jedes Register `n=0–3` enthält `HW_DG_UPn` in Bits **26:16**
+die obere und `HW_DG_LOWn` in Bits **10:0** die untere Grenze der
+Hardware-DQS-Gating-Kalibrierung für das zugehörige Byte; beide Felder
+sind elf Bit breit. Bits **31:27** und **15:11** sind reserviert.
+Die Beschreibung nennt diese Bereiche lediglich „reserved“; daraus
+folgt keine eigenständige Garantie ihrer späteren Lesewerte.
+
+Davon zu unterscheiden ist **MPWLHWERR**, §44.12.61, gedruckte S. 3996,
+Offset `0x878`: ebenfalls R, 32 Bit, Resetwert null, aber mit den
+Write-Leveling-Ergebnisfeldern `HW_WL3_DQ` (31:24), `HW_WL2_DQ`
+(23:16), `HW_WL1_DQ` (15:8) und `HW_WL0_DQ` (7:0). Jedes Acht-Bit-Feld
+hält die Ergebnisse der acht Write-Leveling-Schritte von 0 bis 7/8 Delay.
+Diese Ergebnisse sind keine oberen/unteren DQS-Gating-Grenzwerte;
+Registername, Kalibrierungsverfahren und Auswertung dürfen nicht
+gleichgesetzt werden.
+
+Der oben genannte reguläre Ablauf steht auf gedruckter S. 3871:
+Schritt 31 zeigt den Abschluss durch `MPDGCTRL0[HW_DG_EN]=0` an;
+Schritt 32 verlässt den DDR-MPR-Modus mittels MRS. Erst anschließend
+liest Schritt 33 `HW_DG_UPn`. Dessen sieben niederwertige Bits werden
+in Schritt 34 nach `DG_DL_ABS_OFFSETn` übernommen; die vier höherwertigen
+Bits werden in Schritt 35 um eins vermindert nach `DG_HC_DELn`
+übernommen. Dies ist ein dokumentierter Ergebnisleseablauf, kein
+Nachweis, dass die reale Novena-Kalibrierung erfolgreich abgeschlossen war.
+
+**Begrenzter Negativbefund:** In diesen Registerbeschreibungen und
+Ablaufschritten ist kein Read-to-clear-Verhalten für MPDGHWST0–3
+angegeben. Das belegt weder Read-to-clear noch dessen allgemeinen
+Ausschluss. Die Kennzeichnung R allein beweist keine Nebenwirkungsfreiheit,
+keine garantierte Erhaltung der Ergebniswerte und keine sichere
+Wiederholbarkeit beliebiger zusätzlicher Reads. Deren Sicherheit innerhalb
+oder außerhalb einer laufenden Kalibrierung bleibt UNKNOWN.
+
+**Provenienzlücke 9C-50B:** Ein eigenständiger lokaler Originalbericht
+BLOCK 9C-50B wurde im geprüften Repositorybestand nicht gefunden.
+Eine frühere Zuordnung der Werte zu diesem Block ist daher nur als
+Auftrags-/Chatprovenienz zu führen, nicht als lokal bestätigte Durchführung.
+Die hier übernommenen Registerwerte (Offsets, Bitlagen und Resetwerte)
+sind am RM belegte Herstellerangaben, keine auf der Novena gemessenen
+MPDGHWST- oder MPWLHWERR-Inhalte. Der erhaltene
+[Fall-8B-Rohlog](../test-logs/2026-10-01/block-4.10o-1n-patch-0008-por-01.raw.log)
+enthält keine solchen Registermesswerte. Aus diesen Angaben folgen weder
+ein Kalibrierungs-PASS noch eine DDR-Root-Cause oder eine Freigabe
+zusätzlicher Lesezugriffe.
+
+```text
+DDR_ROOT_CAUSE=UNRESOLVED
+ADDITIONAL_READS_PROVEN_SAFE=UNKNOWN
+PATCH_0008_SECOND_BOOT_ALLOWED=NO
+BUILD_AUTHORIZED=NO
+HARDWARE_TEST_AUTHORIZED=NO
+IMPLEMENTATION_ALLOWED=NO
+```
+
 BELEGT als Softwarebefund: Der qualifizierte Locked-Debug-REF verwendet in `modify_dg_result()` weiterhin `0xc0`, während sein Kommentar `0x80` nennt. Der dokumentierte Reviewentwurf vom 22.12.2015 enthält diese Differenz bereits. Der später dokumentierte Mainline-Commit `cec2f200b4bfcc466e4a83196ed5fdd54678c1c7` ändert zwei Subtraktionen auf `0x80`. Nach der erhaltenen lokalen Graphprüfung ist er nicht in v2026.07 oder v2026.10-rc1 enthalten, jedoch in den geprüften Tags v2026.10-rc2 bis rc4. Dies beweist weder einen konkreten Fehler des Novena-DIMMs noch Kausalität für Fall 8B und begründet keinen Patchauftrag.
 
 BELEGT als dokumentierte Quellenprovenienz: Die frühere Originalinhaltsprüfung von IMX6DQCE Rev. 7, 02/2019, S. 143 beschreibt ERR050070 als Einschränkung der automatischen Write-Leveling-Fehleranzeige in MPWLGCR und nennt MPWLHWERR als alternatives Bewertungskriterium. Die lokale Original-PDF-Datei und ihr Bytehash fehlen weiterhin. Die konkrete Siliconanwendbarkeit und tatsächliche Auslösung im Fall 8B bleiben OFFEN.
