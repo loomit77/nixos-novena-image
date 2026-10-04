@@ -5789,3 +5789,100 @@ BELEGT als dokumentierte Quellenprovenienz: Die frühere Originalinhaltsprüfung
 Die Decoderbeispiele des RM Rev. 2, §44.4.4.1, Tabellen 44-4/44-5, behandeln x16/x32 unter ausdrücklich vorgegebener Geometrie. Sie sind keine gemessene x64-Adresszuordnung der aktuellen Novena. Eine Zuordnung der Diagnoseadressen zu Lane, Chip, Bank, Row oder physischer Aliasierung bleibt OFFEN.
 
 RM Rev. 2 ersetzt weder RM Rev. 6 noch AN4467 Rev. 2. Für diese beiden Dokumente liegt in den geprüften Quellen kein lokal verifiziertes Original vor. Die Quellenbefunde ändern weder das Hardwareergebnis 8B noch die offenen realen Kalibrierungswerte oder die Freigabegrenzen.
+
+
+## 2026-10-04 – BLOCK 9C-48F bis 9C-48I: Statische SPL-Speicher- und Bootheaderprüfung
+
+Dieser Nachtrag ordnet die Befunde gemäß Auftrag BLOCK 9C-49E den Blöcken
+9C-48F bis 9C-48I zu. Separate Originalberichte dieser Blöcke wurden im
+geprüften Repositorybestand nicht gefunden. Die nachstehenden Werte wurden
+für diesen Dokumentationsnachtrag lokal read-only an den erhaltenen
+Referenzartefakten abgeglichen; die Reservierungsadressen sind eine
+rechnerische Rekonstruktion, keine Laufzeitmessung oder Bestätigung eines
+früheren Untersuchungsablaufs.
+
+Quellenbasis ist der im [Checkpoint 9C-44](../research/04-spl-ddr/block-9c-43-dokumentationscheckpoint.md)
+exakt benannte Locked-Debug-Baum `REF` des gepatchten U-Boot-v2026.07-Stands.
+Verwendet wurden `REF/spl/u-boot-spl` (ELF-Program-Header und DWARF),
+`REF/spl/u-boot-spl.bin`, `REF/SPL`, `REF/.config`,
+`REF/arch/arm/include/asm/arch-mx6/imx-regs.h`,
+`REF/arch/arm/lib/crt0.S` und `REF/common/init/board_init.c`.
+Die bestehenden Einträge zu 9C-44, der Quellenstand nach 9C-44 und der
+Checkpoint 9C-47W-8H sowie die A/B-Entscheidungen in `docs/DECISIONS.md`
+bleiben mit ihren jeweiligen Datums- und Aussagegrenzen erhalten.
+
+**Statisch belegt:** Das Referenz-SPL-ELF hat SHA256
+`69bb3a4dd2efe059cefc197cad244f13459b0ef08ccb17c886059337ca25e469`.
+Das Raw-SPL umfasst 49480 Byte und ist genau einmal im 56320-Byte-SPL-Wrapper
+bei Dateioffset `0xc00` enthalten. ELF, Raw-SPL und Wrapper bleiben
+unterschiedliche Artefakte.
+
+Für die konfigurierte MX6Q-Quellvariante gilt `IRAM_SIZE=0x40000` bei
+`IRAM_BASE_ADDR=0x00900000`, also OCRAM `[0x00900000,0x00940000)`.
+Der ELF-Entry ist `0x00908000`. Das SRAM-LOAD-Segment beginnt dort und
+hat `filesz=memsz=0xc148`; sein exklusives Ende ist `0x00914148`.
+`CONFIG_SPL_SEPARATE_BSS=y`; das separate DDR-BSS-Segment liegt in
+`[0x18200000,0x1820015c)`, umfasst `0x15c` Byte und hat ELF-`filesz=0`.
+Es enthält damit keine zu ladenden Dateibytes; dies beweist keine
+Funktionsfähigkeit des DDR. Die bestehende Einordnung des BSS-Clears nach
+der Kalibrierung bleibt bestehen.
+
+**Rechnerisch rekonstruiert:** `crt0.S` richtet den konfigurierten frühen
+Stack `0x0091ffb8` auf acht Byte aus (hier unverändert) und übergibt ihn an
+`board_init_f_alloc_reserve()` (`common/init/board_init.c:81–93`).
+Die Funktion zieht `CONFIG_SPL_SYS_MALLOC_F_LEN=0x2000` ab und reserviert
+anschließend `sizeof(struct global_data)=168=0xa8` Byte (ELF-DWARF), mit
+Abrundung auf 16 Byte:
+
+```text
+rounddown(0x0091ffb8 - 0x2000 - 0xa8, 16) = 0x0091df10
+```
+
+Dies ist die frühe Reservierungs-/GD-Basis; `crt0.S` setzt SP und GD auf
+diesen Wert. `board_init_f_init_reserve()` (`common/init/board_init.c:137–175`)
+setzt die frühe Malloc-Basis nach Aufrundung der GD-Größe auf 16 Byte:
+
+```text
+0x0091df10 + roundup(0xa8, 16) = 0x0091dfc0
+```
+
+Der rechnerische Abstand zwischen geladenem SRAM-Segmentende und
+Reservierungsbasis beträgt `0x9dc8` Byte. Dieser Abstand beweist keine
+maximale Laufzeit-Stacktiefe. Auch der rechnerisch freie OCRAM-Bereich ist
+nicht automatisch als Diagnosepuffer freigegeben; ROM-Arbeitsbereiche,
+Reservierungen und tatsächlicher Laufzeitbedarf sind damit nicht vollständig
+qualifiziert.
+
+**Bootheaderbefund aus Wrapperbytes:** Die IVT liegt bei Wrapperoffset `0`,
+die Boot Data bei `0x20`. Dekodiert wurden:
+
+| Feld | Wert |
+|---|---|
+| IVT Self | `0x00907400` |
+| IVT Entry | `0x00908000` |
+| Boot-Data-Pointer | `0x00907420` |
+| Boot-Data-Start | `0x00907000` |
+| Boot-Data-Size | `0xe000` |
+| DCD-Pointer | `0` |
+| Plugin | `0` |
+
+Die Boot-Data-Size ist `0xe000 = 57344` Byte, die Wrapper-Dateigröße
+`56320 = 0xdc00` Byte; die rechnerische Differenz beträgt
+`0x400 = 1024` Byte. Der Abstand von Boot-Data-Start zu IVT Self ist
+ebenfalls `0x400`. Diese Header- und Dateibefunde beweisen weder den
+vollständigen tatsächlichen ROM-Ladevorgang noch einen Bootfehler aus der
+1024-Byte-Differenz. Die Untersuchung liefert keine DDR-Root-Cause und
+keine neue Build-, Medien- oder Hardwarequalifikation.
+
+```text
+HARDWARE_TEST_RESULT=8B
+ROOT_CAUSE=UNRESOLVED
+PATCH_0008_HARDWARE_BOOT_COUNT=1
+PATCH_0008_SECOND_BOOT_ALLOWED=NO
+IMPLEMENTATION_ALLOWED=NO
+BUILD_AUTHORIZED=NO
+HARDWARE_TEST_AUTHORIZED=NO
+```
+
+Die Diagnosevarianten A und B bleiben nicht implementiert und nicht
+freigegeben. Die abgeschlossene I2C3-/ES8328-Untersuchung bleibt geschlossen.

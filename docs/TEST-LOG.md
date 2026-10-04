@@ -2397,3 +2397,42 @@ Die späteren Quellenbefunde unterscheiden lokale RM-Rev.-2-Originalbytes, dokum
 `STATIC_EVIDENCE_EXHAUSTED=YES` und `ROOT_CAUSE=UNRESOLVED` für BLOCK 9C-47W-8G werden ausschließlich gemäß ausdrücklicher Auftragsangabe übernommen. Ein Originalbericht 8G wurde in den gezielt geprüften Quellen nicht nachgewiesen und nicht rekonstruiert. Dieser Nachtrag belegt keinen früheren Analyseablauf.
 
 Codex führte in 8H keine Schreiboperationen aus. Eine spätere Aufnahme dieses vorbereiteten Textes ist ein gesonderter Dokumentationsschritt.
+
+
+## 2026-10-04 – BLOCK 9C-48F bis 9C-48I: statischer Speicher- und Bootheaderabgleich
+
+Im Dokumentationsauftrag BLOCK 9C-49E wurden ausschließlich vorhandene lokale
+Quellen und Artefakte read-only untersucht und die beiden freigegebenen
+Dokumentationsdateien ergänzt. Keine Netzwerkanfragen, Builds,
+Nix-Evaluierungen, Hardware- oder Medienzugriffe. Separate Originalberichte
+9C-48F bis 9C-48I wurden im geprüften Repositorybestand nicht gefunden;
+die Blockzuordnung stammt aus dem Auftrag, die Reservierungsrechnung ist
+eine aktuelle Rekonstruktion ohne erfundene historische Testausgaben.
+
+Referenz: Locked-Debug-`REF` gemäß Checkpoint 9C-44; SPL-ELF-SHA256
+`69bb3a4dd2efe059cefc197cad244f13459b0ef08ccb17c886059337ca25e469`.
+Raw-SPL: 49480 Byte; Wrapper: 56320 Byte; Raw-Offset: `0xc00`.
+OCRAM laut MX6Q-Quellkonfiguration: `[0x00900000,0x00940000)`
+(`IRAM_SIZE=0x40000`); ELF-Entry `0x00908000`, SRAM-Segmentende
+`0x00914148`. Separate DDR-BSS: `[0x18200000,0x1820015c)`, Größe
+`0x15c`, ELF-`filesz=0`, `CONFIG_SPL_SEPARATE_BSS=y`.
+
+Aus `crt0.S`, `board_init_f_alloc_reserve()` und
+`board_init_f_init_reserve()`, Konfiguration und ELF-DWARF rekonstruiert:
+konfigurierter früher Stack `0x0091ffb8`, Reservierungsbasis `0x0091df10`,
+frühe Malloc-Basis `0x0091dfc0`.
+IVT/Boot Data aus Wrapperbytes: Self `0x00907400`, Entry `0x00908000`,
+Boot-Data-Pointer `0x00907420`, Start `0x00907000`, Size `0xe000`,
+DCD-Pointer `0`, Plugin `0`. Boot-Data-Size minus Wrapper-Dateigröße:
+1024 Byte.
+
+Aussagegrenzen: keine maximale Laufzeit-Stacktiefe nachgewiesen, kein
+rechnerisch freier OCRAM-Bereich als Diagnosepuffer freigegeben, vollständiger
+tatsächlicher ROM-Ladevorgang nicht bewiesen, 1024-Byte-Differenz kein
+nachgewiesener Bootfehler, keine DDR-Root-Cause. Quellenzuordnung,
+Reservierungsrechnung und unveränderte Statuswerte stehen im
+[Nachtrag zu PROJECT-STATE.md](PROJECT-STATE.md#2026-10-04--block-9c-48f-bis-9c-48i-statische-spl-speicher--und-bootheaderprüfung).
+Fall 8B, Bootzähler eins und Verbot eines zweiten Patch-0008-Boots bleiben
+unverändert; Implementierung, Build und Hardwaretest bleiben nicht
+freigegeben. A/B bleiben nicht implementiert und nicht freigegeben;
+die I2C3-/ES8328-Untersuchung bleibt geschlossen.
