@@ -333,7 +333,7 @@ Damit ist das dort beschriebene Vergrößern der Rootpartition eine nachgelagert
 
 ## Offene r1-Geometrie
 
-Das historische `xobs/novena-image`-Repository enthält in seiner späteren Builderhistorie eine feste Loopbackgröße von `3965190144` Byte.
+Das historische `xobs/novena-image`-Repository enthält seit Commit `24a84d8c92e3583dffcbbe7dcc424dc94884e29f` vom 2014-10-15 eine feste Loopbackgröße von `3965190144` Byte.
 
 Diese Größe erklärt die öffentlich dokumentierte Größenangabe von ungefähr `2.3GB` für `novena-mmc-disk-r1.img` nicht unmittelbar.
 
@@ -654,3 +654,121 @@ Eine spätere Fortsetzung soll nur erfolgen, wenn neue Primärquellen hinzukomme
 * eine gegen SHA-256 verifizierbare Kopie von `novena-mmc-disk-r1.img`;
 * zeitgenössische exakte Partitionsmetadaten dieses Images;
 * oder eine Quelle, die die konkrete Transformation des untersuchten historischen Mediums belegt.
+
+## 2026-10-05 – BLOCK 9C-52C: Factory-R1-Präzisierung
+
+Ergänzung zum historischen Stand oben, auf Basis des vom Benutzer bestätigten
+Konsolidierungsstands 9C-51A/9C-52B gemäß Auftrag 9C-52C; keine neue
+Onlineprüfung. Eigenständige lokale Originalberichte dieser beiden Blöcke
+wurden hier nicht gefunden. Quellen- und Provenienzgrenzen stehen im
+[kanonischen Quellenverzeichnis](QUELLENVERZEICHNIS.md#2026-10-05--block-9c-52c-konsolidierter-historischer-quellenstand).
+
+BELEGT im bestätigten Quellenstand: `novena-mmc-disk-r1.img` wurde als
+Novena-Auslieferungsimage verwendet. Name, historische URL und SHA256/MD5
+sind im Abschnitt zum veröffentlichten Image festgehalten. Historisch belegt
+ist das Shrink/Expand-Konzept sowie die Factory-Prozedur: `dd`, Neuerzeugung
+von p3 bis zum Kartenende, `fsck`, `resize2fs`. Dies präzisiert den bisherigen
+Hinweis auf nachgelagerte Vergrößerung, beweist aber keinen exakten
+Release-Shrink-Schritt. Die OpenPGP-Signatur-Paketzeit ist
+`2014-12-22 07:35:33 UTC`; kryptographische Gesamtprüfung bleibt offen.
+Die Paketzeit belegt kein genaues Erstellungsdatum des Imageinhalts.
+
+STARK BELEGT: Debian-U-Boot-Version `2014.10-novena-rc12` und
+Factory-/shipped-Kernel `3.17.0-rc5-00217-gfd79638`.
+Der stärkste U-Boot-Commit-Kandidat ist Tag `v2014.10-novena-rc12`,
+`c5efeadb913c8246be372054adcd6106ad4fe067`. Seine belegte Tagzuordnung und
+sein Nachweis im rohen SPL des separaten historischen USB-Mediums beweisen
+nicht den exakten Commit im R1-Binärimage. Spätere Bootdateien, Kernel- oder
+Bootloaderupdates sind kein rückwirkender Nachweis des R1-Inhalts.
+
+```text
+FACTORY_R1_BINARY_RECOVERED=NO
+FACTORY_R1_EXACT_UBOOT_COMMIT=NICHT_BELEGT
+```
+
+Keine hashverifizierte wiedergefundene Binärkopie; exakte Original-
+Partitionierungsgeometrie, bytegenaue Kernelzuordnung und exakter
+Release-Shrink bleiben offen. Negative Suche beweist keinen Verlust des
+Images. C3D2s Factory-Image-Verweis und der 31C3-Ereignisanker belegen
+keinen heutigen Besitz oder ein dortiges Archiv des R1-Binärimages.
+Historische Medienprovenienz und aktuelle Patch0010-DDR-Beobachtungen
+bleiben getrennt; keine Root Cause folgt aus dieser Präzisierung.
+
+## 2026-10-06 – BLOCK 9C-52E: Builder-, Boot- und RAM-Quellencheckpoint
+
+Konsolidierung der abgeschlossenen lokalen Quellenanalysen 9C-52D-1/2R;
+keine neue Medienanalyse und kein Hardwaretest. Vollständige Quellidentitäten,
+Paketliste und Evidenzgrenzen im
+[Quellencheckpoint](QUELLENVERZEICHNIS.md#2026-10-06--block-9c-52e-abgeschlossener-historischer-quellencheckpoint).
+
+BELEGT: `/home/loomit/novena-historical-research/novena-image`, master HEAD
+`f62c4f3b452199ab882e2c3dba16d4e31dfb1d56`, Origin
+`https://github.com/xobs/novena-image.git`, vollständige lokale Historie
+mit 36 Commits seit `a9d5066d55f2cdbdef1589f2bd12ca1e176ac2bb` (2014-10-10).
+`24a84d8c92e3583dffcbbe7dcc424dc94884e29f` (2014-10-15) implementiert
+`loopback_size=3965190144` und `truncate "-s${imgsize}" "${imgname}"`.
+**BELEGT ist 3965190144 Byte als logische Gesamtgröße der erzeugten
+Builder-Image-Datei. NICHT BELEGT ist diese Größe als veröffentlichte
+Factory-R1-Release-Dateigröße.**
+
+BELEGT im Builder: MBR, `fdisk -C32 -H32`, MMC `0x4e6f764d`, SATA
+`0x4e6f7653`, p1 FAT `/boot`, p2 swap, p3 ext4 root bis zum verbleibenden
+Ende; Entwicklung der Boot-Partitionsgröße `32M -> 64M -> 32M`.
+QUELLENLUECKE: exakte Factory-R1-Sektorgeometrie, da fdisk-Defaults,
+historisches Tooling und konkreter Release-Lauf nicht vollständig qualifiziert
+sind. NEGATIVBEFUND der vollständigen lokalen Historie: kein implementierter
+Release-Shrink mittels `resize2fs`, `sfdisk` o. ä. Das beweist keinen fehlenden
+externen Releaseprozess. `dd` im Repository ist für SPL bzw. spätere
+Stichprobenprüfung belegt, nicht als Release-Shrink.
+
+`mmc-install.sh` in `8b64953` (2014-11-04) nennt u. a. U-Boot rc12,
+Novena-Kernelpakete 1.14-r1, kosagi-repo 1.0-r1 und kosagi.key; vollständige
+relevante Liste im Quellenverzeichnis. Paketchronologie ist kein vollständiges
+Factory-R1-Manifest. Dezember-2014-Side-Branch-Commits `92ba999`, `444744c`,
+`4baf00a`, `53e2521` gelangen erst Dezember 2015 über `29d5ed5`/`f62c4f3`
+in master. Heutiges master entspricht damit nicht dem belegten Masterzustand
+von Dezember 2014.
+
+BELEGT durch die lokale Main-Page-Primärkopie im Abschnitt „Disk Imaging“:
+Factory-Auslieferungsimage, Hashidentität, geschrumpftes ext4-Design und
+Factory-Imaging/Expand-Prozedur (`dd`, p3-Neuerzeugung, `fsck`, `resize2fs`).
+Signaturbytes liegen dort ebenfalls vor; Paketzeit 2014-12-22 07:35:33 UTC
+ist kein Image-Erstellungsdatum und keine kryptographische Gesamtverifikation.
+
+OpenBSD (`openbsd-src`, initial `31642defb5b3233700d202713f8a65d872d823c3`,
+2015-05-08) liefert unabhängige reale Test-/Betriebsbelege und einen
+4-GB-RAM-Bericht (`a5b7bc8b7df`; U-Boot-Start `0x10000000`, Größe
+`0xf0000000`). Getestete SDHC-Unterstützung ist belegt, exakter vollständiger
+SD-Bootablauf und vollständiger lokaler Bootlog fehlen. Der untersuchte Pfad
+übernimmt bootloaderinitialisierten RAM; keine eigene Novena-DDR-Initialisierung.
+Gentoo (`gentoo-on-novena`, HEAD `f49fcab518c5bb4b2fb0e90baecf8b504209bfff`)
+dokumentiert spätere bootfähige microSD-Gesamtimages v1.0.0/v1.0.1,
+libre/standard, v1.0.1 etwa 770/797 MiB komprimiert und 6 GiB entpackt,
+p1 vfat `/boot`, p2 swap, p3 ext4 `/`, Linux 4.7.2 und reale Board-/Desktop-
+Tests, ohne vollständigen lokalen seriellen Bootlog. U-Boot 2014.10.8 stammt
+über novena-overlay aus der xobs-Linie; keine unabhängige DDR-Initialisierung.
+Die deklarierte Tag-/Commitquelle des Overlays ist nachvollziehbar, das
+ursprüngliche Release-Archiv damit nicht nachträglich kryptographisch verifiziert.
+
+Diese Quellen beweisen keinen identischen Factory-R1- oder aktuellen
+NixOS/Patch0010-Bootpfad, keine DIMM-/SPD-/DDR-Identität und keine C1/Q1-Ursache.
+
+```text
+FACTORY_R1_RELEASE_BUILDER_IDENTIFIED=PARTIAL
+FACTORY_R1_RELEASE_SHRINK_PROCEDURE_IDENTIFIED=NO
+FACTORY_R1_EXACT_IMAGE_SIZE_EXPLAINED=NO
+FACTORY_R1_EXACT_PARTITION_GEOMETRY_EXPLAINED=NO
+FACTORY_R1_BINARY_RECOVERED=NO
+FACTORY_R1_FULL_CRYPTO_VERIFY=OPEN
+FACTORY_R1_EXACT_UBOOT_COMMIT=NICHT_BELEGT
+FACTORY_R1_EXACT_PACKAGE_MANIFEST=QUELLENLUECKE
+FACTORY_R1_EXACT_PARTITION_GEOMETRY=QUELLENLUECKE
+FACTORY_R1_RELEASE_SHRINK_PROCEDURE=QUELLENLUECKE
+SIGNED_APT_INDEX_CHAIN=QUELLENLUECKE
+FACTORY_DIMM_SPD_IDENTITY=QUELLENLUECKE
+FACTORY_R1_IMAGE_EXISTENCE=PROVEN
+FACTORY_R1_DEPLOYMENT=PROVEN
+FACTORY_R1_HASH_IDENTITY=PROVEN
+FACTORY_R1_SHRUNK_EXT4_DESIGN=PROVEN
+FACTORY_IMAGING_EXPAND_PROCEDURE=PROVEN
+```

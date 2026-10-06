@@ -2436,3 +2436,119 @@ Fall 8B, Bootzähler eins und Verbot eines zweiten Patch-0008-Boots bleiben
 unverändert; Implementierung, Build und Hardwaretest bleiben nicht
 freigegeben. A/B bleiben nicht implementiert und nicht freigegeben;
 die I2C3-/ES8328-Untersuchung bleibt geschlossen.
+
+## 2026-10-05 – BLOCK 9C-52C: Nachtrag zum bereits ausgeführten Patch0010-Teststand
+
+Reiner Dokumentationsnachtrag: In 9C-52C wurde kein Test ausgeführt.
+Die bisherige kanonische Testhistorie enthielt die späteren Patch0010-Läufe
+noch nicht. Gemäß bestätigtem Auftrag waren dies Cold-POR 01 und 02;
+Bootbedingungen und Nummerierung stammen aus dieser Auftragsangabe.
+Die vollständig gelesenen erhaltenen seriellen Originalrohlogs sind:
+
+- `test-logs/2026-10-05/block-9c-52p-2-patch-0010-por-01.raw.log`
+- `test-logs/2026-10-05/block-9c-52p-5-patch-0010-por-02.raw.log`
+
+Beide Dateien: jeweils 475 Byte, SHA256
+`b220f0b9af12fa57c1828792fab5806fffaff3910fc6e4410c9382616ffb12b4`.
+Identische Rohbytes, Banner
+`U-Boot SPL 2026.07-00003-gf8baca04e22d (Sep 21 2026 - 09:52:43 +0000)`.
+Dies ist eine Logidentität, keine erneute Build-, Medien- oder
+Artefaktqualifikation. Beide enthalten:
+
+```text
+NOVENA-DIAG WL wait=0 gcr0=00000000 hwerr0=f0f87878 gcr1=000000d0 hwerr1=e1e1f0e1
+NOVENA-DIAG WL ret=0
+NOVENA-DIAG DQS PATH v=1 ds=2 ci=1 ca=1 t=0
+NOVENA-DIAG DQS WAIT e=000f7bfb f=00000000
+NOVENA-DIAG DQS STATUS s=00000000
+NOVENA-DIAG DQS RET ret=0
+NOVENA-DIAG HEAP q1=00000000
+NOVENA-DIAG CTRL c1=00000000 valid=7
+Trying to boot from MMC1
+NOVENA-DIAG D32 after fsl_esdhc_initialize ret=-12
+```
+
+Damit fehlen die WL-/DQS-Warte- und Rückgabeanzeigen im aktuellen
+Patch0010-Stand nicht mehr. Die älteren Patch0008-Einträge behalten ihre
+damaligen Aussagegrenzen. Nullanzeigen allein beweisen keinen vollständigen
+Kalibrierungs- oder DDR-PASS. Der qualifizierte R0-/Maschinencode-/MMU-/Cache-
+Stand stammt aus dem bestätigten Auftrag, nicht aus diesen seriellen Zeilen;
+siehe den aktuellen Wiedereinstieg in `PROJECT-STATE.md`.
+DDR-Normalzugriffsversagen ist stark gestützt, physisches DDR-Schreibversagen
+als alleinige Ursache weiterhin nicht bewiesen. Kein neuer Hardwareversuch,
+keine Webrecherche als Hardwaretest, keine neue Präregistrierung.
+
+```text
+THIRD_PATCH0010_BOOT_JUSTIFIED=NO
+ROOT_CAUSE_RESOLVED=NO
+52Q_9B_JUSTIFIED=NO
+52Q_10_JUSTIFIED=NO
+PATCH0011_JUSTIFIED=NO
+HARDWARE_TEST_JUSTIFIED=NO
+SD_WRITE_ALLOWED=NO
+52Q=WAIT
+```
+
+## 2026-10-06 – BLOCK 9C-52E: abgeschlossene read-only Quellenblöcke konsolidiert
+
+Dokumentationsnachtrag zu 9C-52D, 9C-52D-1 und 9C-52D-2/2R gemäß den im
+Auftrag bestätigten Abschlussergebnissen. Kein Hardwaretest; kein neuer Build,
+Netzwerk-, Blockgeräte- oder SD-Zugriff. Eigenständige Originalausgaben dieser
+Blöcke werden hier nicht nachträglich erfunden. Die folgende Ablaufzuordnung
+hat Auftragsprovenienz; lokale Git-Objekte und Dateien belegen die Quelleninhalte.
+Datum dieses Eintrags ist das Konsolidierungsdatum, kein rekonstruiertes Laufdatum.
+
+- 9C-52D: vollständiger Audit der CSV gegen lokale/primäre Belege;
+  `SOURCE_CSV_FULLY_REVIEWED=YES`, `SOURCE_CSV_ENRICHMENT_NEEDED=YES`,
+  `DOCUMENTATION_CORRECTION_NEEDED=YES`. 52E präzisiert 13 Provenienzeinträge
+  und die Markdown-Aussagen zu oldid 826, Factory-Prozedur/Signaturbytes sowie
+  OFTC/#kosagi ohne Hochstufung der Evidenzklassen.
+- 9C-52D-1: vollständige lokale novena-image-Historie, 36 Commits;
+  HEAD `f62c4f3b452199ab882e2c3dba16d4e31dfb1d56`, master, Origin
+  `https://github.com/xobs/novena-image.git`. Builder-Gesamtgröße, MBR/Layout,
+  Paketchronologie und verzögerte master-Integration qualifiziert. Release-
+  Shrink-Implementierung lokal nicht gefunden; exakte R1-Größe/Geometrie offen.
+- 9C-52D-2: initialer Codex-Abbruch an Trusted-Directory-Prüfung;
+  sicherer, folgenloser Fehlstart gemäß Auftragsangabe, keine erfolgreiche
+  Analyse daraus abgeleitet. Keine rekonstruierte Fehlermeldung oder Ausgabe.
+- 9C-52D-2R: erfolgreiche read-only Wiederholung; OpenBSD, gentoo-on-novena,
+  novena-overlay und Vergleich mit u-boot-novena vollständig lokal ausgewertet.
+  OpenBSD initial `31642defb5b3233700d202713f8a65d872d823c3`;
+  Gentoo HEAD `f49fcab518c5bb4b2fb0e90baecf8b504209bfff`;
+  Overlay HEAD `8f88536ebcd4fc107b75a97006a8447628d08638`, 30 Commits.
+  Unabhängige spätere Betriebs-/RAM-Belege, keine unabhängige DDR-Initialisierung.
+
+Reproduzierbare lokale Fundstellen: alle vier Quellen unter
+`/home/loomit/novena-historical-research/`, ausschließlich lesend;
+novena-image `24a84d8:novena-image.sh`, `8b64953:mmc-install.sh` und Git-Graph;
+OpenBSD Committexte `31642defb5b`, `a5b7bc8b7df`, `05d12a02f11`,
+`2852902afc7` und damalige `sys/arch/armv7`-Quellen; Gentoo README und
+Releasehistorie; Overlay README und
+`dev-embedded/u-boot-novena/u-boot-novena-2014.10.8.ebuild`; separater
+u-boot-novena-Tag `v2014.10.r8-novena` mit Commit
+`b98333336941440e2792715853cbe0211577e0d7`.
+Lesende Nachvollziehbarkeit über `git --no-optional-locks -C <Quelle> show`,
+`log --all`, `rev-list --all --count` und `rev-parse`, ohne fetch oder Checkout.
+Kein nachträglicher kryptographischer Nachweis des ursprünglichen Release-Archivs.
+Details und Grenzen im
+[Quellencheckpoint](QUELLENVERZEICHNIS.md#2026-10-06--block-9c-52e-abgeschlossener-historischer-quellencheckpoint).
+
+52E verändert ausschließlich die fünf freigegebenen Dokumentationsdateien;
+DECISIONS.md und vorhandene Nutzeränderungen bleiben erhalten. Historische
+Betriebsbelege erklären den aktuellen C1/Q1-Fehler nicht. Factory-R1-Provenienz
+bleibt offen, Patch0010-/C1-/Q1-/MMU-/Cache-Evidenz bleibt unverändert;
+I2C3/ES8328 bleibt abgeschlossen. Keine neue Präregistrierung oder Aktionsfreigabe.
+
+```text
+NEW_INDEPENDENT_NOVENA_BOOT_EVIDENCE=YES
+NEW_INDEPENDENT_RAM_EVIDENCE=YES
+INDEPENDENT_DDR_INITIALIZATION_EVIDENCE=NO
+FACTORY_R1_PROVENANCE_CLOSED=NO
+ROOT_CAUSE_RESOLVED=NO
+52Q_9B_JUSTIFIED=NO
+52Q_10_JUSTIFIED=NO
+PATCH0011_JUSTIFIED=NO
+HARDWARE_TEST_JUSTIFIED=NO
+SD_WRITE_ALLOWED=NO
+52Q=WAIT
+```

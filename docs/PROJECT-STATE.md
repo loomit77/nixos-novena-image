@@ -1,6 +1,111 @@
 # Project State
 
-## Maßgeblicher Wiedereinstieg – Dokumentationsstand 2026-10-04
+## Maßgeblicher Wiedereinstieg – BLOCK 9C-52E, 2026-10-06
+
+Historischer Quellenstand 9C-51A/9C-52B: siehe
+[kanonischen Konsolidierungsnachtrag](QUELLENVERZEICHNIS.md#2026-10-05--block-9c-52c-konsolidierter-historischer-quellenstand)
+und [Factory-R1-Präzisierung](HISTORICAL-MEDIA.md#2026-10-05--block-9c-52c-factory-r1-präzisierung).
+Die historische DDR-Provenienz ist stark etabliert, die Geometriekontinuität
+2014–2026 stark gestützt und dynamische SO-DIMM-Kalibrierung belegt.
+Aktuelles DIMM, konkrete SPD und reale Rank-Anzahl bleiben offen.
+
+Factory-R1-Identität (Name, URL, Hashes und Auslieferungseinsatz) ist von
+wiedergefundenen Binärbytes getrennt: `FACTORY_R1_BINARY_RECOVERED=NO`.
+Factory-U-Boot-Version `2014.10-novena-rc12` und Factory-/shipped-Kernel
+`3.17.0-rc5-00217-gfd79638` sind stark belegt; der rc12-Tag/Commit ist
+nur der stärkste Kandidat: `FACTORY_R1_EXACT_UBOOT_COMMIT=NICHT_BELEGT`.
+Bytegenaue R1-Kernelzuordnung, Signaturgesamtprüfung, Originalgeometrie und
+Release-Shrink bleiben offen. Die signierte historische APT-Kette bleibt
+`SIGNED_APT_INDEX_CHAIN=QUELLENLUECKE`; spätere Updates sind kein R1-Inhalt.
+
+**Abgeschlossener historischer Quellencheckpoint 9C-52D/52D-1/52D-2R:**
+[52E-Quellenkonsolidierung](QUELLENVERZEICHNIS.md#2026-10-06--block-9c-52e-abgeschlossener-historischer-quellencheckpoint)
+und [Builder-/Mediengrenzen](HISTORICAL-MEDIA.md#2026-10-06--block-9c-52e-builder--boot--und-ram-quellencheckpoint).
+Die 13 CSV-Provenienzfelder sind präzisiert; oldid 826, Factory-Prozedur,
+Signaturbytes und Kanal-/OFTC-Bezug besitzen lokale Primärbelege. Gesprächsinhalte
+und öffentliches historisches IRC-Logarchiv bleiben offen.
+
+BELEGT: vollständige lokale xobs/novena-image-Historie (36 Commits),
+3965190144 Byte logische Builder-Gesamtgröße seit 2014-10-15.
+NICHT BELEGT: diese Größe als Factory-R1-Releasegröße. NEGATIVBEFUND:
+kein Release-Shrink in der lokalen Historie; externe Schritte nicht ausgeschlossen.
+Der heutige master integriert Dezember-2014-Side-Branch-Commits erst im
+Dezember 2015 und ist kein Mastercheckpoint von Dezember 2014.
+
+OpenBSD und Gentoo liefern unabhängige spätere reale Betriebsbelege;
+OpenBSD dokumentiert mehrere GiB RAM. Dies spricht gegen die pauschale
+Behauptung, Novena könne oberhalb eines kleinen DDR-Bereichs grundsätzlich
+nicht funktionieren. OpenBSD übernimmt bootloaderinitialisierten RAM,
+Gentoo nutzt die xobs-U-Boot-Linie über novena-overlay. Keine unabhängige
+DDR-Initialisierung, kein belegter identischer Bootpfad zu Factory R1 oder
+NixOS/Patch0010. Keine Identität des aktuellen DIMMs, der SPD, DDR-Konfiguration,
+des U-Boot oder physischen Speicherpfads folgt daraus. Weder Software- noch
+Hardwareursache des C1/Q1-Fehlers ist dadurch bewiesen.
+
+```text
+NEW_INDEPENDENT_NOVENA_BOOT_EVIDENCE=YES
+NEW_INDEPENDENT_RAM_EVIDENCE=YES
+INDEPENDENT_DDR_INITIALIZATION_EVIDENCE=NO
+FACTORY_R1_RELEASE_BUILDER_IDENTIFIED=PARTIAL
+FACTORY_R1_RELEASE_SHRINK_PROCEDURE_IDENTIFIED=NO
+FACTORY_R1_EXACT_IMAGE_SIZE_EXPLAINED=NO
+FACTORY_R1_EXACT_PARTITION_GEOMETRY_EXPLAINED=NO
+FACTORY_R1_BINARY_RECOVERED=NO
+FACTORY_R1_FULL_CRYPTO_VERIFY=OPEN
+FACTORY_R1_EXACT_UBOOT_COMMIT=NICHT_BELEGT
+FACTORY_R1_EXACT_PACKAGE_MANIFEST=QUELLENLUECKE
+FACTORY_R1_EXACT_PARTITION_GEOMETRY=QUELLENLUECKE
+FACTORY_R1_RELEASE_SHRINK_PROCEDURE=QUELLENLUECKE
+SIGNED_APT_INDEX_CHAIN=QUELLENLUECKE
+FACTORY_DIMM_SPD_IDENTITY=QUELLENLUECKE
+FACTORY_R1_IMAGE_EXISTENCE=PROVEN
+FACTORY_R1_DEPLOYMENT=PROVEN
+FACTORY_R1_HASH_IDENTITY=PROVEN
+FACTORY_R1_SHRUNK_EXT4_DESIGN=PROVEN
+FACTORY_IMAGING_EXPAND_PROCEDURE=PROVEN
+FACTORY_R1_PROVENANCE_CLOSED=NO
+```
+
+**Aktueller Patch0010-Stand:** Die zwei erhaltenen seriellen Rohlogs vom
+2026-10-05 zeigen identische WL-/DQS-Warte- und Rückgabeanzeigen sowie
+C1=Q1=0 und `ret=-12`; genaue Fundstellen und vollständige Diagnoseausgaben
+stehen im [TEST-LOG-Nachtrag](TEST-LOG.md#2026-10-05--block-9c-52c-nachtrag-zum-bereits-ausgeführten-patch0010-teststand).
+Die ältere Aussage, WL-/DQS-Masken und Wait-Ergebnisse fehlten, gilt nur für
+die damaligen Patch0008-Logs. Die nun vorhandenen Anzeigen beweisen keinen
+vollständigen DDR-Funktions-PASS.
+
+Der inzwischen qualifizierte Maschinencode- und Prozessorzustand wird gemäß
+bestätigtem Auftrag übernommen; ein eigenständiger lokaler Qualifikationsbericht
+ist hier nicht nachgewiesen. Die Rohlogs allein belegen keine R0-/Cachewerte.
+
+```text
+PATCH0010_MACHINE_CODE_TRUSTED=YES
+R0_AT_C1_STORE=0x18300000
+R0_AT_MEM_MALLOC_INIT=0x18300000
+COMMON_R0_ZERO_HYPOTHESIS=REFUTED
+C1_STORE_LOAD_MISMATCH=PROVEN
+Q1_STORE_LOAD_MISMATCH=PROVEN
+MMU_AT_C1_Q1=OFF
+DCACHE_AT_C1_Q1=OFF
+ICACHE_AT_C1_Q1=ON
+DDR_NORMAL_MEMORY_ACCESS_FAILURE=STRONGLY_SUPPORTED
+PHYSICAL_DDR_WRITE_FAILURE_AS_SOLE_CAUSE=NOT_YET_PROVEN
+THIRD_PATCH0010_BOOT_JUSTIFIED=NO
+ROOT_CAUSE_RESOLVED=NO
+52Q_9B_JUSTIFIED=NO
+52Q_10_JUSTIFIED=NO
+PATCH0011_JUSTIFIED=NO
+HARDWARE_TEST_JUSTIFIED=NO
+SD_WRITE_ALLOWED=NO
+52Q=WAIT
+```
+
+Keine neue Root Cause, kein neuer Test und keine Aktionsfreigabe.
+H3-1R/I2C3/ES8328 bleibt abgeschlossen; `regulator-always-on` für
+`es8328-power` bleibt dauerhafte Boardanforderung. Die folgenden datierten
+Abschnitte sind historische Kenntnisstände und setzen diesen Stand nicht zurück.
+
+## Historischer Wiedereinstieg – Dokumentationsstand 2026-10-04
 
 BELEGT: Der einmalige, dokumentierte Patch-0008-POR/P_EXT-Hardwarelauf vom 2026-10-01 bleibt Fall `8B = CONTROL_FAIL_TARGET_FAIL`. Das Originalrohlog enthält C0=C1=C2=Q1=Q2=P0=P1=0; damit ist das präregistrierte Gültigkeitskriterium C0=C2=0 erfüllt. Eine DDR-Root-Cause ist nicht nachgewiesen.
 
