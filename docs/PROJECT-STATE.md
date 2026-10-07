@@ -1,5 +1,45 @@
 # Project State
 
+## Maßgeblicher DDR-Testcheckpoint – BLOCK 9C-52Q-R7B-3AAJ, 2026-10-07
+
+Dokumentiert in BLOCK 9C-52Q-R7B-3AAJ-DOC1; vollständige Rohlog- und
+Artefaktprovenienz sowie Aussagegrenzen im
+[Experimentnachtrag](TEST-LOG.md#2026-10-07--block-9c-52q-r7b-3aaj-frisches-a-b-b-a-experiment).
+Dieser spätere Teststand ergänzt den historischen Wiedereinstieg 9C-52E;
+dessen damalige WAIT-/Freigabewerte sind keine Beschreibung des inzwischen
+abgeschlossenen Experiments und erteilen weiterhin keine Aktionsfreigabe.
+
+**Beobachtung:** Das frische A-B-B-A-Experiment zeigt in allen vier Rohlogs
+DQS `ret=0`, Q1=0, C1=0 bei `valid=7`, anschließend MMC1 und D32 `ret=-12`.
+A ist BI0 (Patchstack bis einschließlich 0011), B ist BI0 + Patch0012.
+RUN2/RUN3 verwenden dasselbe unveränderte B-Medium ohne Rewrite;
+vor RUN4 wurde A gemäß bestätigter Auftragsprovenienz vollständig erneut
+geschrieben und durch Image- und separaten SPL-Readback bytegenau bestätigt.
+
+**Interpretation:** Das kontrollierte A-B-B-A-Experiment unterstützt
+Patch0012 nicht als isolierten Fix. Der alleinige, mit Patch0012 ergänzte
+Read-spezifische SW_DUMMY_WR reicht unter den getesteten Bedingungen nicht
+aus, die historische Zero-Signatur zu beseitigen. D32 `ret=-12` tritt
+downstream nach Q1/C1 ZERO auf und erklärt diese frühere Signatur nicht.
+
+```text
+ABBA_PATTERN=A_ZERO-B_ZERO-B_ZERO-A_ZERO
+ABBA_ZERO_PATTERN=CONFIRMED
+PATCH0012_ISOLATED_FIX_HYPOTHESIS=NOT_SUPPORTED
+READ_SPECIFIC_DUMMY_WRITE_ALONE_SUFFICIENT=NO
+PATCH0010_ROOT_CAUSE=OPEN
+```
+
+**Offen und abgegrenzt:** Weitere Kombinationen und andere historische
+DDR-Unterschiede bleiben grundsätzlich offen; keine neue DDR-Hypothese
+wird bevorzugt oder festgelegt. Der NXP-Read-Calibration-Ablauf wird dadurch
+weder als falsch noch als irrelevant bewertet; eine generelle Rolle von
+SW_DUMMY_WR oder Wechselwirkungen sind nicht ausgeschlossen. Die frühere
+isolierte BI_ON-Hypothese bleibt gemäß bestätigtem Auftrag durch ihr eigenes
+kontrolliertes Experiment nicht unterstützt und wird nicht wieder geöffnet.
+I2C3/ES8328 bleibt abgeschlossen; `regulator-always-on` bleibt dauerhafte
+Boardanforderung. Keine Root Cause gefunden, keine neue Testfreigabe.
+
 ## Maßgeblicher Wiedereinstieg – BLOCK 9C-52E, 2026-10-06
 
 Historischer Quellenstand 9C-51A/9C-52B: siehe

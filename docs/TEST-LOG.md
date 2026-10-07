@@ -2552,3 +2552,163 @@ HARDWARE_TEST_JUSTIFIED=NO
 SD_WRITE_ALLOWED=NO
 52Q=WAIT
 ```
+
+## 2026-10-07 – BLOCK 9C-52Q-R7B-3AAJ: frisches A-B-B-A-Experiment
+
+Dokumentationsnachtrag BLOCK 9C-52Q-R7B-3AAJ-DOC1 zum abgeschlossenen
+DDR-Test. In DOC1 wurden keine Builds, Nix-Evaluierungen, Hardwaretests,
+Medien- oder Netzwerkzugriffe ausgeführt. Die vier vollständig gelesenen
+seriellen Rohlogs und ihre SHA256-Werte wurden lokal geprüft. Image-/SPL-
+Identitäten, frühere Schreib-/Readback-Vorgänge und die Zuordnung A/B
+werden aus dem bestätigten Auftrag übernommen; die seriellen Logs allein
+beweisen diese Provenienz nicht. Separate ursprüngliche Qualifikations-
+oder Medienausgaben werden hier nicht rekonstruiert. POR-/Warmstart- und
+Versorgungsdetails werden mangels entsprechender Angaben nicht ergänzt.
+
+### Artefakte und Medienprovenienz
+
+A / BI0-Kontrolle, Patchstack bis einschließlich Patch0011:
+
+```text
+IMAGE=/nix/store/xgp0l80pcbaimirw5sqswnrg1qrci396-nixos-novena-sd-image.img
+IMAGE_SIZE=2581291008
+IMAGE_SHA256=ff9ea88aa0d26db148e51751f32a3d4b5afc48dcc8c974957f0005ae6d569b8a
+SPL=/nix/store/p4rwpc38iajn0gk3vf7f6cwbxafbb0c2-uboot-novena_defconfig-armv7l-unknown-linux-gnueabihf-2026.07/SPL
+SPL_SIZE=52224
+SPL_SHA256=263168797669b2aad37ab6e46a3555e9b5fdaca8e906d01e9b87f5ad42fc25ba
+```
+
+B / BI0 + Patch0012:
+
+```text
+PATCH=boot/u-boot/0012-novena-ddr-read-specific-dummy-write.patch
+PATCH_SHA256=c12f3a115daea0082e426ba776d5bc0e3b296b1ba27a11c196cf3068e314e965
+IMAGE=/nix/store/23f1flbp5dsyr9qxdh2mvkbfqaf3kjmi-nixos-novena-sd-image.img
+IMAGE_SIZE=2581291008
+IMAGE_SHA256=32b17519dee56addf29bd6b9c105be9ea0934c25817f02800787145d9ac88cbd
+SPL=/nix/store/wk33h1v8v243zrafly3y8rsg1fjr9cvk-uboot-novena_defconfig-armv7l-unknown-linux-gnueabihf-2026.07/SPL
+SPL_SIZE=52224
+SPL_SHA256=41e6fc05ec133d5b1777094c2dddda91bb19dda3d022360010c9b2288f81c448
+```
+
+Der B-Imagehash ist der aktuell verifizierte Wert gemäß Auftrag. Der hier
+benannte B-SPL ist der tatsächlich im konkreten Image eingebettete SPL;
+seine Byteidentität mit dem Imagebereich ab Offset 1024 war bereits
+verifiziert. Das B-Medium wurde vor RUN2 vollständig geschrieben und durch
+vollständigen Image-Readback sowie separaten SPL-Readback bytegenau bestätigt.
+Zwischen RUN2 und RUN3 erfolgte kein Rewrite. Vor RUN4 wurde BI0 erneut
+bytegenau auf das Testmedium geschrieben und durch vollständigen
+Image-Readback sowie separaten SPL-Readback bestätigt. Dies sind erhaltene
+Auftragsangaben über abgeschlossene Schritte, keine in DOC1 erneut
+vorgenommenen Artefakt- oder Medienqualifikationen.
+
+### Isolierte Änderung und Quellenkontext
+
+Der lokal gelesene und hashverifizierte Patch0012 ergänzt vor der
+Read-delay-line calibration genau:
+
+```c
+setbits_le32(&mmdc0->mpswdar0, 1);
+wait_for_bit_le32(&mmdc0->mpswdar0, 1 << 0, 0, 100, 0);
+```
+
+Das bereits lokal vorhandene NXP/Freescale i.MX6DQ Reference Manual
+Rev. 2, 06/2014, Teil 2, §44.11.4.1.2, gedruckte S. 3875,
+beschreibt für die Read Calibration mit vordefiniertem Vergleichswert
+vor deren Start einen externen DDR-Write über MPSWDAR0[SW_DUMMY_WR].
+Quelle: `research/nxp-reference-manuals/sources/IMX6DQRMr2_part2.pdf`;
+die bestehende historische DDR-Quellenzuordnung steht unter
+`research/05-gesamtanalyse/18-U-BOOT-DDR-HISTORIE.md`.
+Gemäß bestätigtem Auftragsbefund besitzt der historische GOOD-Novena-Code
+den entsprechenden zweiten, Read-spezifischen Dummy Write; dem untersuchten
+aktuellen Codepfad fehlte er. Der lokale Patch0010-/Patch0012-Abgleich zeigt
+die Ergänzung zwischen Read-Precharge und Read-Kalibrierungsstart.
+Patch0012 testet ausschließlich diese isolierte Differenz. Keine weitere
+historische Binärprovenienz oder Kausalität folgt daraus.
+
+### Experimentdesign und Rohlogs
+
+Frisches A-B-B-A; A/B bezeichnen hier die Medienvarianten und nicht die
+älteren Diagnosearchitekturentwürfe aus `DECISIONS.md`.
+
+| Lauf | Variante und Medienzustand | Beobachtung |
+|---|---|---|
+| RUN1 | A: BI0-Kontrolle | ZERO |
+| RUN2 | B: BI0 + Patch0012, zuvor vollständig geschrieben/verifiziert | ZERO |
+| RUN3 | B: unverändertes Patch0012-Medium, kein Rewrite nach RUN2 | ZERO |
+| RUN4 | A: BI0-Kontroll-Reversion, zuvor erneut vollständig geschrieben/verifiziert | ZERO |
+
+Serielle Aufzeichnung laut Rohlogköpfen: foobox, picocom 3.1,
+115200 Baud, 8N1, Flow Control none, FT232R-Port
+`/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_BH00304A-if00-port0`.
+Sitzungsintervalle am 2026-10-07 (+02:00): RUN1 15:11:04–15:13:07,
+RUN2 16:30:08–16:31:19, RUN3 16:34:12–16:34:53,
+RUN4 16:47:16–16:47:46. Dies sind Aufzeichnungszeiten, keine separat
+nachgewiesenen Einschaltzeitpunkte. Alle Sitzungen enden mit Exitcode 0;
+dieser ist kein Boot-PASS.
+
+- `test-logs/2026-10-07/9C-52Q-R7B-3AAJ-RUN1-BI0-CONTROL.serial.log`
+  SHA256 `8aaaeeca6824ed6d4fa06ae104fe7093af5ea2299f2f19c33cfa493ac2467b30`.
+- `test-logs/2026-10-07/9C-52Q-R7B-3AAJ-RUN2-PATCH0012.serial.log`
+  SHA256 `6ead07c0a617a57360b5dc5b9824cf0938deeb3da26e212c3c44daa8a773b41f`.
+- `test-logs/2026-10-07/9C-52Q-R7B-3AAJ-RUN3-PATCH0012.serial.log`
+  SHA256 `5e934af26723fe5c52b7e7c082e45421151cc53e2b2e9750d947a3242cd39f43`.
+- `test-logs/2026-10-07/9C-52Q-R7B-3AAJ-RUN4-BI0-CONTROL-REVERSION.serial.log`
+  SHA256 `1d363050f219df360ad408ecdd5de1252d32b1ec35931560d707f8be2d67f327`.
+
+### Experimentelle Beobachtung
+
+Alle vier Logs zeigen dieselbe historische Zero-Signatur, in dieser Reihenfolge:
+
+```text
+NOVENA-DIAG DQS RET ret=0
+NOVENA-DIAG HEAP q1=00000000
+NOVENA-DIAG CTRL c1=00000000 valid=7
+Trying to boot from MMC1
+NOVENA-DIAG D32 after fsl_esdhc_initialize ret=-12
+```
+
+Auch die vorausgehenden WL-/DQS-Anzeigen stimmen in allen vier Läufen
+überein: WL `wait=0`, `ret=0`, DQS PATH `v=1 ds=2 ci=1 ca=1 t=0`,
+WAIT `e=000f7bfb f=00000000`, STATUS `s=00000000`.
+Diese Anzeigen werden nicht als vollständiger DDR-Funktions-PASS bewertet.
+Der von Patch0012 ergänzte Wait-Rückgabewert wird nicht separat ausgegeben;
+die vorhandene DQS-Wait-Bitmap wird durch diesen Patch nicht erweitert.
+
+RUN3 und RUN4 wurden ohne local-echo-yes-Interaktion beendet. Bei RUN1
+und RUN2 folgt die bekannte local-echo-Bedieninteraktion erst auf die
+relevanten Diagnosezeilen; sie beeinflusst die vorher aufgezeichneten
+Bootdiagnosen nicht.
+
+```text
+ABBA_PATTERN=A_ZERO-B_ZERO-B_ZERO-A_ZERO
+ABBA_ZERO_PATTERN=CONFIRMED
+```
+
+### Interpretation und offene Grenzen
+
+Das kontrollierte A-B-B-A-Experiment unterstützt Patch0012 nicht als
+isolierten Fix. Der alleinige, mit Patch0012 ergänzte Read-spezifische
+SW_DUMMY_WR reicht unter den getesteten Bedingungen nicht aus, die
+historische Zero-Signatur zu beseitigen.
+
+```text
+PATCH0012_ISOLATED_FIX_HYPOTHESIS=NOT_SUPPORTED
+READ_SPECIFIC_DUMMY_WRITE_ALONE_SUFFICIENT=NO
+PATCH0010_ROOT_CAUSE=OPEN
+```
+
+D32 `ret=-12` tritt downstream nach Q1/C1 ZERO auf und ist keine Erklärung
+für die frühere Zero-Signatur. Die DDR-Root-Cause wurde nicht gefunden.
+Das Ergebnis erklärt den NXP-Read-Calibration-Ablauf weder für falsch noch
+für irrelevant und schließt eine generelle Rolle von SW_DUMMY_WR nicht aus.
+Wechselwirkungen, weitere Kombinationen und andere historische
+DDR-Unterschiede bleiben grundsätzlich offen. Keine neue Hypothese wird
+getestet, festgelegt oder bevorzugt.
+
+Die frühere isolierte BI_ON-Hypothese bleibt gemäß bestätigtem Auftrag durch
+ihr eigenes kontrolliertes Experiment nicht unterstützt; die vorhandenen
+BI1/BI0/BI0/BI1-Rohlogs vom selben Tag zeigen ebenfalls Q1/C1 ZERO und
+werden nicht als Teil des frischen Patch0012-Experiments gezählt.
+I2C3/ES8328 bleibt abgeschlossen und außerhalb dieser DDR-Untersuchung.
+Keine geschlossene Hypothese wird wieder geöffnet; keine neue Aktionsfreigabe.
