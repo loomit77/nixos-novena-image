@@ -1,0 +1,461 @@
+NOVENA – VERBINDLICHE ARBEITSREGELN
+==================================
+
+Projekt:
+Novena – universelles NixOS SD-Image
+
+Repository:
+~/nixos-novena-image
+
+Arbeitsrechner:
+foobox
+
+Erstellt:
+2026-10-08
+
+Verhältnis zu AGENTS.md:
+Diese Datei ergänzt die dauerhaften
+Repository-Anweisungen um den operativen
+Projektarbeitsablauf.
+
+Für Codex hat bei Widersprüchen zwischen
+beiden Dateien AGENTS.md Vorrang.
+Der konkrete Auftrag und engere Sicherheits-
+oder Zugriffsgrenzen bleiben maßgeblich.
+Ablaufpflichten dieser Datei erteilen
+keine Aktionsfreigabe.
+
+
+1. INDEX-SYSTEM
+---------------
+
+Jeder neue technische Arbeitsblock erhält eine
+eindeutige, fortlaufende INDEX-Kennung.
+
+Beispiel:
+INDEX-1K-35
+
+INDEX-Kennungen dürfen nicht versehentlich
+übersprungen oder wiederverwendet werden.
+
+Ein vorbereiteter Block gilt erst nach
+tatsächlicher Bearbeitung des beauftragten
+Umfangs und Prüfung der verfügbaren Ausgabe
+als abgeschlossen.
+Nicht ausgeführte oder abgebrochene Blöcke
+werden entsprechend gekennzeichnet.
+
+Prozessabschluss, Auswertungsstand und
+fachliche Abnahme werden getrennt angegeben.
+Ein Exitcode 0 oder Runner-Ergebnis PASS
+belegt für sich keine fachliche Abnahme.
+Ein abgeschlossener Arbeitsblock kann ein
+negatives Ergebnis oder offene Fragen haben.
+
+Vor dem nächsten Block wird der zuletzt
+ausgeführte Block vollständig anhand der
+verfügbaren Evidenz ausgewertet.
+Fehlende Evidenz wird ausdrücklich benannt;
+darauf angewiesene Ergebnisse bleiben offen.
+
+
+2. TXT-PROTOKOLLIERUNG
+----------------------
+
+Technische Arbeitsblöcke werden über den
+vorhandenen Protokollierungs-Runner ausgeführt,
+sofern die dafür erforderlichen Schreibzugriffe
+für den konkreten Block ausdrücklich
+freigegeben sind:
+
+~/novena-backups/block-logs/run-block.bash
+
+Protokollverzeichnis:
+
+~/novena-backups/block-logs/
+
+Eine dauerhafte Runner-Freigabe wird durch
+diese Regeln weder vorausgesetzt noch erteilt.
+
+Bei Read-only-Aufträgen legt Codex keine
+Dateien an, verändert oder löscht keine
+Dateien und startet keine Werkzeuge mit
+solchen Nebenwirkungen.
+Dies umfasst temporäre Dateien, Protokolle,
+Prüfsummendateien, Sicherungen, Symlinks
+und automatisch erzeugte Metadaten.
+Auch das Entwerfen einer Datei erteilt
+keine Schreibberechtigung.
+
+Eine vom Nutzer außerhalb der Codex-Arbeit
+gestartete Protokollierung ist davon getrennt.
+Ihre Schreibzugriffe benötigen eine eigene,
+auf den konkreten Block und die erforderlichen
+Protokollierungsartefakte begrenzte Freigabe.
+Sie erweitern den Read-only-Arbeitsumfang
+von Codex nicht.
+Codex startet diesen äußeren Runner nicht
+aufgrund der Protokollpflicht.
+
+Ist der gesamte Auftrag einschließlich
+äußerer Protokollierung vollständig
+schreibfrei, werden weder Runner noch
+Dateiprotokollierung gestartet.
+Die ausgeführten lesenden Schritte und
+Ergebnisse werden im Antworttext dokumentiert.
+Diese Dokumentation ist kein vollständiges
+maschinelles Rohprotokoll.
+
+Jeder Arbeitsblock mit freigegebener
+Dateiprotokollierung erhält eine vollständige,
+unveränderte TXT-Rohaufzeichnung der
+ausgeführten Befehle und ihrer Ausgaben.
+Eine Zusammenfassung ersetzt sie nicht.
+
+Namensschema:
+
+INDEX-1K-XX-YYYYMMDD-HHMMSS-ID.txt
+
+Zum abgeschlossenen Rohprotokoll gehört
+ein SHA256-Sidecar mit dem Namen:
+
+INDEX-1K-XX-YYYYMMDD-HHMMSS-ID.txt.sha256
+
+Er enthält die SHA256-Prüfsumme des
+zugehörigen abgeschlossenen Protokolls.
+Seine Erzeugung muss von der konkreten
+Protokollierungsfreigabe umfasst sein.
+
+Ein vorhandener Sidecar kann im erlaubten
+Leseumfang geprüft werden.
+Ein fehlender Sidecar wird bei Read-only
+nicht nachträglich angelegt.
+Hashgleichheit belegt Byteübereinstimmung,
+nicht Vollständigkeit oder fachlichen Erfolg.
+
+Die Protokolle dokumentieren:
+
+- tatsächlich ausgeführte Befehle
+- Ergebnisse und Prüfschritte
+- Warnungen und Fehlermeldungen
+- Exitcodes
+- Abschlusszustand
+- relevante Projektidentitäten
+
+Originalprotokolle und ihre zugehörigen
+Prüfsummen bleiben unverändert erhalten.
+
+Zugangsdaten, Tokens, private Schlüssel und
+unnötige personenbezogene Daten werden nicht
+gezielt zur Protokollierung ausgegeben.
+Vor einer externen Weitergabe prüft der
+Weitergebende den konkreten Inhalt auf
+sensible Daten.
+
+Enthält ein Originalprotokoll sensible Daten,
+bleibt es vor externer Weitergabe geschützt.
+Falls erforderlich, wird nur mit passender
+Schreibfreigabe eine getrennte, ausdrücklich
+als bereinigt gekennzeichnete Weitergabekopie
+erstellt.
+Original und Kopie werden getrennt
+identifiziert; die Kopie erhält eine eigene
+SHA256-Prüfsumme innerhalb dieser Freigabe.
+
+Eine bereinigte Kopie oder Zusammenfassung
+wird nicht als vollständiges Originalrohprotokoll
+bezeichnet.
+
+
+3. PROTOKOLLAUSWERTUNG
+----------------------
+
+Nach jedem Arbeitsblock wird die vollständige
+verfügbare Ausgabe inhaltlich ausgewertet.
+
+Der Nutzer kann die für die Auswertung
+bestimmten Dateien bewusst in ChatGPT
+bereitstellen oder lokal zugänglich machen.
+Das bewusste Hochladen vorhandener Logs
+durch den Nutzer benötigt keine zusätzliche
+Freigabe.
+Eine bewusste Bereitstellung zur beauftragten
+Auswertung benötigt keine zusätzliche
+Freigabe für dieselbe Auswertung innerhalb
+der erlaubten Zugriffsmöglichkeiten.
+
+Die Bereitstellung erteilt Codex keine
+Freigabe für eigenständige Netzwerkrecherchen,
+Downloads, Uploads oder weitere Übertragungen.
+Für solche Aktionen gilt Abschnitt 5.
+Die Auswertungspflicht erteilt keine
+Netzwerkfreigabe.
+
+Vor der Fortsetzung sind zu prüfen:
+
+- Vollständigkeit der Ausgabe
+- Exitcode und Blockergebnis
+- Git-HEAD und Branch
+- Git-Index-SHA256
+- relevante Dateiprüfsummen
+- unerwartete Änderungen
+- fachliche Ergebnisse
+- offene Fragen
+- Einhaltung der Freigabe
+
+Nicht anwendbare, fehlende oder im erlaubten
+Umfang nicht zugängliche Prüfpunkte werden
+ausdrücklich gekennzeichnet.
+Erforderliche, aber fehlende Nachweise gelten
+nicht als erbracht.
+
+Bereits bereitgestellte Dateien werden zuerst
+innerhalb der erlaubten Zugriffsmöglichkeiten
+gesucht und ausgewertet.
+
+Eine erneute Bereitstellung wird nur
+angefordert, wenn die benötigte Datei
+tatsächlich nicht zugänglich ist.
+
+Bei unvollständiger oder bereinigter Evidenz
+werden die erkennbaren Lücken und ihre
+Auswirkungen auf die Bewertung benannt.
+Nicht zugängliche oder entfernte Inhalte
+gelten nicht als geprüft.
+Aussagen werden auf den belegten Umfang
+begrenzt.
+
+Erfolgsmeldungen allein ersetzen keine
+inhaltliche Prüfung.
+
+
+4. SHELL-BEFEHLE
+----------------
+
+Für die foobox wird jeweils genau ein
+vollständiger, kopierbarer Bash-Block erstellt.
+
+Die interaktive Shell kann Fish sein.
+
+Bash-Blöcke werden deshalb ausdrücklich
+über Bash gestartet.
+
+Für Statusausgaben und Überschriften
+wird printf verwendet.
+
+Keine echo-Befehle.
+
+Here-Documents müssen eindeutig
+unterschiedliche Abschlussbezeichner besitzen.
+
+Abschlussbezeichner dürfen nicht unbeabsichtigt
+innerhalb eines anderen Here-Documents auftreten.
+
+Vor Ausführung von Änderungen wird der
+erzeugte Bash-Code syntaktisch geprüft.
+
+Bei Konfigurationsänderungen werden
+vollständige Datei-Inhalte sowie vollständige
+Editier-, Prüf- und Anwendungsbefehle geliefert.
+
+
+5. SICHERHEIT UND FREIGABEN
+---------------------------
+
+Vor technischen Änderungen werden geprüft:
+
+- Repository
+- Branch
+- Git-HEAD
+- Git-Index
+- relevante Dateiprüfsummen
+- vorhandene Sicherungen
+
+Bei unerwarteten Abweichungen wird
+ohne Änderung abgebrochen.
+
+Ohne ausdrückliche Freigabe erfolgen keine:
+
+- Dateiänderungen
+- Builds
+- Nix-Evaluierungen
+- Funktionstests
+- Hardwaretests
+- Netzwerkaktionen
+- Git-Mutationen
+
+Insbesondere erfolgen keine automatischen
+Git-Operationen zum Stagen, Committen,
+Zurücksetzen oder Bereinigen.
+
+Bestehende uncommittete Arbeiten und
+Intent-to-add-Einträge bleiben erhalten.
+
+Jede Freigabe gilt ausschließlich für
+den vereinbarten Arbeitsumfang.
+
+Bei einem Fehler wird zuerst eine
+Read-only-Inventur durchgeführt.
+
+Reparaturen erfolgen nicht auf Verdacht.
+
+
+6. QUELLEN UND PROVENIENZ
+-------------------------
+
+Vor neuen technischen Untersuchungen
+werden die vorhandenen Projektquellen geprüft.
+
+Insbesondere:
+
+- AGENTS.md
+- docs/PROJECT-STATE.md
+- docs/TEST-LOG.md
+- docs/DECISIONS.md
+- weitere relevante Projektdateien
+- frühere INDEX-Protokolle
+- archivierte historische Quellen
+- bestehende Checkpoints und Prüfsummen
+
+Bei Bedarf werden zusätzlich externe
+Primärquellen ausgewertet.
+Bereits bereitgestellte oder lokal verfügbare
+Dateien können im erlaubten Leseumfang
+ausgewertet werden.
+Eigenständige Beschaffung oder Recherche
+durch Codex über das Netzwerk unterliegt
+Abschnitt 5.
+
+Relevante Quellen:
+
+- U-Boot
+- Linux-Kernel
+- NXP und i.MX6
+- Kosagi und Novena
+- historische Entwicklerquellen
+
+Bestätigte Ergebnisse, Hypothesen und
+offene Fragen bleiben getrennt.
+
+Fehlende Evidenz wird ausdrücklich benannt.
+
+
+7. TESTS UND CODEX
+------------------
+
+Abgeschlossene Untersuchungen werden nicht
+ohne neuen Erkenntnisgrund wiederholt.
+
+Neue Tests benötigen:
+
+- eine konkrete Fragestellung
+- einen definierten Nachweiszweck
+- eine erwartete Unterscheidungswirkung
+- eine ausdrückliche Freigabe
+
+Unveränderte Tests werden nicht allein
+zur erneuten Bestätigung wiederholt.
+
+Codex wird eingesetzt, wenn ein konkreter
+technischer Nutzen zu erwarten ist.
+
+Unnötige Metaprojekte und Hilfswerkzeuge
+werden vermieden.
+
+
+8. DOKUMENTATION
+----------------
+
+Belastbare Erkenntnisse und erreichte
+Checkpoints werden dokumentiert.
+
+Vor Dokumentationsänderungen werden
+vorhandene Texte und frühere Entscheidungen
+ausgewertet.
+
+Historische Ergebnisse dürfen nicht
+stillschweigend als aktuelle Ergebnisse
+umgedeutet werden.
+
+Historische Checkpoints bleiben mit ihrem
+Datum, ihren Werten und ihrem damaligen
+Geltungsbereich unverändert erhalten.
+Historische Werte werden nicht durch
+aktuelle Werte ersetzt.
+
+Neue Ergebnisse und Korrekturen erhalten
+eigene datierte Nachträge in der zuständigen
+Projektdokumentation.
+Sie benennen ihre Evidenzbasis und ihren
+Bezug zum historischen Stand.
+
+Aktuelle Zustände werden getrennt anhand
+der neuesten belastbaren Evidenz und des
+Git-Kontexts nachgewiesen.
+Historische Angaben allein sind kein
+Nachweis des aktuellen Zustands.
+
+Dokumentationsänderungen benötigen eine
+ausdrückliche Schreibfreigabe.
+
+Bei Read-only-Aufträgen werden erforderliche
+Dokumentationsänderungen nur vorgeschlagen.
+
+Uncommittete Dateien werden nicht ohne
+Freigabe in Git aufgenommen.
+
+
+9. HISTORISCHER PROJEKT-CHECKPOINT
+---------------------------------
+
+Stand:
+2026-10-08
+
+Repository-HEAD:
+60785fc2ea36f0a12d03411c9812a616f06a810e
+
+Git-Index-SHA256:
+a4c8b39a15619befe96fe41f9813b8e710550e82379a587baa713c27c98b9d7e
+
+INDEX-1K-34:
+Git-Index erfolgreich wiederhergestellt.
+
+Intent-to-add:
+Patchdateien 0004 bis 0012 mit Flags 20004000.
+
+K1:
+PASS
+
+REGISTER_TYPES:
+QUALIFIED_PASS
+
+TEST_INDEPENDENCE:
+QUALIFIED_PASS im geprüften Teilumfang.
+
+K2:
+PENDING
+
+Diese Angaben bilden einen historischen
+Checkpoint und bleiben gemäß Abschnitt 8
+unverändert erhalten.
+Sie sind kein Nachweis des aktuellen Zustands
+und erteilen keine Aktionsfreigabe.
+Ihre Erhaltung bedeutet keine erneute
+Verifikation der historischen Angaben.
+
+
+10. GRUNDSATZ
+-------------
+
+Zuerst vorhandene Ergebnisse auswerten.
+
+Danach offene Fragen präzise bestimmen.
+
+Anschließend den minimal notwendigen
+nächsten Arbeitsblock vorbereiten.
+
+Keine Änderungen oder Tests auf Verdacht.
+
+Nachvollziehbarkeit, Sicherheit und
+technische Korrektheit haben Vorrang
+vor Geschwindigkeit.
