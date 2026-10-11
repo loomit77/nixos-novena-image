@@ -35,15 +35,20 @@ Prioritäten: **P1** vorrangig · **P2** anschließend · **P3** langfristig.
 - [x] Archivierung auch bei absichtlich fehlgeschlagenem technischem Block nachgewiesen (GITHUB-UPLOAD-15, Exitcode 17).
 - [x] Transportidentität, Archivzustand und GitHub-Lesezugriff anhand von GITHUB-UPLOAD-16 sowie Folgeblöcken überprüft.
 - [x] GitHub-Upload von GITHUB-UPLOAD-17A und GITHUB-UPLOAD-18 einschließlich TXT/SHA256 nachgewiesen.
-- [ ] `NOVENA-ARBEITSREGELN.txt` und bei Bedarf `AGENTS.md` hinsichtlich Wrapper, automatischer Übertragung und Sicherheitsgrenzen kontrolliert aktualisieren. Die bisherige Pflicht zur manuellen Inhaltsprüfung vor externer Weitergabe steht noch im Widerspruch zum automatischen Direktupload; vor einer dauerhaften Regeländerung explizit klären, wie sensible Inhalte vor Übertragung ausgeschlossen werden.
-- [ ] Dokumentation des Direktuploads im Transportverzeichnis anlegen und gegen den tatsächlich eingesetzten Wrapper prüfen (GITHUB-UPLOAD-18: noch nicht vorhanden).
-- [ ] Wiederaufnahme und gezielte Nacharchivierung nach Upload-/Netzwerkfehler kontrolliert prüfen; kein unkontrollierter Massen-Backfill.
+- [x] Lokale `NOVENA-ARBEITSREGELN.txt` kontrolliert um Abschnitt 11 zum automatischen Direktupload ergänzt, Original gesichert, HEAD und Index unverändert (GITHUB-UPLOAD-19). Noch **nicht** als Git-Checkpoint synchronisiert.
+- [x] Runner, Wrapper und automatischen Uploader anhand vollständiger Quelltexte und Bash-Syntax lesend auf Regelkonsistenz untersucht (GITHUB-UPLOAD-20). Dies ist eine statische Prüfung, keine vollständige Sicherheitsfreigabe.
+- [ ] Widerspruch zwischen früherer manueller Inhaltsprüfung und automatischer Übertragung technisch und organisatorisch abschließend auflösen. Aktuell: Direktupload nur für vorab auf mögliche sensible Ausgaben geprüfte Blöcke; **keine** automatische Geheimniserkennung im Wrapper/Uploader.
+- [ ] Prüfen, ob `AGENTS.md` einen ergänzenden Verweis benötigt, ohne Codex-Read-only- oder Freigabegrenzen zu lockern.
+- [ ] `~/novena-backups/github-transport/DIREKTUPLOAD-ARBEITSREGELN.md` als Transportdokumentation vorbereiten, vor Anlage gegen die geprüften Skripte abgleichen (GITHUB-UPLOAD-18: nicht vorhanden).
+- [ ] Wiederaufnahme und gezielte Nacharchivierung nach Upload-/Netzwerkfehler kontrolliert prüfen; kein unkontrollierter Massen-Backfill. Die Wiederaufnahme eines ausstehenden Einzelcommits ist implementiert, aber nicht umfassend funktional qualifiziert (GITHUB-UPLOAD-20).
 - [ ] Verbleibende Fälle des 22-teiligen Uploader-Testplans gezielt qualifizieren; bisherige erfolgreiche Funktionstests nicht als vollständige Testplan-Abnahme ausgeben.
-- [ ] Idempotenz, Race-Conditions, Push-Fehler, Konflikte und unabhängige Remote-Hashprüfung entsprechend dem noch offenen Testumfang belegen.
+- [ ] Idempotenz, Race-Conditions, Push-Fehler, Konflikte und unabhängige Remote-Hashprüfung entsprechend dem noch offenen Testumfang belegen. Statische Schutzmechanismen (`flock`, Git-Zustandsprüfung, SHA256-Vergleich, Remote-Fetch) sind vorhanden, ersetzen aber keine Testnachweise.
+- [ ] Veraltete Uploader-Hilfe (`--approve-reviewed-sha256` wird noch angezeigt, im Automatikmodus aber zurückgewiesen) bei einer gesondert freigegebenen Skriptänderung korrigieren.
+- [ ] Wrapper-Fehlercodes und getrennte technische/Transport-Ergebnisse dokumentieren: bei Uploadfehler liefert der Wrapper `1`, auch wenn der technische Block einen anderen Fehlercode hatte.
 - [ ] Projektübergreifende Zuordnung für Novena, L14, Homelab und weitere Projekte eindeutig regeln.
 - [ ] Grenzen dokumentieren: Private GitHub-Repositories sind keine Geheimnisspeicher; GitHub-Lesezugriff kann manuelle ChatGPT-Dateiuploads reduzieren, hebt Produktlimits aber nicht auf.
 
-**Betriebsstand 2026-10-11:** Der automatische Direktupload wird für die aktuellen Novena-Blöcke praktisch verwendet und funktioniert in den geprüften Erfolgs- und Fehlerfällen. Die vollständige Uploader-Qualifikation, der Ausfall-Wiederanlauf und die widerspruchsfreie Sicherheitsregelung sind **noch offen**. Diese Feststellung ist keine rückwirkende Freigabe für andere Aktionen.
+**Betriebsstand 2026-10-11 (GITHUB-UPLOAD-19/20):** Automatischer Direktupload in den geprüften Erfolgs- und Fehlerfällen funktional nachgewiesen. Lokale Regelergänzung (Abschnitt 11) und statische Konsistenzprüfung abgeschlossen; keine automatische Geheimniserkennung. Vollständige Uploader-Qualifikation, Ausfall-Wiederanlauf, Transportdokumentation, Sicherheitsfreigabe und Git-Synchronisation der lokalen Regeln bleiben **offen**. Keine rückwirkende Freigabe anderer Aktionen.
 
 ## P1-D – Universelles NixOS-SD-Image (technisches Hauptziel)
 
@@ -91,7 +96,7 @@ Prioritäten: **P1** vorrangig · **P2** anschließend · **P3** langfristig.
 
 ## Aktueller Freigabestand
 
-- GitHub-Uploader: **Automatischer Direktupload in den geprüften Novena-Fällen im Einsatz; vollständige Qualifikation, Fehler-Wiederanlauf und Regelabgleich noch offen**.
+- GitHub-Uploader: **Direktupload in geprüften Novena-Fällen im Einsatz; Regelergänzung lokal und statischer Regel-/Skriptabgleich erledigt; Geheimnisschutz, vollständige Qualifikation, Fehler-Wiederanlauf und Dokumentations-Synchronisation offen**.
 - DDR-/SPL-Root Cause: **offen**; kein neuer Hardwaretest freigegeben.
 - I2C3/ES8328: **abgeschlossen**, ohne neue diskriminierende Evidenz nicht erneut öffnen.
 - Universelles externes SD-Image: **noch kein vollständig nachgewiesener eigenständiger Bootpfad**.
