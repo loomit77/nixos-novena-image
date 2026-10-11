@@ -1,6 +1,9 @@
 # Build Host
 
-Stand: 2026-09-14
+Historische Bestandsaufnahme: 2026-09-14
+
+Die folgenden Hostangaben bleiben dem damaligen Prüfstand zugeordnet.
+Der separate Nachtrag vom 2026-10-11 ist keine vollständige Host-Neuverifikation.
 
 ## Zweck
 
@@ -592,3 +595,29 @@ Dazu gehören insbesondere:
 
 Kurzlebige Kernel-, Device-Tree- oder I2C-Diagnosezustände gehören
 dagegen nicht in dieses Dokument.
+
+
+## 2026-10-11 – separate Nachweise und Protokolltransport
+
+`GITHUB-UPLOAD-22-20261011-081030-9t8jAP0Y.txt` protokolliert auf foobox
+`git version 2.56.0`. Das ergänzt die historische Git-Version 2.55.0 vom
+14.09.; Betriebssystem, Kernel, RAM, Nix-Konfiguration und übrige
+Hosteigenschaften wurden damit nicht vollständig erneut verifiziert.
+
+Die operativen Regeln in der lokalen Worktree-Datei `NOVENA-ARBEITSREGELN.txt`
+(Repositorywurzel, insbesondere Abschnitt 11; Verfügbarkeit im veröffentlichten
+Repository nicht gewährleistet) und die getrennten Direktupload-Arbeitsregeln
+unter dem lokalen foobox-Pfad
+`/home/loomit/novena-backups/github-transport/DIREKTUPLOAD-ARBEITSREGELN.md`
+beschreiben Runner, Wrapper und Uploader. Lokale Originalprotokolle liegen
+unter `~/novena-backups/block-logs/`; das separate Transportrepository liegt
+unter `~/novena-backups/github-transport/project-block-logs/`.
+
+GITHUB-UPLOAD21 dokumentiert den Transportdokumentationscheckpoint;
+GITHUB-UPLOAD22 ist eine lesende Inventur ohne ausgeführte Testfälle.
+GITHUB-UPLOAD24 ergänzt die Abschlussanzeige des Wrappers; seine
+Syntaxprüfung ist keine vollständige funktionale Uploaderqualifikation.
+Die dokumentierten Erfolgs-/Fehlerteilfälle bleiben begrenzt. Netzwerkfehler,
+Wiederaufnahme, Idempotenz, Konfliktfälle und Hilfeabgleich bleiben offen.
+Technisches Blockergebnis und Transportergebnis sind getrennt zu bewerten.
+Die Protokollarchivierung erweitert keine Projektfreigabe.

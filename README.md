@@ -20,19 +20,24 @@ Dazu werden insbesondere benötigt:
 
 ## Aktueller Stand
 
-Einordnung vom 2026-10-02: Der nachfolgende Überblick beschreibt den
-historischen G2X-Referenzstand vom 2026-09-22. Die dort genannten
-Image-Identitäten und der Same-Host-/Separate-Store-Nachweis gelten
-für diesen Referenzstand, nicht für das spätere Patch-0008-Diagnoseimage.
+Dokumentarischer Wegweiser vom 2026-10-11: Maßgeblich ist der
+[DDR-A-B-B-A-Testcheckpoint vom 2026-10-07](docs/PROJECT-STATE.md#maßgeblicher-ddr-testcheckpoint--block-9c-52q-r7b-3aaj-2026-10-07).
+Alle vier Läufe zeigen Q1/C1 ZERO vor MMC1 und D32 `ret=-12`.
+Patch0012 wird unter diesen Testbedingungen nicht als isolierter Fix
+unterstützt; die DDR-Root-Cause bleibt offen. Die vollständige Provenienz
+und Aussagegrenzen stehen im
+[Experimentnachtrag](docs/TEST-LOG.md#2026-10-07--block-9c-52q-r7b-3aaj-frisches-a-b-b-a-experiment).
 
-Der aktuelle Wiedereinstieg ist in `docs/PROJECT-STATE.md` unter
-„2026-10-02 – BLOCK 9C-44: statischer Dokumentationscheckpoint“
-dokumentiert. Der einmalige Patch-0008-Hardwaretest vom 2026-10-01
-ergab Fall `8B = CONTROL_FAIL_TARGET_FAIL`. Die frühere Einordnung
-des Stillstands in der MMC-Initialisierung ist im Licht der späteren
-frühen Speicherbeobachtungen zu lesen; MMC ist kein nachgewiesener
-Ursprung. Der vollständige eigenständige P_EXT-Boot und die Root Cause
-bleiben unbelegt.
+Der [formale qualifizierte Projektindexabschluss vom 2026-10-09](docs/PROJECT-STATE.md#2026-10-09--index-1k-65-formaler-qualifizierter-projektindex-abschluss)
+ist ein separater Dokumentations-/Abnahmecheckpoint für den genehmigten
+endlichen Indexumfang. Er belegt keine DDR-, SPL- oder Hardwarequalifikation.
+
+Der ältere [Dokumentationscheckpoint vom 02.10.](docs/PROJECT-STATE.md#2026-10-02--block-9c-44-statischer-dokumentationscheckpoint)
+ordnet den einmaligen Patch-0008-Test vom 01.10. mit
+`8B = CONTROL_FAIL_TARGET_FAIL` ein und bleibt als historischer Nachweis erhalten.
+
+Die nachfolgenden G2X-Buildangaben beschreiben die historische Referenz
+vom 2026-09-22 und keine neueren Diagnoseimages.
 
 Aktueller produktiver Kernel:
 
@@ -57,22 +62,9 @@ Für Novena gilt dauerhaft:
 Der aktuelle Entwicklungsschwerpunkt ist das universelle und
 reproduzierbare externe NixOS-SD-Image.
 
-Der projektlokale U-Boot `v2026.07` ist in das Image integriert.
-Der vollständige Image-Build wurde auf der foobox zusätzlich in einem
-getrennten isolierten Nix-Store wiederholt. Normal-Store- und
-Clean-Store-Image waren byteidentisch.
-
-Aktuelles qualifiziertes Image:
-
-`/nix/store/gxbxadqv2lpkx5k4b4pz08s9jw185q12-nixos-novena-sd-image.img`
-
-Größe:
-
-`2581291008` Byte
-
-SHA-256:
-
-`8a2b8ac8681a78f9697b4a68582e6afcb1e0164e60a44286b7576d81242226dc`
+Der historische G2X-Referenzbuild enthält den projektlokalen U-Boot
+`v2026.07`. Seine Image-Identität und der bytegenaue Same-Host-/Separate-
+Store-Nachweis stehen unten unter „Historisches G2X-Referenzimage“.
 
 Der reale P_EXT-Hardwaretest hat inzwischen den ersten Teil des
 eigenständigen externen Bootpfads bestätigt:
@@ -83,8 +75,8 @@ Noch nicht hardwareseitig nachgewiesen ist der anschließende Pfad:
 
 `SPL v2026.07 -> U-Boot v2026.07 -> boot.scr -> Kernel/Initrd/DTB -> externes Root-Dateisystem`
 
-Die aktuelle Untersuchung grenzt den Stillstand innerhalb der
-SPL-seitigen MMC-Initialisierung diagnostisch weiter ein.
+Der beobachtete MMC-Endpunkt folgt auf die vorgelagerte Q1/C1-Zero-Signatur.
+Er erklärt diese Signatur nicht und belegt keine DDR-Ursache.
 
 ## Golden Build
 
@@ -105,9 +97,9 @@ Dort sind insbesondere dokumentiert:
 - Git-Sicherungspunkt
 - Abgrenzung zwischen Golden Build und späteren Diagnosekerneln
 
-## Aktuelles Image
+## Historisches G2X-Referenzimage – 2026-09-22
 
-Das aktuell qualifizierte Image wurde aus Commit
+Das historisch qualifizierte G2X-Image wurde aus Commit
 
 `d06de5e30f294144d0be66cc7903fedb1ed6fe0a`
 
@@ -134,7 +126,7 @@ Der historische `result`-Symlink bleibt bewusst unverändert und dient
 weiterhin als Referenz auf den früheren Golden Build.
 
 Der reale P_EXT-Hardwaretest dieses Stands wurde begonnen. Der i.MX6-ROM-Code
-lädt den aktuellen SPL von der externen SD; U-Boot proper v2026.07 wurde
+lädt den projektlokalen SPL von der externen SD; U-Boot proper v2026.07 wurde
 über diesen eigenständigen P_EXT-Pfad bisher noch nicht erreicht.
 
 ## Build-Host
@@ -154,7 +146,7 @@ Architektur:
 Die foobox wird für native Nix-Builds und für
 x86_64-zu-ARMv7-Cross-Compilation verwendet.
 
-Die vollständige und verifizierte Build-Host-Konfiguration ist
+Die datierte historische Build-Host-Bestandsaufnahme mit separaten Nachträgen ist
 dokumentiert unter:
 
 `docs/BUILD-HOST.md`
@@ -212,7 +204,7 @@ für die normalen Projektbefehle nicht mehr erforderlich.
 - `docs/BUILD.md`
   Build-Dokumentation
 - `docs/BUILD-HOST.md`
-  verifizierte foobox-Build-Host-Konfiguration
+  datierte foobox-Build-Host-Bestandsaufnahme
 - `docs/DECISIONS.md`
   dokumentierte Projektentscheidungen
 - `docs/GOLDEN-BUILD.md`
@@ -274,6 +266,20 @@ Dateien maßgeblich:
 - `docs/DECISIONS.md`
 
 Das README dient als Einstieg und Überblick.
+
+## Operative Regeln und Protokollarchivierung
+
+Die lokalen Worktree-Dateien `AGENTS.md` und `NOVENA-ARBEITSREGELN.txt`
+regeln Arbeitsablauf und Freigabegrenzen; ihre Verfügbarkeit im veröffentlichten
+Repository ist nicht gewährleistet. Die getrennte Protokollarchivierung ist in
+den Direktupload-Arbeitsregeln unter dem lokalen foobox-Pfad
+`/home/loomit/novena-backups/github-transport/DIREKTUPLOAD-ARBEITSREGELN.md`
+beschrieben. Originale liegen unter `~/novena-backups/block-logs/`, das
+Transportrepository unter `~/novena-backups/github-transport/project-block-logs/`.
+Technisches Ergebnis und Transportergebnis bleiben getrennt. Die belegten
+Teilfälle sind keine vollständige Uploaderqualifikation; Wiederaufnahme,
+Netzwerkfehler und Konfliktfälle bleiben offen. Die Regeln erteilen keine
+zusätzliche Aktionsfreigabe.
 
 ## Verwandtes Projekt
 

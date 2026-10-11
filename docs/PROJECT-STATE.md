@@ -1,5 +1,34 @@
 # Project State
 
+## 2026-10-11 – DOC-UPDATE-01: aktueller dokumentarischer Wegweiser
+
+- **DDR/SPL:** Der [A-B-B-A-Checkpoint vom 07.10.](#maßgeblicher-ddr-testcheckpoint--block-9c-52q-r7b-3aaj-2026-10-07)
+  bleibt maßgeblich: Q1/C1 ZERO in allen vier Läufen, danach D32 `ret=-12`.
+  Patch0012 als isolierter Fix wird nicht unterstützt; DDR-Root-Cause und
+  vollständiger eigenständiger P_EXT-Boot bleiben offen. Nachgewiesen ist
+  der Teilpfad P_EXT → ROM → externe SD/USDHC2 → SPL v2026.07.
+- **Projektindex:** [INDEX65 vom 09.10.](#2026-10-09--index-1k-65-formaler-qualifizierter-projektindex-abschluss)
+  dokumentiert die formale qualifizierte Abnahme des genehmigten endlichen
+  Umfangs; INDEX76 bestätigt diesen Abschlusscheckpoint. Daraus folgt keine
+  Hardwareaussage. Die Snapshot-/Resolverstrategie bleibt separate Folgearbeit.
+- **NXP-Quelle:** R6D-SRC03 vom 09.10. belegt die lokale Aufnahme von
+  IMX6DQRM Rev. 6, 05/2020. [Dateiidentität und Aufnahmeprovenienz](../research/nxp-reference-manuals/README.md#quelle-3--revision-6-aufnahme-vom-2026-10-09)
+  sind von tatsächlicher Inhaltsqualifikation getrennt. Ältere Aussagen zum
+  damals fehlenden Original bleiben historische Prüfstände. Die statische
+  R6A/B/C-Quellensammlung vom 09.10. ist kein Machbarkeitsnachweis:
+  R6C meldet `SRAM_SNAPSHOT_FEASIBILITY=PENDING_ANALYSIS`.
+- **Direktupload:** Der getrennte [Transportstand vom 11.10.](BUILD-HOST.md#2026-10-11--separate-nachweise-und-protokolltransport)
+  umfasst dokumentierte Erfolgs-/Fehlerteilfälle und statische Nachträge,
+  keine vollständige Uploaderqualifikation oder neue Hardwarequalifikation.
+
+Evidenz: bestehender Experimentnachtrag samt vier lokalen Rohlogs; INDEX65
+und `INDEX-1K-76-20261009-123455-XrRR0kuJ.txt`; R6D-SRC03 und R6C;
+GITHUB-UPLOAD21/22/24 sowie die getrennten Direktupload-Arbeitsregeln.
+Die genannten externen lokalen Protokolle liegen unter
+`/home/loomit/novena-backups/block-logs/`. Historische Checkpoints und
+vorhandene Nutzeränderungen bleiben erhalten. Dieser Nachtrag ist keine
+neue Build-, Test- oder Aktionsfreigabe.
+
 ## Maßgeblicher DDR-Testcheckpoint – BLOCK 9C-52Q-R7B-3AAJ, 2026-10-07
 
 Dokumentiert in BLOCK 9C-52Q-R7B-3AAJ-DOC1; vollständige Rohlog- und
@@ -6107,3 +6136,314 @@ HARDWARE_TEST_AUTHORIZED=NO
 
 Die Diagnosevarianten A und B bleiben nicht implementiert und nicht
 freigegeben. Die abgeschlossene I2C3-/ES8328-Untersuchung bleibt geschlossen.
+
+## 2026-10-09 – INDEX-1K-58-R1: K2-Dokumentationscheckpoint
+
+Dieser eigenständige Projektindexstatus dokumentiert den in INDEX56 genehmigten
+K2-Mindestumfang. Maßgeblich sind der
+[Umfangsbeschluss mit Evidenzzuordnung und Provenienzgrenzen](DECISIONS.md#2026-10-09--index-1k-58-r1-k2-umfang-und-drei-dateien-dokumentationscheckpoint)
+und der [Indexeinstieg](project-index/README.md#2026-10-09--index-1k-58-r1-k2-dokumentationscheckpoint).
+Die DDR-/SPL-Testcheckpoints behalten ihren eigenen Gegenstand und Geltungsbereich.
+
+| Kategorie | Genehmigte Anforderungen |
+|---|---|
+| A – verbindlich | K2-S01 bis K2-S09, K2-S13, K2-S16 |
+| B – optional | K2-S10, K2-S14 |
+| C – außerhalb des Mindestumfangs | K2-S11, K2-S12, K2-S15, K2-S17, K2-S18 |
+
+K2 ist endliche historische Regression mit begrenzter v0.3-Regelerweiterung.
+K2-S-Kennungen sind Anforderungen, keine Gleichsetzung mit K2-01–K2-12-Testnamen.
+
+```text
+K2_SCOPE_DECISION=APPROVED_BY_USER
+K1=PASS
+REGISTER_TYPES=QUALIFIED_PASS
+TEST_INDEPENDENCE=QUALIFIED_PASS
+K2_ACCEPTANCE=NOT_ESTABLISHED
+PROJECT_INDEX_ACCEPTANCE=NOT_ESTABLISHED
+```
+
+Die bisherigen Bewertungen bleiben auf ihre belegten Umfänge begrenzt:
+K1 auf gepinnte ART-/SAL-Pflichtbestände und Bindungsfehler, REGISTER_TYPES auf
+fünf autorisierte Identitäten mit je 26 Varianten und fünf vollständigen Pfaden,
+TEST_INDEPENDENCE auf den 18/130-Bestand. Umfangsbeschluss und Abnahme bleiben
+getrennt. Frühere PENDING-Werte werden durch diesen Nachtrag zeitlich eingeordnet,
+ohne historische Aussagen zu ändern.
+
+INDEX26 liefert historische Ausführungsevidenz: 96 bestandene Unit-Testmethoden,
+24 Korpusfälle, 33 Direktkontrollen, REGISTER_EXTENSION/V02_REGRESSION PASS
+und Exitstatus 0. INDEX27 qualifiziert M04/M05 begrenzt: 18 isolierte
+Vergleiche/36 Adapteraufrufe sowie 130 Registerfälle/135 Vergleiche/270
+Adapteraufrufe als Assertionsnachweis, ohne separate Ereignisliste.
+`INDEPENDENT_ACCEPTANCE=REQUIRES_REVIEW` bleibt sein historisches Ergebnis.
+INDEX33 definiert S01–S18; INDEX54/55 auditieren und begrenzen den Anspruch;
+INDEX56 enthält den Benutzerbeschluss; INDEX57 untersucht den Provenienzkonflikt.
+Die sieben lokalen Protokolle und Sidecars sind im Umfangsbeschluss exakt benannt
+und wurden für diesen Checkpoint lesend abgeglichen.
+
+Die unabhängige Einzelinventur erfasst nicht zusätzlich Korpus, Direktkontrollen
+und sämtliche Feldmutationen. Gemeinsame Speicher-/Adapterinfrastruktur und
+die letzte kanonische Sollinstanz begrenzen die Unabhängigkeit. Weitergehende
+Auditmutanten, umfassende CLI-/reale Dateisystemqualifikation und vollständige
+historische Matrixerfüllung bleiben unbelegt. R01–R66/H01–H35-Originalmatrizen,
+INDEX9–11-Originalberichte und der vollständige INDEX14-Plan fehlen im geprüften
+Bestand; Rekonstruktionen ersetzen sie nicht. INDEX37/39 werden nicht wiederholt;
+indirekte Nachweise und übergebene Zusammenfassungen bleiben als solche eingeordnet.
+`ORIGINALS_CHECK=PASS checked=3` ist ein Unitfixture, keine reale Gesamtoriginalprüfung.
+Der historische `unittest discover`-Lauf aktivierte den Audit-Hook nicht.
+Ein erfolgreicher Lauf ist keine unabhängige Gesamtvalidierung oder Hardwareaussage.
+
+**Drei-Dateien-Übergangslösung:** Nur DECISIONS, PROJECT-STATE und Index-README
+erhalten additive Nachträge. TEST-LOG bleibt wegen FND-000001 am bisherigen
+Pfad byteidentisch. Dessen Locator `docs/TEST-LOG.md#L2362` verlangt
+Zeilenexistenz; der historische Hash bindet sämtliche Dateibytes. Ein Nachtrag
+würde die Originalbindung brechen, obwohl historische Zeilen erhalten blieben.
+Aktuell besteht für FND-000001 kein Hashbruch; historische TSV-Felder bleiben erhalten.
+
+Das historische Index-TAR enthält keine Kopie der referenzierten TEST-LOG-
+Originaldatei. Der passende Snapshot ist im lokalen Git-Objektbestand vorhanden
+und wurde direkt bytegleich zur aktuellen Datei bestätigt; die historischen
+Commit-/Blob-Identitäten stehen im Umfangsbeschluss. Eine zusätzliche
+Snapshotdatei oder ein Resolver wurde nicht angelegt. Damit ist der
+INDEX56-Vier-Dateien-Plan ausdrücklich durch diesen begrenzten Schritt ersetzt,
+aber keine langfristige Testdokumentationsstrategie umgesetzt.
+
+Offen bleiben die eigene K2-Bewertung gegen den genehmigten A-Umfang, eine
+anschließende Projektindex-Gesamtabnahme sowie die langfristige Pfad-/Snapshot-
+entscheidung für neue Testdokumentation. Ausschluss von S12 entfernt keine
+Originalprüfungsregel. Neue Registereinträge allein heilen die alte Bindung nicht.
+Für diesen Dokumentationsschritt wurden keine Tests oder Builds gestartet;
+keine Hardware-, Netzwerk- oder Git-Mutationen erfolgten. Historische Daten
+und die vorhandenen Nutzeränderungen bleiben erhalten.
+
+## 2026-10-09 – INDEX-1K-61: Projektindexstatus nach fachlicher K2-Abnahme
+
+Maßgeblich für den aktuellen Projektindexstatus ist das eigenständige
+fachliche Votum aus `INDEX-1K-60-20261009-093539-m2uOpPQh.txt`, dokumentiert
+im [Abnahmenachtrag](DECISIONS.md#2026-10-09--index-1k-61-fachliche-k2-abnahme-für-umfang-a)
+und im [Indexcheckpoint](project-index/README.md#2026-10-09--index-1k-61-k2-abnahmecheckpoint).
+
+```text
+K1=PASS
+REGISTER_TYPES=QUALIFIED_PASS
+TEST_INDEPENDENCE=QUALIFIED_PASS
+K2_SCOPE=A_ONLY
+K2_MANDATORY_REQUIREMENTS=11
+K2_ACCEPTANCE=QUALIFIED_ACCEPTED
+PROJECT_INDEX_ACCEPTANCE=NOT_ESTABLISHED
+```
+
+K1 bleibt auf die gepinnten ART-/SAL-Pflichtbindungen begrenzt,
+REGISTER_TYPES auf die fünf autorisierten Identitäten mit je 26 Varianten
+und fünf vollständigen Pfaden, TEST_INDEPENDENCE auf den 18/130-Bestand.
+INDEX60 nimmt ausschließlich die elf A-Anforderungen fachlich ab:
+S01–S06/S08/S13 PASS; S07/S09/S16 QUALIFIED_PASS. Die qualifizierten Grenzen
+betreffen benannte Ausnahmezweige, gemeinsame Vergleichsinfrastruktur und
+Assertionsinventur ohne separate Ereignisliste sowie begrenzte Registerausnahmen
+ohne Verifikation fehlender Originalbytes. Die fachliche K2-Abnahme begründet
+keine Projektindex-Gesamtabnahme.
+
+Die historischen PENDING-Werte vom 08.10.2026 beschreiben den damaligen
+offenen K2-Umfang beziehungsweise Abnahmeanspruch. INDEX58-R1 vom 09.10.2026
+dokumentierte den genehmigten Umfang noch mit K2_ACCEPTANCE=NOT_ESTABLISHED.
+INDEX59 bestätigte danach Dokumentationsreview und Abnahmebereitschaft;
+erst INDEX60 gab das fachliche Votum QUALIFIED_ACCEPTED ab. Diese zeitliche
+Fortschreibung überschreibt keine historische Aussage. Der historische und
+aktuelle Wert PROJECT_INDEX_ACCEPTANCE=NOT_ESTABLISHED bleibt bestehen.
+
+Die Laufzeitevidenz stammt aus INDEX26; INDEX60 bestätigte ihre einschlägigen
+Dateiidentitäten statisch. INDEX61 führt keinen neuen Test aus. S10/S14 bleiben
+optional; die zusätzliche Einzelinventur für Korpus, Direktkontrollen und
+sämtliche Feldmutationen ist nicht nachgewiesen und gehört nicht zu A.
+S11/S12/S15/S17/S18 bleiben außerhalb des Mindestumfangs. Historische
+Originalmatrizen/-berichte und vollständige reale Originalqualifikation
+bleiben innerhalb der zuvor dokumentierten Provenienzgrenzen offen.
+
+TEST-LOG und FND-000001 samt historischem Locator und Ganzdateihash bleiben
+unverändert. Die Snapshotstrategie ist nicht implementiert; die langfristige
+Pfad-/Resolverentscheidung für neue Testdokumentation bleibt offen.
+Der DDR-/SPL-Stand wird durch diese Indexentscheidung nicht verändert.
+
+## 2026-10-09 – INDEX-1K-63: Verbindlicher Gesamtumfang und offene Gesamtabnahme
+
+Der Benutzer hat im Auftrag zu INDEX-1K-63 die belegten Teilqualifikationen
+einschließlich ihrer qualifizierten Einschränkungen ausdrücklich gemeinsam
+als vollständigen verbindlichen Projektindex-Gesamtabnahmeumfang genehmigt.
+Maßgeblich ist der neue
+[Umfangsbeschluss](DECISIONS.md#2026-10-09--index-1k-63-verbindlicher-projektindex-gesamtabnahmeumfang);
+der [Indexeinstieg](project-index/README.md#2026-10-09--index-1k-63-verbindlicher-projektindex-gesamtabnahmeumfang)
+führt denselben Stand.
+
+```text
+PROJECT_INDEX_SCOPE_DECISION=APPROVED_BY_USER
+K1=PASS
+REGISTER_TYPES=QUALIFIED_PASS
+TEST_INDEPENDENCE=QUALIFIED_PASS
+K2_SCOPE=A_ONLY
+K2_MANDATORY_REQUIREMENTS=11
+K2_ACCEPTANCE=QUALIFIED_ACCEPTED
+PROJECT_INDEX_ACCEPTANCE=NOT_ESTABLISHED
+FINAL_ACCEPTANCE_REVIEW=PENDING
+```
+
+INDEX58-R1 definiert die elf A-Pflichtanforderungen S01–S09/S13/S16.
+INDEX61 dokumentiert deren fachliche K2-Abnahme: S01–S06/S08/S13 PASS,
+S07/S09/S16 QUALIFIED_PASS. INDEX62 bestätigte die Teilqualifikationen,
+ließ die Gesamtabnahme wegen des damals nicht festgestellten verbindlichen
+Gesamtumfangs NOT_ESTABLISHED und empfahl eine reine Umfangsentscheidung.
+Die Originalquelle INDEX62 samt hier lesend abgeglichenem Hash ist im neuen
+Umfangsbeschluss identifiziert. Dieser Benutzerbeschluss legt den Gesamtumfang
+nun fest; er ersetzt weder das historische Votum noch die noch ausstehende
+abschließende fachliche Gesamtabnahmeprüfung.
+
+Die anerkannten Grenzen gehören zum Umfang: K1 betrifft die gepinnten
+ART-/SAL-Pflichtbindungen. REGISTER_TYPES betrifft genau fünf autorisierte
+Identitäten, sieben Bindungen, exakt leeren Originalhash, je 26 Varianten
+und fünf zusätzliche vollständige Modellpfade; Registerhashes verifizieren
+keine fehlenden Originalbytes. TEST_INDEPENDENCE betrifft ausschließlich
+18 isolierte Vergleiche/36 Adapteraufrufe und 130 Registerfälle/135 Vergleiche/
+270 Adapteraufrufe als Assertionsnachweis ohne separate Einzelereignisliste.
+Gemeinsame Daten, Schemas, Serialisierung, Adapter und `MemoryPath` sowie
+die letzte kanonische Sollinstanz ohne zweite unveränderliche Fallquelle
+bleiben Unabhängigkeitsgrenzen. S07 bleibt auf benannte Fehlerklassen und
+geprüfte Ausnahmezweige begrenzt; alle A-Nachweise bleiben endlich.
+
+Historische Originalqualifikation, B (S10/S14), C (S11/S12/S15/S17/S18)
+und eine zusätzliche Snapshot-/Resolverstrategie werden nicht zu neuen
+Pflichtkriterien. Quellenlücken bei historischen Originalmatrizen/-berichten
+und INDEX14 bleiben offen; INDEX37/39 werden nicht zu direkt verifizierten
+Originalnachweisen aufgewertet. Umfassende reale Originalprüfung, globale
+Unabhängigkeit, vollständige Mutationsabdeckung, umfassende CLI-/Dateisystem-
+Semantik und universelle historische Äquivalenz werden nicht behauptet.
+`checked=3` bleibt Unitfixture-Evidenz; der historische discover-Lauf
+aktivierte den Audit-Hook nicht. Bestehende Validatorregeln bleiben bestehen.
+
+TEST-LOG, FND-000001 und dessen historische Locator-/Ganzdateihashbindung
+bleiben unverändert. Eine konsistente Lösung für künftige TEST-LOG-Änderungen
+bleibt separate langfristige Folgearbeit; der vorhandene Git-Snapshot ist
+keine implementierte Resolverstrategie. Historische PENDING-/NOT_ESTABLISHED-
+Werte und Abschnitte werden nicht rückwirkend verändert.
+
+**Der Umfangsbeschluss ist genehmigt; die Projektindex-Gesamtabnahme ist
+nicht festgestellt und ihr abschließender Review steht aus.** INDEX63 ist
+ein additiver Drei-Dateien-Dokumentationscheckpoint, kein neuer Testlauf
+und keine Gesamtabnahme. Keine weiteren Dateien wurden angelegt; keine Tests,
+Builds, Hardwaretests, Netzwerkaktionen oder Git-Mutationen wurden ausgeführt.
+Die vorhandenen Nutzeränderungen und der eigenständige DDR-/SPL-Stand bleiben
+erhalten.
+
+## 2026-10-09 – INDEX-1K-65: Formaler qualifizierter Projektindex-Abschluss
+
+Der Benutzer hat nach der fachlichen Bewertung INDEX-1K-64 ausdrücklich
+die formale qualifizierte Projektindex-Gesamtabnahme freigegeben. Dieser
+Nachtrag dokumentiert die neue Benutzerentscheidung vom 2026-10-09 nach
+INDEX64. INDEX61 dokumentierte ausschließlich die fachliche K2-Abnahme,
+INDEX63 den verbindlichen Gesamtumfang; INDEX64 gab die abschließende
+fachliche Empfehlung ab und ließ die formale Benutzerabnahme noch offen.
+
+Der verbindliche, nun formal abgenommene Umfang bleibt:
+
+```text
+K1=PASS
+REGISTER_TYPES=QUALIFIED_PASS
+TEST_INDEPENDENCE=QUALIFIED_PASS
+K2_SCOPE=A_ONLY
+K2_MANDATORY_REQUIREMENTS=11
+K2_ACCEPTANCE=QUALIFIED_ACCEPTED
+```
+
+Die fachliche Bewertung aus INDEX-1K-64 wird als Abnahmegrundlage übernommen:
+
+```text
+CHECKPOINT_REVIEW=PASS
+DOCUMENTATION_REVIEW=PASS
+EVIDENCE_REVIEW=QUALIFIED_PASS
+MANDATORY_BLOCKERS=NONE_IDENTIFIED
+PROJECT_INDEX_ACCEPTANCE_RECOMMENDATION=QUALIFIED_ACCEPTED
+```
+
+Die jetzt ausdrücklich erteilte formale Benutzerfreigabe lautet:
+
+```text
+PROJECT_INDEX_SCOPE_DECISION=APPROVED_BY_USER
+PROJECT_INDEX_ACCEPTANCE=QUALIFIED_ACCEPTED
+FINAL_USER_ACCEPTANCE=APPROVED
+ACCEPTANCE_BASIS=INDEX-1K-63,INDEX-1K-64
+```
+
+Damit ist die formale qualifizierte Projektindex-Gesamtabnahme für den
+in INDEX63 genehmigten endlichen Umfang abgeschlossen. Das fachliche
+Votum INDEX64 und die anschließende Benutzerentscheidung bleiben als
+unterschiedliche Schritte nachvollziehbar. Die Freigabe ist die ausdrückliche
+Entscheidung im Auftrag zu INDEX65, keine aus Teilwerten oder Runner-PASS
+abgeleitete automatische Gesamtabnahme.
+
+K1 gilt für die gepinnten ART-/SAL-Pflichtbindungen. REGISTER_TYPES gilt
+für genau fünf autorisierte Identitäten, sieben Bindungen, exakt leeren
+Originalhash, je 26 Varianten und fünf zusätzliche vollständige Modellpfade;
+Registerhashes verifizieren keine fehlenden Originalbytes.
+TEST_INDEPENDENCE bleibt ausschließlich auf den 18/130-Bestand begrenzt:
+18 isolierte Vergleiche/36 Adapteraufrufe und 130 Registerfälle/135 Vergleiche/
+270 Adapteraufrufe als Assertionsnachweis ohne separate Einzelereignisliste.
+Gemeinsame Daten, Schemas, Serialisierung, Adapter und `MemoryPath` sowie
+die kanonische Sollinstanz ohne zweite unveränderliche Fallquelle bleiben
+anerkannte Einschränkungen. K2-A umfasst S01–S09/S13/S16: acht PASS
+(S01–S06/S08/S13), drei QUALIFIED_PASS (S07/S09/S16). S07 bleibt auf benannte
+Fehlerklassen und geprüfte Ausnahmezweige begrenzt. Teilweise gemeinsame
+Evidenz ist keine zusätzliche unabhängige Bestätigung.
+
+Die Abnahme umfasst ausdrücklich nicht:
+
+- vollständige historische Originalqualifikation;
+- universelle Semantikäquivalenz;
+- globale Testunabhängigkeit;
+- vollständige reale Dateisystem-/Originalprüfung;
+- neue Aussagen über Hardware, DDR, SPL oder Bootfähigkeit;
+- optionale K2-Bereiche B (S10/S14) und ausgeschlossene Bereiche C
+  (S11/S12/S15/S17/S18);
+- eine implementierte Snapshot-/Resolverstrategie.
+
+Die dokumentierten Quellenlücken und Evidenzgrenzen bleiben bestehen.
+Rekonstruktionen ersetzen keine fehlenden Originalmatrizen oder -berichte;
+`ORIGINALS_CHECK=PASS checked=3` bleibt Unitfixture-Evidenz. Der historische
+discover-Lauf aktivierte den Audit-Hook nicht. Vorhandene Mutanten belegen
+keine vollständige Mutationsabdeckung. Die Snapshot-/Resolverlösung für
+künftige TEST-LOG-Änderungen bleibt separate langfristige Folgearbeit.
+
+Alle früheren Aussagen und Statuswerte, insbesondere NOT_ESTABLISHED,
+PENDING und das damalige FINAL_USER_ACCEPTANCE=PENDING aus INDEX64, bleiben
+als historische Kenntnisstände unverändert. Die neue Entscheidung gilt ab
+diesem Nachtrag und ausschließlich für den benannten Projektindexumfang.
+Bestehende Validatorregeln, Vertragspins und historische Felder bleiben
+unberührt. FND-000001 behält sämtliche historischen Felder einschließlich
+`record_locator=docs/TEST-LOG.md#L2362` und
+`record_sha256=b165636a7e5146903d9675639d8d435a474c88f7231341922781bbf027b00719`.
+Der Hash bindet weiterhin die gesamte unveränderte TEST-LOG-Datei am
+bisherigen Pfad. Der vorhandene lokale Git-Snapshot ist keine implementierte
+Snapshot-/Resolverstrategie.
+
+Die lokal geprüften Ergebnisprotokolle liegen unter
+`/home/loomit/novena-backups/block-logs/`:
+
+| Block | Originalprotokoll | SHA256 |
+|---|---|---|
+| INDEX-1K-61 | `INDEX-1K-61-20261009-094329-9VNEICD3.txt` | `1bdd98498923c6bd15b9dc2485acae2c5af2372c1b7c46524dbfcef8ded390ef` |
+| INDEX-1K-63 | `INDEX-1K-63-20261009-095443-7J4YhpM9.txt` | `41fc4a4c89d67db9cc88380411d3a218bd4b5b9746357dc2786cdadb3406fb92` |
+| INDEX-1K-64 | `INDEX-1K-64-20261009-100341-rQPTvBmV.txt` | `24b46e161efe2f111ffd5123c774a60861db54af89382eeaeca16b7d3bd9519a` |
+
+Alle drei Hashes stimmen in INDEX65 beim lesenden Abgleich mit den vorhandenen
+Sidecars überein. Ihre Abschlüsse weisen COMMAND_EXIT_STATUS=0,
+BLOCK_RESULT=PASS und LOG_COMPLETE=YES aus; die fachlichen Ergebnisse wurden
+getrennt geprüft. INDEX64 ist eine lesende fachliche Bewertung, kein neuer
+Testlauf. Die historische Laufzeitevidenz bleibt INDEX26 mit den dokumentierten
+Reviewgrenzen.
+
+INDEX65 ergänzt ausschließlich DECISIONS, PROJECT-STATE und Index-README.
+Die bisherigen Dateiinhalte bleiben bytegenau erhalten. Keine weiteren
+Dateien, temporären Dateien, Runnerlogs oder Sicherungen werden erzeugt.
+Keine Git-Mutationen, Commits, Pushes, Builds, Tests, Hardwarezugriffe oder
+Netzwerkaktionen werden durchgeführt.
+
+Maßgeblich sind der [formale Beschluss](DECISIONS.md#2026-10-09--index-1k-65-formaler-qualifizierter-projektindex-abschluss)
+und der [Indexeinstieg](project-index/README.md#2026-10-09--index-1k-65-formaler-qualifizierter-projektindex-abschluss).
+Der eigenständige DDR-/SPL-Projektstand bleibt unverändert.
