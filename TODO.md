@@ -1,0 +1,104 @@
+# TODO – Novena: universelles NixOS-SD-Image
+
+Stand: 2026-10-11 (GitHub-Direktupload-Checkpoint; lokaler foobox-Stand separat)
+Grundlage: Projektgespräche, `AGENTS.md`, `NOVENA-ARBEITSREGELN.txt`, `docs/PROJECT-STATE.md`, `docs/TEST-LOG.md` sowie die GitHub-Repositories `loomit77/Test` und `loomit77/project-block-logs`.
+Legende: `[x]` dokumentiert erledigt · `[ ]` offen · **Prüfen** = noch nicht vollständig belegt.
+Prioritäten: **P1** vorrangig · **P2** anschließend · **P3** langfristig.
+
+> **Arbeitsregeln:** Vor technischen Änderungen Git-/Index-Zustand, Rohlogs und dokumentierte Checkpoints prüfen. Auf der foobox jeden freigegebenen technischen Block über den Wrapper `~/novena-backups/github-transport/run-and-upload.bash` ausführen. Dieser ruft den unveränderten Runner `~/novena-backups/block-logs/run-block.bash` auf, erzeugt vollständige TXT plus SHA256-Sidecar und überträgt sie synchron ins private GitHub-Protokollrepository. Die Freigabe- und Sicherheitsgrenzen der Regeldateien bleiben bis zu ihrer ausdrücklich autorisierten Aktualisierung maßgeblich. Keine ungefragten Builds, Hardwaretests, Medien-Schreibzugriffe, Git-Resets oder Änderungen am Runner. Intent-to-add-Einträge und vorhandene Nutzeränderungen erhalten. Read-only-Codex-Aufträge schreiben keine Dateien. `printf` statt `echo`. GitHub-Änderungen und lokale foobox-Zustände getrennt bewerten.
+
+## P1-A – Indexierung
+
+- [x] Fortlaufende INDEX-Kennungen und Protokollpflicht als Arbeitsregel dokumentiert.
+- [ ] Letzten vollständig geprüften INDEX-Block und nächste freie Kennung aus Originalprotokollen feststellen.
+- [ ] Jeden Block mit Auftrag, Zeit, TXT-Datei, SHA256, Git-HEAD, Index-Checkpoint und Ergebnis verknüpfen.
+- [ ] Abgebrochene, fehlgeschlagene, vorbereitete und fachlich abgeschlossene Blöcke unterscheiden.
+- [ ] Durchsuchbaren, belegbasierten Index aufbauen; Originalprotokolle unverändert lassen.
+- [ ] Nach jedem Block Protokollvollständigkeit, Integrität und fachliche Bewertung getrennt prüfen.
+
+## P1-B – Dateiinventur / catalog-v2
+
+- [x] Eigenständigen Inventur-Arbeitsstrang mit INDEX-Protokollen begonnen.
+- [ ] Den letzten geprüften catalog-v2-/INDEX-Checkpoint feststellen, bevor die Inventur fortgesetzt wird.
+- [ ] Dateien, Pfade, Dateigrößen, SHA256, Quellmedien, Sicherungskopien und Provenienz vollständig erfassen.
+- [ ] Dubletten, fehlende Dateien, widersprüchliche Identitäten und unvollständige Manifeste untersuchen.
+- [ ] Historische Medien, lokale Backups, Git-Repositories und Nix-Artefakte sauber auseinanderhalten.
+- [ ] Inventurdaten mit Blockindex und Quellenverzeichnis verknüpfen.
+- [ ] Inventur als eigenen Arbeitsstrang führen; keine unbeauftragten Bootdiagnosen darin beginnen.
+
+## P1-C – GitHub-Upload für Protokolle / weniger manuelle ChatGPT-Uploads
+
+- [x] Privates Zielrepository `loomit77/project-block-logs` eingerichtet.
+- [x] Entwicklungsbranch `feature/block-log-upload` in `loomit77/Test` vorhanden; Review unter `docs/UPLOAD-REVIEW.md` und Testplan mit 22 Fällen unter `docs/UPLOAD-V2-TESTPLAN.md` dokumentiert.
+- [x] Bestehenden Runner unverändert belassen; automatischen Uploader und Wrapper separat eingerichtet.
+- [x] Synchronen Direktupload von TXT und SHA256 nach einem erfolgreichen Block nachgewiesen (GITHUB-UPLOAD-14).
+- [x] Archivierung auch bei absichtlich fehlgeschlagenem technischem Block nachgewiesen (GITHUB-UPLOAD-15, Exitcode 17).
+- [x] Transportidentität, Archivzustand und GitHub-Lesezugriff anhand von GITHUB-UPLOAD-16 sowie Folgeblöcken überprüft.
+- [x] GitHub-Upload von GITHUB-UPLOAD-17A und GITHUB-UPLOAD-18 einschließlich TXT/SHA256 nachgewiesen.
+- [x] Lokale `NOVENA-ARBEITSREGELN.txt` kontrolliert um Abschnitt 11 zum automatischen Direktupload ergänzt, Original gesichert, HEAD und Index unverändert (GITHUB-UPLOAD-19). Noch **nicht** als Git-Checkpoint synchronisiert.
+- [x] Runner, Wrapper und automatischen Uploader anhand vollständiger Quelltexte und Bash-Syntax lesend auf Regelkonsistenz untersucht (GITHUB-UPLOAD-20). Dies ist eine statische Prüfung, keine vollständige Sicherheitsfreigabe.
+- [ ] Widerspruch zwischen früherer manueller Inhaltsprüfung und automatischer Übertragung technisch und organisatorisch abschließend auflösen. Aktuell: Direktupload nur für vorab auf mögliche sensible Ausgaben geprüfte Blöcke; **keine** automatische Geheimniserkennung im Wrapper/Uploader.
+- [ ] Prüfen, ob `AGENTS.md` einen ergänzenden Verweis benötigt, ohne Codex-Read-only- oder Freigabegrenzen zu lockern.
+- [x] `~/novena-backups/github-transport/DIREKTUPLOAD-ARBEITSREGELN.md` auf foobox angelegt und gegen bekannte Skript-/Regel-SHA256 geprüft (GITHUB-UPLOAD-21; Dokument-SHA256 `5549fc9a534b615972aae44e73f30c2d4cf1a91f55832bad07a861e5a01c60f0`). Dokument lokal; GitHub enthält das vollständige Blockprotokoll, nicht die Markdown-Datei selbst.
+- [ ] Wiederaufnahme und gezielte Nacharchivierung nach Upload-/Netzwerkfehler kontrolliert prüfen; kein unkontrollierter Massen-Backfill. Die Wiederaufnahme eines ausstehenden Einzelcommits ist implementiert, aber nicht umfassend funktional qualifiziert (GITHUB-UPLOAD-20).
+- [ ] Verbleibende Fälle des 22-teiligen Uploader-Testplans gezielt qualifizieren; bisherige erfolgreiche Funktionstests nicht als vollständige Testplan-Abnahme ausgeben.
+- [ ] Ursprünglichen v2-Testplan (`loomit77/Test`, `feature/block-log-upload`, `docs/UPLOAD-V2-TESTPLAN.md`) gegen die aktuell eingesetzte Automatik-Schnittstelle abgleichen; Testfall 08 zur Inhaltsfreigabe ist nicht unverändert übertragbar. Vor Fehlersimulation isoliertes Testkonzept für Fälle 12, 13, 14, 16, 17 und 20 erstellen; produktives Archiv nicht als Testziel verwenden.
+- [ ] Idempotenz, Race-Conditions, Push-Fehler, Konflikte und unabhängige Remote-Hashprüfung entsprechend dem noch offenen Testumfang belegen. Statische Schutzmechanismen (`flock`, Git-Zustandsprüfung, SHA256-Vergleich, Remote-Fetch) sind vorhanden, ersetzen aber keine Testnachweise.
+- [ ] Veraltete Uploader-Hilfe (`--approve-reviewed-sha256` wird noch angezeigt, im Automatikmodus aber zurückgewiesen) bei einer gesondert freigegebenen Skriptänderung korrigieren.
+- [ ] Wrapper-Fehlercodes und getrennte technische/Transport-Ergebnisse dokumentieren: bei Uploadfehler liefert der Wrapper `1`, auch wenn der technische Block einen anderen Fehlercode hatte.
+- [ ] Projektübergreifende Zuordnung für Novena, L14, Homelab und weitere Projekte eindeutig regeln.
+- [ ] Grenzen dokumentieren: Private GitHub-Repositories sind keine Geheimnisspeicher; GitHub-Lesezugriff kann manuelle ChatGPT-Dateiuploads reduzieren, hebt Produktlimits aber nicht auf.
+
+**Betriebsstand 2026-10-11 (GITHUB-UPLOAD-19/20):** Automatischer Direktupload in den geprüften Erfolgs- und Fehlerfällen funktional nachgewiesen. Lokale Regelergänzung (Abschnitt 11) und statische Konsistenzprüfung abgeschlossen; keine automatische Geheimniserkennung. Vollständige Uploader-Qualifikation, Ausfall-Wiederanlauf, Sicherheitsfreigabe und Git-Synchronisation der lokalen Regeln bleiben **offen**. Die Transportdokumentation wurde lokal in GITHUB-UPLOAD-21 erstellt. Keine rückwirkende Freigabe anderer Aktionen.
+
+## P1-D – Universelles NixOS-SD-Image (technisches Hauptziel)
+
+### U-Boot / SPL / DDR
+- [x] Reproduzierbaren projektlokalen U-Boot-/SPL-Baustein und externen P_EXT-Bootpfad entwickelt.
+- [x] DDR-A-B-B-A-Experiment vom 2026-10-07 dokumentiert; Patch0012 allein ist kein belegter Fix.
+- [ ] Maßgebliche serielle Rohlogs, DDR-Registerbefunde und Provenienz vor jeder neuen Hypothese erneut auswerten.
+- [ ] Aktuelle SO-DIMM-/SPD-Identität und reale Rank-Anzahl nur durch gezielte, freigegebene Diagnose klären.
+- [ ] DDR-/SPL-Ursache weiter eingrenzen; keinen Root-Cause-Nachweis vorwegnehmen.
+- [ ] Eigenständigen Bootpfad `SPL → U-Boot proper → Kernel/Initrd/DTB → Root` schrittweise belegen.
+- [ ] Eigenes Bootmenü und Bootauswahl erst auf Basis eines qualifizierten U-Boot-Stands entwerfen.
+- [ ] Keine Hardwaretests, Builds oder SD-Schreibvorgänge ohne separate Freigabe.
+
+### Image / NixOS
+- [x] Cross-Build und byteidentischen isolierten Image-Build als historischen Referenzstand dokumentiert.
+- [x] Funktionale I2C3-/ES8328-Root-Cause abgeschlossen; `regulator-always-on` als dauerhafte Boardanforderung beibehalten.
+- [ ] Aktuellen Build- und Image-Stand gegen historische Golden-Referenzen und neuere Diagnosen abgleichen.
+- [ ] Partitionierung, Bootdateien, Root-Dateisystem, Kernel, initrd und Device Tree für universellen Betrieb qualifizieren.
+- [ ] Nach gelöstem SPL-/DDR-Blocker vollständigen externen SD-Boot mit serieller Evidenz nachweisen.
+- [ ] Reproduzierbarkeit, Installationsanleitung, Wiederherstellung und Release-Artefakte abschließend dokumentieren.
+
+## P2 – Historische Quellen und Sicherungen
+
+- [x] Historische Medien-/Provenienzuntersuchungen und Factory-R1-Grenzen dokumentiert.
+- [ ] Offene Factory-R1-Quellenlücken und fehlende Binäridentitäten als solche erhalten.
+- [ ] Historische SPL-/DDR-Konfigurationen nur anhand belastbarer Primärquellen vergleichen.
+- [ ] Backups und SHA256-Manifeste gegen Inventur und Git-Checkpoints prüfen.
+- [ ] Golden Build, historische Raw-Master und aktuelle Diagnoseartefakte getrennt aufbewahren.
+
+## P2 – Git, Dokumentation und Arbeitsorganisation
+
+- [ ] Lokalen foobox-HEAD, Branch, Worktree, Index-SHA256 und Intent-to-add-Einträge vor Synchronisation prüfen.
+- [x] GitHub-`TODO.md` und lokalen foobox-Stand verglichen (GITHUB-UPLOAD-18): Datei fehlt lokal und im lokalen HEAD.
+- [ ] Die aktualisierte GitHub-`TODO.md` später kontrolliert mit dem lokalen Stand abgleichen; den neuen GitHub-Commit nicht blind in einen geänderten Worktree übernehmen.
+- [ ] Codeberg und GitHub nach ausdrücklicher Freigabe auf denselben gewünschten Commitstand bringen.
+- [ ] `docs/PROJECT-STATE.md`, `docs/TEST-LOG.md`, `docs/DECISIONS.md` und Quellenverzeichnis nach belegten Checkpoints aktualisieren.
+- [ ] TODO nach jedem bestätigten Meilenstein fortschreiben; offene Punkte nur mit Evidenz abhaken.
+
+## P3 – Veröffentlichung und Weiterentwicklung
+
+- [x] Artikelserie über Novena begonnen; Teil 1 veröffentlicht.
+- [ ] Teil 2 und weitere Teile anhand belegter Projektstände fertigstellen.
+- [ ] Dokumentation für Nachbau, Installation, Fehlersuche und Wiederherstellung erstellen.
+- [ ] Später die Möglichkeit eines modernen, Novena-inspirierten Open-Hardware-Systems gesondert untersuchen.
+
+## Aktueller Freigabestand
+
+- GitHub-Uploader: **Direktupload in geprüften Novena-Fällen im Einsatz; Regelergänzung lokal und statischer Regel-/Skriptabgleich erledigt; Geheimnisschutz, vollständige Qualifikation, Fehler-Wiederanlauf und Dokumentations-Synchronisation offen**.
+- DDR-/SPL-Root Cause: **offen**; kein neuer Hardwaretest freigegeben.
+- I2C3/ES8328: **abgeschlossen**, ohne neue diskriminierende Evidenz nicht erneut öffnen.
+- Universelles externes SD-Image: **noch kein vollständig nachgewiesener eigenständiger Bootpfad**.
+- GitHub-Änderungen ersetzen **keinen** lokalen foobox-Checkpoint oder Codeberg-Abgleich.
