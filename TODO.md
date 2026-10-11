@@ -1,11 +1,11 @@
 # TODO – Novena: universelles NixOS-SD-Image
 
-Stand: 2026-10-10
+Stand: 2026-10-11 (GitHub-Direktupload-Checkpoint; lokaler foobox-Stand separat)
 Grundlage: Projektgespräche, `AGENTS.md`, `NOVENA-ARBEITSREGELN.txt`, `docs/PROJECT-STATE.md`, `docs/TEST-LOG.md` sowie die GitHub-Repositories `loomit77/Test` und `loomit77/project-block-logs`.
 Legende: `[x]` dokumentiert erledigt · `[ ]` offen · **Prüfen** = noch nicht vollständig belegt.
 Prioritäten: **P1** vorrangig · **P2** anschließend · **P3** langfristig.
 
-> **Arbeitsregeln:** Vor technischen Änderungen Git-/Index-Zustand, Rohlogs und dokumentierte Checkpoints prüfen. Auf der foobox jeden freigegebenen technischen Block mit dem vorhandenen Runner `~/novena-backups/block-logs/run-block.bash` als vollständige TXT plus SHA256-Sidecar protokollieren. Keine ungefragten Builds, Hardwaretests, Medien-Schreibzugriffe, Git-Resets oder Änderungen am Runner. Intent-to-add-Einträge und vorhandene Nutzeränderungen erhalten. Read-only-Codex-Aufträge schreiben keine Dateien. `printf` statt `echo`. GitHub-Änderungen und lokale foobox-Zustände getrennt bewerten.
+> **Arbeitsregeln:** Vor technischen Änderungen Git-/Index-Zustand, Rohlogs und dokumentierte Checkpoints prüfen. Auf der foobox jeden freigegebenen technischen Block über den Wrapper `~/novena-backups/github-transport/run-and-upload.bash` ausführen. Dieser ruft den unveränderten Runner `~/novena-backups/block-logs/run-block.bash` auf, erzeugt vollständige TXT plus SHA256-Sidecar und überträgt sie synchron ins private GitHub-Protokollrepository. Die Freigabe- und Sicherheitsgrenzen der Regeldateien bleiben bis zu ihrer ausdrücklich autorisierten Aktualisierung maßgeblich. Keine ungefragten Builds, Hardwaretests, Medien-Schreibzugriffe, Git-Resets oder Änderungen am Runner. Intent-to-add-Einträge und vorhandene Nutzeränderungen erhalten. Read-only-Codex-Aufträge schreiben keine Dateien. `printf` statt `echo`. GitHub-Änderungen und lokale foobox-Zustände getrennt bewerten.
 
 ## P1-A – Indexierung
 
@@ -29,16 +29,21 @@ Prioritäten: **P1** vorrangig · **P2** anschließend · **P3** langfristig.
 ## P1-C – GitHub-Upload für Protokolle / weniger manuelle ChatGPT-Uploads
 
 - [x] Privates Zielrepository `loomit77/project-block-logs` eingerichtet.
-- [x] Entwicklungsbranch `feature/block-log-upload` in `loomit77/Test` vorhanden.
-- [x] Review unter `docs/UPLOAD-REVIEW.md` und Testplan mit 22 Fällen unter `docs/UPLOAD-V2-TESTPLAN.md` dokumentiert.
-- [ ] Aktuellen Entwicklungsstand des Uploadskripts gegen GitHub und lokale foobox-Dateien abgleichen.
-- [ ] Alle 22 Testfälle kontrolliert ausführen und mit TXT/SHA256 protokollieren; insbesondere Race-Conditions, Push-Fehler, Wiederaufnahme und Konflikte.
-- [ ] Vertrauliche Inhalte vor jedem Upload prüfen; private Repositories nicht als Geheimnisspeicher behandeln.
-- [ ] Vollständigkeit, Hashgleichheit, Idempotenz und unabhängige Remote-Prüfung nachweisen.
-- [ ] Zugriff auf archivierte Logs über die verbundene GitHub-Schnittstelle mit konkreten Dateien praktisch prüfen.
-- [ ] Erst nach Freigabe den Uploader produktiv einsetzen; bestehenden Runner nicht ungefragt ändern.
-- [ ] Grenzen dokumentieren: GitHub-Zugriff kann manuelle ChatGPT-Dateiuploads reduzieren, hebt Produktlimits aber nicht auf.
+- [x] Entwicklungsbranch `feature/block-log-upload` in `loomit77/Test` vorhanden; Review unter `docs/UPLOAD-REVIEW.md` und Testplan mit 22 Fällen unter `docs/UPLOAD-V2-TESTPLAN.md` dokumentiert.
+- [x] Bestehenden Runner unverändert belassen; automatischen Uploader und Wrapper separat eingerichtet.
+- [x] Synchronen Direktupload von TXT und SHA256 nach einem erfolgreichen Block nachgewiesen (GITHUB-UPLOAD-14).
+- [x] Archivierung auch bei absichtlich fehlgeschlagenem technischem Block nachgewiesen (GITHUB-UPLOAD-15, Exitcode 17).
+- [x] Transportidentität, Archivzustand und GitHub-Lesezugriff anhand von GITHUB-UPLOAD-16 sowie Folgeblöcken überprüft.
+- [x] GitHub-Upload von GITHUB-UPLOAD-17A und GITHUB-UPLOAD-18 einschließlich TXT/SHA256 nachgewiesen.
+- [ ] `NOVENA-ARBEITSREGELN.txt` und bei Bedarf `AGENTS.md` hinsichtlich Wrapper, automatischer Übertragung und Sicherheitsgrenzen kontrolliert aktualisieren. Die bisherige Pflicht zur manuellen Inhaltsprüfung vor externer Weitergabe steht noch im Widerspruch zum automatischen Direktupload; vor einer dauerhaften Regeländerung explizit klären, wie sensible Inhalte vor Übertragung ausgeschlossen werden.
+- [ ] Dokumentation des Direktuploads im Transportverzeichnis anlegen und gegen den tatsächlich eingesetzten Wrapper prüfen (GITHUB-UPLOAD-18: noch nicht vorhanden).
+- [ ] Wiederaufnahme und gezielte Nacharchivierung nach Upload-/Netzwerkfehler kontrolliert prüfen; kein unkontrollierter Massen-Backfill.
+- [ ] Verbleibende Fälle des 22-teiligen Uploader-Testplans gezielt qualifizieren; bisherige erfolgreiche Funktionstests nicht als vollständige Testplan-Abnahme ausgeben.
+- [ ] Idempotenz, Race-Conditions, Push-Fehler, Konflikte und unabhängige Remote-Hashprüfung entsprechend dem noch offenen Testumfang belegen.
 - [ ] Projektübergreifende Zuordnung für Novena, L14, Homelab und weitere Projekte eindeutig regeln.
+- [ ] Grenzen dokumentieren: Private GitHub-Repositories sind keine Geheimnisspeicher; GitHub-Lesezugriff kann manuelle ChatGPT-Dateiuploads reduzieren, hebt Produktlimits aber nicht auf.
+
+**Betriebsstand 2026-10-11:** Der automatische Direktupload wird für die aktuellen Novena-Blöcke praktisch verwendet und funktioniert in den geprüften Erfolgs- und Fehlerfällen. Die vollständige Uploader-Qualifikation, der Ausfall-Wiederanlauf und die widerspruchsfreie Sicherheitsregelung sind **noch offen**. Diese Feststellung ist keine rückwirkende Freigabe für andere Aktionen.
 
 ## P1-D – Universelles NixOS-SD-Image (technisches Hauptziel)
 
@@ -71,7 +76,8 @@ Prioritäten: **P1** vorrangig · **P2** anschließend · **P3** langfristig.
 ## P2 – Git, Dokumentation und Arbeitsorganisation
 
 - [ ] Lokalen foobox-HEAD, Branch, Worktree, Index-SHA256 und Intent-to-add-Einträge vor Synchronisation prüfen.
-- [ ] Diese `TODO.md` mit dem lokalen Stand abgleichen; den neuen GitHub-Commit nicht blind in einen geänderten Worktree übernehmen.
+- [x] GitHub-`TODO.md` und lokalen foobox-Stand verglichen (GITHUB-UPLOAD-18): Datei fehlt lokal und im lokalen HEAD.
+- [ ] Die aktualisierte GitHub-`TODO.md` später kontrolliert mit dem lokalen Stand abgleichen; den neuen GitHub-Commit nicht blind in einen geänderten Worktree übernehmen.
 - [ ] Codeberg und GitHub nach ausdrücklicher Freigabe auf denselben gewünschten Commitstand bringen.
 - [ ] `docs/PROJECT-STATE.md`, `docs/TEST-LOG.md`, `docs/DECISIONS.md` und Quellenverzeichnis nach belegten Checkpoints aktualisieren.
 - [ ] TODO nach jedem bestätigten Meilenstein fortschreiben; offene Punkte nur mit Evidenz abhaken.
@@ -85,7 +91,7 @@ Prioritäten: **P1** vorrangig · **P2** anschließend · **P3** langfristig.
 
 ## Aktueller Freigabestand
 
-- GitHub-Uploader: **Entwicklung, nicht produktiv freigegeben**.
+- GitHub-Uploader: **Automatischer Direktupload in den geprüften Novena-Fällen im Einsatz; vollständige Qualifikation, Fehler-Wiederanlauf und Regelabgleich noch offen**.
 - DDR-/SPL-Root Cause: **offen**; kein neuer Hardwaretest freigegeben.
 - I2C3/ES8328: **abgeschlossen**, ohne neue diskriminierende Evidenz nicht erneut öffnen.
 - Universelles externes SD-Image: **noch kein vollständig nachgewiesener eigenständiger Bootpfad**.
