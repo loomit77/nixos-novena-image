@@ -1,10 +1,17 @@
 # Build
 
-Einordnung vom 2026-10-02: Die nachfolgend genannten
-U-Boot-/Image-Identitäten und der Same-Host-/Separate-Store-Nachweis
-beziehen sich auf den historischen G2X-Referenzstand vom 2026-09-22.
+Dokumentarischer Nachtrag vom 2026-10-11: Der qualifizierte G2X-Build vom
+2026-09-22 ist eine historische Referenz. Am 2026-10-11 enthielt der lokale,
+uncommittete Worktree in `boot/u-boot/default.nix` den Patchstack 0001–0012
+mit Diagnoseinstrumentierung und DDR-Diagnosevarianten. Dieser Diagnosezustand
+gehört nicht zum hier dokumentierten committed Quellstand und ist nicht mit
+G2X gleichzusetzen. Die unten genannten Artefakthashes und
+Reproduzierbarkeitsnachweise werden nicht auf ihn übertragen. Hier wurde
+kein neuer Build ausgeführt oder qualifiziert. Für den späteren Hardwarestand
+ist der [DDR-Checkpoint vom 07.10.](PROJECT-STATE.md#maßgeblicher-ddr-testcheckpoint--block-9c-52q-r7b-3aaj-2026-10-07)
+maßgeblich; die Root Cause bleibt offen.
 
-Das später vollständig gebaute und zurückverifizierte
+Einordnung vom 2026-10-02: Das später vollständig gebaute und zurückverifizierte
 Patch-0008-Diagnoseimage ist ein eigener Stand. Seine Qualifikation
 ist in `docs/PROJECT-STATE.md` unter „BLOCK 4.10O-1N-7B bis 7E –
 vollständiges Patch-0008-Image als Pre-POR-Zustand qualifiziert“
@@ -32,7 +39,7 @@ Zielarchitektur:
 
 Das vollständige Novena-SD-Image wird mit Nix als Cross-Build erzeugt.
 
-Die detaillierte und verifizierte Konfiguration der foobox ist in
+Die datierte historische Bestandsaufnahme der foobox ist in
 `BUILD-HOST.md` dokumentiert.
 
 ## Flake und Quellstand
@@ -43,7 +50,7 @@ Projektwurzel:
 
 Die Nix-Abhängigkeiten sind durch `flake.nix` und `flake.lock` festgelegt.
 
-Der für den aktuellen Reproduzierbarkeitsnachweis verwendete
+Der für den historischen G2X-Reproduzierbarkeitsnachweis verwendete
 Projektcheckpoint ist:
 
 `d06de5e30f294144d0be66cc7903fedb1ed6fe0a`
@@ -78,7 +85,7 @@ Kernelstand.
 `es8328-power` mit `regulator-always-on` ist eine dauerhafte
 Novena-Board-Anforderung.
 
-## Produktiver U-Boot
+## U-Boot des historischen G2X-Referenzbuilds
 
 Der Bootloader wird projektlokal aus U-Boot `v2026.07` gebaut.
 
@@ -162,7 +169,7 @@ Der zugehörige Projektcommit ist:
 
 `d06de5e30f294144d0be66cc7903fedb1ed6fe0a`
 
-## Aktuelles qualifiziertes SD-Image
+## Historisches qualifiziertes G2X-SD-Image – 2026-09-22
 
 Normal-Store-Ausgabe:
 
@@ -235,8 +242,8 @@ Dadurch bleibt die historische Referenz unverändert erhalten.
 
 ## Hardware-Qualifikation
 
-Der Software-Build und die Same-Host-/Separate-Store-Reproduzierbarkeit
-sind qualifiziert.
+Der historische G2X-Software-Build und seine Same-Host-/Separate-Store-
+Reproduzierbarkeit sind im damaligen Umfang qualifiziert.
 
 Der reale P_EXT-Test auf der Novena weist inzwischen folgenden Teil der
 Bootkette nach:
@@ -247,9 +254,9 @@ Noch nicht nachgewiesen ist der anschließende vollständige Pfad:
 
 `SPL v2026.07 -> U-Boot v2026.07 -> boot.scr -> Kernel/Initrd/DTB -> externes Root-Dateisystem`
 
-Der SPL erreicht bei der laufenden Diagnose die MMC-Initialisierung.
-Die weitere Hardwarequalifikation erfolgt mit einer getrennt
-vorregistrierten seriellen Diagnoseinstrumentierung.
+Der spätere A-B-B-A-Befund vom 07.10. zeigt Q1/C1 ZERO bereits vor
+MMC1 und D32 `ret=-12`. Dieser MMC-Endpunkt erklärt die frühere Signatur
+nicht. Weitere Hardwarequalifikation benötigt eine separate Freigabe.
 
 ## Kernel-Arbeitsverzeichnisse
 

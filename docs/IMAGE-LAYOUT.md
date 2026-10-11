@@ -7,6 +7,10 @@ als Identitäten des späteren Patch-0008-Diagnoseimages gelesen werden.
 Dessen gesonderte Image- und Medienqualifikation ist in
 `docs/PROJECT-STATE.md` dokumentiert.
 
+Nachtrag vom 2026-10-11: Auch die späteren BI0-/Patch0012-Diagnoseimages
+sind eigene Artefakte. Die historischen G2X-Identitäten und ihr
+Reproduzierbarkeitsnachweis werden nicht auf diese Varianten übertragen.
+
 Die frühere Lokalisierung des Stillstands in der SPL-seitigen
 MMC-Initialisierung bezeichnet einen damals beobachteten
 Untersuchungskorridor. Die späteren Q1- und Kontrollbefunde betreffen
@@ -15,9 +19,9 @@ MMC ist damit kein nachgewiesener Ursprung; aus `ret=-12` folgt
 keine bewiesene DDR-Ursache.
 
 Der vollständige eigenständige P_EXT-Boot bleibt unbelegt.
-Der aktuelle Wiedereinstieg und die Grenzen von Fall 8B stehen
-im Dokumentationscheckpoint vom 2026-10-02 in
-`docs/PROJECT-STATE.md`.
+Der dokumentarische Wegweiser vom 2026-10-11 verweist auf den
+[DDR-A-B-B-A-Checkpoint vom 07.10.](PROJECT-STATE.md#maßgeblicher-ddr-testcheckpoint--block-9c-52q-r7b-3aaj-2026-10-07).
+Die älteren Einordnungen von Fall 8B bleiben historische Checkpoints.
 
 ## Historische Referenz
 
@@ -28,9 +32,9 @@ Die historischen Bootdateien unter `boot/reference/` bleiben zur
 Provenienz und zum Vergleich im Repository erhalten. Sie sind jedoch
 nicht mehr die aktive Quelle des produktiven Bootloaders.
 
-## Partitionstabelle des aktuellen Images
+## Partitionstabelle des historischen G2X-Images – 2026-09-22
 
-Das aktuelle Image verwendet eine DOS/MBR-Partitionstabelle.
+Das historische G2X-Image verwendet eine DOS/MBR-Partitionstabelle.
 
 Disk-ID:
 
@@ -100,7 +104,7 @@ Der projektlokal gebaute SPL wird ab Byte-Offset:
 
 in das Image geschrieben.
 
-Aktueller SPL:
+SPL des historischen G2X-Images:
 
 * Größe: `52224` Byte
 * SHA-256:
@@ -112,7 +116,7 @@ ausgerichtet.
 
 ## Inhalt der FIRMWARE-Partition
 
-Die statische Prüfung des aktuellen qualifizierten Images ergab:
+Die historische statische Prüfung des qualifizierten G2X-Images ergab:
 
 * `u-boot-dtb.img`
 * `zImage`
@@ -174,7 +178,8 @@ SHA-256:
 
 ## Bootskript
 
-Das aktuelle `boot.scr` setzt den NixOS-Systempfad und lädt alle
+Das im historischen G2X-Image enthaltene `boot.scr` setzt den
+NixOS-Systempfad und lädt alle
 Bootdateien ausdrücklich von der externen SD über `mmc 1:1`.
 
 Verwendete Ladeadressen:
@@ -191,7 +196,7 @@ Der im statisch qualifizierten Image enthaltene Systemabschluss ist:
 
 `/nix/store/axbsx57xnrbqdya5bk877g21g87kish7-nixos-system-novena-26.05.20260903.a5cc6f2`
 
-## Aktuelles qualifiziertes Image
+## Historisches qualifiziertes G2X-Image – 2026-09-22
 
 Nix-Store-Pfad:
 
@@ -240,6 +245,9 @@ Noch nicht bestätigt ist der anschließende Pfad:
 
 `SPL v2026.07 -> U-Boot v2026.07 -> boot.scr -> Kernel/Initrd/DTB -> externes Root-Dateisystem`
 
-Der aktuelle Hardwarebefund lokalisiert den noch offenen Übergang in
-der SPL-seitigen MMC-Initialisierung; er ändert den statisch
-qualifizierten Image-Aufbau nicht.
+Der A-B-B-A-Befund vom 07.10. zeigt in allen vier Läufen DQS `ret=0`,
+Q1=0 und C1=0 bei `valid=7`, danach MMC1 und D32 `ret=-12`.
+Der MMC-Endpunkt ist von der vorgelagerten Q1/C1-Zero-Signatur zu trennen;
+er erklärt sie nicht. Eine DDR-Ursache und der vollständige eigenständige
+Boot sind weiterhin nicht nachgewiesen. Diese Beobachtung verändert weder
+die historischen G2X-Identitäten noch qualifiziert sie neuere Image-Aufbauten.

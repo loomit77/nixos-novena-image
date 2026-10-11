@@ -2,6 +2,64 @@
 
 Stand: 2026-09-28
 
+## 2026-10-11 – DOC-UPDATE-02B: datierte Medien- und Imageidentitäten
+
+Der Stand vom 28.09. und die Nachträge vom 05./06.10. bleiben historische
+Untersuchungsstände. Grundlage dieser Präzisierung ist DOC-UPDATE-02A,
+`/home/loomit/novena-backups/block-logs/DOC-UPDATE-02A-20261011-085639-6dYeUv41.txt`.
+Die folgenden Prüfsummen sind übernommene historische Werte, keine heutige
+Integritätsprüfung der Dateien oder Medien.
+
+| Belegdatum | Artefakt | Größe in Byte | Historische SHA-256 | Identität und Grenze |
+|---|---|---|---|---|
+| 2026-09-12 | `novena-internal-mmc-2026-09-12.img` | `3965190144` | `c27f0afe75e1b7073bb8d0deed16880afcc6c402080cf9816cc130731d61e34e` | Interne MMC/microSD, NovM; Zustandsbackup, kein unverändertes Factory-R1-Release. |
+| 2026-09-11 | `novena-sd-original.img` | `3963617280` | `17cccd572d3100fb6403946e4741639c76dd49481c3f9cc037269ca2dd23753a` | Älteres NixOS-Quellimage, Disk-ID `0x2178694e`; „original“ bezeichnet keine Factory-Provenienz. |
+| 2026-09-11 | `novena-sd.img` | `3963617280` | `e8c910f7df4328530ef3d1b30ab272be6ccb9fb9eda8337ac4270449d6393f5a` | Historisch als bytegleicher Präfix von `novena-sd-full.img` dokumentiert; eigener Dateiumfang. |
+| 2026-09-11 | `novena-sd-full.img` | `31914983424` | `df2013d4f68c9979d4e1b22b57bb1f40f219631e7a89810794c5d709509b5720` | Historischer NixOS-SD-Zustand, vom kleinen „original“-Image verschieden. |
+| 2026-09-11 (Backupdatum 06.09.) | `novena-sd-32gb-backup-2026-09-06.img` | `31914983424` | `0e5a478b8cb7ee06e3647c096cbfbd6a50afdd92ec1f0769369ba3f0dc03d1d8` | Weiterer NixOS-Zustand; gleiche Größe beweist keine Identität mit `novena-sd-full.img`. |
+| 2026-09-28 | `novena-historical-usb-full-2026-09-28.img` | `11098128384` | `660cf1f33ff4ce93de07f2b8a78488ab415eebee85eebf6b9a9d9764248835af` | Teilimage des historischen USB-Mediums, trotz „full“ im Dateinamen. |
+| 2026-09-28 | `novena-historical-usb-ddrescue-2026-09-28.img` | `31666995200` | `7e9028d5b127ead9bf20867bd8d6882ae5ff6b256f0504c21de5fe8267f3ead9` | Vollständiger lokaler USB-Raw-Master; historischer Hybridzustand, kein unverändertes Factory-Image. |
+| Quellencheckpoints 2026-09-28, 05./06.10. | Factory `novena-mmc-disk-r1.img` | Exakte Releasegröße offen; ungefähre Mindestmediumgröße `2.3GB` aus älterer Projektdokumentation übernommen, lokal primärquellenseitig nicht unabhängig bestätigt (siehe Präzisierung unten) | `26d368cb4b3aa43e411703f8c659d3e229deacfe75af38c1f82489dd9af80dbb` | Veröffentlichte Hashidentität; keine verifizierte wiedergefundene Binärkopie. MD5: `6923a145cbdc75b420408fc2d09ba4f8`. |
+
+Präzisierung vom 2026-10-11 – DOC-FIX-02: Die Angabe `2.3GB` beziehungsweise
+2,3 GB ist aus älterer Projektdokumentation übernommen und in der aktuellen
+lokalen Primärquellenprüfung nicht unabhängig bestätigt. Dies gilt auch für
+die entsprechenden historischen Größenangaben weiter unten. DOC-VERIFY-02
+benennt diese Quellenlücke; auch hier wurde keine eindeutige lokale historische
+Primärfundstelle gefunden. Die lokale
+[Kosagi-Main-Page-Kopie](../research/01-original-novena-docs/sources/kosagi-novena-main-page.html)
+belegt im Abschnitt „Disk Imaging“ Factory-Einsatz und Hashidentität, enthält
+aber diese Mindestmediumgröße nicht. Die Angabe ist weder eine exakte
+Factory-R1-Dateigröße noch eine verifizierte Releasegeometrie.
+
+MMC-Quelle ist die separate
+[Hardwarebaseline vom 12.09.](/home/loomit/novena-system/docs/NOVENA-HARDWARE-BASELINE-2026-09-12.md),
+die Backup und unabhängigen Quellhash historisch dokumentiert. Der dortige
+HDD-Pfad lautet
+`/mnt/novena-backup-hdd/novena-archive/device-backups/novena-internal-mmc-2026-09-12.img`.
+Diese HDD-Kopie wurde hier nicht angesprochen oder erneut geprüft.
+Die vier NixOS-SD-Dateien sind im separaten
+[Imageinventar](/home/loomit/novena-system/docs/IMAGE-INVENTORY.md) und der
+[Prüfsummenausgabe vom 11.09.](/home/loomit/novena-system/snapshots/2026-09-11-foobox/image-checksums.txt)
+belegt. Belegdaten sind keine pauschalen Image-Erstellungsdaten.
+Diese Dateien, die interne MMC, der historische USB-Zustand und die externe
+SD der späteren NixOS-/P_EXT-Tests sind getrennte Gegenstände; auch Golden
+und G2X sind eigene [Buildreferenzen](GOLDEN-BUILD.md#2026-10-11--doc-update-02b-historische-identitäten-und-evidenzgrenzen).
+
+Die dokumentierten gemeinsamen Dateisystem-UUIDs und frühen Partitionsmerkmale
+von interner MMC und USB stützen eine gemeinsame historische Systemlinie.
+Disk-ID, Rootpartitionsgröße und Gesamtmedium unterscheiden sich.
+Ein individueller MMC-zu-USB-Kopiervorgang, seine Richtung, sein Zeitpunkt
+oder die konkrete Transformation sind damit nicht nachgewiesen.
+
+Die älteren Bezüge auf Fall `7C` und Patch0010 unten gelten für ihre
+jeweiligen datierten Untersuchungsstände. Für DDR/SPL bleibt der
+[A-B-B-A-Checkpoint vom 07.10.](PROJECT-STATE.md#maßgeblicher-ddr-testcheckpoint--block-9c-52q-r7b-3aaj-2026-10-07)
+maßgeblich: Root Cause OPEN, Patch0012 kein allgemein nachgewiesener Fix.
+I2C3/ES8328 bleibt funktional CLOSED. P_EXT bis SPL ist kein Nachweis des
+vollständigen externen Bootpfads. Historische Medienbefunde erklären diese
+DDR-/SPL-Beobachtungen ohne eigenen Nachweis nicht.
+
 ## Zweck und Abgrenzung
 
 Dieses Dokument beschreibt die historische Medien-, Image- und Bootloader-Provenienz, die im Rahmen der Untersuchung des eigenständigen Novena-Bootpfads rekonstruiert wurde.
@@ -291,6 +349,14 @@ Die numerische ID entspricht der historischen `NovS`-Kennung. Die SATA-Variante 
 
 Die Builderlogik erzeugt grundsätzlich Bootpartition, Swap und Rootpartition. Die Bootpartition ist `32 MiB` groß. Der SPL wird bei Offset `0x400` geschrieben.
 
+Präzisierung vom 2026-10-11: Die 32-MiB-Angabe gilt für den oben bezeichneten
+frühen Builderstand `a9d5066d55f2cdbdef1589f2bd12ca1e176ac2bb` vom 2014-10-10,
+nicht für jede Buildergeneration oder die unbelegte Factory-R1-Geometrie.
+Die spätere Entwicklung `32M -> 64M -> 32M` ist im
+[Quellencheckpoint vom 06.10.](#2026-10-06--block-9c-52e-builder--boot--und-ram-quellencheckpoint)
+dokumentiert. Die 32-MiB-Bootpartition des USB-Masters ist ein separater
+Medienbefund, kein Beweis identischer Releasegeometrie.
+
 Das historische `mmc-install.sh` ruft den Builder für die MMC-Variante auf.
 
 ## Hybridzustand des historischen USB-Mediums
@@ -469,6 +535,10 @@ Der erste Leseversuch brach exakt bei `11098128384` Byte ab.
 
 Das teilweise gelesene Image wurde bewusst erhalten und nicht überschrieben.
 
+Dateiname: `novena-historical-usb-full-2026-09-28.img` im selben
+Sicherungsverzeichnis wie der ddrescue-Master unten. Trotz `full` im Namen
+ist dies das Teilimage mit `11098128384` Byte, kein vollständiges USB-Abbild.
+
 SHA-256 des Partial-Images:
 
 `660cf1f33ff4ce93de07f2b8a78488ab415eebee85eebf6b9a9d9764248835af`
@@ -510,6 +580,33 @@ Der SHA-256-Wert desselben Präfixbereichs des vollständigen ddrescue-Images st
 Damit wurde der bereits zuvor unabhängig gelesene Medienpräfix bytegenau bestätigt.
 
 Diese zusätzliche Prüfung erhöht die Vertrauenswürdigkeit des lokalen Raw-Masters, ohne einen weiteren vollständigen Lesedurchlauf über das physische USB-Medium zu erzwingen.
+
+Präzisierung vom 2026-10-11: Der historisch dokumentierte Vergleich umfasst
+ausschließlich die ersten `11098128384` Byte, also `[0, 11098128384)`.
+Er ist keine zweite unabhängige Vollverifikation des `31666995200`-Byte-Masters.
+Ein ursprüngliches Vergleichsrohprotokoll wurde in DOC-UPDATE-02A nicht
+gefunden; die historische Gleichheitsangabe wurde hier nicht neu geprüft.
+
+## 2026-10-11 – USB-Beweiskette und erhaltene Belege
+
+Lokales Verzeichnis:
+`/home/loomit/novena-backups/historical-novena-usb-2026-09-28/`.
+DOC-UPDATE-02A fand dort beide Images mit den dokumentierten Größen,
+`SHA256SUMS.local` und die vollständige ddrescue-Map. Deren historischer
+SHA-256-Wert ist `f3df1797140f6f1516e871ee85a87bbd5105a75ce74dbbf02e0f136d87c578b7`.
+
+| Schritt vom 2026-09-28 | Erhaltener Beleg | Aussagegrenze |
+|---|---|---|
+| Geräteidentifikation und Reidentifikation | Dokumentierte Seriennummer, VID:PID und Größe; Map-Befehlszeile mit stabilem by-id-Quellpfad | Eigenständiges ursprüngliches Reidentifikationsrohprotokoll nicht gefunden; kein heutiger Gerätezugriff. |
+| Erster `dd`-Versuch mit Abbruch | Erhaltenes Teilimage und historischer Manifesthash | Ursprüngliches Fehlerrohprotokoll nicht gefunden; Dateigröße allein beweist weder Fehlerursache noch vollständigen Ablauf. |
+| Vollständiger ddrescue-Lauf | Master und Map von GNU ddrescue 1.30; Start 14:29:16, Ende 14:32:51; gesamter Bereich `0x75F800000` als `+` markiert | Map belegt den erhaltenen Rettungsstatus. Sie ersetzt kein vollständiges Prozessrohprotokoll für die oben historisch genannten Read-Error-/Bad-Area-Statistiken und Exitcode 0. |
+| Historische Hashbindung | `SHA256SUMS.local` enthält beide Imagehashes und den Maphash | Manifestwerte wurden gelesen; keine neue vollständige Hashprüfung der Images. |
+| Unabhängiger Präfixvergleich | Historische Dokumentation und erhaltenes Teilimage | Vergleich nur über `11098128384` Byte; ursprüngliches Vergleichsrohprotokoll nicht gefunden. |
+| Strukturqualifikation / `MASTER_SOURCE_GATE=PASS` | Historische Struktur- und Gate-Dokumentation in diesem Dokument und PROJECT-STATE.md | Eigenständiges ursprüngliches Qualifikationsrohprotokoll nicht gefunden; Gate nicht neu ausgeführt. |
+
+Die historische Bezeichnung „verifiziertes vollständiges Raw-Master-Image“
+bleibt erhalten. Sie bezeichnet den dokumentierten Checkpoint vom 28.09.,
+keine heute erneut ausgeführte vollständige Akquisition oder Integritätsprüfung.
 
 ## Master-Image-Qualifikation
 
@@ -636,6 +733,9 @@ Für die weitere historische Medienuntersuchung gelten:
 11. Historische Befunde dürfen nicht ohne eigenen Nachweis als Erklärung des aktuellen P_EXT-/Allocator-Falls `7C` verwendet werden.
 
 ## Aktueller Checkpoint
+
+Historischer Checkpoint vom 2026-09-28; die späteren Präzisierungen vom
+05./06.10. und DOC-UPDATE-02B vom 11.10. sind getrennte Nachträge.
 
 Zum 2026-09-28 gilt:
 

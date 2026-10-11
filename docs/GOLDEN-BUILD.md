@@ -18,6 +18,43 @@ analogen Spannungs- und Stromverläufe des untersuchten Fehlers.
 Die historische Golden-Sicherung bleibt unverändert erhalten.
 Der aktuelle P_EXT-/SPL-Untersuchungsstrang ist davon getrennt.
 
+## 2026-10-11 – DOC-UPDATE-02B: historische Identitäten und Evidenzgrenzen
+
+Grundlage ist die lokale Quellenprüfung DOC-UPDATE-02A vom 2026-10-11,
+erhalten unter
+`/home/loomit/novena-backups/block-logs/DOC-UPDATE-02A-20261011-085639-6dYeUv41.txt`.
+Die historischen Aussagen unten bleiben als damalige Dokumentation erhalten;
+dieser Nachtrag präzisiert ihre Aussagegrenzen, ohne neue Artefaktprüfung.
+
+| Datum | Gegenstand | Beleg und Grenze |
+|---|---|---|
+| 2026-09-11 | Golden-Sicherung, Image `5e65bfa6…31ab94b`, separater DTB `e36cd0c8…38f4cd6f` | Backupmetadaten und Manifest; Metadatencommit `f26464f` beweist keine vollständige Vor-Git-Buildprovenienz. Vollständige Hashwerte stehen in den Artefaktabschnitten unten. |
+| 2026-09-12 | Erfolgreicher Displaytest, später dokumentierter Baseline-DTB `31f2b35e…18377e0f` | [Historischer Hardwaretest](TEST-LOG.md#2026-09-12--erfolgreicher-hardwaretest): stabiler 1920x1080-Link. Die bytegenaue Zuordnung des getesteten Gesamtimages und Medienzustands zur unveränderten Golden-Sicherung vom 11.09. bleibt offen. |
+| 2026-09-22 | Separater G2X-Referenzbuild aus `d06de5e30f294144d0be66cc7903fedb1ed6fe0a`, U-Boot v2026.07 | `2581291008` Byte, SHA-256 `8a2b8ac8681a78f9697b4a68582e6afcb1e0164e60a44286b7576d81242226dc`; historisch dokumentierter Same-Host-/Separate-Store-Bytevergleich. |
+
+G2X ist eine historische Buildreferenz; Einzelheiten stehen in
+[BUILD.md](BUILD.md#historisches-qualifiziertes-g2x-sd-image--2026-09-22)
+und im [G2X-Testnachtrag](TEST-LOG.md#2026-09-22--vollständiger-g2x-clean-store-reproduzierbarkeitstest).
+DOC-UPDATE-02A fand kein eigenständiges ursprüngliches G2X-Ausführungs-/
+Vergleichsrohprotokoll und nicht den bezeichneten Clean-Store-Pfad.
+Der dokumentierte Vergleich ist kein Cross-Host-Nachweis, kein vollständig
+cachefreier Neubau aller Abhängigkeiten und keine Qualifikation späterer
+Diagnoseimages. Der P_EXT-Erfolg bis SPL v2026.07 belegt keinen vollständigen
+externen Boot; ein im erhaltenen Mitschnitt anschließender historischer
+SPL-/U-Boot-2015-Bootpfad bis Login schließt diese Lücke nicht. Siehe den
+[P_EXT-Testabschnitt](TEST-LOG.md#2026-09-23--p_ext-hardwaretest-und-spl-diagnose-d0-bis-d36)
+und den [seriellen Bootmitschnitt](../test-logs/p-ext-2026-09-22/p-ext-boot-01.log).
+Präzisierung vom 2026-10-11 – DOC-FIX-02: Der Testabschnitt weist ausdrücklich
+auf den zusätzlichen seriellen Inhalt nach dem ersten P_EXT-SPL-Versuch
+und dessen ungeklärte Provenienz hin; daraus folgt keine Qualifikation eines
+vollständigen externen Bootpfads. DDR/SPL Root Cause bleibt OPEN; Patch0012 ist kein
+allgemein nachgewiesener Fix (siehe [Checkpoint vom 07.10.](PROJECT-STATE.md#maßgeblicher-ddr-testcheckpoint--block-9c-52q-r7b-3aaj-2026-10-07)).
+
+Die wiederholten Kernel-, DTB- und STMPE-Angaben unten haben unterschiedliche
+Bezüge: Artefaktidentität, Overlayvergleich und Diagnoseverlauf. Sie bleiben
+erhalten; die Diagnoseabschnitte beschreiben den Stand vom 12./13.09.,
+nicht den späteren funktionalen Abschluss am 20.09.
+
 ## Zweck
 
 Dieses Dokument beschreibt den gesicherten und verifizierten Golden Build
@@ -241,6 +278,12 @@ Nix-Store-Ursprung:
 Dieses Image wurde am 2026-09-12 auf echter Novena-Hardware erfolgreich
 mit funktionierender Linux-seitiger Displayinitialisierung getestet.
 
+Präzisierung vom 2026-10-11: Diese historische Zuordnung ist nicht vollständig
+bytegenau belegt. Der dokumentierte Displayerfolg bleibt erhalten; eine
+geschlossene Kette vom unveränderten gesicherten Gesamtimage über den
+damaligen Medienzustand zum konkreten Boot ist nicht nachgewiesen.
+Insbesondere sind Golden-DTB und späterer Display-Baseline-DTB verschieden.
+
 ## Hardware-Validierung am 2026-09-12
 
 Der aktuelle Build wurde am 2026-09-12 auf echter Novena-Hardware kalt
@@ -411,6 +454,12 @@ einem stabilen 1920x1080-Link.
 
 ## Aktuelle Einschränkung
 
+Historischer Diagnosestand vom 2026-09-12/13; Einordnung vom 2026-10-11:
+Die unten als offen bezeichnete funktionale I2C3-/ES8328-Root-Cause wurde
+am 2026-09-20 abgeschlossen, siehe
+[Abschlussentscheidung](DECISIONS.md#2026-09-20--funktionale-es8328i2c3-root-cause-untersuchung-abgeschlossen).
+Die damaligen Beobachtungen und ihre Testbedingungen bleiben erhalten.
+
 Der erfolgreiche Test vom 2026-09-12 bestätigte, dass der Linux-6.18.49-Displaypfad grundsätzlich vollständig funktionieren kann.
 
 Spätere Tests zeigten jedoch, dass dieser Erfolg nicht bei jedem echten Kaltstart reproduzierbar ist. Mit einem isoliert STMPE811-deaktivierten Test-DTB wurden fünf echte Kaltstarts durchgeführt: 2/5 direkte Display-Erfolge, 3/5 direkte Display-Fehler und 3/3 erfolgreiche DRM-Rebind-Recoveries.
@@ -551,6 +600,21 @@ nixos-display-working-2026-09-11/
 ```
 
 ## Integritätsprüfung
+
+Quellenpräzisierung vom 2026-10-11: Im lokalen Backup
+`/home/loomit/novena-backups/nixos-display-working-2026-09-11/` liegen
+[Manifest](/home/loomit/novena-backups/nixos-display-working-2026-09-11/SHA256SUMS),
+[Buildmetadaten](/home/loomit/novena-backups/nixos-display-working-2026-09-11/metadata/build-info.txt)
+und [Closuremetadaten](/home/loomit/novena-backups/nixos-display-working-2026-09-11/metadata/nix-closure-info.txt)
+vor. Das Manifest nennt Image, DTB, Kernel, Konfiguration, Quellarchiv und
+beide Closure-Exporte mit den unten dokumentierten Hashwerten. Die
+Closuremetadaten nennen 605 Image-Store-Pfade und einen separat exportierten
+Kernel-Store-Pfad; die Größen sind `3833159224` und `96724392` Byte.
+`metadata/image-references.txt` und `metadata/kernel-references.txt`
+dokumentieren unmittelbare Store-Referenzen, keine vollständige Quellprovenienz.
+Die folgende Prüfung mit 1398 Dateien ist ein historisches Ergebnis;
+DOC-UPDATE-02A/02B sind keine heutige vollständige Integritätsprüfung der
+Images, Archive oder Closures und kein Import-/Wiederherstellungstest.
 
 Für sämtliche normalen Dateien des Golden Backups wurde eine gemeinsame
 SHA-256-Prüfsummenliste erzeugt:
@@ -742,6 +806,11 @@ dokumentiert.
 
 ## Diagnose-Meilenstein nach dem Golden Build: 0004/0005
 
+Historischer Teststand vom 2026-09-13, siehe
+[0005-Test](TEST-LOG.md#2026-09-13--0005-cold-boot-fail-und-same-boot-rebind-pass).
+Die damalige offene Root-Cause-Aussage unten ist durch den funktionalen
+Abschluss vom 2026-09-20 eingeordnet, nicht als heutiger offener Auftrag.
+
 Die historische Golden-Sicherung bleibt unverändert. Die folgenden
 Ergebnisse gehören ausschließlich zur späteren Diagnoseentwicklung und
 dürfen nicht als Eigenschaften des historischen Golden-DTB beziehungsweise
@@ -843,6 +912,8 @@ zusätzlichen Backups abgelegt werden.
 
 ## Aktuell bestätigter Referenzzustand
 
+Historischer Referenz-/Diagnosestand vom 2026-09-12/13; die Bezeichnung
+„aktuell“ bezieht sich auf diesen damaligen Stand, nicht auf den 2026-10-11.
 
 Für die weitere Arbeit müssen der historische Golden-Zustand und die
 späteren Diagnosezustände getrennt betrachtet werden.
@@ -914,6 +985,11 @@ Dieser Kernelpatch ist von
 der zum separaten P_EXT-/SPL-Diagnosestrang gehört.
 
 ## Nächste Schritte
+
+Historische Planung vom 2026-09-13. Einordnung vom 2026-10-11:
+Die folgenden I2C-Arbeitsschritte sind keine heutigen offenen Anforderungen
+oder Testfreigaben. I2C3/ES8328 ist seit 2026-09-20 funktional CLOSED;
+`regulator-always-on` für `es8328-power` bleibt dauerhafte Boardanforderung.
 
 Der historische Golden Build bleibt unverändert als bekannte funktionierende Referenz erhalten.
 
