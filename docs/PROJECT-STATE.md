@@ -6447,3 +6447,57 @@ Netzwerkaktionen werden durchgeführt.
 Maßgeblich sind der [formale Beschluss](DECISIONS.md#2026-10-09--index-1k-65-formaler-qualifizierter-projektindex-abschluss)
 und der [Indexeinstieg](project-index/README.md#2026-10-09--index-1k-65-formaler-qualifizierter-projektindex-abschluss).
 Der eigenständige DDR-/SPL-Projektstand bleibt unverändert.
+
+## 2026-10-12 – catalog-v2: qualifizierter Produktionsstand
+
+Der produktive SQLite-Katalog v2 wurde auf der foobox
+erstellt und unabhängig gegen den verifizierten v1-Bestand
+und die zugehörigen Quelldateien geprüft.
+
+- Dateieinträge: 611.930
+- Klassifikationen: 611.930
+- Abgeleitete Verzeichnisse: 46.026
+- Referenzdatensätze: 47
+- Referenzauflösungen: 47
+- Projektquellen: 18
+- Provenienzquellen: 9
+- Logische Fingerprints: 7
+- Tabellen: 9
+- Benannte Indizes: 10
+
+Datenbank:
+`~/novena-dateiinventur/katalog/novena-katalog-v2.sqlite`
+
+SHA256:
+`9ac6fa2eb7e4c0dbf5564e431a1b1f350ec855dfe366eb1400cc1b66792a237d`
+
+Importer-SHA256:
+`72adc7da62a1d23d701fb70c631e7ffabfd412d16bfe3f71352d3f50d6dfa4c8`
+
+Die Klassifikationen und Referenzauflösungen wurden
+aus dem verifizierten v1-Bestand übernommen, nicht
+neu berechnet. Verzeichnisse sind aus Einträgen
+abgeleitet und keine unabhängig gescannten Verzeichnisse.
+
+Die technische Endabnahme ist für diesen Datenbestand
+bestanden. Eine vollständige historische Medieninventur,
+Dublettenanalyse und spätere Resolverstrategie bleiben
+separate Aufgaben.
+
+Evidenz: produktiver Import 31J; unabhängige Prüfungen
+31K einschließlich SCHEMA-REVIEW-01, FINAL-AUDIT-02
+und PROVENANCE-FINAL-03. Vollständige TXT-Protokolle
+und SHA256-Sidecars liegen im Blocklog-Archiv.
+
+
+### Verifizierte Originalprotokolle
+
+Die folgenden lokalen TXT-Dateien wurden anhand ihrer SHA256-Sidecars geprüft. Die beiden FAIL-Ergebnisse bleiben ausdrücklich erhalten.
+
+- `NOVENA-CATALOG-31K-INDEPENDENT-AUDIT-01-20261012-143702-beSg0zOn.txt` — SHA256 `f6aba93a0ae133bafa500bd862046ed22e2d3d7b2022c4a1fe63c504ae83a16d` — `FAIL`.
+
+- `NOVENA-CATALOG-31K-SCHEMA-REVIEW-01-20261012-144632-9hrzp95G.txt` — SHA256 `6eb2694e88f08700d0594ba8d66e92dc2afb8c9a3773e2f9d1ee63be25d35432` — `PASS`.
+
+- `NOVENA-CATALOG-31K-FINAL-AUDIT-02-20261012-144749-ffQdXkr4.txt` — SHA256 `6b43f4c5166776753063432353d7a98ed0b858c9b35443a16f4afd45b633df66` — `FAIL`.
+
+- `NOVENA-CATALOG-31K-PROVENANCE-FINAL-03-20261012-144852-Q37MqFNZ.txt` — SHA256 `bfb1a8d45676bf5af6aef0449e6c426d0d7cc9f22d03a412d3ba6ae3736c134c` — `PASS`.

@@ -323,8 +323,7 @@ oder sonstige Änderungen am Novena-Bootpfad.
 - [ ] Projektquellen und Provenienzbeziehungen unabhängig abschließend kontrollieren.
 - [ ] Erst nach erfolgreicher vollständiger Endprüfung catalog-v2 als technisch abgenommen dokumentieren.
 
-**Aktueller Status:** Der produktive catalog-v2-Import ist erfolgreich.
-Die unabhängige Endabnahme ist noch offen. 31K brach bei der
+**Historischer Zwischenstand vor Abschluss der 31K-Nachprüfungen:** Der produktive catalog-v2-Import war erfolgreich; die unabhängige Endabnahme war zu diesem Zeitpunkt noch offen. Der spätere Abschluss ist im nachfolgenden Abschnitt dokumentiert. 31K brach bei der
 Klassifikationsprüfung mit `sqlite3.OperationalError: no such column: path`
 ab. Dies ist ein Fehler im Prüfskript; aus dem Abbruch allein folgt
 kein Datenbankdefekt.
@@ -332,3 +331,44 @@ kein Datenbankdefekt.
 **Freigabegrenzen:** Keine neue Freigabe für Builds, Patches,
 Hardwaretests, Medien-Schreibzugriffe oder sonstige Änderungen
 am Novena-Bootpfad.
+
+## 2026-10-12 – catalog-v2: technische Endabnahme
+
+- [x] Produktiven catalog-v2-Import mit 611.930 Einträgen
+  und qualifizierter Datenbankidentität abgeschlossen (31J).
+- [x] Unabhängige Integritäts-, Schema-, Fingerprint- und
+  v1/v2-Vergleichsprüfungen durchgeführt (31K).
+- [x] 611.930 übernommene Klassifikationen, 47 übernommene
+  Referenzauflösungen und 46.026 abgeleitete Verzeichnisse
+  unabhängig geprüft.
+- [x] 18 Projektquellen und neun Provenienzquellen geprüft.
+- [x] Zwei fehlgeschlagene 31K-Prüfläufe als Prüfskriptfehler
+  eingeordnet: der ursprüngliche Audit und FINAL-AUDIT-02.
+  SCHEMA-REVIEW-01 und die abschließende gezielte
+  PROVENANCE-FINAL-03-Prüfung bestanden.
+- [ ] Inventurabdeckung weiterer historischer Medien,
+  Dubletten und Quellenlücken getrennt weiter untersuchen.
+- [ ] catalog-v2 mit dem Projektindex und späteren
+  Snapshot-/Resolver-Erweiterungen verknüpfen.
+
+Produktive Datenbank:
+`~/novena-dateiinventur/katalog/novena-katalog-v2.sqlite`
+
+SHA256:
+`9ac6fa2eb7e4c0dbf5564e431a1b1f350ec855dfe366eb1400cc1b66792a237d`
+
+Der Abschluss betrifft den geprüften Katalogdatenbestand,
+nicht die Vollständigkeit sämtlicher historischer Medien.
+
+
+### Verifizierte Originalprotokolle
+
+Die folgenden lokalen TXT-Dateien wurden anhand ihrer SHA256-Sidecars geprüft. Die beiden FAIL-Ergebnisse bleiben ausdrücklich erhalten.
+
+- `NOVENA-CATALOG-31K-INDEPENDENT-AUDIT-01-20261012-143702-beSg0zOn.txt` — SHA256 `f6aba93a0ae133bafa500bd862046ed22e2d3d7b2022c4a1fe63c504ae83a16d` — `FAIL`.
+
+- `NOVENA-CATALOG-31K-SCHEMA-REVIEW-01-20261012-144632-9hrzp95G.txt` — SHA256 `6eb2694e88f08700d0594ba8d66e92dc2afb8c9a3773e2f9d1ee63be25d35432` — `PASS`.
+
+- `NOVENA-CATALOG-31K-FINAL-AUDIT-02-20261012-144749-ffQdXkr4.txt` — SHA256 `6b43f4c5166776753063432353d7a98ed0b858c9b35443a16f4afd45b633df66` — `FAIL`.
+
+- `NOVENA-CATALOG-31K-PROVENANCE-FINAL-03-20261012-144852-Q37MqFNZ.txt` — SHA256 `bfb1a8d45676bf5af6aef0449e6c426d0d7cc9f22d03a412d3ba6ae3736c134c` — `PASS`.
