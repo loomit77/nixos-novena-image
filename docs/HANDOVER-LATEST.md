@@ -364,3 +364,62 @@ solange die vorhandenen Ergebnisse den konkreten
 nächsten Schritt ausreichend belegen.
 
 Dieser Nachtrag erteilt keine neue Freigabe.
+
+## Nachtrag 2026-10-12 – NOVENA-DAY-CLOSE-11: aktuelle Wiederaufnahmebasis
+
+Geltung: gezielte Dokumentationsaktualisierung auf foobox anhand der
+Originalprotokolle DAY-CLOSE-08/09/10; keine vollständige Tagesabnahme.
+Der folgende Stand ist neuer als die historischen Übergabecheckpoints:
+
+- Branch: `main`.
+- Projekt-HEAD: `5e2f7afbad802b49b8305dd2a5437c8550bae2be`.
+- Index-SHA256:
+  `6fb7f10e615598a4d24878426cc58c7566abd1e582673c31d9cc9643afd94937`.
+- Neun ITA-Einträge der U-Boot-Patches 0004–0012 mit Flags `20004000`
+  sind erhalten; HEAD und Index wurden vor dieser Aktualisierung lesend geprüft.
+
+DAY-CLOSE-08 belegt den erfolgreichen Verfahrenscommit dieses HEADs und
+die damaligen erfolgreichen Pushes zu Codeberg und GitHub. Es erfolgte
+hier keine neue Remote-Abfrage. Vorhandene Nutzeränderungen bleiben erhalten:
+MM-Zustände bei Regeln, TODO, Starter und Übergabe, Änderungen an U-Boot,
+englischer Dokumentation, Forschungsquellen und Rohlogs. Die vorgemerkte
+Löschung bei zugleich vorhandener untracked `docs/DAILY-CLOSE.md` wird
+nicht repariert; Index und Worktree sind getrennt zu betrachten.
+
+DAY-CLOSE-09 erfasste am 2026-10-12 ab 19:56:19 CEST 173 abgeschlossene
+Protokolle: 135 Runner-PASS, 38 Runner-FAIL. DAY-CLOSE-10 erfasste ab
+19:59:33 CEST 174: 136 Runner-PASS, 38 Runner-FAIL. Beide Bestände schließen
+das jeweils laufende Eigenprotokoll aus und gelten nur zum Erhebungszeitpunkt.
+Historische FAILs bleiben FAIL. DAY-CLOSE-10 endete erfolgreich um
+20:03:05 CEST; seine Codex-Auswertung ist belegte Analyse, keine endgültige
+Gesamtqualifikation. Vollständige Tagesabdeckung und vollständiger
+Tagesabschluss bleiben offen.
+
+Fortgeltende fachliche Grenzen:
+
+- R6 ist ein qualifizierter Sicherungscheckpoint; vollständiger Restore offen.
+  Ein erfolgreicher Cleanup-Restore betrifft einen anderen Sicherungsumfang.
+- catalog-v2 ist ausschließlich für den geprüften Produktionsbestand
+  qualifiziert: 611.930 Einträge/Klassifikationen, 47 Referenzauflösungen,
+  46.026 abgeleitete Verzeichnisse. Vollständige historische Inventur offen;
+  beide fehlgeschlagenen 31K-Audits bleiben FAIL.
+- DDR/SPL-Root-Cause, vollständige historische Bootausführungsprovenienz und
+  vollständiger eigenständiger externer Bootpfad bleiben offen. P_EXT bis SPL
+  ist belegt; Patch0012 ist kein belegter isolierter Fix.
+- I2C3/ES8328 bleibt geschlossen; `regulator-always-on` bleibt Boardanforderung.
+
+Maßgebliche Originale sind die drei in
+[DAILY-CLOSE.md](DAILY-CLOSE.md#originalnachweise) exakt benannten TXT-Dateien
+mit SHA256-Sidecars unter `~/novena-backups/block-logs/`. Das private
+GitHub-Protokollarchiv `loomit77/project-block-logs`, Pfad `novena/2026/10/`,
+ist eine weitere Evidenzquelle; es wurde in diesem Auftrag nicht abgefragt.
+
+Nächster organisatorischer Schritt: Tages-Sollumfang mit Zeitraum und
+begründeten Ausschlüssen sowie das Wiederaufnahmekriterium festlegen;
+anschließend diese aktualisierte Übergabe fachlich abnehmen und die
+Wiederaufnahme praktisch prüfen. Die Dokumente sind jetzt ergänzt, diese
+Abnahme und praktische Prüfung sind noch nicht ausgeführt. Vor neuen
+technischen Schritten zuerst vorhandene Originalprotokolle und maßgebliche
+Projektdokumentation auswerten. Runner und GitHub-Wrapper bleiben verbindlich
+und unverändert, jeweils innerhalb konkreter Protokollierungs-/Uploadfreigaben.
+Dieser Nachtrag erteilt keine neue technische oder sonstige Aktionsfreigabe.

@@ -491,3 +491,71 @@ nach entsprechender Freigabe.
 - Vollständigen Tagesabschluss mit aktueller
   Übergabe gesondert praktisch nachweisen.
 - Anschließende Auswertung von NOVENA-TOOLS-AUDIT-01.
+
+## Nachtrag 2026-10-12 – NOVENA-DAY-CLOSE-11: belegter Abschlussstand
+
+Dieser Nachtrag ergänzt die historischen offenen Punkte in Abschnitt 10
+und 11.8. Der Verfahrenscommit und seine damalige Synchronisierung sind
+inzwischen belegt; die fachliche Gesamtqualifikation bleibt offen.
+
+### Originalnachweise
+
+Die vollständigen lokalen Originalprotokolle unter
+`~/novena-backups/block-logs/` wurden einschließlich ihrer eingebetteten
+Ausgaben berücksichtigt. Ihre SHA256-Werte stimmen mit den Sidecars überein:
+
+| Block | Originalprotokoll | SHA256 |
+|---|---|---|
+| DAY-CLOSE-08 | `NOVENA-DAY-CLOSE-08-20261012-195400-vMn3ybjc.txt` | `cbdfbb179e01edea38c7d60ac1580be6d0a6f84af1d376cbae630a17e60346f1` |
+| DAY-CLOSE-09 | `NOVENA-DAY-CLOSE-09-20261012-195619-CrrMHwn2.txt` | `c516addeae07d465f6319c9133c10365cb9ab8fe4febfbca299c0d1928d5baaf` |
+| DAY-CLOSE-10 | `NOVENA-DAY-CLOSE-10-20261012-195933-nEOtxUXi.txt` | `75081136a4cff11275c97ce85851400bb3524d1bb606d7efb2c4bdbce9f6f4db` |
+
+### Commit, Push und zeitlich begrenzte Zählungen
+
+DAY-CLOSE-08 (19:54:00–19:54:14 CEST) erstellte erfolgreich den Commit
+`5e2f7afbad802b49b8305dd2a5437c8550bae2be` für `docs/DAILY-CLOSE.md`
+und pushte ihn erfolgreich zu Codeberg und GitHub. Beide Remote-HEADs
+entsprachen beim damaligen Abschluss diesem Commit. Der Originalindex
+blieb bytegleich. Das ist ein historischer Synchronisierungsnachweis,
+keine neue Remote-Abfrage und keine fachliche Gesamtqualifikation.
+
+| Erhebung am 2026-10-12 | Abgeschlossene Originalprotokolle | Runner-PASS | Runner-FAIL |
+|---|---:|---:|---:|
+| DAY-CLOSE-09, 19:56:19–19:56:20 CEST | 173 | 135 | 38 |
+| DAY-CLOSE-10, Erhebung ab 19:59:33 CEST; Blockende 20:03:05 CEST | 174 | 136 | 38 |
+
+Jede Zählung gilt ausschließlich für den jeweils erfassten lokalen
+abgeschlossenen Bestand vor dem laufenden Erhebungsblock. DAY-CLOSE-09
+ist in seiner eigenen Zählung ausgeschlossen; DAY-CLOSE-10 erfasst den
+inzwischen abgeschlossenen DAY-CLOSE-09, schließt sein Eigenprotokoll
+jedoch aus. Eingebettete historische Abschlussmarker machen ein laufendes
+Eigenprotokoll nicht zu einem abgeschlossenen Nachweis.
+
+Alle erfassten Protokolle bestanden laut den Erhebungen SHA256-Abgleich
+und Abschlussmarkerprüfung. Das ersetzt weder die fachliche Abnahme jedes
+Blocks noch einen unabhängigen Sollbestand aller Tagesarbeiten oder
+Einzeltransportnachweise. Eine vollständige Tagesabdeckung ist nicht belegt.
+Die 38 historischen FAILs bleiben unverändert FAIL, auch bei späteren
+erfolgreichen Folgeblöcken.
+
+### Analyse und verbleibende Abnahme
+
+DAY-CLOSE-10 ist als Analyseblock erfolgreich: `LOCAL_ANALYSIS=PASS`,
+`CODEX_EXIT_STATUS=0`, `CODEX_REVIEW=COMPLETED`, `BLOCK_RESULT=PASS`.
+Die protokollierte Codex-Auswertung ist eine belegte Analyse mit Zuordnung
+der 38 FAILs und Bewertung des Tagesabschlusses als **PARTIAL**.
+`CODEX_REVIEW=OPTIONAL` beschreibt die Rolle des Reviews im Skript und
+hebt dessen tatsächlich protokollierte Durchführung nicht auf. Weder
+Exitcode noch Runner-PASS erteilen eine endgültige Gesamtqualifikation.
+
+Bei Abschluss von DAY-CLOSE-09 und DAY-CLOSE-10 war die Übergabeaktualisierung
+noch nicht ausgeführt (`HANDOVER_UPDATE=NOT_YET_PERFORMED`). Mit diesem
+Dokumentationsauftrag werden Übergabe, Starter und TODO datiert ergänzt.
+Das belegt die Dokumentationsaktualisierung, keine praktische Wiederaufnahme.
+
+Offen bleiben der definierte Tages-Sollumfang samt Zeitraum und Ausschlüssen,
+die Abnahme der aktualisierten Übergabe, die praktische Wiederaufnahmeprüfung
+und die abschließende Verfahrens-/Tagesqualifikation. R6 ist als
+Sicherungscheckpoint qualifiziert; sein vollständiger Restore bleibt offen.
+Der separate Cleanup-Restore schließt ihn nicht ab. Keine neue technische
+Freigabe, kein neuer Commit oder Push folgt aus diesem Nachtrag.

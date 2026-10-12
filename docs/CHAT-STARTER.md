@@ -172,3 +172,47 @@ Aktuelle organisatorische Priorität:
 
 DDR/SPL, neue Builds und Hardwaretests bleiben bis zu einer
 gesonderten Priorisierung beziehungsweise Freigabe zurückgestellt.
+
+## Nachtrag 2026-10-12 – Wiederaufnahme nach NOVENA-DAY-CLOSE-10/11
+
+Für die aktuelle Wiederaufnahme gelten folgende neueren Prüfwerte;
+die älteren Angaben oben bleiben historische Checkpoints:
+
+- Projekt auf foobox: `~/nixos-novena-image`, Branch `main`.
+- Projekt-HEAD: `5e2f7afbad802b49b8305dd2a5437c8550bae2be`.
+- Index-SHA256:
+  `6fb7f10e615598a4d24878426cc58c7566abd1e582673c31d9cc9643afd94937`.
+- Neun ITA-Patches 0004–0012 und sämtliche Nutzeränderungen erhalten.
+  Die Index-Löschvormerkung bei zugleich vorhandener `docs/DAILY-CLOSE.md`
+  ist kein Auftrag zur Indexreparatur.
+
+Vor jedem neuen Schritt zuerst die vorhandenen vollständigen Originalprotokolle
+und Projektdokumentation einschließlich neuester datierter Nachträge prüfen.
+Für diesen Stand sind DAY-CLOSE-08/09/10 unter `~/novena-backups/block-logs/`
+maßgeblich; genaue Dateinamen und SHA256 stehen im neuesten Nachtrag zu
+`docs/DAILY-CLOSE.md`. Weitere Evidenzquelle ist das private GitHub-Archiv
+`loomit77/project-block-logs` unter `novena/YYYY/MM/`, jeweils TXT plus
+SHA256-Sidecar. Zugriff nur bei berechtigter Anbindung und konkreter
+Netzwerkfreigabe; lokal zugängliche Originale zuerst verwenden.
+
+DAY-CLOSE-08 belegt Commit und damalige Pushes zu beiden Projektremotes.
+DAY-CLOSE-09 erfasste ab 19:56:19 CEST 173 abgeschlossene Logs mit
+135 PASS/38 FAIL, DAY-CLOSE-10 ab 19:59:33 CEST 174 mit 136 PASS/38 FAIL.
+Diese Bestände gelten nur zum jeweiligen Erhebungszeitpunkt vor dem
+laufenden Block. Historische FAILs nicht umdeuten. DAY-CLOSE-10 war erfolgreich;
+seine belegte Codex-Analyse ersetzt keine endgültige Gesamtqualifikation.
+Vollständige Tagesabdeckung, Übergabeabnahme und praktische Wiederaufnahme
+bleiben offen; die Dokumentationsaktualisierung allein erfüllt sie nicht.
+
+R6-Sicherungscheckpoint qualifiziert, vollständiger Restore offen.
+catalog-v2 nur im geprüften Umfang qualifiziert. DDR/SPL, vollständige
+Bootprovenienz und vollständiger externer Boot offen. I2C3/ES8328 geschlossen.
+
+Runner `~/novena-backups/block-logs/run-block.bash` und GitHub-Wrapper
+`~/novena-backups/github-transport/run-and-upload.bash` bleiben verbindlich
+und unverändert. Ihre Nutzung setzt die konkreten Schreib-/Uploadfreigaben
+voraus und erweitert keinen Read-only-Auftrag.
+
+Nächste organisatorische Aufgabe: Tages-Sollumfang und Wiederaufnahmekriterium
+festlegen, aktualisierte Übergabe abnehmen und praktische Wiederaufnahme
+prüfen. Keine neue technische Freigabe aus diesen Hinweisen ableiten.

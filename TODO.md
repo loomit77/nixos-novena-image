@@ -415,3 +415,47 @@ werden aber bis zur gesonderten Priorisierung zurückgestellt.
 Die älteren TODO-Einträge bleiben als historische
 Planungsstände erhalten. Dieser Nachtrag beschreibt
 die neuere Priorisierung.
+
+## Nachtrag 2026-10-12 – NOVENA-DAY-CLOSE-11: belegte Teilabschlüsse
+
+Die älteren offenen Kästchen bleiben historische Planungsstände. Für die
+Tagesabschlussaufgaben gilt jetzt die folgende begrenzte Fortschreibung;
+DDR/SPL-, catalog-v2- und I2C3-Aufgaben werden hier nicht verändert.
+
+- [x] Einheitliches Tagesabschlussverfahren entworfen und in
+  `docs/DAILY-CLOSE.md` dokumentiert; technische Erprobung im geprüften
+  Teilumfang erfolgreich (DAY-CLOSE-04/06/07), Gesamtqualifikation offen.
+- [x] Verfahrensdokument erfolgreich committed und zu Codeberg/GitHub
+  gepusht (DAY-CLOSE-08, Commit `5e2f7afbad802b49b8305dd2a5437c8550bae2be`);
+  ursprünglichen Index erhalten. Keine neue Remote-Prüfung damit behauptet.
+- [x] Abgeschlossenen lokalen Protokollbestand zeitlich begrenzt erhoben:
+  DAY-CLOSE-09 ab 19:56:19 CEST, 173 Logs, 135 PASS/38 FAIL;
+  DAY-CLOSE-10 ab 19:59:33 CEST, 174 Logs, 136 PASS/38 FAIL.
+  Jeweils laufendes Eigenprotokoll ausgeschlossen; keine volle Tagesabdeckung.
+- [x] DAY-CLOSE-10 erfolgreich abgeschlossen und protokollierte Codex-Analyse
+  mit Zuordnung der 38 historischen FAILs als Analyse berücksichtigt.
+  Historische FAILs bleiben unverändert; keine endgültige Gesamtqualifikation.
+- [x] Bestehenden Runner und GitHub-Wrapper im Tagesabschlussverfahren
+  verbindlich erhalten; keine neue Automatisierung eingeführt.
+- [x] R6 als qualifizierten Sicherungscheckpoint mit offenem vollständigem
+  Restore eingeordnet; Cleanup-Restore davon getrennt.
+- [x] DAILY-CLOSE, HANDOVER-LATEST, CHAT-STARTER und TODO im freigegebenen
+  Dokumentationsumfang datiert ergänzt (DAY-CLOSE-11).
+- [ ] Tages-Sollumfang einschließlich Zeitraum, aller relevanten Arbeiten,
+  begründeter Ausschlüsse und fehlender Nachweise verbindlich festlegen.
+- [ ] Aktualisierte Übergabe fachlich abnehmen; gespeicherter Nachtrag
+  allein ist kein vollständiger Übergabenachweis.
+- [ ] Wiederaufnahmekriterium festlegen und praktische Wiederaufnahme mit
+  aktualisierter Übergabe und Starter prüfen; hier nicht ausgeführt.
+- [ ] Vollständigen Tagesabschluss und fachliche Gesamtqualifikation
+  nachweisen; bislang begrenzte Analyse mit Bewertung PARTIAL.
+- [ ] Vollständigen R6-Restore gesondert freigeben und nachweisen.
+- [ ] NOVENA-TOOLS-AUDIT-01 fachlich auswerten und Werkzeugentscheidungen
+  begründen; nicht Teil dieser Dokumentationsaktualisierung.
+
+Evidenz: vollständige DAY-CLOSE-08/09/10-Originale samt geprüften Sidecars;
+exakte Dateinamen und Hashes im Nachtrag zu `docs/DAILY-CLOSE.md`.
+Die dokumentierte Aktualisierung ist ausgeführt; ihre Übergabeabnahme und
+praktische Wiederaufnahme bleiben offen. Weitere Projektdateiänderungen,
+Commits, Pushes, Builds, Netzwerk-, Medien- und Hardwareaktionen sind
+durch diesen Nachtrag nicht freigegeben.
