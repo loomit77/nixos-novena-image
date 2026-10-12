@@ -158,3 +158,66 @@ Die Projektindex-Abnahme ist keine DDR-/SPL- oder
 Hardwarequalifikation. Der I2C3-/ES8328-Root-Cause bleibt
 abgeschlossen. Neue Builds, Patches, Hardwaretests und
 Medien-Schreibzugriffe benötigen weiterhin eigene Freigaben.
+
+## Checkpoint 2026-10-12 – Qualifizierte externe HDD-Sicherung R6
+
+### Abgeschlossene Sicherung und Verifikation
+
+- [x] Vollständigen externen HDD-Backup-Checkpoint R6 auf der foobox erstellt.
+  Sicherungsziel:
+  `/mnt/novena-backup-hdd/novena-archive/checkpoints/2026-10-12-complete-R6`.
+- [x] Die R6-Sicherung mit 100.895 Dateien, 20 symbolischen Links
+  und 71 PDF-Dateien einschließlich vollständiger SHA256-Rückleseprüfung
+  dokumentiert.
+- [x] Projektdateien, `novena-system`, historische Recherche,
+  Protokollbestände, Runner und zugehörige Manifeste unabhängig
+  nachgeprüft (NOVENA-BACKUP-R6-VERIFY-01 und VERIFY-02).
+- [x] Unterschiede im laufend veränderten GitHub-Protokolltransport
+  untersucht (NOVENA-BACKUP-R6-TRANSPORT-01 bis TRANSPORT-04).
+  Acht veränderte Einträge lagen innerhalb der Git-Metadaten des
+  tatsächlichen Repositories
+  `github-transport/project-block-logs/.git/`.
+  Zusätzlich wurden nach dem Backup neue Protokolldateien erzeugt.
+  Eine im Backup vorhandene, später aus der Quelle verschwundene
+  temporär wirkende Runner-Ausgabedatei wurde identifiziert;
+  ihr vollständiger Lebenszyklus ist nicht nachgewiesen.
+- [x] Die Git-Objektdatenbank des gesicherten
+  `project-block-logs`-Repositories mit
+  NOVENA-BACKUP-R6-GIT-FINAL-01 geprüft:
+  `git fsck --full` PASS, HEAD und Tree gültig,
+  `main` und `origin/main` identisch.
+  Gesicherter HEAD:
+  `7ab9e6befcd10ab9910774ee83fe64c36802474b`.
+- [x] Externe HDD nach den Prüfungen ordnungsgemäß ausgehängt.
+  Die nachfolgenden Verifikationen erfolgten ohne Schreibzugriff
+  auf die HDD.
+
+### Erkenntnisse für künftige Sicherungen
+
+- [x] Das tatsächlich verwendete Protokoll-Git-Repository liegt
+  unter `~/novena-backups/github-transport/project-block-logs`.
+  Das übergeordnete Verzeichnis `github-transport` ist selbst
+  kein Git-Repository.
+- [x] Frühere R6-Prüfergebnisse mit unzureichend geprüften
+  Vergleichsreport-Ausgaben nicht als unabhängigen
+  Gleichheitsnachweis verwenden. Maßgeblich sind die
+  nachfolgenden unabhängigen Verifikationsblöcke.
+- [ ] Vor einem neuen Sicherungsblock vorhandene Fehlerprotokolle,
+  Zielverzeichnisrechte, Mountzustand und Geräteidentität
+  anhand der R1-bis-R6-Erfahrungen prüfen.
+- [ ] Laufend veränderte Transport- und Protokollverzeichnisse
+  bei künftigen Sicherungen mit definiertem Snapshot-Zeitpunkt
+  oder nachvollziehbarer Änderungsabgrenzung behandeln.
+
+### Noch offene Qualifikation
+
+- [ ] Eine vollständige Wiederherstellungsprobe aus dem
+  qualifizierten R6-Checkpoint gesondert planen und durchführen.
+  Dafür ist eine eigene Freigabe erforderlich.
+- [ ] R6-Dokumentationsänderungen nach Prüfung des bestehenden
+  Git-Indexzustands gezielt versionieren und anschließend
+  kontrolliert zu Codeberg und GitHub synchronisieren.
+
+**Bewertung:** R6 ist als Backup-Checkpoint qualifiziert.
+Die erfolgreiche Sicherung und die Integritätsprüfungen sind
+keine bereits durchgeführte vollständige Wiederherstellungsprobe.
