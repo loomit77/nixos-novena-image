@@ -1,0 +1,318 @@
+{
+  "schema_version": 1,
+  "workflow": "docs/TRANSLATION-WORKFLOW.md",
+  "glossary": "docs/translation-glossary.json",
+  "documents": [
+    {
+      "original_path": "docs/BUILD-HOST.md",
+      "original_language": "de",
+      "role": "german_original",
+      "document_class": "maintained_document",
+      "historical": false,
+      "original_sha256": "177912b15172f9e4aad593eea44b58b981a4aec437aa58ffb56fcd24dedbff1f",
+      "translations": [
+        {
+          "translation_path": "docs/en/docs/BUILD-HOST.md",
+          "target_language": "en",
+          "role": "english_translation",
+          "translation_status": "PRESENT",
+          "synchronization_status": "UNKNOWN",
+          "translation_sha256": "562ad5907f7d426c1282469ea571f05f8abc86d641fb75dc66dda0ed84816586",
+          "provenance": {
+            "translator": null,
+            "translation_date": null,
+            "source_revision": null,
+            "source_sha256_at_translation": null,
+            "evidence_ref": null
+          },
+          "reviews": [
+            {
+              "source_sha256": "177912b15172f9e4aad593eea44b58b981a4aec437aa58ffb56fcd24dedbff1f",
+              "translation_sha256": "562ad5907f7d426c1282469ea571f05f8abc86d641fb75dc66dda0ed84816586",
+              "verification_status": "PARTIALLY_VERIFIED",
+              "procedure": "block-4.10o-1n-8q",
+              "review_date": "2026-10-01",
+              "technical_partial_checks": {
+                "status": "PARTIALLY_VERIFIED",
+                "details": null,
+                "basis": "Teilprüfung laut Auftrag; konkrete historische Prüfschritte mangels archiviertem Bericht nicht rekonstruierbar."
+              },
+              "semantic_review": "NOT_VERIFIED",
+              "evidence_ref": null,
+              "limitations": [
+                "Kein dauerhaft archivierter 8Q-Prüfbericht vorhanden.",
+                "Keine vollständige semantische Prüfung belegt.",
+                "Die Bindung an die in 8R gemessenen Hashes folgt dem Auftrag; eine unabhängig erhaltene historische 8Q-Hashbindung fehlt.",
+                "Technische Teilprüfung beweist keine vollständige Synchronität."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "original_path": "docs/BUILD.md",
+      "original_language": "de",
+      "role": "german_original",
+      "document_class": "maintained_document",
+      "historical": false,
+      "original_sha256": "15820789a6d8fdd0d8a3b9e77b0d6196a8d19d0f8e3bef55b97db57da1a42007",
+      "translations": [
+        {
+          "translation_path": "docs/en/docs/BUILD.md",
+          "target_language": "en",
+          "role": "english_translation",
+          "translation_status": "PRESENT",
+          "synchronization_status": "TARGET_MODIFIED",
+          "translation_sha256": "6988b343509d9f63a3742eea4a5e23dc46ab8e022c8e2f819eca5d6fcd5abd18",
+          "provenance": {
+            "translator": null,
+            "translation_date": null,
+            "source_revision": null,
+            "source_sha256_at_translation": null,
+            "evidence_ref": null
+          },
+          "reviews": [
+            {
+              "source_sha256": "14553d1330b03fbcdd159ef3cd49b86bf8edfaba0974151393631f2f8499e0f5",
+              "translation_sha256": "d374c37d803de8557f7a465d55c642c485921472a49b3af5bc740602b0f842ee",
+              "verification_status": "PARTIALLY_VERIFIED",
+              "procedure": "block-4.10o-1n-8q",
+              "review_date": "2026-10-01",
+              "technical_partial_checks": {
+                "status": "PARTIALLY_VERIFIED",
+                "details": null,
+                "basis": "Teilprüfung laut Auftrag; konkrete historische Prüfschritte mangels archiviertem Bericht nicht rekonstruierbar."
+              },
+              "semantic_review": "NOT_VERIFIED",
+              "evidence_ref": null,
+              "limitations": [
+                "Kein dauerhaft archivierter 8Q-Prüfbericht vorhanden.",
+                "Keine vollständige semantische Prüfung belegt.",
+                "Die Bindung an die in 8R gemessenen Hashes folgt dem Auftrag; eine unabhängig erhaltene historische 8Q-Hashbindung fehlt.",
+                "Technische Teilprüfung beweist keine vollständige Synchronität."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "original_path": "docs/GOLDEN-BUILD.md",
+      "original_language": "de",
+      "role": "german_original",
+      "document_class": "historical_reference",
+      "historical": true,
+      "original_sha256": "27c18a468cac00f1caebb85e882c84aeab345b8c356b7be2089e2209c0d1bdba",
+      "translations": [
+        {
+          "translation_path": "docs/en/docs/GOLDEN-BUILD.md",
+          "target_language": "en",
+          "role": "english_translation",
+          "translation_status": "PRESENT",
+          "synchronization_status": "TARGET_MODIFIED",
+          "translation_sha256": "d3e53db968b4dd2adcf460c7c8fefa7ceec27b6978f2db75263f21ef1b36850e",
+          "provenance": {
+            "translator": null,
+            "translation_date": null,
+            "source_revision": null,
+            "source_sha256_at_translation": null,
+            "evidence_ref": null
+          },
+          "reviews": [
+            {
+              "source_sha256": "09987307399c28a48a27f7d0a8284838ef5c2339d6cebb30d7da1303e6670669",
+              "translation_sha256": "ae94738ec880752a9ee0978a6906bb2e58c9680a9221257169bf187799648ab0",
+              "verification_status": "PARTIALLY_VERIFIED",
+              "procedure": "block-4.10o-1n-8q",
+              "review_date": "2026-10-01",
+              "technical_partial_checks": {
+                "status": "PARTIALLY_VERIFIED",
+                "details": null,
+                "basis": "Teilprüfung laut Auftrag; konkrete historische Prüfschritte mangels archiviertem Bericht nicht rekonstruierbar."
+              },
+              "semantic_review": "NOT_VERIFIED",
+              "evidence_ref": null,
+              "limitations": [
+                "Kein dauerhaft archivierter 8Q-Prüfbericht vorhanden.",
+                "Keine vollständige semantische Prüfung belegt.",
+                "Die Bindung an die in 8R gemessenen Hashes folgt dem Auftrag; eine unabhängig erhaltene historische 8Q-Hashbindung fehlt.",
+                "Technische Teilprüfung beweist keine vollständige Synchronität."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "original_path": "docs/IMAGE-LAYOUT.md",
+      "original_language": "de",
+      "role": "german_original",
+      "document_class": "maintained_document",
+      "historical": false,
+      "original_sha256": "b1c595e9bb4c7ec8fa51c3cdfdcabf1a243f2d23f1b2582d1716801847f4dbcc",
+      "translations": [
+        {
+          "translation_path": "docs/en/docs/IMAGE-LAYOUT.md",
+          "target_language": "en",
+          "role": "english_translation",
+          "translation_status": "PRESENT",
+          "synchronization_status": "TARGET_MODIFIED",
+          "translation_sha256": "dd097e8c760a41a3fe25aef9d39ae25ce680dc0141afc3fe69d24c6fb98e0442",
+          "provenance": {
+            "translator": null,
+            "translation_date": null,
+            "source_revision": null,
+            "source_sha256_at_translation": null,
+            "evidence_ref": null
+          },
+          "reviews": [
+            {
+              "source_sha256": "89aad123a437c43bd81678e5b067c8d6877514ed18ef6b3ef123b088cc3d839c",
+              "translation_sha256": "a797b064daa3a98aa914f5b32ad1928e58afd5bcda926b971631e59c7f66152b",
+              "verification_status": "PARTIALLY_VERIFIED",
+              "procedure": "block-4.10o-1n-8q",
+              "review_date": "2026-10-01",
+              "technical_partial_checks": {
+                "status": "PARTIALLY_VERIFIED",
+                "details": null,
+                "basis": "Teilprüfung laut Auftrag; konkrete historische Prüfschritte mangels archiviertem Bericht nicht rekonstruierbar."
+              },
+              "semantic_review": "NOT_VERIFIED",
+              "evidence_ref": null,
+              "limitations": [
+                "Kein dauerhaft archivierter 8Q-Prüfbericht vorhanden.",
+                "Keine vollständige semantische Prüfung belegt.",
+                "Die Bindung an die in 8R gemessenen Hashes folgt dem Auftrag; eine unabhängig erhaltene historische 8Q-Hashbindung fehlt.",
+                "Technische Teilprüfung beweist keine vollständige Synchronität."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "original_path": "docs/QUELLENVERZEICHNIS.md",
+      "original_language": "de",
+      "role": "german_original",
+      "document_class": "maintained_document",
+      "historical": false,
+      "original_sha256": "b787bfbcaf8390fa089ff97a06515394a6284b9b52fe1056529bec18794def64",
+      "translations": [
+        {
+          "translation_path": "docs/en/docs/QUELLENVERZEICHNIS.md",
+          "target_language": "en",
+          "role": "english_translation",
+          "translation_status": "PRESENT",
+          "synchronization_status": "TARGET_MODIFIED",
+          "translation_sha256": "bb07164ea8a4ae6709e0d2192c5ec1a3956b69844471554492d93da216800236",
+          "provenance": {
+            "translator": null,
+            "translation_date": null,
+            "source_revision": null,
+            "source_sha256_at_translation": null,
+            "evidence_ref": null
+          },
+          "reviews": [
+            {
+              "source_sha256": "b0ef32b35336fbb65b0587c6b24d9925362e2716d19d35237b3957bb2307e8b8",
+              "translation_sha256": "1b4bffb99ddc42c85fd1eb7d2987e885535b4b0a108b18255dbf62e1ef04fb52",
+              "verification_status": "PARTIALLY_VERIFIED",
+              "procedure": "block-4.10o-1n-8q",
+              "review_date": "2026-10-01",
+              "technical_partial_checks": {
+                "status": "PARTIALLY_VERIFIED",
+                "details": null,
+                "basis": "Teilprüfung laut Auftrag; konkrete historische Prüfschritte mangels archiviertem Bericht nicht rekonstruierbar."
+              },
+              "semantic_review": "NOT_VERIFIED",
+              "evidence_ref": null,
+              "limitations": [
+                "Kein dauerhaft archivierter 8Q-Prüfbericht vorhanden.",
+                "Keine vollständige semantische Prüfung belegt.",
+                "Die Bindung an die in 8R gemessenen Hashes folgt dem Auftrag; eine unabhängig erhaltene historische 8Q-Hashbindung fehlt.",
+                "Technische Teilprüfung beweist keine vollständige Synchronität."
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "original_path": "docs/en/README.md",
+      "original_language": "en",
+      "role": "english_entry_companion",
+      "document_class": "maintained_document",
+      "historical": false,
+      "original_sha256": "0b6b1e9c90925974174351454fa792357bd3535b37ed78e461142bc2e3e31e71",
+      "verification_status": "NOT_APPLICABLE",
+      "provenance": {
+        "author": null,
+        "creation_date": null,
+        "evidence_ref": null
+      },
+      "translations": [],
+      "limitations": [
+        "Keine deutsche Quelle zugeordnet.",
+        "Historische Aussagen sind kein Beleg des aktuellen Projektzustands."
+      ]
+    },
+    {
+      "original_path": "research/01-original-novena-docs/notes/pvt2-a-i2c3-topology.md",
+      "original_language": "en",
+      "role": "english_original",
+      "document_class": "historical_analysis",
+      "historical": true,
+      "original_sha256": "64d647ced6e6f9cc54073b7df61414b8ee0b26c20458c6264f6696fbb3bdc0d1",
+      "verification_status": "NOT_APPLICABLE",
+      "provenance": {
+        "author": null,
+        "creation_date": null,
+        "evidence_ref": null
+      },
+      "translations": [],
+      "limitations": [
+        "Keine deutsche Quelle zugeordnet.",
+        "Historische Aussagen sind kein Beleg des aktuellen Projektzustands."
+      ]
+    }
+    ,
+    {
+      "original_path": "research/04-spl-ddr/block-9c-43-dokumentationscheckpoint.md",
+      "original_language": "de",
+      "role": "german_original",
+      "document_class": "maintained_document",
+      "historical": false,
+      "original_sha256": "8a21dac74ab0a6d747ae6d875a797d84e3ef33df34a6a98d7faa6af7c7eaa0fd",
+      "translations": [
+        {
+          "translation_path": "docs/en/research/04-spl-ddr/block-9c-43-dokumentationscheckpoint.md",
+          "target_language": "en",
+          "role": "english_translation",
+          "translation_status": "MISSING",
+          "synchronization_status": "UNKNOWN",
+          "verification_status": "NOT_VERIFIED",
+          "translation_sha256": null,
+          "provenance": {
+            "translator": null,
+            "translation_date": null,
+            "source_revision": null,
+            "source_sha256_at_translation": null,
+            "evidence_ref": null
+          },
+          "reviews": []
+        }
+      ]
+    }
+  ],
+  "initialization": {
+    "procedure": "block-4.10o-1n-8r",
+    "date": "2026-10-01",
+    "technical_checks": [
+      "Existenz und SHA-256 der aktuellen rohen Dateibytes",
+      "JSON- und Manifestkonsistenzprüfung",
+      "Unabhängiger Schutz-Hashvergleich und Write-Scope-Audit"
+    ],
+    "semantic_review": "NOT_VERIFIED"
+  }
+}

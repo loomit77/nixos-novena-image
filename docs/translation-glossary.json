@@ -1,0 +1,544 @@
+{
+  "schema_version": 1,
+  "glossary_version": 1,
+  "protected_content_rules": [
+    {
+      "id": "paths",
+      "preserve_exact": true,
+      "rule": "Dateipfade unverändert erhalten."
+    },
+    {
+      "id": "commands",
+      "preserve_exact": true,
+      "rule": "Befehle unverändert erhalten."
+    },
+    {
+      "id": "hashes",
+      "preserve_exact": true,
+      "rule": "Hashes und Commit-IDs unverändert erhalten."
+    },
+    {
+      "id": "identifiers",
+      "preserve_exact": true,
+      "rule": "Register, Variablen, Device-Tree-Properties, technische Labels und Identifikatoren unverändert erhalten."
+    },
+    {
+      "id": "logs",
+      "preserve_exact": true,
+      "rule": "Rohlog-Ausgaben unverändert erhalten."
+    },
+    {
+      "id": "quotes",
+      "preserve_exact": true,
+      "rule": "Originalzitate unverändert erhalten; Erläuterungen außerhalb übersetzen."
+    }
+  ],
+  "terms": [
+    {
+      "id": "I2SR_IAL",
+      "de": "I2SR_IAL",
+      "en": "I2SR_IAL",
+      "category": "PRESERVE_EXACT",
+      "context": "Technischer Bezeichner; bytegenaue Schreibweise erhalten.",
+      "preserve_exact": true,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "P_EXT",
+      "de": "P_EXT",
+      "en": "P_EXT",
+      "category": "PRESERVE_EXACT",
+      "context": "Technischer Bezeichner; bytegenaue Schreibweise erhalten.",
+      "preserve_exact": true,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "arbitration-loss",
+      "de": "Arbitration Loss",
+      "en": "arbitration loss",
+      "category": "ESTABLISHED_ENGLISH",
+      "context": "Bus-/Controllerbefund; nicht automatisch Mechanismusnachweis.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "backfeeding",
+      "de": "Rückspeisung",
+      "en": "backfeeding / back-powering",
+      "category": "TRANSLATE",
+      "context": "Nach elektrischem Kontext: Rückstrompfad backfeeding; unbeabsichtigte Versorgung einer ausgeschalteten Domäne back-powering. Kein Stromfluss ohne Messnachweis behaupten.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "boot-path",
+      "de": "Bootpfad",
+      "en": "boot path",
+      "category": "TRANSLATE",
+      "context": "Abfolge der tatsächlich belegten Bootstufen.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "boot-source",
+      "de": "Bootquelle",
+      "en": "boot source",
+      "category": "TRANSLATE",
+      "context": "Quelle des Bootcodes; von Bootpfad unterscheiden.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "bootloader",
+      "de": "Bootloader",
+      "en": "bootloader",
+      "category": "ESTABLISHED_ENGLISH",
+      "context": "SPL und U-Boot proper als konkrete Stufen unterscheiden.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "build-host",
+      "de": "Build-Host",
+      "en": "build host",
+      "category": "TRANSLATE",
+      "context": "Build-Rechner; foobox und Zielhardware unterscheiden.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "byte-identity",
+      "de": "Byteidentität",
+      "en": "byte identity",
+      "category": "TRANSLATE",
+      "context": "Identische rohe Bytes, keine semantische Übersetzungsqualität.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "checkpoint",
+      "de": "Checkpoint",
+      "en": "checkpoint",
+      "category": "ESTABLISHED_ENGLISH",
+      "context": "Dokumentierter Zustand mit Aussagegrenzen.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "claim-limit",
+      "de": "Aussagegrenze",
+      "en": "limit of the claim",
+      "category": "TRANSLATE",
+      "context": "Reichweite des belegten Schlusses; Unsicherheit erhalten.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "cold-boot",
+      "de": "Cold Boot",
+      "en": "cold boot",
+      "category": "ESTABLISHED_ENGLISH",
+      "context": "POR und Cold Boot sind nicht automatisch synonym.",
+      "preserve_exact": false,
+      "avoid": [
+        "POR als automatisches Synonym für Cold Boot"
+      ],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "cold-start",
+      "de": "Kaltstart",
+      "en": "cold start",
+      "category": "TRANSLATE",
+      "context": "Ausgangszustand und Spannungsbedingungen konkret benennen; kein automatischer POR-Nachweis.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "cross-build",
+      "de": "Cross-Build",
+      "en": "cross-build",
+      "category": "ESTABLISHED_ENGLISH",
+      "context": "Gesamter Build mit abweichender Zielplattform.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "cross-compilation",
+      "de": "Cross-Compilation",
+      "en": "cross-compilation",
+      "category": "ESTABLISHED_ENGLISH",
+      "context": "Kompilieren für eine andere Zielplattform.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "device-tree",
+      "de": "Device Tree",
+      "en": "Device Tree",
+      "category": "ESTABLISHED_ENGLISH",
+      "context": "Konfigurationsbeschreibung; Properties exakt erhalten.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "diagnostic-instrumentation",
+      "de": "Diagnoseinstrumentierung",
+      "en": "diagnostic instrumentation",
+      "category": "TRANSLATE",
+      "context": "Mess-/Ausgabeinstrumentierung, keine dauerhafte Lösung daraus ableiten.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "diagnostic-patch",
+      "de": "Diagnosepatch",
+      "en": "diagnostic patch",
+      "category": "TRANSLATE",
+      "context": "Von produktiver Änderung unterscheiden.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "es8328-power",
+      "de": "es8328-power",
+      "en": "es8328-power",
+      "category": "PRESERVE_EXACT",
+      "context": "Technischer Bezeichner; bytegenaue Schreibweise erhalten.",
+      "preserve_exact": true,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "finding",
+      "de": "Befund",
+      "en": "finding",
+      "category": "TRANSLATE",
+      "context": "Evidenzgebundenes Ergebnis; keine zusätzliche Kausalität.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "golden-build",
+      "de": "Golden Build",
+      "en": "Golden Build",
+      "category": "ESTABLISHED_ENGLISH",
+      "context": "Gesicherte Referenz mit eigener Provenienz, kein aktueller Build-Nachweis.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "hardware-test",
+      "de": "Hardwaretest",
+      "en": "hardware test",
+      "category": "TRANSLATE",
+      "context": "Reale Hardwarebeobachtung; Build und statische Qualifikation getrennt.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "hypothesis",
+      "de": "Hypothese",
+      "en": "hypothesis",
+      "category": "TRANSLATE",
+      "context": "Unbestätigte Erklärung; nicht als Befund übersetzen.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "i2c",
+      "de": "I2C",
+      "en": "I2C",
+      "category": "PRESERVE_EXACT",
+      "context": "Busbezeichnung und konkrete Busnummer erhalten.",
+      "preserve_exact": true,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "initrd",
+      "de": "initrd",
+      "en": "initrd",
+      "category": "PRESERVE_EXACT",
+      "context": "Nicht pauschal mit initramfs gleichsetzen; konkretes Artefakt und Format prüfen.",
+      "preserve_exact": true,
+      "avoid": [
+        "initramfs als pauschales Synonym"
+      ],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "kernel",
+      "de": "Kernel",
+      "en": "kernel",
+      "category": "ESTABLISHED_ENGLISH",
+      "context": "Betriebssystemkern; technische Artefaktnamen exakt erhalten.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "mem_malloc_brk",
+      "de": "mem_malloc_brk",
+      "en": "mem_malloc_brk",
+      "category": "PRESERVE_EXACT",
+      "context": "Technischer Bezeichner; bytegenaue Schreibweise erhalten.",
+      "preserve_exact": true,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "memory-assignment",
+      "de": "Speicherzuordnung",
+      "en": "memory mapping / memory allocation",
+      "category": "TRANSLATE",
+      "context": "Nach Kontext: Adressabbildung memory mapping; Allokation memory allocation. Keine pauschale Ersetzung.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "nix-store",
+      "de": "Nix Store",
+      "en": "Nix Store",
+      "category": "ESTABLISHED_ENGLISH",
+      "context": "Store-Konzept; Store-Pfade unverändert erhalten.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "observation",
+      "de": "Beobachtung",
+      "en": "observation",
+      "category": "TRANSLATE",
+      "context": "Beobachteter Zustand innerhalb konkreter Testbedingungen.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "pinned-dependency",
+      "de": "gepinnte Abhängigkeit",
+      "en": "pinned dependency",
+      "category": "TRANSLATE",
+      "context": "Festgelegter Abhängigkeitsstand mit belegter Identität.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "por",
+      "de": "POR",
+      "en": "POR",
+      "category": "PRESERVE_EXACT",
+      "context": "Power-on reset; konkrete Reset-/Versorgungsbedingungen, nicht automatisch Cold Boot.",
+      "preserve_exact": true,
+      "avoid": [
+        "POR als automatisches Synonym für Cold Boot"
+      ],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "preregistration",
+      "de": "Präregistrierung",
+      "en": "preregistration",
+      "category": "TRANSLATE",
+      "context": "Vorab dokumentierter Test und Interpretationsregeln.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "provenance",
+      "de": "Provenienz",
+      "en": "provenance",
+      "category": "TRANSLATE",
+      "context": "Belegte Herkunft; Git-Commit allein beweist keine Vor-Git-Artefaktherkunft.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "pull-up",
+      "de": "Pull-up",
+      "en": "pull-up",
+      "category": "ESTABLISHED_ENGLISH",
+      "context": "Elektrischer Pull-up; Werte, Netze und Versorgungsdomäne erhalten.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "raw-log",
+      "de": "Rohlog",
+      "en": "raw log",
+      "category": "TRANSLATE",
+      "context": "Originalausgabe exakt erhalten; Erläuterungen gesondert.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "read-only",
+      "de": "Read-only",
+      "en": "read-only",
+      "category": "ESTABLISHED_ENGLISH",
+      "context": "Keine Schreiboperation oder Metadatennebenwirkung; keine zusätzliche Netzwerk-/Hardwarefreigabe.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "readback-verification",
+      "de": "Rückverifikation",
+      "en": "readback verification",
+      "category": "TRANSLATE",
+      "context": "Gesamten geschriebenen Bereich zurücklesen und gegen Artefakt vergleichen.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "rebind",
+      "de": "Rebind",
+      "en": "rebind",
+      "category": "ESTABLISHED_ENGLISH",
+      "context": "Erneute Treiberbindung, kein POR oder Kaltstart.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "recovery",
+      "de": "Recovery",
+      "en": "recovery",
+      "category": "ESTABLISHED_ENGLISH",
+      "context": "Konkreten Wiederherstellungspfad nennen, kein allgemeiner Bootnachweis.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "register",
+      "de": "Register",
+      "en": "register",
+      "category": "TRANSLATE",
+      "context": "Hardware-/CPU-Register; Registerbezeichnung exakt erhalten.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "regulator-always-on",
+      "de": "regulator-always-on",
+      "en": "regulator-always-on",
+      "category": "PRESERVE_EXACT",
+      "context": "Technischer Bezeichner; bytegenaue Schreibweise erhalten.",
+      "preserve_exact": true,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "root-cause",
+      "de": "Root Cause",
+      "en": "root cause",
+      "category": "ESTABLISHED_ENGLISH",
+      "context": "Immer dem Untersuchungsstrang zuordnen; historische offene Aussagen nicht auf später abgeschlossene Stränge übertragen.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "root-filesystem",
+      "de": "Root-Dateisystem",
+      "en": "root filesystem",
+      "category": "TRANSLATE",
+      "context": "Dateisystem der Systemwurzel.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "sd-image",
+      "de": "SD-Image",
+      "en": "SD image",
+      "category": "TRANSLATE",
+      "context": "Imageartefakt, nicht automatisch beschriebenes Medium.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "source-revision",
+      "de": "Quellstand",
+      "en": "source revision",
+      "category": "TRANSLATE",
+      "context": "Konkreter Quellzustand; bei unversionierten Bytes zusätzlich Hash.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "spl",
+      "de": "SPL",
+      "en": "SPL",
+      "category": "PRESERVE_EXACT",
+      "context": "Bootstufe; ausgeschriebene Erläuterungen außerhalb des Kürzels.",
+      "preserve_exact": true,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "static-qualification",
+      "de": "statische Qualifikation",
+      "en": "static qualification",
+      "category": "TRANSLATE",
+      "context": "Statische Prüfung; kein Hardwareerfolg daraus ableiten.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "u-boot",
+      "de": "U-Boot",
+      "en": "U-Boot",
+      "category": "PRESERVE_EXACT",
+      "context": "Bootloader-Projekt; Schreibweise erhalten.",
+      "preserve_exact": true,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    },
+    {
+      "id": "warm-start",
+      "de": "Warmstart",
+      "en": "warm restart",
+      "category": "TRANSLATE",
+      "context": "Kein POR; Resetpfad und erhaltene Zustände benennen.",
+      "preserve_exact": false,
+      "avoid": [],
+      "notes": "Kontextbezogen anwenden; keine globale automatische Ersetzung."
+    }
+  ]
+}
