@@ -459,3 +459,134 @@ Keine Änderungen oder Tests auf Verdacht.
 Nachvollziehbarkeit, Sicherheit und
 technische Korrektheit haben Vorrang
 vor Geschwindigkeit.
+
+======================================================================
+11. AUTOMATISCHER GITHUB-DIREKTUPLOAD
+======================================================================
+
+11.1 Vollständige lokale Protokollierung
+
+Jeder freigegebene technische Block wird weiterhin mit dem
+bestehenden Runner
+
+  ~/novena-backups/block-logs/run-block.bash
+
+als vollständige TXT-Datei mit SHA256-Prüfsumme protokolliert.
+
+Der bestehende Runner wird nicht ungefragt verändert.
+
+11.2 Synchroner GitHub-Direktupload
+
+Für ausdrücklich freigegebene, nicht sensible Blockausgaben kann der
+Wrapper
+
+  ~/novena-backups/github-transport/run-and-upload.bash
+
+verwendet werden.
+
+Der Wrapper ruft den bestehenden Runner auf und überträgt die
+erzeugten Protokolle synchron in das private GitHub-Protokollrepository.
+
+Ein privates GitHub-Repository ist kein Geheimnisspeicher.
+
+11.3 Schutz sensibler Informationen
+
+Passwörter, Zugangstokens, private Schlüssel, Recovery-Secrets und
+vergleichbare vertrauliche Inhalte dürfen nicht in automatisch
+übertragene Protokolle gelangen.
+
+Vor der Verwendung des automatischen Uploads ist der geplante
+Blockinhalt auf mögliche sensible Ausgaben zu prüfen.
+
+Wenn solche Ausgaben nicht zuverlässig ausgeschlossen werden können,
+darf dieser Block nicht mit automatischem Direktupload ausgeführt
+werden.
+
+Eine automatische Geheimniserkennung gilt erst dann als Schutz,
+wenn sie gesondert implementiert und geprüft wurde.
+
+11.4 Lokale Originale und Transportfehler
+
+TXT-Protokoll und SHA256-Prüfsumme bleiben lokal erhalten.
+
+Ein fehlgeschlagener GitHub-Upload darf die lokalen Originale nicht
+löschen oder verändern.
+
+Technisches Blockergebnis und Transportergebnis sind getrennt zu
+bewerten.
+
+Fehlgeschlagene Uploads dürfen nur gezielt und nach Prüfung der
+betroffenen Protokolle erneut übertragen werden.
+
+11.5 Freigabegrenzen
+
+Die Verwendung des Wrappers erteilt keine zusätzliche Freigabe für
+Builds, Hardwaretests, SD-Schreibzugriffe, Projektdateiänderungen
+oder Git-Mutationen im Novena-Projektrepository.
+
+Die Git-Mutationen des Transportwerkzeugs sind auf dessen gesondertes
+Protokollrepository begrenzt.
+
+Read-only-Codex-Aufträge bleiben read-only. Die äußere Protokollierung
+erweitert ihre Berechtigungen nicht.
+
+11.6 Nachweis und Weiterentwicklung
+
+Die automatische Archivierung gilt für die bisher geprüften
+Erfolgs- und Fehlerfälle als funktional nachgewiesen.
+
+Die vollständige Qualifikation des Uploaders, die Behandlung von
+Netzwerkfehlern, Wiederaufnahme, Idempotenz und Konfliktfällen
+bleiben gesonderte offene Aufgaben.
+
+Diese Regel ersetzt keine technische Prüfung der Transportsoftware.
+
+11. GITHUB-PROTOKOLLZUGRIFF UND CHAT-KONTINUITAET
+--------------------------------------------------
+
+Stand: 2026-10-12
+
+Das private GitHub-Repository
+loomit77/project-block-logs
+archiviert freigegebene technische Blockprotokolle.
+
+Nach einem erfolgreichen Upload soll ChatGPT bei
+vorhandener berechtigter GitHub-Anbindung selbst
+die neuesten Commits dieses Repositories nach der
+Blockkennung durchsuchen.
+
+Die Protokolle liegen nach dem Schema:
+
+novena/YYYY/MM/BLOCK-ID-YYYYMMDD-HHMMSS-ID.txt
+
+Der zugehörige SHA256-Sidecar besitzt die Endung:
+
+.txt.sha256
+
+Beide Dateien werden nach Möglichkeit vollständig
+abgerufen und gemeinsam ausgewertet.
+
+Der bewährte Wrapper-Aufruf lautet:
+
+bash "$WRAPPER" "$BLOCK_ID" "$COMMAND_FILE"
+
+WRAPPER verweist auf:
+
+~/novena-backups/github-transport/run-and-upload.bash
+
+COMMAND_FILE ist eine vorher syntaktisch geprüfte
+Bash-Befehlsdatei. Der Wrapper verwendet die
+bestehende Runner-/Upload-Infrastruktur.
+
+Transport-PASS, Runner-PASS, Protokollintegrität
+und fachliche Abnahme sind getrennte Ergebnisse.
+
+Die Auswertung bereits zugänglicher Protokolle
+wird nicht unnötig durch erneute Prüfblöcke ersetzt.
+
+Ein manueller Upload durch den Nutzer wird nur
+angefordert, wenn die benötigte Datei nicht
+berechtigt direkt abgerufen werden kann.
+
+Diese Regeln erteilen keine eigenständige
+Schreib-, Netzwerk- oder Codex-Freigabe.

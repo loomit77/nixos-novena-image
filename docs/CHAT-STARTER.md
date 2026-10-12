@@ -88,3 +88,52 @@ die Quellenlage auswerten.
 
 Keine Builds, Patches, Hardwaretests, Git-Änderungen
 oder weiteren Schreibvorgänge ohne meine Freigabe.
+
+## Aktueller verifizierter Übergabecheckpoint
+
+Prüfung vom 2026-10-12:
+NOVENA-HANDOVER-VERIFY-03
+
+- Branch: main
+- HEAD: dab134ec9969221d15983f73d1e0a894b930e292
+- Index-SHA256:
+  6fb7f10e615598a4d24878426cc58c7566abd1e582673c31d9cc9643afd94937
+- Git-HEAD und Index entsprechen dem geprüften Übergabestand.
+- Fünf zentrale Projektdateien: SHA256 PASS.
+- Drei historische Übergabeprotokolle: Integrität PASS.
+- Git-Zustand während der Prüfung unverändert.
+- Die ITA-Teilprüfung im VERIFY-03-Skript war fehlerhaft
+  beziehungsweise nicht aussagekräftig.
+  Keine Indexbeschädigung daraus ableiten.
+- Bereits qualifizierte frühere ITA-Prüfungen berücksichtigen.
+  Keine Wiederholungsprüfung ohne neuen Erkenntnisgrund.
+
+Die älteren Checkpoints in diesem Dokument bleiben
+historische Angaben und dürfen nicht überschrieben werden.
+
+## Automatischer Protokollabruf
+
+Bei UPLOAD_STATUS=PASS zuerst die verbundene
+GitHub-Anbindung verwenden.
+
+Privates Protokollrepository:
+loomit77/project-block-logs
+
+Neueste Commits nach der Blockkennung durchsuchen.
+TXT und SHA256 unter novena/YYYY/MM/ abrufen.
+Vollständige Ausgabe und Integrität prüfen.
+
+Bewährter Aufruf auf der foobox:
+
+bash "$WRAPPER" "$BLOCK_ID" "$COMMAND_FILE"
+
+Wrapper:
+~/novena-backups/github-transport/run-and-upload.bash
+
+Nicht erneut um einen manuellen Upload bitten,
+solange die Dateien direkt zugänglich sind.
+
+Keine unnötigen Wiederholungsprüfungen oder
+neuen Metaprojekte beginnen.
+
+Ein erfolgreicher Upload ist keine fachliche Abnahme.

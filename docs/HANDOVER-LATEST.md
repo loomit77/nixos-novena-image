@@ -267,3 +267,53 @@ und das separate Protokolltransportrepository sind
 eigenständige Arbeitsbereiche.
 
 Keine projektübergreifenden Änderungen ohne konkrete Freigabe.
+
+## Nachtrag 2026-10-12: Chat-Kontinuität und Protokollabruf
+
+Der spätere verifizierte Projektcheckpoint lautet:
+
+- Branch: main
+- HEAD: dab134ec9969221d15983f73d1e0a894b930e292
+- Index-SHA256:
+  6fb7f10e615598a4d24878426cc58c7566abd1e582673c31d9cc9643afd94937
+
+Nachweis:
+NOVENA-HANDOVER-VERIFY-03-20261012-175805-65E7YuW7.txt
+
+Git-HEAD, Index und fünf zentrale Projektquellen
+stimmten mit dem Übergabestand überein.
+Drei frühere Übergabeprotokolle bestanden die
+lokale Integritätsprüfung.
+
+Die ITA-Auswertung dieses einzelnen Prüfskripts
+war nicht aussagekräftig. Sie begründet keine
+Reparatur oder Wiederholung bereits qualifizierter
+Indexprüfungen.
+
+Das private GitHub-Protokollrepository lautet:
+
+loomit77/project-block-logs
+
+ChatGPT kann bei vorhandener berechtigter
+GitHub-Anbindung die hochgeladenen Protokolle
+selbstständig anhand der Blockkennung suchen.
+
+Archivpfad:
+novena/YYYY/MM/
+
+Bewährter Wrapper-Aufruf:
+
+bash "$WRAPPER" "$BLOCK_ID" "$COMMAND_FILE"
+
+Wrapperpfad:
+~/novena-backups/github-transport/run-and-upload.bash
+
+Die vollständige TXT-Datei und ihr SHA256-Sidecar
+sind getrennt abzurufen und auszuwerten.
+
+Manuelle erneute Uploads und redundante Prüfblöcke
+sind zu vermeiden, solange vorhandene Evidenz
+zugänglich und ausreichend ist.
+
+Historische Checkpoints bleiben unverändert.
+Die Dokumentation erteilt keine neuen Freigaben.
