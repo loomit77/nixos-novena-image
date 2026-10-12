@@ -221,3 +221,41 @@ Medien-Schreibzugriffe benötigen weiterhin eigene Freigaben.
 **Bewertung:** R6 ist als Backup-Checkpoint qualifiziert.
 Die erfolgreiche Sicherung und die Integritätsprüfungen sind
 keine bereits durchgeführte vollständige Wiederherstellungsprobe.
+
+## Checkpoint 2026-10-12 – Dateiinventur catalog-v2 / INDEX-1K-31G
+
+### Bestätigter Stand
+
+- [x] Bestehenden v1-Inventurbestand mit 611.930 Dateieinträgen
+  und 47 Referenzen als Ausgangsbasis dokumentiert.
+- [x] Synthetischen v2-Basistest erfolgreich ausgeführt.
+- [x] Acht isolierte synthetische Testfälle mit Harness v3
+  erfolgreich abgeschlossen:
+  BASELINE, OUTPUT_EXISTS, MISSING_SOURCE, HEADER_MISMATCH,
+  TSV_COLUMN_MISMATCH, V1_ENTRY_MISMATCH,
+  V1_REFERENCE_MISMATCH und HASH_MISMATCH.
+- [x] Für die geprüften Negativfälle erwartete Fehlererkennung,
+  Schutz vorhandener Ausgabedateien und ausbleibende temporäre
+  SQLite-Reste nachgewiesen.
+- [x] Vollständiges Testprotokoll
+  `NOVENA-CATALOG-31G-V3-TEST-01-20261012-135311-vuziG13d.txt`
+  über Runner und privaten GitHub-Protokolltransport archiviert.
+- [x] Git-HEAD während des synthetischen Testlaufs unverändert;
+  kein produktiver v2-Import durchgeführt.
+
+### Offene nächste Schritte
+
+- [ ] Produktive Quellen, Inventurdateien und v1-Katalog vor
+  einem v2-Import erneut auf Integrität und Vollständigkeit prüfen.
+- [ ] Produktiven catalog-v2-Import nur nach gesonderter
+  ausdrücklicher Freigabe ausführen.
+- [ ] Anschließend v2-Datenbank, Tabellen, Datensatzanzahlen,
+  Referenzen, Provenienz und logische Fingerprints unabhängig
+  gegen den bestätigten Ausgangsbestand abgleichen.
+- [ ] Ergebnisse und verbleibende Inventurlücken dokumentieren;
+  keinen synthetischen Test als produktive Abnahme ausgeben.
+
+**Freigabegrenze:** Der erfolgreiche 8/8-Testlauf qualifiziert
+die geprüften synthetischen Fälle, nicht den produktiven Import.
+Keine Freigabe für Builds, Hardwaretests, Medien-Schreibzugriffe
+oder sonstige Änderungen am Novena-Bootpfad.
