@@ -216,3 +216,36 @@ voraus und erweitert keinen Read-only-Auftrag.
 Nächste organisatorische Aufgabe: Tages-Sollumfang und Wiederaufnahmekriterium
 festlegen, aktualisierte Übergabe abnehmen und praktische Wiederaufnahme
 prüfen. Keine neue technische Freigabe aus diesen Hinweisen ableiten.
+
+## 2026-10-13 – Startpunkt für den nächsten Projektchat
+
+Wir setzen das Projekt „Novena – universelles NixOS
+SD-Image“ nach dem Tagesabschluss vom 2026-10-12 fort.
+
+Arbeitsrechner: foobox.
+Repository: ~/nixos-novena-image.
+Branch: main.
+
+Letzter bestätigter HEAD:
+17524d75222ee8301efac3ce97e84c6a31640877
+
+Geschützter Index-SHA256:
+6fb7f10e615598a4d24878426cc58c7566abd1e582673c31d9cc9643afd94937
+
+DAY-CLOSE-12 und TOOLS-CLOSE-02 sind abgeschlossen
+und auf Codeberg und GitHub synchronisiert.
+
+Bitte lies zuerst AGENTS.md,
+NOVENA-ARBEITSREGELN.txt, die aktuelle Übergabe,
+TODO.md und die relevanten Entscheidungsnachträge.
+
+Prüfe die Wiederaufnahme anhand der dokumentierten
+Originalquellen und fasse die drei nächsten
+Projektaufgaben zusammen.
+
+Erhalte die neun ITA-Patches 0004–0012,
+sämtliche Nutzeränderungen und den Originalindex.
+
+Keine neue allgemeine Auditserie.
+Keine Builds, Patches, Hardwaretests,
+Commits oder Pushes ohne Freigabe.

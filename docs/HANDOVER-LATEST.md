@@ -423,3 +423,39 @@ technischen Schritten zuerst vorhandene Originalprotokolle und maßgebliche
 Projektdokumentation auswerten. Runner und GitHub-Wrapper bleiben verbindlich
 und unverändert, jeweils innerhalb konkreter Protokollierungs-/Uploadfreigaben.
 Dieser Nachtrag erteilt keine neue technische oder sonstige Aktionsfreigabe.
+
+## 2026-10-12 – Übergabe nach TOOLS-CLOSE-02
+
+Letzter bestätigter Projektcheckpoint:
+`17524d75222ee8301efac3ce97e84c6a31640877`
+auf `main`, foobox.
+
+Geschützter Originalindex:
+`6fb7f10e615598a4d24878426cc58c7566abd1e582673c31d9cc9643afd94937`.
+
+Neun ITA-Patches 0004–0012 und sonstige
+Nutzeränderungen bleiben erhalten.
+
+DAY-CLOSE-12 und TOOLS-CLOSE-02 wurden erfolgreich
+zu Codeberg und GitHub synchronisiert.
+TOOLS-CLOSE-01 dokumentierte die Werkzeugentscheidungen;
+TODO und DECISIONS enthalten den maßgeblichen Nachtrag.
+
+Werkzeugauswahl abgeschlossen, bedarfsabhängige
+Ergänzungen zurückgestellt. Keine neue
+Automatisierungsplattform vorgesehen.
+
+Für die nächste Wiederaufnahme:
+1. Regeln und diese Übergabe lesen.
+2. Aktuellen Git-Checkpoint kontrollieren.
+3. TODO und DECISIONS berücksichtigen.
+4. Praktischen Starter-Test durchführen.
+5. Anschließend technische Aufgaben priorisieren.
+
+Offen bleiben vollständige Tagesqualifikation,
+praktische Wiederaufnahme, R6-Restore,
+DDR/SPL- und Bootpfadfragen.
+I2C3/ES8328 bleibt geschlossen.
+
+Keine Builds, Hardwaretests oder Git-Änderungen
+ohne ausdrückliche Freigabe.

@@ -559,3 +559,43 @@ und die abschließende Verfahrens-/Tagesqualifikation. R6 ist als
 Sicherungscheckpoint qualifiziert; sein vollständiger Restore bleibt offen.
 Der separate Cleanup-Restore schließt ihn nicht ab. Keine neue technische
 Freigabe, kein neuer Commit oder Push folgt aus diesem Nachtrag.
+
+## 2026-10-12 – Tagesabschluss nach TOOLS-CLOSE-02
+
+Regulärer, begrenzter Tagesabschluss. Die dokumentierten
+DAY-CLOSE- und TOOLS-Arbeiten wurden abgeschlossen; eine
+vollständige fachliche Gesamtqualifikation sämtlicher
+historischer Tagesprotokolle wird nicht behauptet.
+
+Letzter bestätigter Git-Checkpoint:
+`17524d75222ee8301efac3ce97e84c6a31640877`.
+
+Der ursprüngliche Index-SHA256 bleibt
+`6fb7f10e615598a4d24878426cc58c7566abd1e582673c31d9cc9643afd94937`.
+Die neun Intent-to-add-Patches 0004–0012 bleiben erhalten.
+
+Ergebnisse:
+- DAY-CLOSE-12: Dokumentationscommit und Synchronisierung
+  auf Codeberg und GitHub erfolgreich.
+- TOOLS-CLOSE-01: Werkzeugentscheidungen in TODO und
+  DECISIONS dokumentiert.
+- TOOLS-CLOSE-02: Commit `17524d7`, beide Remotes
+  erfolgreich synchronisiert.
+- Vorhandene Werkzeuge weiterverwenden; Recoll, Restic,
+  Borg und weitere Ergänzungen nur bei konkretem Bedarf.
+- Keine Builds oder Hardwaretests im Abschlussverfahren.
+
+Offen bleiben:
+- Praktischer Chat-Starter- und Wiederaufnahmetest.
+- Vollständige Tagesqualifikation außerhalb dieses
+  begrenzten Abschlusses.
+- Vollständiger R6-Restore.
+- DDR/SPL, Bootprovenienz und externer Bootpfad.
+
+Die 38 historischen FAILs der früheren Tageserhebung
+bleiben FAIL. I2C3/ES8328 bleibt abgeschlossen.
+
+Nächster Schritt am 2026-10-13:
+Neuen Projektchat starten, die aktualisierte Übergabe
+lesen und den aktuellen Git-Checkpoint bestätigen.
+Keine neue allgemeine Auditserie.
