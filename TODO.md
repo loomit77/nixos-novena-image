@@ -1,6 +1,6 @@
 # TODO – Novena: universelles NixOS-SD-Image
 
-Stand: 2026-10-11 (GitHub-Direktupload-Checkpoint; lokaler foobox-Stand separat)
+Stand: 2026-10-12 (foobox-Dokumentationscheckpoint DOC-GIT-GESAMT-19S)
 Grundlage: Projektgespräche, `AGENTS.md`, `NOVENA-ARBEITSREGELN.txt`, `docs/PROJECT-STATE.md`, `docs/TEST-LOG.md` sowie die GitHub-Repositories `loomit77/Test` und `loomit77/project-block-logs`.
 Legende: `[x]` dokumentiert erledigt · `[ ]` offen · **Prüfen** = noch nicht vollständig belegt.
 Prioritäten: **P1** vorrangig · **P2** anschließend · **P3** langfristig.
@@ -102,3 +102,59 @@ Prioritäten: **P1** vorrangig · **P2** anschließend · **P3** langfristig.
 - I2C3/ES8328: **abgeschlossen**, ohne neue diskriminierende Evidenz nicht erneut öffnen.
 - Universelles externes SD-Image: **noch kein vollständig nachgewiesener eigenständiger Bootpfad**.
 - GitHub-Änderungen ersetzen **keinen** lokalen foobox-Checkpoint oder Codeberg-Abgleich.
+
+## Checkpoint 2026-10-12 – Projektindex und Git-Synchronisierung
+
+### Abgeschlossene Meilensteine
+
+- [x] **Projektindex:** Der definierte endliche Gesamtumfang wurde
+  mit INDEX-1K-65 am 2026-10-09 formal qualifiziert abgenommen.
+  Die anerkannten Evidenz- und Provenienzgrenzen gelten weiter.
+  Historische Quellenlücken und eine spätere Snapshot-/Resolverstrategie
+  bleiben davon unberührt.
+- [x] **TODO auf foobox:** Die bestehende `TODO.md` wurde mit
+  DOC-GIT-12 lokal übernommen. DOC-GIT-12R bestätigte die
+  Worktree-Integrität; DOC-GIT-13 synchronisierte den Stand
+  zu Codeberg und GitHub.
+- [x] **Dokumentationsintegration:** Mit DOC-GIT-GESAMT-19O wurden
+  52 geprüfte Dateien in drei Commits integriert:
+  11 Projektindex-Dateien, 10 Übersetzungs-/Workflow-Dateien
+  und 31 Forschungsdokumente.
+- [x] **Remote-Synchronisierung:** DOC-GIT-GESAMT-19Q bestätigte
+  Codeberg und GitHub auf
+  `ae7baffbb60ad6f408825cbeeb0f274eeef8f8ea`.
+  Der Git-Index und `docs/TEST-LOG.md` blieben unverändert.
+
+### Fortgeltende Aufgaben
+
+- [ ] **Projektindex:** Den laufenden Blockindex und die
+  Evidenzzuordnung fortführen. Dies ist von der bereits erfolgten
+  qualifizierten Gesamtabnahme des definierten Umfangs zu trennen.
+- [ ] **Dateiinventur:** `catalog-v2` im eigenständigen
+  Inventur-Arbeitsstrang fortsetzen.
+- [ ] **Protokolltransport:** Ausstehende Sicherheits-, Fehlerfall-
+  und Wiederanlaufprüfungen gezielt qualifizieren.
+- [ ] **DDR/SPL:** Vor weiteren Eingriffen vorhandene Rohlogs,
+  historische Referenzen, Registerbefunde und Quellen systematisch
+  zusammenführen. Root Cause bleibt offen; Patch0012 ist
+  kein nachgewiesener Fix.
+- [ ] **SO-DIMM/SPD:** Modulidentität, Rank-Anzahl und Timings
+  anhand vorhandener Evidenz klären; Boarddiagnosen nur mit
+  gesonderter Freigabe.
+- [ ] **Bootkette:** Den Pfad SPL, U-Boot proper, Kernel,
+  initrd, Device Tree und Root-Dateisystem schrittweise belegen.
+- [ ] **NixOS-Image:** Universellen SD-Boot, Reproduzierbarkeit,
+  Installations- und Recoveryverfahren weiter qualifizieren.
+
+### Einordnung älterer TODO-Einträge
+
+Die ursprünglichen P1-/P2-Abschnitte bleiben als historischer
+Arbeitsstand erhalten. Soweit sie die lokale TODO-Übernahme,
+den Remote-Abgleich oder die formale Projektindex-Abnahme noch
+als offen darstellen, sind diese Aussagen durch die oben
+genannten, späteren Checkpoints überholt.
+
+Die Projektindex-Abnahme ist keine DDR-/SPL- oder
+Hardwarequalifikation. Der I2C3-/ES8328-Root-Cause bleibt
+abgeschlossen. Neue Builds, Patches, Hardwaretests und
+Medien-Schreibzugriffe benötigen weiterhin eigene Freigaben.
