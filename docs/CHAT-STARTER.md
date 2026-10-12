@@ -137,3 +137,38 @@ Keine unnötigen Wiederholungsprüfungen oder
 neuen Metaprojekte beginnen.
 
 Ein erfolgreicher Upload ist keine fachliche Abnahme.
+
+## Nachtrag: erste praktische Chat-Übergabe
+
+Die erste praktische Chat-Übergabe wurde am 2026-10-12
+durchgeführt und anschließend dokumentiert.
+
+Letzter bestätigter synchronisierter Dokumentationscommit:
+`3ac6b4fffd8322032d7c9e5098fd51133484bc84`.
+
+Dieser neuere Checkpoint ersetzt nicht die historischen
+Prüfwerte im Haupttext.
+
+Erkenntnisse:
+
+- Vorhandene Übergaben und Originalprotokolle zuerst auswerten.
+- Bei erfolgreichem GitHub-Upload TXT und SHA256 selbstständig
+  über die berechtigte GitHub-Anbindung abrufen.
+- Keine erneuten Uploads vom Nutzer verlangen, wenn die
+  Originaldateien bereits erreichbar sind.
+- Fehlgeschlagene Prüfskripte nicht automatisch als
+  Beschädigung bereits qualifizierter Zustände interpretieren.
+- Keine abgeschlossenen Prüfungen ohne neuen Erkenntnisgrund
+  wiederholen.
+- Keine SSH-Schlüsselpfade aus anderen Projekten übernehmen.
+- Auf der foobox wurde `~/.ssh/id_ed25519` erfolgreich
+  für die Synchronisierung verwendet.
+
+Aktuelle organisatorische Priorität:
+
+1. Projekt-Starter einschließlich Übergabeverfahren abschließen.
+2. Einheitlichen Tagesabschluss entwickeln.
+3. Vorhandene Werkzeuge und den Tools-Audit auswerten.
+
+DDR/SPL, neue Builds und Hardwaretests bleiben bis zu einer
+gesonderten Priorisierung beziehungsweise Freigabe zurückgestellt.

@@ -317,3 +317,50 @@ zugänglich und ausreichend ist.
 
 Historische Checkpoints bleiben unverändert.
 Die Dokumentation erteilt keine neuen Freigaben.
+
+## Nachtrag 2026-10-12: erste Chat-Übergabe abgeschlossen
+
+Die erste praktische Chat-Übergabe und ihre anschließende
+Dokumentationsintegration wurden abgeschlossen.
+
+Verifizierter synchronisierter Commit:
+`3ac6b4fffd8322032d7c9e5098fd51133484bc84`.
+
+Nachweis:
+`NOVENA-CHAT-CONTINUITY-10`.
+
+Ergebnis:
+
+- Codeberg-Push: PASS.
+- GitHub-Push: PASS.
+- Beide Remote-HEADs identisch: PASS.
+- Lokaler HEAD erhalten: PASS.
+- Ursprünglicher Git-Index erhalten: PASS.
+- Keine neuen Builds oder Hardwaretests.
+
+Die vorangegangenen Blöcke dokumentieren außerdem:
+
+- `NOVENA-CHAT-CONTINUITY-08`: FAIL aufgrund eines
+  unzutreffend angenommenen SSH-Schlüsselpfads.
+- `NOVENA-CHAT-CONTINUITY-09`: tatsächliche SSH-Konfiguration
+  und vorhandenen Agent-Schlüssel ermittelt; PASS.
+- `NOVENA-CHAT-CONTINUITY-10`: beide Remotes erfolgreich
+  synchronisiert; PASS.
+
+Die Fehlschläge bleiben historische Ergebnisse.
+Sie werden nicht nachträglich zu PASS umgedeutet.
+
+Die Übergabe hat bestätigt, dass ChatGPT bei vorhandener
+GitHub-Berechtigung die Originalprotokolle selbst abrufen kann.
+
+Nächste organisatorische Prioritäten:
+
+1. Starter und Übergabeverfahren abschließen.
+2. Tagesabschluss entwerfen und qualifizieren.
+3. Werkzeuge anhand des vorhandenen Tools-Audits auswerten.
+
+Keine erneute allgemeine Projektinventur beginnen,
+solange die vorhandenen Ergebnisse den konkreten
+nächsten Schritt ausreichend belegen.
+
+Dieser Nachtrag erteilt keine neue Freigabe.

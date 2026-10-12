@@ -372,3 +372,46 @@ Die folgenden lokalen TXT-Dateien wurden anhand ihrer SHA256-Sidecars geprüft. 
 - `NOVENA-CATALOG-31K-FINAL-AUDIT-02-20261012-144749-ffQdXkr4.txt` — SHA256 `6b43f4c5166776753063432353d7a98ed0b858c9b35443a16f4afd45b633df66` — `FAIL`.
 
 - `NOVENA-CATALOG-31K-PROVENANCE-FINAL-03-20261012-144852-Q37MqFNZ.txt` — SHA256 `bfb1a8d45676bf5af6aef0449e6c426d0d7cc9f22d03a412d3ba6ae3736c134c` — `PASS`.
+
+## Nachtrag 2026-10-12 – Erste Chat-Übergabe und Prioritäten
+
+### Bestätigt abgeschlossen
+
+- [x] Erste praktische Chat-Übergabe durchgeführt.
+- [x] `docs/CHAT-STARTER.md` erstellt und erweitert.
+- [x] `docs/HANDOVER-LATEST.md` erstellt und erweitert.
+- [x] Automatischen Abruf von GitHub-Blockprotokollen
+  in der praktischen Projektarbeit bestätigt.
+- [x] Dokumentationscommit `3ac6b4f` auf Codeberg und
+  GitHub synchronisiert (`NOVENA-CHAT-CONTINUITY-10`).
+- [x] Ursprünglichen Git-Index beim Abschluss erhalten.
+
+### Verbindliche Reihenfolge der nächsten Arbeiten
+
+**P1 – Starter**
+
+- [ ] Erkenntnisse der ersten Übergabe vollständig integrieren.
+- [ ] Datierte Übergaben und deren Archivierung festlegen.
+- [ ] Übergabeablauf ohne redundante Prüfungen abschließen.
+
+**P1 – Tagesabschluss**
+
+- [ ] Einheitliches Tagesabschlussverfahren entwerfen.
+- [ ] Originalprotokolle, TODO, Git-Zustand, offene Aufgaben
+  und aktuelle Übergabe zusammenführen.
+- [ ] Vorhandenen Runner und GitHub-Transport wiederverwenden.
+- [ ] Freigabegrenzen und historische Evidenz erhalten.
+
+**P1 – Werkzeuge**
+
+- [ ] Vorhandenen `NOVENA-TOOLS-AUDIT-01` auswerten.
+- [ ] Bereits verfügbare Werkzeuge gezielt verwenden.
+- [ ] Recoll, Restic und Borg nur bei konkretem Nutzen bewerten.
+- [ ] Keine unnötige neue Automatisierungsplattform entwickeln.
+
+Technische DDR-/SPL- und Image-Arbeiten bleiben offen,
+werden aber bis zur gesonderten Priorisierung zurückgestellt.
+
+Die älteren TODO-Einträge bleiben als historische
+Planungsstände erhalten. Dieser Nachtrag beschreibt
+die neuere Priorisierung.
