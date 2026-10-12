@@ -259,3 +259,76 @@ keine bereits durchgeführte vollständige Wiederherstellungsprobe.
 die geprüften synthetischen Fälle, nicht den produktiven Import.
 Keine Freigabe für Builds, Hardwaretests, Medien-Schreibzugriffe
 oder sonstige Änderungen am Novena-Bootpfad.
+
+## P1-E – Projektkontinuität: Starter, Übergabe und Tagesabschluss
+
+### Projekt-Starter
+
+- [ ] Einheitlichen Projekt-Starter für neue ChatGPT-Gespräche definieren.
+- [ ] `docs/CHAT-STARTER.md` als wiederverwendbare Einstiegsanleitung erstellen.
+- [ ] `docs/HANDOVER-LATEST.md` als aktuellen, belegten Übergabestand einführen.
+- [ ] Datierte Übergaben unter `docs/handovers/` archivieren.
+- [ ] Git-HEAD, Indexzustand, offene Nutzeränderungen, letzte geprüfte Protokolle, Projektstatus und nächsten Arbeitsschritt in die Übergabe aufnehmen.
+- [ ] Veraltete und widersprüchliche Übergabedaten erkennen und vor einer Übernahme prüfen.
+- [ ] Den Starter in einem neuen Projektchat praktisch testen.
+
+### Tagesabschluss
+
+- [ ] Einheitlichen Tagesabschluss auf der foobox entwerfen.
+- [ ] Abgeschlossene, fehlgeschlagene und noch offene Blöcke anhand der Originalprotokolle bewerten.
+- [ ] Bestehende TODO, PROJECT-STATE, TEST-LOG und gegebenenfalls DECISIONS kontrolliert aktualisieren.
+- [ ] Projektindex und Dateiinventur auf erforderliche Fortschreibung prüfen.
+- [ ] Git-HEAD, Index, Worktree und beide Remotes prüfen.
+- [ ] Dokumentationsänderungen nur nach ausdrücklicher Freigabe committen und synchronisieren.
+- [ ] Externe HDD-Sicherung, Integritätsnachweise und Wiederherstellungsstatus berücksichtigen.
+- [ ] Keine automatischen Medien-Schreibzugriffe oder Hardwareaktionen ohne eigene Freigabe.
+- [ ] Aktuelle Übergabe mit überprüften Checkpoints und offenen Aufgaben erzeugen.
+- [ ] Tagesabschluss auf Vollständigkeit und Wiederaufnehmbarkeit testen.
+
+### Werkzeuge und Integration
+
+- [ ] Die Ergebnisse von `NOVENA-TOOLS-AUDIT-01` anhand der Originalprotokolle verifizieren.
+- [ ] Vorhandene Werkzeuge SQLite, ripgrep, fd, jq, plocate, rsync und SHA256-Prüfung berücksichtigen.
+- [ ] Recoll für die projektübergreifende Volltextsuche bewerten.
+- [ ] Restic und Borg als mögliche Ergänzungen zum vorhandenen HDD-Backup-Konzept vergleichen.
+- [ ] Bestehenden Runner und GitHub-Protokolltransport wiederverwenden.
+- [ ] Keine unnötige zusätzliche Automatisierungsplattform entwickeln.
+- [ ] Bestehende Freigabe- und Sicherheitsgrenzen ausdrücklich erhalten.
+
+### Abnahmekriterien
+
+- [ ] Ein neuer Chat kann den letzten qualifizierten Projektstand aus Übergabe, Git und Originalprotokollen rekonstruieren.
+- [ ] Der Tagesabschluss erzeugt vollständige TXT-Protokolle und SHA256-Nachweise.
+- [ ] Fehlgeschlagene oder unvollständige Arbeiten werden nicht als abgeschlossen dargestellt.
+- [ ] Historische Evidenz, Nutzeränderungen und Git-Indexzustand bleiben erhalten.
+
+## Checkpoint 2026-10-12 – catalog-v2 nach produktivem Import
+
+### Erfolgreich abgeschlossen
+
+- [x] Produktive Quellenprüfung mit neun bestätigten Eingabequellen abgeschlossen (31H).
+- [x] 611.930 Dateieinträge und 47 Referenzen vollständig mit dem v1-Katalog abgeglichen.
+- [x] Importplanung einschließlich Ausgabeort und Speicherreserve abgeschlossen (31I).
+- [x] Produktiven catalog-v2-Import nach ausdrücklicher Freigabe ausgeführt (31J).
+- [x] Neue Datenbank unter `~/novena-dateiinventur/katalog/novena-katalog-v2.sqlite` veröffentlicht.
+- [x] SQLite-Integrität, Fremdschlüssel und grundlegende Datensatzanzahlen nach Import geprüft.
+- [x] Ursprünglichen v1-Katalog, Importer und Git-Checkpoint unverändert erhalten.
+
+### Noch offene Endabnahme
+
+- [ ] Unabhängigen Audit 31K nach Korrektur des Prüfskripts abschließen.
+- [ ] Die tatsächlichen SQLite-Spaltennamen vor Wiederholung der Klassifikations- und Referenzauflösungsprüfung kontrollieren.
+- [ ] Ergebnisse der erfolgreichen 31K-Teilprüfungen erhalten: SQLite-Integrität, neun Tabellen, zehn Indizes, sieben Fingerprints, 611.930 Einträge und 47 Referenzen.
+- [ ] Klassifikationen und Referenzauflösungen unabhängig gegen v1 prüfen.
+- [ ] Projektquellen und Provenienzbeziehungen unabhängig abschließend kontrollieren.
+- [ ] Erst nach erfolgreicher vollständiger Endprüfung catalog-v2 als technisch abgenommen dokumentieren.
+
+**Aktueller Status:** Der produktive catalog-v2-Import ist erfolgreich.
+Die unabhängige Endabnahme ist noch offen. 31K brach bei der
+Klassifikationsprüfung mit `sqlite3.OperationalError: no such column: path`
+ab. Dies ist ein Fehler im Prüfskript; aus dem Abbruch allein folgt
+kein Datenbankdefekt.
+
+**Freigabegrenzen:** Keine neue Freigabe für Builds, Patches,
+Hardwaretests, Medien-Schreibzugriffe oder sonstige Änderungen
+am Novena-Bootpfad.
