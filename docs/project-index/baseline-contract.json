@@ -1,0 +1,209 @@
+{
+  "version": "novena-project-index-contract-1",
+  "provenance": [
+    "INDEX-1K-12 explicit bindings",
+    "research/04-spl-ddr/block-9c-43-dokumentationscheckpoint.md",
+    "docs/QUELLENVERZEICHNIS.md#L60-L66",
+    "verified historical TAR and SHA256 sidecar"
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "ART-000001",
+      "artifact_type": "elf",
+      "locator": "REF_LOCKED_DEBUG/spl/u-boot-spl"
+    },
+    {
+      "artifact_id": "ART-000002",
+      "artifact_type": "wrapper",
+      "locator": "REF_LOCKED_DEBUG/SPL"
+    },
+    {
+      "artifact_id": "ART-000003",
+      "artifact_type": "binary",
+      "locator": "REF_LOCKED_DEBUG/spl/u-boot-spl.bin"
+    },
+    {
+      "artifact_id": "ART-000004",
+      "artifact_type": "map",
+      "locator": "REF_LOCKED_DEBUG/spl/u-boot-spl.map"
+    },
+    {
+      "artifact_id": "ART-000005",
+      "artifact_type": "configuration",
+      "locator": "REF_LOCKED_DEBUG/.config"
+    },
+    {
+      "artifact_id": "ART-000006",
+      "artifact_type": "source",
+      "locator": "REF_LOCKED_DEBUG/board/kosagi/novena/novena_spl.c"
+    },
+    {
+      "artifact_id": "ART-000007",
+      "artifact_type": "source",
+      "locator": "REF_LOCKED_DEBUG/arch/arm/mach-imx/mx6/ddr.c"
+    },
+    {
+      "artifact_id": "ART-000008",
+      "artifact_type": "header",
+      "locator": "REF_LOCKED_DEBUG/include/wait_bit.h"
+    },
+    {
+      "artifact_id": "ART-000009",
+      "artifact_type": "assembly",
+      "locator": "REF_LOCKED_DEBUG/arch/arm/lib/crt0.S"
+    }
+  ],
+  "assignments": [
+    {
+      "link_id": "SAL-000001",
+      "source_id": "SRC-000009",
+      "artifact_id": "ART-000001",
+      "relation": "PRIMARY"
+    },
+    {
+      "link_id": "SAL-000002",
+      "source_id": "SRC-000010",
+      "artifact_id": "ART-000002",
+      "relation": "COMPONENT"
+    },
+    {
+      "link_id": "SAL-000003",
+      "source_id": "SRC-000010",
+      "artifact_id": "ART-000003",
+      "relation": "COMPONENT"
+    },
+    {
+      "link_id": "SAL-000004",
+      "source_id": "SRC-000010",
+      "artifact_id": "ART-000004",
+      "relation": "COMPONENT"
+    },
+    {
+      "link_id": "SAL-000005",
+      "source_id": "SRC-000010",
+      "artifact_id": "ART-000005",
+      "relation": "COMPONENT"
+    },
+    {
+      "link_id": "SAL-000006",
+      "source_id": "SRC-000010",
+      "artifact_id": "ART-000006",
+      "relation": "COMPONENT"
+    },
+    {
+      "link_id": "SAL-000007",
+      "source_id": "SRC-000010",
+      "artifact_id": "ART-000007",
+      "relation": "COMPONENT"
+    },
+    {
+      "link_id": "SAL-000008",
+      "source_id": "SRC-000010",
+      "artifact_id": "ART-000008",
+      "relation": "COMPONENT"
+    },
+    {
+      "link_id": "SAL-000009",
+      "source_id": "SRC-000010",
+      "artifact_id": "ART-000009",
+      "relation": "COMPONENT"
+    }
+  ],
+  "register_exceptions": [
+    {
+      "source_id": "SRC-000009",
+      "namespace": "sources-md",
+      "original_id": "SPL-001",
+      "source_type": "artifact_reference",
+      "locator": "docs/QUELLENVERZEICHNIS.md#L60",
+      "record_locator": "docs/QUELLENVERZEICHNIS.md#L60",
+      "verification_status": "HISTORICAL_CATALOG_CHECK"
+    },
+    {
+      "source_id": "SRC-000010",
+      "namespace": "sources-md",
+      "original_id": "SPL-002",
+      "source_type": "artifact_collection",
+      "locator": "docs/QUELLENVERZEICHNIS.md#L61",
+      "record_locator": "docs/QUELLENVERZEICHNIS.md#L61",
+      "verification_status": "HISTORICAL_CATALOG_CHECK"
+    },
+    {
+      "source_id": "SRC-000012",
+      "namespace": "sources-md",
+      "original_id": "SPL-005",
+      "source_type": "missing_original",
+      "locator": "docs/QUELLENVERZEICHNIS.md#L64",
+      "record_locator": "docs/QUELLENVERZEICHNIS.md#L64",
+      "verification_status": "CONTENT_UNAVAILABLE"
+    },
+    {
+      "source_id": "SRC-000013",
+      "namespace": "sources-md",
+      "original_id": "SPL-006",
+      "source_type": "primary_source_gap",
+      "locator": "docs/QUELLENVERZEICHNIS.md#L65",
+      "record_locator": "docs/QUELLENVERZEICHNIS.md#L65",
+      "verification_status": "CONTENT_UNAVAILABLE"
+    },
+    {
+      "source_id": "SRC-000014",
+      "namespace": "sources-md",
+      "original_id": "SPL-007",
+      "source_type": "historical_chat",
+      "locator": "docs/QUELLENVERZEICHNIS.md#L66",
+      "record_locator": "docs/QUELLENVERZEICHNIS.md#L66",
+      "verification_status": "CONTENT_UNAVAILABLE"
+    }
+  ],
+  "historical": {
+    "path": "/home/loomit/novena-backups/project-index-v02-before-v03-60785fc2/project-index-v02.tar",
+    "sha256": "18afce33e3e7a0f6cc4851b6c3e3fe7366031c806575ea671454b0c9ad4d4844",
+    "validator": "docs/project-index/validate.py",
+    "validator_sha256": "de1728d058d9e7df94129baba66d969c37ba0e7ce50a00f1b1a18530f6c84af4",
+    "members": [
+      {
+        "name": "docs/project-index",
+        "type": "5",
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "docs/project-index/README.md",
+        "type": "0",
+        "size": 2604,
+        "sha256": "b3b28b28a87ce5076992dbcbe5abf13462a752bf80034de7a047548b17e56af9"
+      },
+      {
+        "name": "docs/project-index/sources.tsv",
+        "type": "0",
+        "size": 1528,
+        "sha256": "bac06e9e11422456ed427744501128066d498b6e5cf14ea6291f4e2ce4c7e451"
+      },
+      {
+        "name": "docs/project-index/source-relations.tsv",
+        "type": "0",
+        "size": 279,
+        "sha256": "92fe1a1a1ed270287363d5f17543e83943f494c28e4e3b1258cf34a915faf6ab"
+      },
+      {
+        "name": "docs/project-index/findings.tsv",
+        "type": "0",
+        "size": 853,
+        "sha256": "60438b59f149c2024fcfde80b478e87f52a51add92b5516726462ca9b0a93315"
+      },
+      {
+        "name": "docs/project-index/evidence-links.tsv",
+        "type": "0",
+        "size": 659,
+        "sha256": "2f0454acfff7693bffcebe595b368c3789278a3d47a36e7fb7de715018f506cb"
+      },
+      {
+        "name": "docs/project-index/validate.py",
+        "type": "0",
+        "size": 6860,
+        "sha256": "de1728d058d9e7df94129baba66d969c37ba0e7ce50a00f1b1a18530f6c84af4"
+      }
+    ]
+  }
+}

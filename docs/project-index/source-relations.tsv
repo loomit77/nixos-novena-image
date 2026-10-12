@@ -1,0 +1,2 @@
+relation_id	source_id_a	source_id_b	relation	status	basis_locator	basis_sha256
+REL-000001	SRC-000004	SRC-000005	DIFFERENT_FROM	CONFIRMED	research/05-gesamtanalyse/22-quellenprovenienz/01-NXP-ORIGINALQUELLEN.md#L13	f19f3b5ec1466fd4ff7536e3ea5d5f7d5b871753cac997dfb3c885a042657c2e

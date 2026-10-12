@@ -1,0 +1,10 @@
+link_id	source_id	artifact_id	relation	assessment
+SAL-000001	SRC-000009	ART-000001	PRIMARY	Historical reference bytes; no boot or root-cause proof
+SAL-000002	SRC-000010	ART-000002	COMPONENT	Historical reference bytes; no boot or root-cause proof
+SAL-000003	SRC-000010	ART-000003	COMPONENT	Historical reference bytes; no boot or root-cause proof
+SAL-000004	SRC-000010	ART-000004	COMPONENT	Historical reference bytes; no boot or root-cause proof
+SAL-000005	SRC-000010	ART-000005	COMPONENT	Historical reference bytes; no boot or root-cause proof
+SAL-000006	SRC-000010	ART-000006	COMPONENT	Historical reference bytes; no boot or root-cause proof
+SAL-000007	SRC-000010	ART-000007	COMPONENT	Historical reference bytes; no boot or root-cause proof
+SAL-000008	SRC-000010	ART-000008	COMPONENT	Historical reference bytes; no boot or root-cause proof
+SAL-000009	SRC-000010	ART-000009	COMPONENT	Historical reference bytes; no boot or root-cause proof

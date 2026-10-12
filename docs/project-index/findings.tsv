@@ -1,0 +1,4 @@
+finding_id	topic	statement	status	scope	record_locator	record_sha256	reviewed_at
+FND-000001	DDR_SPL	Case 8B is CONTROL_FAIL_TARGET_FAIL; no root cause established	OPEN	Patch 0008 single documented boot	docs/TEST-LOG.md#L2362	b165636a7e5146903d9675639d8d435a474c88f7231341922781bbf027b00719	2026-10-08
+FND-000002	DDR_SPL	H01: WL/DQS calibration error or timeout before BSS is a hypothesis	HYPOTHESIS	Hypothesis H01 only	research/05-gesamtanalyse/07-HYPOTHESEN.md#L7-L20	cda10f9281a6b5d5b539c1849af72b09eca3baa5f5eba062859461238abf7786	2026-10-08
+FND-000003	SOURCE_PROVENANCE	N07 in two distinct register namespaces denotes different NXP documents	PROVEN	Only external-matrix and provenance-matrix N07	research/05-gesamtanalyse/22-quellenprovenienz/01-NXP-ORIGINALQUELLEN.md#L13	f19f3b5ec1466fd4ff7536e3ea5d5f7d5b871753cac997dfb3c885a042657c2e	2026-10-08

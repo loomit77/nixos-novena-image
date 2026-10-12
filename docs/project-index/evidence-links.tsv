@@ -1,0 +1,5 @@
+link_id	finding_id	source_id	relation	locator_detail	assessment
+EVL-000001	FND-000001	SRC-000003	SUPPORTS	test-logs/2026-10-01/block-4.10o-1n-patch-0008-por-01.raw.log	Supports observed diagnostic outcome only; not DDR root cause
+EVL-000002	FND-000002	SRC-000003	CONTEXT	test-logs/2026-10-01/block-4.10o-1n-patch-0008-por-01.raw.log	No WL/DQS calibration result measured in this log
+EVL-000003	FND-000003	SRC-000004	SUPPORTS	research/05-gesamtanalyse/20-EXTERNE-QUELLENMATRIX.md#L29	Shows IMX6DQRM meaning of N07
+EVL-000004	FND-000003	SRC-000005	SUPPORTS	research/05-gesamtanalyse/22-quellenprovenienz/01-NXP-ORIGINALQUELLEN.md#L13	Shows EB817 meaning of N07
