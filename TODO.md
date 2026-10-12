@@ -459,3 +459,35 @@ Die dokumentierte Aktualisierung ist ausgeführt; ihre Übergabeabnahme und
 praktische Wiederaufnahme bleiben offen. Weitere Projektdateiänderungen,
 Commits, Pushes, Builds, Netzwerk-, Medien- und Hardwareaktionen sind
 durch diesen Nachtrag nicht freigegeben.
+
+## Nachtrag 2026-10-12 – NOVENA-TOOLS-CLOSE-01: begrenzter Werkzeugabschluss
+
+Dieser Nachtrag schreibt ausschließlich die Werkzeugaufgaben fort. Ältere
+Werkzeugkästchen bleiben als historische Planungsstände erhalten; für ihren
+aktuellen Status gilt dieser Nachtrag. Fachfremde Aufgaben bleiben unverändert.
+
+- [x] NOVENA-TOOLS-AUDIT-01 und NOVENA-TOOLS-AUDIT-02 vollständig anhand
+  der lokalen Originalprotokolle ausgewertet; SHA256 stimmt jeweils mit
+  dem vorhandenen Sidecar überein.
+- [x] Werkzeugauswahl dokumentiert: vorhandene `sqlite3`, `rg`, `fd`,
+  `find`, `jq`, `plocate`, `rsync`, `sha256sum` und `b2sum` weiterverwenden.
+  Dies schließt die Auswahlentscheidung ab, keine Funktionsqualifikation.
+- [x] Beibehaltung von TSV, JSON und Python für den Projektindex beschlossen.
+  Keine SQLite-Integration ohne konkreten Mehrwert und eigene Qualifikation.
+- [x] Weiterverwendung des bestehenden Runners und GitHub-Wrappers ohne
+  Änderung beschlossen; keine zusätzliche Automatisierungsplattform.
+- [x] Kein aktueller Installationsbedarf für rmlint und Czkawka festgelegt.
+- [ ] **Zurückgestellt:** Recoll erst bei nachgewiesenem Bedarf für
+  dokumentübergreifende Volltextsuche neu bewerten; nicht installieren.
+- [ ] **Zurückgestellt:** Restic und Borg erst bei gesonderter Überarbeitung
+  des Backup-Konzepts vergleichen; nicht installieren.
+- [ ] **Zurückgestellt:** SQLite-Integration des Projektindex nur bei
+  konkretem Mehrwert gesondert bewerten und qualifizieren.
+
+Primärnachweise sind ausschließlich die beiden Originalaudits unter
+`~/novena-backups/block-logs/`; genaue Dateinamen und Hashes stehen im
+[Entscheidungsnachtrag](docs/DECISIONS.md#2026-10-12--novena-tools-close-01-begrenzter-werkzeugabschluss).
+Beide Audits sind read-only und belegen Werkzeugverfügbarkeit, keine umfassende
+Funktionsqualifikation. Historische FAILs bleiben unverändert. Der vollständige
+R6-Restore bleibt offen. Keine Installation, Werkzeugtests oder Änderungen am
+Projektindex beziehungsweise catalog-v2 wurden für diesen Abschluss ausgeführt.

@@ -1500,3 +1500,55 @@ Netzwerkaktionen werden durchgeführt.
 Der [Abnahmestatus](PROJECT-STATE.md#2026-10-09--index-1k-65-formaler-qualifizierter-projektindex-abschluss)
 und der [Indexeinstieg](project-index/README.md#2026-10-09--index-1k-65-formaler-qualifizierter-projektindex-abschluss)
 führen denselben neuen Beschluss.
+
+## 2026-10-12 – NOVENA-TOOLS-CLOSE-01: begrenzter Werkzeugabschluss
+
+Dieser datierte Nachtrag dokumentiert die ausdrücklich beauftragten
+Werkzeugentscheidungen. Ausschließliche Primärnachweise sind die vollständig
+gelesenen lokalen Originale unter `~/novena-backups/block-logs/`:
+
+| Audit | Originalprotokoll | SHA256 |
+|---|---|---|
+| NOVENA-TOOLS-AUDIT-01 | `NOVENA-TOOLS-AUDIT-01-20261012-122941-mQgkXb6F.txt` | `ed93c2d1287abb073c10e7edce1e12d931dd7d9575c9d87dddf967085935f6db` |
+| NOVENA-TOOLS-AUDIT-02 | `NOVENA-TOOLS-AUDIT-02-20261012-123144-1VsvMjZQ.txt` | `215be39817bdc7f8c9feea854dea5d6f9e69bf3254829cec0f6130c0b9d22514` |
+
+Der lesende SHA256-Abgleich stimmt jeweils mit dem vorhandenen Sidecar
+überein. Beide Abschlüsse weisen `COMMAND_EXIT_STATUS=0`, `BLOCK_RESULT=PASS`
+und `LOG_COMPLETE=YES` aus. Die Audits sind read-only: AUDIT-01 belegt die
+Verfügbarkeit der unten genannten Werkzeuge sowie die vorhandenen Runner- und
+Wrapperpfade; AUDIT-02 dokumentiert `INDEX_FORMAT=TSV_JSON_PYTHON` und
+`SQLITE_IMPORT_POSSIBLE=TO_BE_QUALIFIED`. Das sind begrenzte Struktur- und
+Verfügbarkeitsnachweise, keine umfassende Funktionsqualifikation.
+
+### Entscheidungen
+
+1. Vorhandene `sqlite3`, `rg`, `fd`, `find`, `jq`, `plocate`, `rsync`,
+   `sha256sum` und `b2sum` weiterverwenden. Ihre dokumentierte Verfügbarkeit
+   trägt die Beibehaltung; zusätzliche Werkzeuge sind dafür nicht erforderlich.
+2. Recoll nicht installieren. Erst bei nachgewiesenem Bedarf für
+   dokumentübergreifende Volltextsuche neu bewerten. Die Audits belegen keinen
+   solchen Bedarf und keinen funktionalen Vergleich.
+3. Restic und Borg nicht installieren. Erst bei gesonderter Überarbeitung des
+   Backup-Konzepts vergleichen. Aus der Werkzeugverfügbarkeit folgt keine
+   Backup- oder Restorequalifikation; der vollständige R6-Restore bleibt offen.
+4. Für rmlint und Czkawka besteht kein aktueller Installationsbedarf.
+   Die Audits liefern keinen Nachweis eines konkreten zusätzlichen Nutzens.
+5. TSV, JSON und Python für den Projektindex beibehalten. SQLite-Verfügbarkeit
+   allein begründet keine Integration; diese verlangt konkreten Mehrwert und
+   eigene Qualifikation. Der Projektindex und catalog-v2 werden nicht verändert.
+6. Bestehenden Runner `~/novena-backups/block-logs/run-block.bash` und
+   GitHub-Wrapper `~/novena-backups/github-transport/run-and-upload.bash`
+   weiterverwenden und nicht verändern. Der Pfadnachweis ist keine vollständige
+   Funktions- oder Sicherheitsqualifikation und erteilt keine Ausführungsfreigabe.
+7. Keine zusätzliche Automatisierungsplattform einführen.
+
+Der Abschluss betrifft die Audit-Auswertung und diese Auswahlentscheidungen.
+Spätere bedarfsabhängige Prüfungen sind in TODO zurückgestellt; vorhandene
+fachfremde Aufgaben bleiben erhalten. Historische FAILs werden nicht verändert
+oder nachträglich aufgewertet. Ein vollständiger R6-Restore wird nicht behauptet.
+
+NOVENA-TOOLS-CLOSE-01 ergänzt ausschließlich TODO und DECISIONS. Keine
+Installation, Werkzeugtests, Builds, Hardwaretests, Netzwerkzugriffe,
+Git-Mutationen, Commits oder Pushes; keine neuen Projektdateien und keine
+automatischen Reparaturen. Bestehende Inhalte und Nutzeränderungen bleiben
+erhalten. Die Audit-Originale und Sidecars bleiben unverändert.
