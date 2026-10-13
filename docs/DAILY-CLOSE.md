@@ -599,3 +599,60 @@ Nächster Schritt am 2026-10-13:
 Neuen Projektchat starten, die aktualisierte Übergabe
 lesen und den aktuellen Git-Checkpoint bestätigen.
 Keine neue allgemeine Auditserie.
+
+## NOVENA-DAY-CLOSE-13 – 2026-10-13
+
+Geltungsbereich: DDR-07H bis DDR-07K, vollständiger
+NixOS-Image-Build, Imageprüfung, SD-Identifikation,
+SD-Schreibvorgang und vollständiger Readback.
+
+### Bestätigte Ergebnisse
+
+- DDR-07H: vollständiger Image-Build PASS.
+- DDR-07I: Imageintegrität und eingebetteter SPL PASS.
+- DDR-07J: Novena-Test-SD identifiziert, PASS.
+- DDR-07K: vollständiges Image geschrieben, PASS.
+- Imagegröße: 2581291008 Bytes.
+- Image- und SD-Readback-SHA256:
+  937776dbb17f0a870fca22519c20a04845dd530de7db8c0496b3e5d286cc2934
+- Zielmedium beim Schreibvorgang: /dev/sda,
+  USB-Kartenleser, 31914983424 Bytes.
+- Git-HEAD und Index während der vier Blöcke unverändert.
+- Kein Hardware-Bootversuch in diesen vier Blöcken.
+
+### Originalnachweise
+
+- NOVENA-DDR-07H-20261013-195302-cVlOKEgi.txt
+- NOVENA-DDR-07I-20261013-195503-b83bvlPP.txt
+- NOVENA-DDR-07J-20261013-195952-XHFMQdKS.txt
+- NOVENA-DDR-07K-20261013-200119-LJXUcDmY.txt
+
+Jeweils mit SHA256-Sidecar unter
+~/novena-backups/block-logs/ und im privaten
+GitHub-Protokollrepository loomit77/project-block-logs.
+
+### Bewertung und Grenzen
+
+Die Image-Erstellung, Medienbeschreibung und
+vollständige Rückleseprüfung sind PASS.
+
+Die DDR/SPL-Root-Cause bleibt offen.
+Patch 0013 ist noch nicht auf der Novena gebootet.
+Eine Bootfähigkeit wird aus dem erfolgreichen
+Image-Readback nicht abgeleitet.
+
+Dieser Abschluss bezieht sich auf die genannten
+vier Arbeitsblöcke, nicht auf sämtliche Aktivitäten
+des Kalendertags oder die vollständige fachliche
+Qualifikation des Tagesabschlussverfahrens.
+
+Der formale Gesamtstatus bleibt deshalb PARTIAL,
+bis die Übergabe und der Abschlussblock geprüft sind.
+
+### Nächster Schritt
+
+Kontrollierter Kaltstart der Novena mit der
+vorbereiteten Test-SD und vollständiger serieller
+Aufzeichnung. Nur nach eigener Testfreigabe.
+
+Keine automatische Git-Synchronisierung.

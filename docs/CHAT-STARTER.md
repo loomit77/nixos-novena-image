@@ -249,3 +249,30 @@ sämtliche Nutzeränderungen und den Originalindex.
 Keine neue allgemeine Auditserie.
 Keine Builds, Patches, Hardwaretests,
 Commits oder Pushes ohne Freigabe.
+
+## NOVENA-DAY-CLOSE-13 – 2026-10-13
+
+Beim nächsten Projektchat zuerst den neuesten
+Nachtrag in docs/HANDOVER-LATEST.md und den
+Tagesabschluss NOVENA-DAY-CLOSE-13 lesen.
+
+Aktueller Git-HEAD:
+82cdbf880ab4b0993b4d4fd82415b41e85afde9e
+
+Index-SHA256:
+6fb7f10e615598a4d24878426cc58c7566abd1e582673c31d9cc9643afd94937
+
+DDR-07H bis DDR-07K erfolgreich:
+vollständiges Image gebaut, geprüft und auf
+Novena-Test-SD geschrieben; SHA256-Readback PASS.
+
+Patch 0013 noch nicht auf der Novena getestet.
+Nächster Schritt ist der freizugebende serielle
+Kaltstarttest, nicht ein erneuter Image-Build.
+
+Jede weitere Testvariante als vollständiges
+NixOS-SD-Image bauen. Einzelne SPL-/U-Boot-Builds
+sind kein regulärer Ersatz für den Gesamtbuild.
+
+Keine neuen Änderungen oder Hardwaretests ohne
+konkrete Freigabe.

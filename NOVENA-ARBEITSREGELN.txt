@@ -590,3 +590,29 @@ berechtigt direkt abgerufen werden kann.
 
 Diese Regeln erteilen keine eigenständige
 Schreib-, Netzwerk- oder Codex-Freigabe.
+
+NOVENA-DAY-CLOSE-13 – 2026-10-13
+---------------------------------
+
+Verbindliche Ergänzung zum Image-Testweg:
+
+Bei jeder neuen U-Boot-/SPL-Testvariante wird
+grundsätzlich das vollständige NixOS-SD-Image
+gebaut und qualifiziert.
+
+Ein isolierter SPL- oder U-Boot-Build ersetzt
+nicht den vollständigen Image-Build.
+
+Einzelne Komponenten dürfen weiterhin für
+gezielte Analysen geprüft werden.
+
+Image-Build, Schreiben auf physische Medien
+und Hardware-Bootversuche sind getrennte
+Freigabeschritte.
+
+Jeder technische Arbeitsblock bleibt über
+den bestehenden Runner vollständig mit TXT
+und SHA256 zu protokollieren.
+
+Der Git-Index, vorhandene Nutzeränderungen
+und historische Ergebnisse bleiben erhalten.

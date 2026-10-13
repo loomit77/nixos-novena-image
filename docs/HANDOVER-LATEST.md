@@ -459,3 +459,51 @@ I2C3/ES8328 bleibt geschlossen.
 
 Keine Builds, Hardwaretests oder Git-Änderungen
 ohne ausdrückliche Freigabe.
+
+## NOVENA-DAY-CLOSE-13 – 2026-10-13
+
+Aktueller technischer Übergabestand:
+
+- Projekt: Novena – universelles NixOS SD-Image.
+- Host: foobox.
+- Branch: main.
+- HEAD:
+  82cdbf880ab4b0993b4d4fd82415b41e85afde9e
+- Geschützter Index-SHA256:
+  6fb7f10e615598a4d24878426cc58c7566abd1e582673c31d9cc9643afd94937
+- Intent-to-add-Einträge und vorhandene
+  Worktree-Änderungen sind zu erhalten.
+- U-Boot 2026.07 mit Patch 0013.
+- Patch 0013 isoliert rtt_nom=1 zu rtt_nom=2.
+- Vollständiges NixOS-SD-Image erfolgreich gebaut.
+- Imagepfad:
+  /nix/store/p4fwzdzm8j57xji213vcva4wg5a79hiq-nixos-novena-sd-image.img
+- Imagegröße: 2581291008 Bytes.
+- SHA256:
+  937776dbb17f0a870fca22519c20a04845dd530de7db8c0496b3e5d286cc2934
+- Vollständiges Image auf Novena-Test-SD geschrieben.
+- Vollständiger SD-Readback: SHA256 PASS.
+- DDR-07H, DDR-07I, DDR-07J und DDR-07K: PASS.
+- Bootfähigkeit von Patch 0013 noch nicht getestet.
+- DDR/SPL-Root-Cause weiterhin offen.
+- I2C3/ES8328 weiterhin abgeschlossen.
+
+Maßgebliche Originalprotokolle:
+NOVENA-DDR-07H, DDR-07I, DDR-07J und DDR-07K
+vom 2026-10-13, jeweils TXT und SHA256-Sidecar.
+
+Arbeitsregel:
+Jede neue Testvariante als vollständiges
+NixOS-SD-Image bauen und qualifizieren.
+Keine regulären isolierten SPL-Builds als Testweg.
+
+Nächster technischer Schritt:
+Novena-Kaltstart mit vorbereiteter Test-SD,
+serielle Konsole vollständig aufzeichnen.
+Nur nach ausdrücklicher Hardwaretestfreigabe.
+
+Keine neuen Builds, Medien-Schreibzugriffe,
+Patches, Git-Commits oder Pushes ohne Freigabe.
+
+Die älteren datierten Übergaben bleiben historische
+Checkpoints und werden nicht überschrieben.
