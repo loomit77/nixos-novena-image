@@ -616,3 +616,46 @@ und SHA256 zu protokollieren.
 
 Der Git-Index, vorhandene Nutzeränderungen
 und historische Ergebnisse bleiben erhalten.
+
+======================================================================
+12. INTERAKTIVE SHELL UND BLOCKABSCHLUSS
+======================================================================
+
+Stand: 2026-10-13
+
+Die interaktive Benutzershell auf der foobox muss nach jedem
+technischen Arbeitsblock weiterhin benutzbar sein.
+
+Ein Arbeitsblock darf erfolgreich enden oder mit einem Fehler
+abbrechen. Dadurch darf die aufrufende interaktive Shell weder
+beendet noch ersetzt werden.
+
+Verbindliche Vorgaben:
+
+- Technische Bash-Skripte werden als separate Prozesse gestartet.
+- Runner und GitHub-Wrapper werden ebenfalls als separate
+  Prozesse aufgerufen.
+- Befehlsdateien dürfen nicht mit source oder dem Punktoperator
+  in die interaktive Shell geladen werden.
+- exit, logout und exec dürfen die interaktive Benutzershell
+  nicht beenden oder ersetzen.
+- exit innerhalb eines separat gestarteten Skripts ist zulässig,
+  sofern dadurch nur dessen eigener Prozess beendet wird.
+- set -euo pipefail und trap bleiben auf den jeweiligen
+  Skriptprozess begrenzt.
+- Ein Fehler darf nur den betreffenden Arbeitsblock abbrechen.
+- Exitstatus, Fehlermeldungen und Blockabschluss werden im
+  vollständigen TXT-Protokoll dokumentiert.
+- Zum Protokoll gehört das SHA256-Manifest.
+- Nach Abschluss bleibt die aufrufende Shell für weitere
+  Benutzerbefehle verfügbar.
+
+Für kopierbare Aufrufblöcke gilt:
+
+Sie dürfen keine ungeschützten exit-, logout- oder exec-Befehle
+enthalten, die bei direkter Eingabe die interaktive Shell
+beenden oder ersetzen könnten.
+
+Grundsatz:
+
+Ein Block endet. Die interaktive Benutzershell bleibt bestehen.
