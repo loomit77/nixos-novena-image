@@ -379,3 +379,50 @@ Factory-R1-Binärkopie, vollständige Kryptoverifikation, exakter U-Boot-Commit,
 Paketmanifest, Partitionsgeometrie, Release-Shrink, signierte APT-Indexkette und
 Factory-DIMM/SPD-Identität bleiben offen; aktueller Status in PROJECT-STATE.md.
 I2C3/ES8328 bleibt abgeschlossen; `52Q=WAIT`.
+
+## 2026-10-13 – NOVENA-OPENBSD-08: OpenBSD-U-Boot-Provenienz
+
+Die read-only Untersuchung OPENBSD-01 bis OPENBSD-07 ergänzt den
+historischen OpenBSD-Quellencheckpoint.
+
+**2015:** OpenBSD-Commit
+`31642defb5b3233700d202713f8a65d872d823c3`
+vom 8. Mai 2015 belegt die anfängliche Novena-Unterstützung
+mit zeitgenössischem Hardwaretest. Der Commit beschreibt den
+Workaround `setenv machid 10ad`, weil der damals verwendete
+U-Boot die Novena-Board-ID nicht selbst übergab.
+
+Die konkrete SPL-Revision und die verwendete Bootloader-Binärdatei
+dieses Tests sind nicht identifiziert.
+
+**2016:** Das offizielle OpenBSD-Ports-Repository importierte am
+29. Mai 2016 mit Commit
+`f54eccba3b45c4de4f5ef26541532d15099ba825`
+den U-Boot-Port 2016.05. Die Paketdefinition enthält
+`novena_defconfig` und die Installation erzeugter
+Bootloader-Dateien unter `share/u-boot/novena`.
+
+Der zugehörige Patch
+`sysutils/u-boot/patches/patch-board_kosagi_novena_novena_c`
+ergänzte in `board_init()`:
+
+    gd->bd->bi_arch_number = 4269;
+
+Mit Commit
+`98493e5533814069acb1fead44d8515f8e5a1fac`
+vom 14. September 2016 wurde beim Update auf U-Boot 2016.09
+der zusätzliche Novena-Board-ID-Patch entfernt.
+
+Primärquellen:
+
+- https://github.com/openbsd/src/commit/31642defb5b3233700d202713f8a65d872d823c3
+- https://github.com/openbsd/ports/commit/f54eccba3b45c4de4f5ef26541532d15099ba825
+- https://github.com/openbsd/ports/blob/f54eccba3b45c4de4f5ef26541532d15099ba825/sysutils/u-boot/Makefile
+- https://github.com/openbsd/ports/blob/f54eccba3b45c4de4f5ef26541532d15099ba825/sysutils/u-boot/patches/patch-board_kosagi_novena_novena_c
+- https://github.com/openbsd/ports/commit/98493e5533814069acb1fead44d8515f8e5a1fac
+
+**Evidenzgrenze:** Die Ports-Quellen belegen die
+Buildkonfiguration, nicht die konkrete 2015 verwendete SPL-Datei
+und auch keinen unabhängig verifizierten Hardware-Boot
+einer 2016 erzeugten Binärdatei. Der OpenBSD-Kernel
+übernimmt bereits initialisierten DDR-Speicher.

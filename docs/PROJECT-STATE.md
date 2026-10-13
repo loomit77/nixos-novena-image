@@ -6501,3 +6501,33 @@ Die folgenden lokalen TXT-Dateien wurden anhand ihrer SHA256-Sidecars geprüft. 
 - `NOVENA-CATALOG-31K-FINAL-AUDIT-02-20261012-144749-ffQdXkr4.txt` — SHA256 `6b43f4c5166776753063432353d7a98ed0b858c9b35443a16f4afd45b633df66` — `FAIL`.
 
 - `NOVENA-CATALOG-31K-PROVENANCE-FINAL-03-20261012-144852-Q37MqFNZ.txt` — SHA256 `bfb1a8d45676bf5af6aef0449e6c426d0d7cc9f22d03a412d3ba6ae3736c134c` — `PASS`.
+
+## 2026-10-13 – NOVENA-OPENBSD-08: OpenBSD-Provenienz
+
+OPENBSD-01 bis OPENBSD-07 haben die historische
+OpenBSD-Novena-Unterstützung erneut untersucht.
+
+BELEGT:
+- Realer OpenBSD-Novena-Test im Mai 2015.
+- Damaliger U-Boot-Workaround `setenv machid 10ad`.
+- OpenBSD-Ports-Import von U-Boot 2016.05 im Mai 2016.
+- Novena-Buildziel und Board-ID-Patch mit Wert 4269.
+- Entfernung dieses Patches beim Update auf 2016.09.
+
+OFFEN:
+- Exakte SPL- und U-Boot-Binäridentität des Tests von 2015.
+- Unabhängiger Hardware-Bootnachweis des Ports-Builds von 2016.
+- Identität der DDR-/SPD-Konfiguration gegenüber GOOD/r7,
+  Factory R1 oder aktuellen Diagnose-Builds.
+
+Der historische OpenBSD-Betrieb ist ein unabhängiger
+Betriebsbeleg, jedoch kein Nachweis einer eigenen
+OpenBSD-DDR-Initialisierung und kein Root-Cause-Nachweis
+für den aktuellen SPL-/DDR-Fehler.
+
+U-Boot 2016.05 ist ein möglicher zusätzlicher
+Quellvergleichskandidat, aber kein bestätigter Fix.
+RM-05Q bleibt bis zur gesonderten Wiederaufnahme zurückgestellt.
+
+Quellen: `docs/QUELLENVERZEICHNIS.md`,
+Abschnitt NOVENA-OPENBSD-08.

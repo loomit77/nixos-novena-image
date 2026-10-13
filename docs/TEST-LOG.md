@@ -2765,3 +2765,39 @@ Die folgenden lokalen TXT-Dateien wurden anhand ihrer SHA256-Sidecars geprüft. 
 - `NOVENA-CATALOG-31K-FINAL-AUDIT-02-20261012-144749-ffQdXkr4.txt` — SHA256 `6b43f4c5166776753063432353d7a98ed0b858c9b35443a16f4afd45b633df66` — `FAIL`.
 
 - `NOVENA-CATALOG-31K-PROVENANCE-FINAL-03-20261012-144852-Q37MqFNZ.txt` — SHA256 `bfb1a8d45676bf5af6aef0449e6c426d0d7cc9f22d03a412d3ba6ae3736c134c` — `PASS`.
+
+## 2026-10-13 – NOVENA-OPENBSD-08: Quellen- und Dokumentationscheckpoint
+
+OPENBSD-01 bis OPENBSD-04:
+Historische OpenBSD-Novena-Unterstützung, Board-ID,
+U-Boot-Revisionen und lokale Provenienz untersucht.
+Read-only; die konkreten SPL-Binäridentitäten bleiben offen.
+
+OPENBSD-05:
+Öffentliche GitHub-Primärquellen lesend untersucht.
+OpenBSD-Ports-Import U-Boot 2016.05:
+`f54eccba3b45c4de4f5ef26541532d15099ba825`.
+Novena-Board-ID-Patch mit `bi_arch_number = 4269`.
+Patchentfernung 2016.09:
+`98493e5533814069acb1fead44d8515f8e5a1fac`.
+Kein lokaler Shell-Block für OPENBSD-05.
+
+OPENBSD-06:
+Bestehende Projektdokumentation und Git-Zustand
+read-only geprüft; BLOCK_RESULT=PASS.
+
+OPENBSD-07:
+Vollständige TODO, Dokumentationsstellen,
+Datei-SHA256 und bestehende Änderungen geprüft;
+BLOCK_RESULT=PASS.
+
+OPENBSD-08:
+Kontrollierte Ergänzung der bestehenden Dokumentation
+nach HEAD-, Index- und Datei-SHA256-Gates.
+Keine Builds, Hardwaretests, Commits oder Pushes.
+Der tatsächliche Abschlussstatus ist dem zugehörigen
+Runner-Originalprotokoll zu entnehmen.
+
+Bewertung: OpenBSD-Betrieb 2015 belegt;
+OpenBSD-U-Boot-Quellkonfiguration 2016 belegt;
+SPL-Identität und DDR-Ursache weiterhin offen.

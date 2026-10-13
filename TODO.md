@@ -491,3 +491,23 @@ Beide Audits sind read-only und belegen Werkzeugverfügbarkeit, keine umfassende
 Funktionsqualifikation. Historische FAILs bleiben unverändert. Der vollständige
 R6-Restore bleibt offen. Keine Installation, Werkzeugtests oder Änderungen am
 Projektindex beziehungsweise catalog-v2 wurden für diesen Abschluss ausgeführt.
+
+## Nachtrag 2026-10-13 – NOVENA-OPENBSD-08: Historische OpenBSD-Spur
+
+- [x] Historische OpenBSD-Novena-Unterstützung von 2015
+  anhand des ursprünglichen Commits und Folgebelegen geprüft.
+- [x] OpenBSD-U-Boot-Ports-Import von 2016.05,
+  `novena_defconfig` und Board-ID-Patch nachgewiesen.
+- [x] Patchentfernung beim Update auf U-Boot 2016.09
+  anhand der Ports-Historie nachgewiesen.
+- [ ] Exakte SPL-/U-Boot-Binäridentität des
+  OpenBSD-Novena-Tests von 2015 bleibt unbekannt.
+- [ ] Optional prüfen, ob U-Boot 2016.05 als zusätzlicher
+  DDR-/SPL-Quellvergleich gegenüber GOOD/r7 und
+  aktuellen Diagnosequellen einen Erkenntnisgewinn bietet.
+- [ ] RM-05Q erst nach gesonderter Priorisierung fortsetzen.
+
+Der OpenBSD-Betrieb ist kein Nachweis einer eigenen
+DDR-Initialisierung oder eines Fixes des aktuellen
+SPL-/DDR-Fehlers. Bestehende Projektprioritäten,
+Freigabegrenzen und historische TODO-Einträge bleiben erhalten.
