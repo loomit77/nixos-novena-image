@@ -507,3 +507,96 @@ Patches, Git-Commits oder Pushes ohne Freigabe.
 
 Die älteren datierten Übergaben bleiben historische
 Checkpoints und werden nicht überschrieben.
+
+
+## Nachtrag 2026-10-14 – Übergabestand und verpflichtende Wiederaufnahme
+
+Dieser Nachtrag übernimmt die im Auftrag angegebenen neueren Checkpoints und Befunde. Die älteren datierten Übergaben bleiben unverändert als historische Zustände erhalten. In dieser isolierten Dokumentationskopie wurden weder Git-Zustand noch Remotes, Hardware oder Originalprotokolle neu geprüft.
+
+Übergebener Projektcheckpoint:
+
+- HEAD: `7d98296db282aed0cadbf1d6cf9545ccb591f8a6`.
+- Geschützter Index-SHA256: `6fb7f10e615598a4d24878426cc58c7566abd1e582673c31d9cc9643afd94937`.
+
+Diese Werte sind keine neue Bestätigung des tatsächlichen Zustands dieser Kopie oder der foobox. Branch, Worktree, parallele Änderungen und Remote-Stände sind daraus nicht abzuleiten. Vor späteren autorisierten Änderungen ist der tatsächliche Zustand abzugleichen; vorhandene Nutzeränderungen, Intent-to-add-Einträge und Index bleiben geschützt.
+
+ARCHIVE-08 ist in der Ausführung beendet. Das Runner-Ergebnis lautet FAIL; zwei Downloadfehler bleiben erhalten. Daraus folgt kein fachlicher Archivabschluss und keine vollständige Quellenaufnahme. Erfolgreiche Teilabrufe dürfen nur mit ihrer eigenen Evidenz bewertet werden. Fehlende Inhalte, Downloadursachen und etwaige Folgearbeiten sind anhand der vollständigen Originale zu klären; eine automatische Wiederholung ist nicht freigegeben.
+
+DDR-08H zeigt Q1/C1 ZERO und D32 `ret=-12`. Ein vollständiger Boot und ein Patchfix sind nicht bestätigt; DDR/SPL und der vollständige eigenständige externe Bootpfad bleiben offen. Der ältere Stand vom 2026-10-13 beschreibt den damaligen Build-, Schreib- und Readbacknachweis. Er ersetzt die Auswertung des neueren DDR-08H-Befunds nicht. Aus `ret=-12` allein werden weder Root Cause noch Erklärung der vorherigen Zero-Signatur abgeleitet. I2C3/ES8328 bleibt geschlossen; `regulator-always-on` bleibt dauerhafte Novena-Boardanforderung.
+
+Die hier übernommenen Blockangaben sind keine erneute Originalauswertung. Exakte Originaldateinamen, Hashwerte, Sidecars sowie Upload- und Integritätsstatus von ARCHIVE-08 und DDR-08H sind in diesem Auftrag nicht erhoben worden. Diese Nachweisidentitäten bleiben für die Wiederaufnahmeprüfung zuzuordnen; sie werden nicht aus Blockkennungen konstruiert.
+
+Nach Arbeitsregel 14 vom 2026-10-14 sind vor neuen technischen Empfehlungen und Arbeitsblöcken zuerst Regeln, neueste Übergabe, letzter Tagesabschluss, TODO, relevante Projektdateien und letzte verfügbare Originalprotokolle auszuwerten. Lokal oder bereits bereitgestellte Quellen haben Vorrang. Bei berechtigter GitHub-Anbindung und konkreter Netzwerkfreigabe sind benötigte TXT-Originale und `.txt.sha256`-Sidecars selbstständig im bekannten Repository `loomit77/project-block-logs` unter `novena/YYYY/MM/` anhand der Blockkennung und einschlägiger Commits abzurufen. Zugängliche Dateien werden nicht unnötig erneut angefordert; fehlender Zugriff wird benannt, nicht als Prüfung behandelt.
+
+Upload, Runner, Protokollintegrität und Fachresultat werden getrennt bewertet. Die Quellenanalyse nach Arbeitsregel 13 berücksichtigt die relevante gesamte Boot- und Systemarchitektur, historische Implementierungen, Schnittstellen, Abhängigkeiten, ausgeschlossene Hypothesen und spätere Projektfolgen. Gesicherte Erkenntnisse, Hypothesen, Risiken und offene Fragen bleiben getrennt; eine Änderung der Prioritäten braucht eine Begründung. Vor Skriptänderungen ist der vollständige relevante Quellcode zu prüfen.
+
+Für parallele Arbeiten sind Zuständigkeiten, Ressourcen und Abschlusszustände festzustellen. Vorbereitete und laufende Blöcke sowie unvollständige Prüfungen bleiben als solche sichtbar; keine gegenseitigen Änderungen an denselben Dateien, Datenbanken oder Hardware-Ressourcen ohne abgestimmten Umfang. Unprotokollierte Vorbereitung wird als Nachweislücke geführt. Der vollständige Tagesabschluss muss Git-, Datei-, Backup- und Nachweisidentitäten samt Herkunft, Zeit und Grenzen dokumentieren; seine Gesamtqualifikation und die praktische Wiederaufnahme bleiben hier unbestätigt. R6-Restore bleibt offen.
+
+Nächster empfohlener Schritt ist die autorisierte Wiederaufnahmeprüfung einschließlich der vollständigen Originalauswertung von ARCHIVE-08 und DDR-08H und der Zuordnung ihrer Nachweisidentitäten. Erst daraus sind ein minimaler Folgeblock und erforderliche Freigaben abzuleiten. Dieser Nachtrag erteilt keine Netzwerk-, Git-, Build-, Test-, Medien- oder Hardwarefreigabe.
+
+
+---
+
+## Übergabe 2026-10-14 – NOVENA-DAY-CLOSE-15D
+
+Kennung: NOVENA-DAY-CLOSE-15D / 2026-10-14
+
+### Verifizierter Tagesstand
+
+- DAY-CLOSE-15A: PASS, Inventur der Tagesprotokolle.
+- DAY-CLOSE-15B: PASS, Git- und Indexanalyse.
+- DAY-CLOSE-15C: PASS, isolierte Commitvorschau.
+- 75 erfasste Tagesprotokolle, davon 68 PASS und
+  7 FAIL einschließlich des abgeschlossenen 15A.
+- ARCHIVE-08 bleibt FAIL: Threads 488 und 561 fehlen.
+- ARCHIVE-09A ist PASS: 343 HTML-Dateien vorhanden.
+- DDR-08H: Q1/C1 ZERO; D32 ret=-12.
+- Kein bestätigter vollständiger Boot mit dem
+  zuletzt untersuchten Stand.
+- Die vorhandenen U-Boot-/DDR-Änderungen dürfen
+  nicht ungeprüft gestaged oder committet werden.
+
+### Git-Schutzregeln
+
+Ausgangs-HEAD:
+7d98296db282aed0cadbf1d6cf9545ccb591f8a6
+
+Ausgangs-Index-SHA256:
+6fb7f10e615598a4d24878426cc58c7566abd1e582673c31d9cc9643afd94937
+
+Der ursprüngliche Index ist geschützt. Für den
+Dokumentationscommit einen isolierten Index
+verwenden und nur die fünf in 15C geprüften
+Dokumentationsdateien übernehmen.
+
+### Unmittelbarer nächster Schritt
+
+1. Ergebnis von 15D einschließlich Datei-Hashes prüfen.
+2. Isolierten Commitumfang nach 15D erneut verifizieren.
+3. Freigegebenen Dokumentationscommit erstellen.
+4. Zu Codeberg und GitHub pushen.
+5. Beide Remote-HEADs und Dokumentationsinhalte
+   gegen den Commit prüfen.
+6. Erst dann den Tagesabschluss als vollständig melden.
+
+### Weitere offene Arbeiten
+
+- DDR/SPL-Ursachenanalyse auf Grundlage der
+  vorhandenen Originalprotokolle fortsetzen.
+- Archiv-Threads 488 und 561 gezielt nachrecherchieren.
+- Historische Quellen und vorhandene Testlogs
+  systematisch auswerten.
+- Keine neuen Builds, Patches, Hardwaretests oder
+  SD-Schreibvorgänge ohne ausdrückliche Freigabe.
+
+### Arbeits- und Protokollregeln
+
+Alle technischen Blöcke über den bestehenden
+Runner und GitHub-Transport protokollieren.
+Vollständige TXT-Ausgabe und SHA256-Begleitdatei
+sind Pflicht. Upload-Erfolg allein beweist keinen
+technischen Blockerfolg.
+
+Der nächste Chat beginnt mit der Prüfung der
+gepushten Projektdateien und der Originalprotokolle
+im GitHub-Protokollrepository.

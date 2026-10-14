@@ -511,3 +511,23 @@ Der OpenBSD-Betrieb ist kein Nachweis einer eigenen
 DDR-Initialisierung oder eines Fixes des aktuellen
 SPL-/DDR-Fehlers. Bestehende Projektprioritäten,
 Freigabegrenzen und historische TODO-Einträge bleiben erhalten.
+
+
+## Nachtrag 2026-10-14 – Wiederaufnahme, Quellenanalyse und offene Nachweise
+
+Dieser Nachtrag ergänzt die historischen Aufgabenstände, ohne bestehende Kästchen oder Ergebnisse umzudeuten. Die Anforderungen der Arbeitsregeln 13 und 14 vom 2026-10-14 sind in Starter, Tagesabschluss und Übergabe ausformuliert; ihre praktische Erfüllung und fachliche Gesamtqualifikation sind damit nicht nachgewiesen.
+
+Übergebener Git-Checkpoint: HEAD `7d98296db282aed0cadbf1d6cf9545ccb591f8a6`, Index-SHA256 `6fb7f10e615598a4d24878426cc58c7566abd1e582673c31d9cc9643afd94937`. Die Werte stammen aus dem Auftrag und wurden hier nicht durch Git-Befehle verifiziert. Index, Intent-to-add-Einträge und vorhandene Nutzeränderungen bleiben geschützt.
+
+- [ ] Vor neuen technischen Empfehlungen oder Arbeitsblöcken die verbindliche Wiederaufnahme nach Arbeitsregel 14 durchführen: Regeln, neueste Übergabe, letzter Tagesabschluss, relevante Projektdateien und letzte verfügbare Originalprotokolle auswerten und Widersprüche beziehungsweise Zugriffslücken benennen.
+- [ ] Die projektweite Quellenanalyse nach Arbeitsregel 13 im relevanten erlaubten Umfang durchführen: gesamte Boot- und Systemarchitektur, historische Implementierungen, Schnittstellen, Abhängigkeiten, bestätigte Ursachen und ausgeschlossene Hypothesen berücksichtigen; Risiken, Alternativen und Folgen für spätere Schritte bewerten und Prioritätsänderungen begründen.
+- [ ] Bei berechtigter GitHub-Anbindung und konkreter Netzwerkfreigabe benötigte Original-TXT-Dateien und SHA256-Sidecars selbstständig in `loomit77/project-block-logs` unter `novena/YYYY/MM/` anhand der Blockkennung suchen, vollständig abrufen und auswerten. Lokal zugängliche Quellen zuerst verwenden; keinen erneuten Upload verlangen, solange die Dateien erreichbar sind. Nicht abgerufene Inhalte bleiben ungeprüft.
+- [ ] Für jeden relevanten Block Uploadstatus, Runnerstatus, Integritätsprüfung und fachliches Resultat getrennt mit dem jeweils belegten Umfang erfassen. Erfolgsmarker, Hashgleichheit und Ausführungsende ersetzen keine fachliche Abnahme.
+- [ ] ARCHIVE-08 anhand des vollständigen Originals und Sidecars abschließend auswerten: Ausführung beendet, Runner-FAIL, zwei Downloadfehler. Fehlende Quellen und Teilresultate zuordnen; fachlicher Archivabschluss bleibt offen. Keine automatische Wiederholung oder unkontrollierte Nacharchivierung.
+- [ ] DDR-08H mit vollständiger serieller Evidenz und Artefaktprovenienz einordnen: Q1/C1 ZERO, D32 `ret=-12`; vollständiger Boot und Patchfix bleiben unbestätigt. DDR/SPL-Root-Cause und externer Gesamtboot bleiben offen. Daraus keinen weiteren Hardwareversuch ohne gesonderte Freigabe ableiten.
+- [ ] Vollständigen Tages-Sollumfang, Zeitraum und Ausschlüsse festlegen; Git-, Datei-, Artefakt-, Backup-, Manifest-, Originalprotokoll- und Sidecaridentitäten mit Prüfzeitpunkt und Herkunft dokumentieren. Fehlende Werte als Lücken erhalten; R6-Sicherung und offenen vollständigen Restore getrennt bewerten.
+- [ ] Parallele Arbeiten mit Zuständigkeiten und Ressourcen abgrenzen. Vorbereitete, laufende, fehlgeschlagene und abgeschlossene Blöcke unterscheiden; unvollständige Prüfungen und laufende Eigenprotokolle nicht als abgeschlossene Nachweise verwenden.
+- [ ] Vor Änderungen bestehender Skripte vollständigen relevanten Quellcode, Schnittstellen, Annahmen und Abhängigkeiten prüfen. Vorbereitung und Kommandodateierzeugung innerhalb der Freigabe protokollieren; verbleibende unprotokollierte Schritte als Nachweislücken benennen.
+- [ ] Aktualisierte Übergabe und Wiederaufnehmbarkeit nach definiertem Kriterium prüfen; vollständigen Tagesabschluss und Verfahrensqualifikation erst nach vorhandenen konsistenten Pflichtnachweisen bewerten.
+
+I2C3/ES8328 bleibt geschlossen; `regulator-always-on` bleibt dauerhafte Boardanforderung. Die fachlichen Angaben zu ARCHIVE-08 und DDR-08H sind hier aus dem Auftrag übernommen; ihre Originalnamen, Hashes, Upload- und Integritätsnachweise wurden nicht neu erhoben. Diese Dokumentation erteilt keine zusätzlichen Schreib-, Netzwerk-, Git-, Build-, Test- oder Hardwarefreigaben.

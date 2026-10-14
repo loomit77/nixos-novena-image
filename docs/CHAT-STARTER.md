@@ -276,3 +276,22 @@ sind kein regulärer Ersatz für den Gesamtbuild.
 
 Keine neuen Änderungen oder Hardwaretests ohne
 konkrete Freigabe.
+
+
+## Nachtrag 2026-10-14 – Verbindlicher Einstieg nach Arbeitsregeln 13 und 14
+
+Bei einem neuen Chat oder nach längerer Unterbrechung ist die Wiederaufnahmeprüfung nach Arbeitsregel 14 Voraussetzung für neue technische Empfehlungen und Arbeitsblöcke. Lies zuerst AGENTS.md und NOVENA-ARBEITSREGELN.txt einschließlich der Regeln 13 und 14 vom 2026-10-14, dann die neueste Übergabe, den letzten Tagesabschluss, TODO und die relevanten Projektdateien samt datierten Nachträgen. Werte die letzten verfügbaren vollständigen Originalprotokolle aus; eine Zusammenfassung ersetzt diese Nachweise nicht. Benenne fehlende Zugriffe, widersprüchliche Angaben und unvollständige Prüfungen ausdrücklich, bevor darauf aufgebaut wird.
+
+Arbeitsregel 13 verlangt eine projektweite Quellenanalyse im sachlich relevanten und erlaubten Umfang. Berücksichtige Hardware, Firmware, SPL, U-Boot, Kernel und NixOS, ihre Schnittstellen, historische Implementierungen, bestätigte Ursachen, ausgeschlossene Hypothesen sowie Reproduzierbarkeit und Wartbarkeit. Lokale und bereits bereitgestellte Quellen werden zuerst ausgewertet; erforderliche externe Primärquellen folgen nur innerhalb der konkreten Freigabe. Trenne gesicherte Erkenntnisse, ungeprüfte Hypothesen, Risiken, Abhängigkeiten und offene Fragen. Begründe Änderungen der Aufgabenreihenfolge und bewerte Folgen einer vorgeschlagenen Lösung für spätere Projektschritte.
+
+Bei bestehender berechtigter GitHub-Anbindung und freigegebenem Netzwerkzugriff suche benötigte Originalprotokolle selbstständig in `loomit77/project-block-logs` anhand der Blockkennung und der neuesten einschlägigen Commits. Rufe unter `novena/YYYY/MM/` die vollständige TXT-Datei und den zugehörigen `.txt.sha256`-Sidecar ab und werte beide gemeinsam aus. Fordere keinen erneuten manuellen Upload an, solange die benötigten Dateien direkt zugänglich sind. Fehlender Zugriff bleibt eine Nachweislücke; nicht abgerufene Inhalte gelten nicht als geprüft. Uploadstatus, Runnerstatus, Protokollintegrität und fachliches Resultat werden jeweils gesondert angegeben.
+
+Für die Wiederaufnahme ist folgender im Auftrag übergebener Checkpoint vom 2026-10-14 zu berücksichtigen:
+
+- HEAD: `7d98296db282aed0cadbf1d6cf9545ccb591f8a6`.
+- Index-SHA256: `6fb7f10e615598a4d24878426cc58c7566abd1e582673c31d9cc9643afd94937`.
+- ARCHIVE-08: Ausführung beendet, Runner-FAIL, zwei Downloadfehler; kein fachlicher Archivabschluss.
+- DDR-08H: Q1/C1 ZERO, D32 `ret=-12`; kein bestätigter vollständiger Boot und kein bestätigter Patchfix. DDR/SPL bleibt offen.
+- I2C3/ES8328 bleibt geschlossen; `regulator-always-on` bleibt dauerhafte Boardanforderung.
+
+Diese Angaben wurden hier aus dem Auftrag übernommen, nicht durch Git-Abfragen oder Originalprotokollabrufe neu verifiziert. Ältere Checkpoints bleiben historische Nachweise. Erhalte Index, Intent-to-add-Einträge und sämtliche Nutzeränderungen. Unterscheide abgeschlossene, fehlgeschlagene, vorbereitete und laufende Arbeiten; kläre vor Änderungen Überschneidungen paralleler Arbeiten an Dateien, Datenbanken und Hardware. Vor Skriptänderungen sind vollständiger relevanter Quellcode, Schnittstellen, Annahmen und Abhängigkeiten zu prüfen. Unprotokollierte Vorbereitung bleibt als Lücke sichtbar. Diese Einstiegspflichten erteilen keine Schreib-, Netzwerk-, Git-, Build- oder Testfreigabe.

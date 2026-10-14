@@ -656,3 +656,109 @@ vorbereiteten Test-SD und vollständiger serieller
 Aufzeichnung. Nur nach eigener Testfreigabe.
 
 Keine automatische Git-Synchronisierung.
+
+
+## Nachtrag 2026-10-14 – Vollständiger Tagesabschluss nach Arbeitsregel 14
+
+Der Tagesabschluss muss einen ausdrücklich abgegrenzten Zeitraum und Sollumfang erfassen: alle zugehörigen Arbeitsblöcke, begründete Ausschlüsse, separate Teilprojekte sowie vorbereitete, laufende, fehlgeschlagene und abgeschlossene Arbeiten. Ein begrenzter Protokollbestand oder ein erfolgreicher Abschlussrunner belegt keine vollständige Tagesabdeckung. Die fachliche Gesamtqualifikation des Verfahrens wird durch diesen Nachtrag nicht erteilt.
+
+Ein vollständiger Abschluss dokumentiert folgende Identitäten mit Prüfzeitpunkt, Herkunft und Aussageumfang; fehlende oder nicht zugängliche Werte werden ausdrücklich als offen gekennzeichnet:
+
+- Projekt, Host, Repository, Branch, HEAD, Index-SHA256, relevante Index- und Worktree-Zustände einschließlich Nutzeränderungen und Intent-to-add-Einträgen. Lokaler Stand, dokumentierte Pushes und tatsächlich geprüfte Remote-Identitäten bleiben getrennt.
+- Relevante Datei- und Artefaktpfade, Größen und SHA256-Werte sowie Quellstände, Konfigurationen und Patches. Vorher- und Nachherstände werden bei Änderungen eindeutig zugeordnet; historische Identitäten werden nicht ersetzt.
+- Blockkennungen, Ausführungszeiten, vollständige Originalprotokollnamen und Fundorte, zugehörige Sidecars und geprüfte Hashwerte, Abschlusszustände und Exitcodes. Auch Vorbereitung und Erzeugung von Kommandodateien gehören zum Nachweisumfang; unprotokollierte Schritte bleiben Nachweislücken.
+- Backup-Checkpoint, Sicherungsziel, Sicherungszeitpunkt, Manifest- und Prüfsummenidentitäten, gesicherter Umfang und vorhandene Integritätsnachweise. Sicherung, Rückleseverifikation und vollständige Wiederherstellungsprobe werden getrennt bewertet. R6 bleibt der dokumentierte qualifizierte Sicherungscheckpoint; sein vollständiger Restore bleibt offen. Eine neue Sicherung oder Medienprüfung wird hier nicht behauptet.
+- Geltende Regeln mit Versionsstand, technische Resultate, fachlicher Abnahmestand, offene Aufgaben, Risiken, Abhängigkeiten und nächster empfohlener Schritt samt benötigten Freigaben. Maßgeblich sind insbesondere Arbeitsregeln 13 und 14 vom 2026-10-14 und AGENTS.md; dessen Identität ist bei einer späteren qualifizierten Erhebung gesondert festzuhalten.
+
+Für jeden Block sind Upload, Runner, Integrität und Fachresultat vier eigenständige Bewertungen. Upload-PASS belegt den Transport im nachgewiesenen Umfang, Runner-PASS den entsprechenden Ausführungsabschluss und Hashgleichheit Byteübereinstimmung. Keines dieser Ergebnisse ersetzt Protokollvollständigkeit oder fachliche Abnahme. Ein beendeter Runner-FAIL kann auswertbare Teilresultate liefern; seine fachlich offenen Teile bleiben offen.
+
+Originale und Sidecars werden zuerst lokal ausgewertet. Bei berechtigter GitHub-Anbindung und konkreter Netzwerkfreigabe werden benötigte Dateien selbstständig in `loomit77/project-block-logs`, `novena/YYYY/MM/`, anhand der Blockkennung gesucht und vollständig abgerufen. Bereits zugängliche Dateien werden nicht erneut beim Nutzer angefordert. Fehlende Originale, Sidecars oder Abrufmöglichkeiten sind benannte Lücken, keine bestandenen Prüfungen.
+
+Als übergebener Stand vom 2026-10-14 gelten HEAD `7d98296db282aed0cadbf1d6cf9545ccb591f8a6` und Index-SHA256 `6fb7f10e615598a4d24878426cc58c7566abd1e582673c31d9cc9643afd94937`. ARCHIVE-08 ist in der Ausführung beendet, mit Runner-FAIL und zwei Downloadfehlern; ein fachlicher Archivabschluss liegt nicht vor. DDR-08H zeigt Q1/C1 ZERO und D32 `ret=-12`; vollständiger Boot und Patchfix sind nicht bestätigt. I2C3/ES8328 bleibt geschlossen. Diese Angaben stammen aus dem Auftrag; Originalnamen, Sidecarhashes, Uploadstatus und unabhängige Integritätsprüfung dieser beiden Blöcke wurden hier nicht erhoben und werden nicht ergänzt oder erfunden.
+
+Laufende Eigenprotokolle und noch entstehende Sidecars dürfen nicht als abgeschlossene Nachweise gelten. Parallele Arbeiten erhalten getrennte Zuständigkeiten und abgegrenzte Ressourcen; ein Tagesabschluss darf ihren Zustand weder überschreiben noch als erfolgreich beendet darstellen. Bestehende Nutzeränderungen und der Originalindex bleiben erhalten. Bei wesentlichen ungeklärten Widersprüchen ist vor darauf aufbauenden Änderungen anzuhalten.
+
+Die Übergabe muss tatsächlich vorliegen und die Wiederaufnahmekriterien nach Arbeitsregel 14 erfüllen. Vor neuen technischen Empfehlungen folgt die Prüfung der Übergabe, des Abschlusses, der relevanten Projektquellen und Originale. Bei fehlenden Pflichtnachweisen bleibt der Abschluss PARTIAL oder UNGEKLÄRT entsprechend der verfügbaren Evidenz. Dieser Nachtrag definiert die Anforderungen, bestätigt aber weder einen vollständigen Tagesabschluss vom 2026-10-14 noch eine praktische Wiederaufnahme oder fachliche Gesamtfreigabe.
+
+
+---
+
+## Tagesabschluss 2026-10-14 – NOVENA-DAY-CLOSE-15D
+
+Kennung: NOVENA-DAY-CLOSE-15D / 2026-10-14
+
+### Protokollinventur
+
+- NOVENA-DAY-CLOSE-15A: PASS.
+- 75 lokale TXT-Protokolle wurden während der Inventur erfasst.
+- 74 bereits abgeschlossene Protokolle hatten gültige
+  SHA256-Begleitdateien.
+- Darunter waren 67 PASS und 7 FAIL.
+- Das gleichzeitig erzeugte 15A-Protokoll war bei seiner
+  eigenen Inventur noch nicht abgeschlossen.
+- Nach Abschluss von 15A liegt auch dessen TXT-Protokoll
+  mit SHA256-Begleitdatei auf GitHub vor.
+- Somit sind für die erfassten 75 Blöcke 68 PASS und
+  7 FAIL dokumentiert.
+- Die technische Bewertung der FAIL-Blöcke bleibt
+  anhand ihrer jeweiligen Originalprotokolle maßgeblich.
+
+### Archiv und historische Quellen
+
+- ARCHIVE-08: FAIL wegen zweier fehlgeschlagener Downloads.
+- ARCHIVE-09A: PASS, reine Bestandsaufnahme.
+- Thread 488: Wayback HTTP 404.
+- Thread 561: Wayback HTTP 302.
+- 165 erfolgreiche Downloads in ARCHIVE-08.
+- 343 vorhandene HTML-Dateien.
+- Die beiden Threads bleiben als gezielte Nachrecherche offen.
+- Kein vollständiger erneuter Archivdownload freigegeben.
+
+### DDR/SPL und Boot
+
+- DDR-08H: Q1/C1 ZERO.
+- D32: ret=-12.
+- Ein vollständiger erfolgreicher Boot mit dem zuletzt
+  untersuchten Stand ist nicht nachgewiesen.
+- DDR/SPL bleibt offen.
+- Keine neue Build-, Patch-, Hardwaretest- oder
+  SD-Schreibfreigabe durch diesen Tagesabschluss.
+- I2C3/ES8328 bleibt abgeschlossen und wird nicht
+  erneut als offene Ursache behandelt.
+
+### Git und Dokumentation
+
+- NOVENA-DAY-CLOSE-15B: PASS.
+- NOVENA-DAY-CLOSE-15C: PASS.
+- Ausgangs-HEAD:
+  7d98296db282aed0cadbf1d6cf9545ccb591f8a6
+- Ausgangs-Index-SHA256:
+  6fb7f10e615598a4d24878426cc58c7566abd1e582673c31d9cc9643afd94937
+- Der ursprüngliche Index enthält absichtlich vorbereitete
+  Änderungen und Intent-to-add-Patches 0004 bis 0012.
+- docs/DAILY-CLOSE.md war im Originalindex als
+  Löschung vorgemerkt, liegt im Worktree aber vor.
+- Kein pauschales git add -A, kein Reset und keine
+  ungeprüfte Übernahme dieser Indexeinträge.
+- Der isolierte Commitumfang aus 15C umfasst genau:
+  NOVENA-ARBEITSREGELN.txt,
+  TODO.md,
+  docs/CHAT-STARTER.md,
+  docs/DAILY-CLOSE.md,
+  docs/HANDOVER-LATEST.md.
+- Die beiden zuletzt genannten Dateien werden
+  durch 15D um diesen Abschlussstand ergänzt.
+
+### Abschlusskriterium
+
+Der Tagesabschluss ist erst vollständig, wenn der
+freigegebene Dokumentationsstand committet, zu Codeberg
+und GitHub gepusht und anschließend gegen beide
+Remote-Referenzen verifiziert wurde.
+
+Bis dahin lautet der Status:
+DOKUMENTATION VORBEREITET – GIT-PUSH AUSSTEHEND.
+
+Die TXT-Protokolle mit SHA256-Begleitdateien werden
+getrennt im GitHub-Repository project-block-logs
+archiviert.

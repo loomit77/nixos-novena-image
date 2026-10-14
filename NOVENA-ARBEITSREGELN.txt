@@ -659,3 +659,169 @@ beenden oder ersetzen könnten.
 Grundsatz:
 
 Ein Block endet. Die interaktive Benutzershell bleibt bestehen.
+
+
+======================================================================
+13. PROJEKTWEITE ANALYSE UND VORAUSSCHAUENDE QUELLENPRUEFUNG
+======================================================================
+
+Stand: 2026-10-14
+
+13.1 Projektziel statt isolierter Fehlersuche
+
+Technische Untersuchungen beschraenken sich nicht auf den
+zuletzt aufgetretenen Fehler oder die unmittelbar betroffene
+Komponente.
+
+Vor neuen Hypothesen, Entscheidungen und Aenderungen werden
+alle im erlaubten Umfang zugaenglichen Informationen
+beruecksichtigt, die fuer das konkrete Projektziel
+wesentlich sein koennten.
+
+Die Untersuchung betrachtet insbesondere:
+
+- die gesamte relevante Boot- und Systemarchitektur
+- Hardware, Firmware, SPL, U-Boot, Kernel und NixOS
+- Schnittstellen und Abhaengigkeiten zwischen Komponenten
+- historische Implementierungen und Entwicklerentscheidungen
+- vorhandene Projektdateien, Dokumentation und Testprotokolle
+- bereits bestaetigte Ursachen und ausgeschlossene Hypothesen
+- bekannte Einschraenkungen und moegliche Folgeprobleme
+- Reproduzierbarkeit, Wartbarkeit und langfristige Projektziele
+
+13.2 Systematische Quellenpruefung
+
+Zuerst werden vorhandene lokale und bereits bereitgestellte
+Projektquellen vollstaendig im relevanten Umfang ausgewertet.
+
+Danach werden, soweit fuer den Auftrag erforderlich und
+freigegeben, externe Primaerquellen beruecksichtigt.
+
+Widersprueche zwischen Quellen werden sichtbar dokumentiert.
+Historische Aussagen gelten nicht automatisch als aktueller
+technischer Zustand.
+
+13.3 Vorausschauende Bewertung
+
+Vor einer vorgeschlagenen Loesung werden nicht nur die
+unmittelbaren Auswirkungen, sondern auch relevante
+Abhaengigkeiten, Risiken, Alternativen und Auswirkungen
+auf spaetere Projektschritte bewertet.
+
+Neue Erkenntnisse koennen die bisherige Aufgabenreihenfolge
+veraendern. Solche Aenderungen werden begruendet und nicht
+stillschweigend vorgenommen.
+
+13.4 Keine unbegrenzte Untersuchung
+
+Die projektweite Perspektive ist keine Freigabe fuer
+unbegrenzte Recherchen, neue Tests oder Aenderungen.
+
+Der Untersuchungsumfang bleibt auf sachlich relevante
+Informationen begrenzt. Wesentliche offene Fragen werden
+priorisiert und mit ihrer Bedeutung fuer das Projekt benannt.
+
+Alle bestehenden Sicherheits-, Netzwerk-, Schreib- und
+Testfreigaben bleiben unveraendert.
+
+13.5 Ergebnisdarstellung
+
+Ergebnisse unterscheiden ausdruecklich zwischen:
+
+- gesicherten Erkenntnissen
+- plausiblen, noch ungeprueften Hypothesen
+- bekannten Risiken und Abhaengigkeiten
+- offenen Fragen
+- empfohlenen naechsten Schritten
+
+Ein lokaler Fehlerfix gilt nicht automatisch als Nachweis,
+dass das uebergeordnete Projektziel erreicht ist.
+
+
+======================================================================
+14. VERBINDLICHE PROJEKTWIEDERAUFNAHME UND UEBERGABE
+======================================================================
+
+Stand: 2026-10-14
+
+14.1 Wiederaufnahme vor neuen Arbeitsbloecken
+
+Beim Beginn eines neuen Chats oder nach einer laengeren
+Unterbrechung werden zuerst die vorhandenen Uebergabedaten,
+diese Arbeitsregeln, der letzte Tagesabschluss, die
+relevanten Projektdateien und die letzten verfuegbaren
+Blockprotokolle ausgewertet.
+
+Eine Zusammenfassung ersetzt nicht die Pruefung der
+erforderlichen Originalnachweise.
+
+14.2 Eigenstaendige Protokollbeschaffung
+
+Bei bestehender berechtigter GitHub-Anbindung sucht
+ChatGPT die benoetigten Protokolle selbststaendig im
+bekannten Protokollrepository.
+
+Bereits zugaengliche Dateien und bekannte Schnittstellen
+werden nicht unnoetig erneut beim Nutzer angefordert.
+
+Fehlender Zugriff wird ausdruecklich benannt.
+Ein nicht abgerufenes Protokoll gilt nicht als geprueft.
+
+14.3 Bestehende Implementierungen
+
+Vor Aenderungen an vorhandenen Skripten werden deren
+vollstaendiger relevanter Quellcode, Schnittstellen,
+Annahmen, Zustandspruefungen und Abhaengigkeiten geprueft.
+
+Ungepruefte Textersetzungen und Annahmen ueber
+Dateiinhalte sind unzulaessig.
+
+14.4 Laufende Arbeiten
+
+Die Uebergabe unterscheidet zwischen abgeschlossenen,
+fehlgeschlagenen, vorbereiteten und noch laufenden
+Arbeitsbloecken.
+
+Parallele Arbeiten duerfen nicht unbeabsichtigt dieselben
+Dateien, Datenbanken oder Hardware-Ressourcen veraendern.
+
+14.5 Vollstaendige Protokollierung
+
+Die Protokollierung soll auch die Vorbereitung und
+Erzeugung von Kommandodateien umfassen.
+
+Verbleibende unprotokollierte Vorbereitungsschritte
+werden als Nachweisluecke gekennzeichnet und nicht
+als vollstaendig protokolliert ausgegeben.
+
+Die Umsetzung dieser Anforderung muss innerhalb der
+bestehenden Freigabe- und Sicherheitsgrenzen erfolgen.
+
+14.6 Tagesabschluss
+
+Ein Tagesabschluss dokumentiert mindestens:
+
+- letzten nachgewiesenen Projektcheckpoint
+- relevante Git- und Dateiidentitaeten
+- ausgefuehrte Bloecke und ihre Protokollreferenzen
+- technische Ergebnisse und fachlichen Abnahmestand
+- noch laufende und fehlgeschlagene Arbeiten
+- offene Aufgaben, Risiken und Abhaengigkeiten
+- geltende Arbeitsregeln und deren Versionsstand
+- naechsten empfohlenen Schritt und erforderliche Freigaben
+
+14.7 Keine vorzeitige Erfolgsmeldung
+
+Upload-Erfolg, Runner-Erfolg, Integritaetspruefung
+und fachlicher Projekterfolg bleiben getrennt.
+
+Ein Tagesabschluss darf laufende Arbeiten nicht als
+erfolgreich abgeschlossen darstellen.
+
+14.8 Verbindlichkeit
+
+Diese Wiederaufnahmepruefung ist Voraussetzung fuer
+neue technische Empfehlungen und Arbeitsbloecke.
+
+Sie erteilt keine eigenstaendige Schreib-, Netzwerk-,
+Build-, Test- oder Git-Freigabe.
