@@ -600,3 +600,143 @@ technischen Blockerfolg.
 Der nächste Chat beginnt mit der Prüfung der
 gepushten Projektdateien und der Originalprotokolle
 im GitHub-Protokollrepository.
+
+> Aktueller Abschluss: siehe den Nachtrag „2026-10-15 – Abschluss und Übergabe nach Borg 35P-19“ am Dateiende; ältere Stände sind historisch.
+
+## 2026-10-15 – Abschluss und Übergabe nach Borg 35P-19
+
+Dieser datierte Nachtrag ist für den hier beschriebenen Abschluss maßgeblich.
+Ältere Statusangaben bleiben historische Checkpoints. Grundlage sind die
+vollständig ausgewerteten lokalen TXT-Originale samt übereinstimmenden
+SHA256-Sidecars; das Nachweisregister steht im gleichnamigen Nachtrag in
+`docs/TEST-LOG.md` (aus `docs/` heraus: `TEST-LOG.md`).
+
+- **Borg-27:** nachgewiesene reale Sicherung am 15.10.2026,
+  13:29:56–13:40:47 CEST. `BORGMATIC_CREATE_EXIT=0`, genau ein neues Archiv
+  (Bestand 2 → 3), `ARCHIVE_CHECK=PASS` und
+  `ARCHIVE_DATA_VERIFICATION=PASS`. Dies ist keine Restore-Abnahme.
+- **35O-R5:** 64 erfolgreiche Offline-Tests in fünf Suiten
+  (8 + 22 + 10 + 15 + 9); keine reale Borg-Ausführung in diesem Testblock.
+- **35P-12:** R4-Laufzeitnachweis erfolgreich: Downstream betreten,
+  äußere Sperre während der Bridge gehalten, konkurrierender R4-Aufruf
+  abgewiesen, Bridge abgeschlossen, Sperre nach Rückkehr freigegeben.
+  **Der R4-Laufzeitnachweis ist nicht mehr offen.** R4 ist ein
+  Offline-Prüfmechanismus; daraus folgt keine produktive Repository-Sperre
+  für eine reale Sicherung und keine produktive Gesamtfreigabe.
+- **35P-14:** FAIL, Exitstatus 1 wegen eines fehlerhaft formatierten
+  SHA256-Prüfblocks. Kein daraus belegter Quelldefekt. **35P-14R1:**
+  korrigierte Aufrufpfadanalyse PASS; der Testdateihash wurde erfasst,
+  aber ausdrücklich nicht mit einem historischen Sollhash verglichen.
+  Der frühere FAIL bleibt erhalten.
+- **35P-15/16:** Kontrollfluss-, Syntax- beziehungsweise Strukturanalyse
+  des bestehenden Tagesabschlusses erfolgreich; keine reale Sicherung.
+- **35P-17:** Offline-Borg-Nachweisprüfer erfolgreich gegen Borg-27,
+  einschließlich Protokollhash, Sidecar, Archivanzahl, Archiv-ID,
+  Archivprüfung, Datenverifikation und Runnernachweis.
+- **35P-18:** Offline-Integrationstest und Abweisung einer nicht
+  autorisierten Tagesabschlussausführung erfolgreich. Der Starter
+  `~/novena-backups/workflow-improvement-35/borg/novena-dayclose-with-borg-35p18.bash`
+  prüft den historischen Borg-27-Nachweis und startet keine Sicherung.
+  Die Nachweisauswahl ist noch fest gebunden, nicht dynamisch.
+- **35P-19:** integrierter Tagesabschluss erfolgreich ausgeführt
+  (16:06:05 CEST; `DAYCLOSE_EXECUTED=YES`,
+  `DAYCLOSE_INTEGRATION=PASS`, Runner-PASS, Exitstatus 0).
+  Dabei kein Borg-/borgmatic-Aufruf und kein Borg-Repositoryzugriff.
+
+**Korrektur veralteter Statusausgaben:** Der in 35P-19 eingebettete ältere
+Tagesabschluss meldet weiterhin `BORG_FULL_LOCK_DURATION_PROOF=OPEN` und
+führt den Laufzeitnachweis als offene Aufgabe. Das ist durch 35P-12 überholt,
+kein neuer Fehlschlag. Auch die damaligen pauschalen offenen Integrationspunkte
+sind anhand 35P-17/18/19 auf den tatsächlich erreichten Offline-Nachweisumfang
+zu begrenzen. Die Skriptausgabe bleibt unverändert als Originalevidenz erhalten.
+Der belegte Ausführungserfolg von 35P-19 ersetzt weder eine unabhängige
+Vollständigkeitsinventur aller Tagesarbeiten noch eine produktive Borg-Abnahme.
+Upload beziehungsweise Remote-Archivierung wurden in diesem Dokumentationsauftrag
+nicht erneut geprüft; lokale Logintegrität und fachliche Ergebnisse sind davon getrennt.
+
+**Offen:** Restore-Abnahme, Offsite-Schlüsselsicherung einschließlich
+Wiederherstellbarkeit und produktive Gesamtfreigabe. Die dynamische Auswahl
+eines geeigneten aktuellen Sicherungsnachweises sowie die produktive
+Sperr-, Freigabe-, Provenienz- und Nachweiserfassung bleiben gesondert zu
+qualifizieren. Der vollständige R6-Restore bleibt eine separate offene Aufgabe.
+
+**Nächste Projektpriorität: Novena – universelles NixOS SD-Image.**
+Borg-Arbeiten sind für die Wiederaufnahme zurückgestellt. Vor weiteren Builds,
+Hardwaretests oder Änderungen zuerst den aktuellen Projektstand, TODO,
+Artefaktprovenienz und vollständige vorhandene Boot-/Testnachweise prüfen.
+DDR/SPL und der vollständige externe Bootpfad bleiben offen; der dokumentierte
+DDR-08H-Befund ist Q1/C1 ZERO und D32 `ret=-12`, kein bestätigter Patchfix
+oder vollständiger Boot. I2C3/ES8328 bleibt abgeschlossen;
+`regulator-always-on` bleibt dauerhafte Boardanforderung.
+
+### Tatsächlich lokal erhobener Git-Zustand
+
+Prüfung am 2026-10-15T16:13:14+02:00,
+Repository `/home/loomit/nixos-novena-image`, Branch `main`:
+HEAD `ee99ba0c296626e63c214ec91f5b7d771e35d1f7`, Index-SHA256 `6fb7f10e615598a4d24878426cc58c7566abd1e582673c31d9cc9643afd94937`.
+Dies ist eine lokale lesende Erhebung, keine Remote-Synchronisationsprüfung.
+Der Status vor den Dokumentationsergänzungen lautet:
+
+```text
+MM NOVENA-ARBEITSREGELN.txt
+MM TODO.md
+ A boot/u-boot/0004-novena-uboot-diag-d0-d36.patch
+ A boot/u-boot/0005-novena-diag-d21a-d21d.patch
+ A boot/u-boot/0006-novena-diag-brk-p0-p1.patch
+ A boot/u-boot/0007-novena-diag-brk-q1-q2.patch
+ A boot/u-boot/0008-novena-diag-control-c0-c2.patch
+ A boot/u-boot/0009-novena-diag-write-level-status.patch
+ A boot/u-boot/0010-novena-diag-dqs-status.patch
+ A boot/u-boot/0011-novena-spl-disable-bank-interleaving.patch
+ A boot/u-boot/0012-novena-ddr-read-specific-dummy-write.patch
+ M boot/u-boot/default.nix
+MM docs/CHAT-STARTER.md
+D  docs/DAILY-CLOSE.md
+MM docs/DECISIONS.md
+MM docs/HANDOVER-LATEST.md
+MM docs/PROJECT-STATE.md
+MM docs/QUELLENVERZEICHNIS.md
+MM docs/TEST-LOG.md
+ M docs/en/docs/BUILD-HOST.md
+ M docs/en/docs/BUILD.md
+ M docs/en/docs/GOLDEN-BUILD.md
+ M docs/en/docs/IMAGE-LAYOUT.md
+ M docs/en/docs/QUELLENVERZEICHNIS.md
+ D docs/en/research/04-spl-ddr/block-9c-43-dokumentationscheckpoint.md
+?? boot/u-boot/0013-novena-spl-rtt-nom-rzq2.patch
+?? docs/DAILY-CLOSE.md
+?? research/nxp-reference-manuals/
+?? test-logs/2026-10-05/
+?? test-logs/2026-10-07/
+```
+
+Die neun Patches 0004–0012 sind vorhandene Intent-to-add-Einträge.
+Der Index enthält bereits Dokumentationsänderungen gegenüber HEAD;
+`MM` bezeichnet zusätzlich abweichende Worktree-Inhalte.
+`docs/DAILY-CLOSE.md` ist im Index zur Löschung vorgemerkt und liegt zugleich
+als unversionierte Worktree-Datei vor. Keine Indexreparatur ableiten.
+Vorhandene U-Boot-, Übersetzungs-, Forschungs- und Logänderungen gehören
+nicht zum Schreibumfang dieses Auftrags. Die historischen HEAD-/Indexwerte
+weiter oben sind keine aktuellen Wiederaufnahmevorgaben.
+
+Dieser Auftrag ergänzt ausschließlich sieben bestehende Dokumentationsdateien.
+HEAD und Index bleiben erhalten; keine Git-Mutationen, Commits, Pushes,
+Builds, Tests, Borg-Ausführungen, Netzwerk-, Blockgeräte- oder Hardwarezugriffe.
+Die neue Dokumentation ist lokal uncommittet; eine Veröffentlichung oder
+aktuelle Übereinstimmung mit Codeberg/GitHub wird nicht behauptet.
+
+### Konkreter Einstieg im nächsten Chat
+
+„Wir setzen Novena – universelles NixOS SD-Image nach dem Abschluss
+vom 15.10.2026 fort. Lies zuerst AGENTS.md, NOVENA-ARBEITSREGELN.txt,
+README.md, die neuesten Nachträge in HANDOVER-LATEST, DAILY-CLOSE,
+TODO, PROJECT-STATE, TEST-LOG und DECISIONS. Prüfe den tatsächlichen
+Git-Zustand lesend mit `git --no-optional-locks` und erhalte alle vorhandenen
+Änderungen sowie den Index. Werte die vorhandenen vollständigen
+Boot-/Testnachweise aus. Fasse den SD-Image-Stand, Evidenzlücken und den
+minimalen nächsten Projektblock zusammen. Zunächst nur lesen;
+keine Builds, Tests, Borg-Ausführungen oder Änderungen.“
+
+Die älteren Anweisungen zu einem unmittelbar nächsten Commit/Push,
+Hardwaretest oder vorrangigen Starter-/Werkzeugprojekt sind historische
+Planungsstände und keine aktuelle Aktionsfreigabe.

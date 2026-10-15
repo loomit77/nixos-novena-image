@@ -1552,3 +1552,77 @@ Installation, Werkzeugtests, Builds, Hardwaretests, Netzwerkzugriffe,
 Git-Mutationen, Commits oder Pushes; keine neuen Projektdateien und keine
 automatischen Reparaturen. Bestehende Inhalte und Nutzeränderungen bleiben
 erhalten. Die Audit-Originale und Sidecars bleiben unverändert.
+
+> Aktueller Abschluss: siehe den Nachtrag „2026-10-15 – Abschluss und Übergabe nach Borg 35P-19“ am Dateiende; ältere Stände sind historisch.
+
+## 2026-10-15 – Abschluss und Übergabe nach Borg 35P-19
+
+Dieser datierte Nachtrag ist für den hier beschriebenen Abschluss maßgeblich.
+Ältere Statusangaben bleiben historische Checkpoints. Grundlage sind die
+vollständig ausgewerteten lokalen TXT-Originale samt übereinstimmenden
+SHA256-Sidecars; das Nachweisregister steht im gleichnamigen Nachtrag in
+`docs/TEST-LOG.md` (aus `docs/` heraus: `TEST-LOG.md`).
+
+- **Borg-27:** nachgewiesene reale Sicherung am 15.10.2026,
+  13:29:56–13:40:47 CEST. `BORGMATIC_CREATE_EXIT=0`, genau ein neues Archiv
+  (Bestand 2 → 3), `ARCHIVE_CHECK=PASS` und
+  `ARCHIVE_DATA_VERIFICATION=PASS`. Dies ist keine Restore-Abnahme.
+- **35O-R5:** 64 erfolgreiche Offline-Tests in fünf Suiten
+  (8 + 22 + 10 + 15 + 9); keine reale Borg-Ausführung in diesem Testblock.
+- **35P-12:** R4-Laufzeitnachweis erfolgreich: Downstream betreten,
+  äußere Sperre während der Bridge gehalten, konkurrierender R4-Aufruf
+  abgewiesen, Bridge abgeschlossen, Sperre nach Rückkehr freigegeben.
+  **Der R4-Laufzeitnachweis ist nicht mehr offen.** R4 ist ein
+  Offline-Prüfmechanismus; daraus folgt keine produktive Repository-Sperre
+  für eine reale Sicherung und keine produktive Gesamtfreigabe.
+- **35P-14:** FAIL, Exitstatus 1 wegen eines fehlerhaft formatierten
+  SHA256-Prüfblocks. Kein daraus belegter Quelldefekt. **35P-14R1:**
+  korrigierte Aufrufpfadanalyse PASS; der Testdateihash wurde erfasst,
+  aber ausdrücklich nicht mit einem historischen Sollhash verglichen.
+  Der frühere FAIL bleibt erhalten.
+- **35P-15/16:** Kontrollfluss-, Syntax- beziehungsweise Strukturanalyse
+  des bestehenden Tagesabschlusses erfolgreich; keine reale Sicherung.
+- **35P-17:** Offline-Borg-Nachweisprüfer erfolgreich gegen Borg-27,
+  einschließlich Protokollhash, Sidecar, Archivanzahl, Archiv-ID,
+  Archivprüfung, Datenverifikation und Runnernachweis.
+- **35P-18:** Offline-Integrationstest und Abweisung einer nicht
+  autorisierten Tagesabschlussausführung erfolgreich. Der Starter
+  `~/novena-backups/workflow-improvement-35/borg/novena-dayclose-with-borg-35p18.bash`
+  prüft den historischen Borg-27-Nachweis und startet keine Sicherung.
+  Die Nachweisauswahl ist noch fest gebunden, nicht dynamisch.
+- **35P-19:** integrierter Tagesabschluss erfolgreich ausgeführt
+  (16:06:05 CEST; `DAYCLOSE_EXECUTED=YES`,
+  `DAYCLOSE_INTEGRATION=PASS`, Runner-PASS, Exitstatus 0).
+  Dabei kein Borg-/borgmatic-Aufruf und kein Borg-Repositoryzugriff.
+
+**Korrektur veralteter Statusausgaben:** Der in 35P-19 eingebettete ältere
+Tagesabschluss meldet weiterhin `BORG_FULL_LOCK_DURATION_PROOF=OPEN` und
+führt den Laufzeitnachweis als offene Aufgabe. Das ist durch 35P-12 überholt,
+kein neuer Fehlschlag. Auch die damaligen pauschalen offenen Integrationspunkte
+sind anhand 35P-17/18/19 auf den tatsächlich erreichten Offline-Nachweisumfang
+zu begrenzen. Die Skriptausgabe bleibt unverändert als Originalevidenz erhalten.
+Der belegte Ausführungserfolg von 35P-19 ersetzt weder eine unabhängige
+Vollständigkeitsinventur aller Tagesarbeiten noch eine produktive Borg-Abnahme.
+Upload beziehungsweise Remote-Archivierung wurden in diesem Dokumentationsauftrag
+nicht erneut geprüft; lokale Logintegrität und fachliche Ergebnisse sind davon getrennt.
+
+**Offen:** Restore-Abnahme, Offsite-Schlüsselsicherung einschließlich
+Wiederherstellbarkeit und produktive Gesamtfreigabe. Die dynamische Auswahl
+eines geeigneten aktuellen Sicherungsnachweises sowie die produktive
+Sperr-, Freigabe-, Provenienz- und Nachweiserfassung bleiben gesondert zu
+qualifizieren. Der vollständige R6-Restore bleibt eine separate offene Aufgabe.
+
+**Nächste Projektpriorität: Novena – universelles NixOS SD-Image.**
+Borg-Arbeiten sind für die Wiederaufnahme zurückgestellt. Vor weiteren Builds,
+Hardwaretests oder Änderungen zuerst den aktuellen Projektstand, TODO,
+Artefaktprovenienz und vollständige vorhandene Boot-/Testnachweise prüfen.
+DDR/SPL und der vollständige externe Bootpfad bleiben offen; der dokumentierte
+DDR-08H-Befund ist Q1/C1 ZERO und D32 `ret=-12`, kein bestätigter Patchfix
+oder vollständiger Boot. I2C3/ES8328 bleibt abgeschlossen;
+`regulator-always-on` bleibt dauerhafte Boardanforderung.
+
+Entscheidung für die Übergabe: Offline-Abnahme, reale historische Sicherung
+und produktive Freigabe getrennt führen. Keine Wiederholung des abgeschlossenen
+R4-Nachweises ohne neue diskriminierende Evidenz. Die Entscheidung vom
+12.10., Borg vorerst nicht einzusetzen, ist durch die belegte reale Sicherung
+vom 15.10. als damaliger Planungsstand überholt.

@@ -2801,3 +2801,96 @@ Runner-Originalprotokoll zu entnehmen.
 Bewertung: OpenBSD-Betrieb 2015 belegt;
 OpenBSD-U-Boot-Quellkonfiguration 2016 belegt;
 SPL-Identität und DDR-Ursache weiterhin offen.
+
+> Aktueller Abschluss: siehe den Nachtrag „2026-10-15 – Abschluss und Übergabe nach Borg 35P-19“ am Dateiende; ältere Stände sind historisch.
+
+## 2026-10-15 – Abschluss und Übergabe nach Borg 35P-19
+
+Dieser datierte Nachtrag ist für den hier beschriebenen Abschluss maßgeblich.
+Ältere Statusangaben bleiben historische Checkpoints. Grundlage sind die
+vollständig ausgewerteten lokalen TXT-Originale samt übereinstimmenden
+SHA256-Sidecars; das Nachweisregister steht im gleichnamigen Nachtrag in
+`docs/TEST-LOG.md` (aus `docs/` heraus: `TEST-LOG.md`).
+
+- **Borg-27:** nachgewiesene reale Sicherung am 15.10.2026,
+  13:29:56–13:40:47 CEST. `BORGMATIC_CREATE_EXIT=0`, genau ein neues Archiv
+  (Bestand 2 → 3), `ARCHIVE_CHECK=PASS` und
+  `ARCHIVE_DATA_VERIFICATION=PASS`. Dies ist keine Restore-Abnahme.
+- **35O-R5:** 64 erfolgreiche Offline-Tests in fünf Suiten
+  (8 + 22 + 10 + 15 + 9); keine reale Borg-Ausführung in diesem Testblock.
+- **35P-12:** R4-Laufzeitnachweis erfolgreich: Downstream betreten,
+  äußere Sperre während der Bridge gehalten, konkurrierender R4-Aufruf
+  abgewiesen, Bridge abgeschlossen, Sperre nach Rückkehr freigegeben.
+  **Der R4-Laufzeitnachweis ist nicht mehr offen.** R4 ist ein
+  Offline-Prüfmechanismus; daraus folgt keine produktive Repository-Sperre
+  für eine reale Sicherung und keine produktive Gesamtfreigabe.
+- **35P-14:** FAIL, Exitstatus 1 wegen eines fehlerhaft formatierten
+  SHA256-Prüfblocks. Kein daraus belegter Quelldefekt. **35P-14R1:**
+  korrigierte Aufrufpfadanalyse PASS; der Testdateihash wurde erfasst,
+  aber ausdrücklich nicht mit einem historischen Sollhash verglichen.
+  Der frühere FAIL bleibt erhalten.
+- **35P-15/16:** Kontrollfluss-, Syntax- beziehungsweise Strukturanalyse
+  des bestehenden Tagesabschlusses erfolgreich; keine reale Sicherung.
+- **35P-17:** Offline-Borg-Nachweisprüfer erfolgreich gegen Borg-27,
+  einschließlich Protokollhash, Sidecar, Archivanzahl, Archiv-ID,
+  Archivprüfung, Datenverifikation und Runnernachweis.
+- **35P-18:** Offline-Integrationstest und Abweisung einer nicht
+  autorisierten Tagesabschlussausführung erfolgreich. Der Starter
+  `~/novena-backups/workflow-improvement-35/borg/novena-dayclose-with-borg-35p18.bash`
+  prüft den historischen Borg-27-Nachweis und startet keine Sicherung.
+  Die Nachweisauswahl ist noch fest gebunden, nicht dynamisch.
+- **35P-19:** integrierter Tagesabschluss erfolgreich ausgeführt
+  (16:06:05 CEST; `DAYCLOSE_EXECUTED=YES`,
+  `DAYCLOSE_INTEGRATION=PASS`, Runner-PASS, Exitstatus 0).
+  Dabei kein Borg-/borgmatic-Aufruf und kein Borg-Repositoryzugriff.
+
+**Korrektur veralteter Statusausgaben:** Der in 35P-19 eingebettete ältere
+Tagesabschluss meldet weiterhin `BORG_FULL_LOCK_DURATION_PROOF=OPEN` und
+führt den Laufzeitnachweis als offene Aufgabe. Das ist durch 35P-12 überholt,
+kein neuer Fehlschlag. Auch die damaligen pauschalen offenen Integrationspunkte
+sind anhand 35P-17/18/19 auf den tatsächlich erreichten Offline-Nachweisumfang
+zu begrenzen. Die Skriptausgabe bleibt unverändert als Originalevidenz erhalten.
+Der belegte Ausführungserfolg von 35P-19 ersetzt weder eine unabhängige
+Vollständigkeitsinventur aller Tagesarbeiten noch eine produktive Borg-Abnahme.
+Upload beziehungsweise Remote-Archivierung wurden in diesem Dokumentationsauftrag
+nicht erneut geprüft; lokale Logintegrität und fachliche Ergebnisse sind davon getrennt.
+
+**Offen:** Restore-Abnahme, Offsite-Schlüsselsicherung einschließlich
+Wiederherstellbarkeit und produktive Gesamtfreigabe. Die dynamische Auswahl
+eines geeigneten aktuellen Sicherungsnachweises sowie die produktive
+Sperr-, Freigabe-, Provenienz- und Nachweiserfassung bleiben gesondert zu
+qualifizieren. Der vollständige R6-Restore bleibt eine separate offene Aufgabe.
+
+**Nächste Projektpriorität: Novena – universelles NixOS SD-Image.**
+Borg-Arbeiten sind für die Wiederaufnahme zurückgestellt. Vor weiteren Builds,
+Hardwaretests oder Änderungen zuerst den aktuellen Projektstand, TODO,
+Artefaktprovenienz und vollständige vorhandene Boot-/Testnachweise prüfen.
+DDR/SPL und der vollständige externe Bootpfad bleiben offen; der dokumentierte
+DDR-08H-Befund ist Q1/C1 ZERO und D32 `ret=-12`, kein bestätigter Patchfix
+oder vollständiger Boot. I2C3/ES8328 bleibt abgeschlossen;
+`regulator-always-on` bleibt dauerhafte Boardanforderung.
+
+### Geprüfte Originalprotokolle
+
+Fundort aller folgenden Originale: `~/novena-backups/block-logs/`.
+Jeweils vollständiges TXT gelesen und SHA256 gegen `.txt.sha256` geprüft:
+alle zehn stimmen überein. Alle tragen `LOG_COMPLETE=YES`;
+35P-14 ist FAIL/Exit 1, die übrigen PASS/Exit 0.
+
+| Originalprotokoll | SHA256 |
+|---|---|
+| `NOVENA-DAILY-BORG-27-20261015-132956-RSYk2q5a.txt` | `82782951268099a484b8cb284895b0b9c0a962e6e8a0c8a6e929ce77639a052f` |
+| `NOVENA-BORG-OFFLINE-ACCEPTANCE-35O-R5-20261015-151708-EyTXFs9b.txt` | `0817e687f7a17278bd802a14a3c25a728159239b9ee70256e4ae3a5a923d13e4` |
+| `NOVENA-BORG-R4-RUNTIME-PROOF-35P-12-20261015-155353-tWinm92U.txt` | `25c20c36aac804dbb4b0ab4e4453d69d308e18e04c943fc28684114759b56d6a` |
+| `NOVENA-BORG-DAYCLOSE-CALLPATH-35P-14-20261015-155654-saFX48AU.txt` | `605d3f17cf7eb1039f33755b32a25c6019f82b11c8dcc559e7b1016f85f36769` |
+| `NOVENA-BORG-DAYCLOSE-CALLPATH-35P-14R1-20261015-155755-duqPDabg.txt` | `ae3024e411f918834fd9845b4d63f49a31f5900c2cb1cd0cb72ebd2182793cd7` |
+| `NOVENA-BORG-DAYCLOSE-FLOW-35P-15-20261015-155952-bqwv2m69.txt` | `cb5014db8458ca4564cb943313214f241e45624710a03730f65958dc51899385` |
+| `NOVENA-BORG-DAYCLOSE-SOURCE-35P-16-20261015-160134-QlqA6H1D.txt` | `88211e2b9214bb1b57ff98cc1f13c79b86c9cf379bc319b1ac9845c24a5e1b9c` |
+| `NOVENA-BORG-DAYCLOSE-EVIDENCE-35P-17-20261015-160239-CbUpvAHu.txt` | `451608ed190334f187ba619a8a8f59c4af2d0abe07884cb3b51471864145e439` |
+| `NOVENA-BORG-DAYCLOSE-INTEGRATE-35P-18-20261015-160345-pJAXerQC.txt` | `4df46132711fa68921ada045ccf5a9e8e278917b32a879ea841de385a0e2bf13` |
+| `NOVENA-BORG-DAYCLOSE-RUN-35P-19-20261015-160605-pxbzgpSX.txt` | `07402d6f071acb034fdcbbe330e4a37c847b8ff3dba5c78ee21853cb59a14d98` |
+
+Borg-27-Archiv: `novena-foobox-2026-10-15T13:30:14`,
+ID `74311147b3ee1145f5791aeb6676f023228ed5fb50c9aa7ac56c3c0f322255f3`.
+Die Bewertung beruht auf den erhaltenen Protokollen; keine erneute
+Archivabfrage oder Sicherung wurde ausgeführt.
