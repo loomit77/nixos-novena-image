@@ -6749,3 +6749,39 @@ Kernel, NixOS und reproduzierbarer Image-Builder.
 
 Diese Dokumentation qualifiziert weder ein neues Image
 noch einen neuen Hardware-Boot.
+
+
+## 2026-10-17 – NOVENA-DEBIAN-DOC-01B: statischer Debian-Referenzcheckpoint
+
+NOVENA-DEBIAN-REF-09 bis REF-14 sind als statische Teiluntersuchungen integriert;
+[Hauptdarstellung](HISTORICAL-MEDIA.md#2026-10-17--novena-debian-doc-01b-bootvertrag-der-debian-paketlinie-2015)
+und [Quellenregister](QUELLENVERZEICHNIS.md#2026-10-17--novena-debian-doc-01b-ref-09-bis-ref-14-quellenregister)
+enthalten exakte Commit-, Binär- und Protokollidentitäten samt Grenzen.
+
+Am Referenzcommit `bd5c7d3290bb94bf8af17760c321df67d2641343` ist externe SD
+im SPL über USDHC2, internes Medium über USDHC3 belegt; SPL registriert nur
+die ausgewählte MMC als Gerät 0 und lädt im FAT-Dateisystemmodus von p1
+`u-boot.img`. Proper sieht dagegen intern MMC 0 und extern MMC 1 vor.
+Sein persistentes Environment bleibt auf MMC 0 (16 KiB, Offsets `0x80000`
+und `0x84000`). Das ist ein offener Unabhängigkeitspunkt, kein Nachweis eines
+bereits erfolgreichen Boots ohne internes System.
+
+EEPROM-Feature `feature_rootsrc_sata=0x0100`, persistente Werte, doppelte
+`rootdev`-Defaults, `uEnv.txt`, `earlyhook/finalhook`, extlinux-/Skriptscan und
+direkter zImage-/DTB-Fallback beeinflussen unterschiedliche Bootphasen.
+Externe Bootquelle garantiert keine externe Rootquelle; NovM-/NovS-PARTUUIDs
+und mögliche Kollisionen sind am künftigen Referenzimage zu qualifizieren.
+
+2014-Roh-SPL und FAT-Dateien, 2015-Rootfs-Paketpaar und 2020.07-SPL sind
+getrennte Artefaktgruppen. Der USB-Master bleibt ein Hybrid, kein einheitlicher
+Bootzustand oder automatisch geeignetes SD-Image. Der SOURCE-18B-Befund zum
+2020.07-SPL bleibt bestehen. Die Extraktionsherkunft des 2015-Paars ist durch
+REF-08/08R dokumentiert (FAIL und Folge-PASS getrennt); vollständige ursprüngliche
+Build-/Paketprovenienz ist weiterhin offen.
+
+Offen bleiben konkrete Environment-/Root-Wirkung ohne interne Abhängigkeit,
+Binär-/Übergabevertrag, Kernel-/initrd-/DTB-Qualifikation und der vollständige
+P_EXT-Boot bis Debian auf derselben externen SD. SOURCE-18 ist damit nicht
+pauschal abgeschlossen. Keine neue Bootloaderwahl, keine Hardwarequalifikation;
+NOVENA-STRATEGY-02 bleibt maßgeblich. Moderne DDR-Root-Cause offen,
+I2C3/ES8328 geschlossen, `regulator-always-on` dauerhaft.

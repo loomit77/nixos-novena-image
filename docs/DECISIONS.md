@@ -1710,3 +1710,34 @@ NixOS und reproduzierbaren Image-Builder.
 Vorhandene DDR-/SPL-Forschungsergebnisse, frühere
 Fehlerbefunde und die abgeschlossene I2C3/ES8328-
 Root-Cause bleiben unverändert.
+
+
+## 2026-10-17 – NOVENA-DEBIAN-DOC-01B: Evidenzeinordnung REF-09 bis REF-14
+
+Dieser Nachtrag ordnet statische Evidenz ein und trifft **keine neue
+Bootloaderentscheidung**. NOVENA-STRATEGY-02 und frühere Entscheidungen
+bleiben unverändert. Die [historische Hauptdarstellung](HISTORICAL-MEDIA.md#2026-10-17--novena-debian-doc-01b-bootvertrag-der-debian-paketlinie-2015)
+und das [Quellenregister](QUELLENVERZEICHNIS.md#2026-10-17--novena-debian-doc-01b-ref-09-bis-ref-14-quellenregister)
+binden die Aussagen an Originalprotokolle und den exakten Referenzcommit
+`bd5c7d3290bb94bf8af17760c321df67d2641343`.
+
+Der 2015-Quellstand belegt einen externen USDHC2-SPL-Pfad und den
+FAT-p1-/`u-boot.img`-Vertrag. Daraus folgt weder die Eignung des gesamten
+USB-Hybrids noch eine vollständige P_EXT-Bootfähigkeit des extrahierten Paars.
+Die 2014-Generationen und der 2020.07-SPL aus SOURCE-18B bleiben separat;
+Quellunterstützung einer Linie qualifiziert kein anderes Binary.
+
+Controllerwahl im SPL, MMC-Nummerierung in Proper, persistentes Environment
+auf MMC 0, EEPROM-/Hook-Einflüsse, Nutzlastquelle und Rootquelle sind getrennte
+Qualifikationsgegenstände. Insbesondere ist externe Bootquelle kein Nachweis
+der Unabhängigkeit von interner MMC oder SATA. Der vorhandene Default-Fallback
+beweist keinen Gesamtboot ohne internes System. Doppelte Defaultstrings
+beweisen allein keinen effektiven Laufzeitwert.
+
+REF-09 bis REF-14 dokumentieren statische Teilergebnisse mit Runner-PASS;
+Integrität, Extraktionsherkunft, vollständige Buildprovenienz und Hardwarefunktion
+bleiben getrennt. REF-08-FAIL bleibt trotz REF-08R-PASS erhalten. Fehlende
+Kernel-/initrd-/DTB-, Environment-, Root- und P_EXT-Nachweise bleiben offen;
+kein Original-/GOOD-Prädikat und keine neue Freigabe für Builds oder Versuche.
+Moderne DDR-Ergebnisse werden nicht umgedeutet. I2C3/ES8328 bleibt geschlossen,
+`regulator-always-on` bleibt dauerhafte Novena-Boardanforderung.

@@ -872,3 +872,184 @@ FACTORY_R1_HASH_IDENTITY=PROVEN
 FACTORY_R1_SHRUNK_EXT4_DESIGN=PROVEN
 FACTORY_IMAGING_EXPAND_PROCEDURE=PROVEN
 ```
+
+
+## 2026-10-17 – NOVENA-DEBIAN-DOC-01B: Bootvertrag der Debian-Paketlinie 2015
+
+Dieser additive Nachtrag integriert NOVENA-DEBIAN-REF-09 bis REF-14.
+Exakte Originalprotokolle, Sidecarabgleich, Binärhashes, Herkunft und Git-Blobs
+stehen im [Quellenregister](QUELLENVERZEICHNIS.md#2026-10-17--novena-debian-doc-01b-ref-09-bis-ref-14-quellenregister).
+Die folgenden Aussagen unterscheiden Quellcodebefund, Binärindiz und offenen
+Laufzeitnachweis. Es fand hier kein Build, Test, Medienzugriff oder Hardwareboot statt.
+
+### Getrennte Generationen und Referenzbindung
+
+Der USB-Raw-Master enthält keinen einheitlichen Bootzustand: roher rc12-SPL
+`c5efeadb913c8246be372054adcd6106ad4fe067` vom Oktober 2014,
+FAT-SPL rc14 `3d26413e65f985131a9573d99a51fd47e7253188` vom Dezember 2014
+und spätere Rootfs-Paketdateien von September 2015 bleiben getrennt.
+Die FAT-Zeitstempel von Februar 2015 datieren nicht automatisch deren Quellstand.
+Die analysierten 2015-Dateien stammen aus `/usr/share/u-boot-novena/` auf p3,
+nicht aus dem rohen Bootbereich oder der FAT-p1. Paketbezeichnung
+`2014.10.r7-novena.1` und Banner `2015.04-rc1-02853-gbd5c7d3` bezeichnen hier
+denselben untersuchten Paketkontext, keine Gleichsetzung mit rc12/rc14.
+
+**Alle Quellstellen dieses Nachtrags gelten, soweit nicht ausdrücklich anders
+angegeben, für `xobs/u-boot-novena` am exakten Commit
+`bd5c7d3290bb94bf8af17760c321df67d2641343` vom 2015-09-04.**
+Der separate SOURCE-18B-Befund zum 2020.07-SPL (USDHC3-Pfad belegt,
+USDHC2-Pfad nicht belegt) bleibt unverändert und wird nicht durch 2015-Code widerlegt.
+
+REF-09 §9 präzisiert die Abstammung: Die Oktober-2014-Commits
+`b5a15faf85a52789308f3f59898693b005532833` und
+`4facac7043bd45f57956b5a0084cb02aaea59bae` sind keine Vorfahren des
+2015-Referenzcommits. Dagegen ist
+`a0b19a414a2adf02dc11827f13ba9a035734d44a` vom 2015-02-12
+(`novena: Support SPL loading from external MMC`) dessen Vorfahr;
+der gleichbetitelte `b2ad57b4a3c1f47877c9f84ec21915d76fe14183` ist es nicht.
+Die ältere Aussage zur Oktober-Unterstützung in der rc12-Linie bleibt bestehen;
+sie ist keine identische Abstammungsbehauptung für die spätere Linie.
+
+### SPL: externe SD, Controller und FAT-Dateivertrag
+
+**Quellcodebelegt (REF-09/10):** `board/kosagi/novena/novena_spl.c:88–129`
+liest `SRC_SBMR1` über `SRC_BASE_ADDR + 0x4`; neben den Boottypfeldern wird
+Bit 12 ausgewertet. `board_mmc_init()` in derselben Datei, Zeilen 468–508,
+registriert abhängig von dieser Quelle genau den gewählten Controller:
+interne SD `MX6_SD0_BOOT` über USDHC3, externe SD `MX6_SD1_BOOT` über USDHC2.
+Der SATA-Zweig meldet fehlende Unterstützung und hält an.
+
+Davon getrennt bestimmt `arch/arm/imx-common/spl.c:18–90` die generische
+Bootklasse aus SBMR1 beziehungsweise, bei gesetztem GPR10-Bit 28, GPR9.
+SD/MMC wird als `BOOT_DEVICE_MMC1` behandelt. Diese Bezeichnung ist weder
+eine USDHC-Controllernummer noch die spätere Proper-Gerätenummer.
+`common/spl/spl_mmc.c:88–104` sucht nach der Boardinitialisierung
+`find_mmc_device(0)`, weil nur ein Gerät registriert wird. Die externe SD
+ist im SPL daher Gerät 0 des ausgewählten Controllers.
+
+**Quellcodebelegt (REF-11/12):** `include/configs/novena.h:129–131` aktiviert
+SPL-MMC und SPL-FAT und bindet `imx6_spl.h` ein. Dadurch liefert
+`spl_boot_mode()` Dateisystemmodus. `include/configs/imx6_spl.h:45–61`
+legt Partition **1** und Payload **`u-boot.img`** fest.
+`common/spl/spl_mmc.c:125–149` führt zum FAT-Lader;
+`common/spl/spl_fat.c:41–70` liest zunächst den Imageheader, wertet ihn aus
+und lädt anschließend die Datei an die daraus bestimmte Adresse.
+Der ebenfalls definierte Raw-Sektor 138 (69 KiB) ist kein Beleg für einen
+hier primär ausgewählten Raw-Proper-Ladepfad. SPL bei Medienoffset `0x400`
+und Proper als FAT-Datei sind verschiedene Verträge. Eine Datei
+`u-boot.spl` auf FAT ersetzt nicht automatisch den ROM-geladenen rohen SPL.
+
+**Binärindiz:** Die untersuchten SPL-Strings enthalten `External SD card`,
+`Internal SD card` und den bd5-Banner. Sie stützen die Zuordnung, ersetzen
+aber keinen vollständigen Binär-/Quellnachweis und keinen P_EXT-Lauf.
+
+### U-Boot proper: andere MMC-Nummerierung und persistentes Environment
+
+`board/kosagi/novena/novena.c:165–212` initialisiert USDHC3 vor USDHC2:
+vorgesehen sind intern MMC 0, extern MMC 1. Ein Initialisierungsfehler kann
+die Schleife vorzeitig beenden; daraus wird kein erfolgreicher Lauf ohne
+interne Karte abgeleitet. `set_bootdev()` (Zeilen 509–537), aufgerufen aus
+`misc_init_r()` (578–592), setzt intern `bootsrc=mmc, bootdev=0`, extern
+`bootsrc=mmc, bootdev=1`, SATA `bootsrc=sata, bootdev=0` (REF-10).
+Diese Proper-Reihenfolge darf nicht auf das einzelne SPL-Gerät übertragen werden.
+
+`include/configs/novena.h:79–96` konfiguriert bei MMC-Unterstützung
+persistentes Environment auf **MMC 0**, 16 KiB pro Kopie, primär bei
+`0x80000` (512 KiB), redundant bei `0x84000` (528 KiB).
+`common/env_mmc.c:205–289` behandelt die redundanten Kopien;
+`common/board_r.c:772–806` ordnet das Environment-Laden vor `misc_init_r()`
+ein (REF-14). Die externe Bootquelle schaltet den Environment-Speicherort
+also nicht automatisch auf MMC 1 um. Default-Fallback bei fehlendem oder
+ungültigem Environment ist Quelllogik, kein bewiesener unabhängiger Gesamtboot.
+Die tatsächlich vorhandenen persistenten Werte eines künftigen Referenzmediums
+und das Verhalten ohne interne MMC bleiben offen.
+
+### EEPROM, doppelte Defaults und Root-Auswahl
+
+`novena.c:372–400` definiert ein 16-Bit-Featurefeld und
+`feature_rootsrc_sata=0x0100`; die Gültigkeitsprüfung vergleicht die sechs
+Signaturbytes mit `Novena`. `set_bootdev()` setzt bei gültigen Daten und
+gesetztem Feature `sata_root=yes` (533–534). Bei fehlendem Feature wird ein
+bereits vorhandener Wert dort nicht ausdrücklich gelöscht. Das ist eine
+mögliche Einflussgröße aus persistentem Environment, keine Beobachtung eines
+konkreten EEPROM-/Environmentzustands (REF-13/14).
+
+`include/configs/novena.h:263,313` enthält zwei `rootdev`-Defaults:
+früh `/dev/mmcblk0p2`, später `PARTUUID=4e6f764d-03`; beide stehen auch in den
+Binärstrings. Der ergänzend lokal gelesene Importpfad
+`common/env_common.c:120–123` und `lib/hashtable.c:225–265,916–928` verwendet
+Hash-Einträge mit `ENTER` und Überschreiben bestehender Werte. Unter erfolgreichem
+Defaultimport ohne abweisenden Callback folgt daraus der spätere NovM-Wert.
+Dies ist eine statische Schlussfolgerung über den Defaultimport, keine Messung
+des effektiven Laufzeitwerts. Persistentes Environment, Boardlogik, spätere
+Imports und Hooks bleiben zusätzlich zu berücksichtigen.
+
+In `novena.h:370–379` führt ein nichtleeres `sata_root` ohne Recovery zur
+SATA-Auswahl (`devtype=sata`, `devnum=0`) und setzt
+`rootdev=PARTUUID=4e6f7653-03`; sonst werden Scanquelle und Gerätenummer aus
+`bootsrc/bootdev` übernommen. Danach wird `root=${rootdev}` an `bootargs`
+angehängt. Ein externer SPL-/Proper-Start garantiert somit kein externes Rootfs.
+
+Die historische Semantik bleibt **NovM / `0x4e6f764d` = MMC/Recovery** und
+**NovS / `0x4e6f7653` = SATA-/SSD-Rootfs**; `-03` bezeichnet Partition 3,
+nicht eine Dateisystem-UUID. Die NovS-ID des USB-Masters beweist keinen
+SATA-Boot und widerspricht seiner dokumentierten MMC-fstab nicht als Beobachtung:
+beides gehört zum erhaltenen Hybridzustand. Für ein externes Referenzmedium
+sind tatsächliche Partitionierung, effektives `root=` und mögliche
+PARTUUID-Kollisionen mit anderen Medien gesondert zu qualifizieren.
+
+### uEnv.txt, Hooks, extlinux und direkter Fallback
+
+`novena.h:308–341` lädt `uEnv.txt` über
+`load ${bootsrc} ${bootdev} ${loadaddr} ${bootenv}` und importiert bei
+erfolgreichem Laden mit `env import -t -r $loadaddr $filesize`.
+Die Hilfetextformulierung „internal MMC“ ersetzt diese variable Quellenwahl
+nicht. Danach läuft `earlyhook`, sofern gesetzt. `dolatehook` (331–339),
+aufgerufen in Zeile 381, importiert bei gesetztem `finalhook` den Speicherinhalt
+erneut und führt dann `finalhook` aus. Fortbestehende Gültigkeit von
+`loadaddr/filesize` und Wirkung des erneuten Imports sind ohne gesonderten
+Nachweis nicht vorauszusetzen (REF-14).
+
+`include/config_distro_bootcmd.h:155–193` definiert Präfixe `/` und `/boot/`;
+pro Präfix wird zuerst `extlinux/extlinux.conf` über `sysboot` gesucht,
+danach werden `boot.scr.uimg` und `boot.scr` geladen und ausgeführt.
+Der Novena-Pfad ruft `scan_dev_for_boot` mit `bootpart=1` direkt auf;
+das ist kein Nachweis eines Scans aller Partitionen oder sämtlicher Bootmedien.
+`novena_boot` stellt dem extlinux-Kommando `usb start` voran. Ein vorhandener
+USB-Startbefehl belegt weder die Herkunft des Rootfs noch einen USB-Gesamtboot.
+
+Kehrt der Scan zurück, folgt in `novena.h:383–390` der direkte FAT-Fallback:
+`zImage${rec}` an `kernel_addr_r=0x12000000`,
+`novena${rec}.dtb` an `fdt_addr_r=0x11ff0000`, danach `fdt addr` und
+`bootz` mit `${initrd_addr_r}` (Default `-`, also ohne initrd).
+Recovery setzt `rec=.recovery`, entsprechend `zImage.recovery` und
+`novena.recovery.dtb`. Anders als der Scan verwendet dieser Fallback weiterhin
+`${bootsrc} ${bootdev}`, auch nach SATA-Root-Auswahl. Scanquelle, direktes
+Kernel-/DTB-Lademedium und Rootquelle können daher auseinanderfallen.
+Der erhaltene FAT-Dateiname `zimage` bleibt ein Medienbefund; er wird hier
+nicht umbenannt. Die semikolongetrennte Folge belegt keinen erfolgreichen
+Ladevorgang und keine validierten Kernel-/DTB-/initrd-Artefakte.
+
+### Offene Voraussetzungen für einen eigenständigen P_EXT-Referenzboot
+
+Statisch belegt ist der oben beschriebene **Quellvertrag** der 2015-Linie.
+Nicht belegt sind insbesondere:
+
+- vollständige Binär-zu-Quellcode-/Buildprovenienz des konkreten Paars;
+- qualifizierter ROM-/SPL-/Proper-Übergang samt Header-, Lade-, Entry- und
+  Speicherbereichsprüfung für das konkrete externe Referenzimage;
+- erfolgreiche Proper-Initialisierung und Environmentbehandlung ohne erforderliche
+  interne MMC oder interne Boot-/Root-Dateien;
+- tatsächlich wirksames Environment einschließlich EEPROM-SATA-Einfluss,
+  `uEnv.txt`, beider Hooks, Scanquelle und eindeutig externer Root-Auswahl;
+- Kernel-, initrd- und DTB-Identitäten, Formate, Größen, Speicherbereiche und
+  kompatibler Übergabevertrag bis zum Debian-Rootfs auf derselben externen SD;
+- qualifiziertes externes Gesamtimage und vollständiger Hardware-P_EXT-Boot.
+
+Die ursprünglichen Extraktionsbelege sind inzwischen im Quellenregister benannt;
+die weitergehende ursprüngliche Build-/Paketprovenienz bleibt offen.
+Factory-R1-Herkunft, Releasegeometrie und Gleichheit mit dem USB-Hybrid werden
+nicht nachträglich bewiesen. Es wird kein Kandidat pauschal als Original oder
+GOOD eingestuft. NOVENA-STRATEGY-02 bleibt maßgeblich; dieser Nachtrag trifft
+keine neue Bootloaderentscheidung. Die moderne DDR-Root-Cause bleibt offen,
+I2C3/ES8328 funktional geschlossen; `regulator-always-on` bleibt Boardanforderung.

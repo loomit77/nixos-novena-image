@@ -426,3 +426,103 @@ Buildkonfiguration, nicht die konkrete 2015 verwendete SPL-Datei
 und auch keinen unabhängig verifizierten Hardware-Boot
 einer 2016 erzeugten Binärdatei. Der OpenBSD-Kernel
 übernimmt bereits initialisierten DDR-Speicher.
+
+
+## 2026-10-17 – NOVENA-DEBIAN-DOC-01B: REF-09 bis REF-14, Quellenregister
+
+Statische Referenzprüfung; technische Hauptdarstellung und offene Voraussetzungen
+stehen im [historischen Nachtrag](HISTORICAL-MEDIA.md#2026-10-17--novena-debian-doc-01b-bootvertrag-der-debian-paketlinie-2015).
+Grundlage sind die lokalen Originale unter
+`/home/loomit/novena-backups/block-logs/`. Die folgenden TXT-Prüfsummen wurden
+in DOC-01B lesend berechnet und stimmen mit den jeweiligen `.txt.sha256`-Sidecars
+überein. Alle acht Originale tragen `LOG_COMPLETE=YES`; Ergebnis/Exit bezeichnet
+den historischen Runner, keinen Hardware-Boot. Kein erneuter Remote-/Uploadnachweis.
+
+| Originalprotokoll | SHA-256 des TXT | Historisches Ergebnis / Exit |
+|---|---|---|
+| `NOVENA-DEBIAN-REF-09-20261017-164347-t0yRtTL3.txt` | `f6cfd496cdd68d839088df47039e0617092c874ead55b16220ea8b9822a800b2` | PASS / 0 |
+| `NOVENA-DEBIAN-REF-10-20261017-164734-eXRFK5X7.txt` | `e3627bc1e747da9ec719814744e3de61c37ea0bc6b6015f8b822af1ef20f58a8` | PASS / 0 |
+| `NOVENA-DEBIAN-REF-11-20261017-164953-k9MSpvk2.txt` | `ef524368bd172e4379bc6617a02f6b6e968ca794e92b77bd09c2e5fe6178b0fe` | PASS / 0 |
+| `NOVENA-DEBIAN-REF-12-20261017-165227-YmzYgkml.txt` | `f0c72a3e49d28cfdfe6a49a4b0735d3f1b356c035539a7095f7d00192c729d42` | PASS / 0 |
+| `NOVENA-DEBIAN-REF-13-20261017-165444-oxT9HlJe.txt` | `01706a6f05bba8669309169d3c76b584c48fffb232f33397c167b3f3387b635b` | PASS / 0 |
+| `NOVENA-DEBIAN-REF-14-20261017-165909-FmMTBjMp.txt` | `0e4e253e2b339e7cfac19efd88867541c1edbcf3185db212b823041dbb3b6032` | PASS / 0 |
+| `NOVENA-DEBIAN-REF-08-20261017-164123-XbP6bHmz.txt` | `18eca297870927879291fcb0ce7dc6d78edaca47118032196d909e7ba0a8898a` | FAIL / 1 |
+| `NOVENA-DEBIAN-REF-08R-20261017-164213-b1MywZEA.txt` | `5f39020cd7b4cdb636dd0d2139363a6ce496632bdaaf9897e899abcb96d1356c` | PASS / 0 |
+
+REF-09: Board-SPL, Proper, Konfiguration, Binärstrings und Commit-Abstammung.
+REF-10: ROM-Bootquellenzuordnung, Controllerwahl und Proper-MMC-Reihenfolge.
+REF-11: generischer SPL-/MMC-Lader und historische Layoutbefunde.
+REF-12: eingebundener i.MX6-SPL-Header, FAT-p1-/Dateivertrag.
+REF-13: EEPROM-, Root- und Bootumgebungslogik.
+REF-14: Featurewert, persistentes Environment, doppelte Defaults, Initialisierung,
+Hooks und Distro-Scan. Die PASS-Gates qualifizieren diese statischen Befunde;
+sie ersetzen weder einen reproduzierbaren historischen Build noch einen Gesamtboot.
+
+### Exakter Quellstand
+
+Repository `xobs/u-boot-novena`, lokal
+`/home/loomit/novena-historical-research/u-boot-novena`.
+Sämtliche folgenden Quellbelege beziehen sich auf **Commit
+`bd5c7d3290bb94bf8af17760c321df67d2641343`**, Autorzeit
+`2015-09-04T10:08:38+08:00`, Betreff
+`debian: Update to v2014.10.r7-novena.1`.
+Der in REF-09 bis REF-14 protokollierte Checkout-HEAD
+`da65dfe4eb70bda1fac5238718c7c8ef763af3bd` ist davon verschieden und
+nicht der geprüfte Referenzstand. REF-09 §4 erhält folgende Git-Blobidentitäten:
+
+| Pfad am Referenzcommit | Git-Blob-ID |
+|---|---|
+| `board/kosagi/novena/novena_spl.c` | `a06275c15521553a6c40b113f0091ba2cecda283` |
+| `board/kosagi/novena/novena.c` | `c511397f6b865638078486231f62c4f6cad0d18f` |
+| `include/configs/novena.h` | `ab2b3a7c3eb5e9429dcf8dbbbef797636fa8b074` |
+
+Weitere commitgebundene Belege: `arch/arm/imx-common/spl.c:18–90`,
+`common/spl/spl_mmc.c:88–197`, `common/spl/spl_fat.c:41–70`,
+`include/configs/imx6_spl.h:45–75`, `include/config_distro_bootcmd.h:155–202`,
+`common/env_common.c:98–123,195–267`, `common/env_mmc.c:205–289` und
+`common/board_r.c:772–806` (REF-11/12/14).
+Ergänzend in DOC-01B lokal lesend geprüft: Import-/Überschreibpfad
+`lib/hashtable.c:225–265,916–928` am selben vollständigen Commit.
+Diese ergänzende Quellenlektüre ist kein nachträglich erzeugtes REF-Rohlog.
+
+### Binäridentitäten und Extraktionsprovenienz
+
+Analyseverzeichnis: `/home/loomit/novena-backups/historical-uboot-2015-analysis/`.
+Die Größen und Hashes sind in REF-09 bis REF-14 historisch geprüft;
+DOC-01B greift weder auf das Master noch auf ein Medium zu.
+
+| Datei | Byte | Historische SHA-256 |
+|---|---|---|
+| `u-boot-2015.04-bd5c7d3.spl` | 44032 | `e2f2b80692c3ca55d29bce39fc98efd44c09046959acda46c50675ef3728e276` |
+| `u-boot-2015.04-bd5c7d3.img` | 302172 | `7eba2bbdcf48f19f35a495993e5fa6625dc0db305c3e11c7a978b98a0260748a` |
+
+Erhaltene Herkunftsbelege: REF-08 §§3–6 samt zugehöriger
+`NOVENA-DEBIAN-REF-08.command.bash` und REF-08R §§2–7.
+Ausgangsdatei war
+`/home/loomit/novena-backups/historical-novena-usb-2026-09-28/novena-historical-usb-ddrescue-2026-09-28.img`,
+Rootpartition 3, Offset `68157440` Byte, Länge `14999879680` Byte.
+Der protokollierte read-only Loop-/debugfs-Pfad extrahierte
+`/usr/share/u-boot-novena/u-boot.spl` beziehungsweise
+`/usr/share/u-boot-novena/u-boot.img` in die oben genannten Analysedateien.
+REF-08 meldete erfolgreiche Extraktion und passende Größen, endete jedoch
+wegen `Permission denied` beim Hashlesen mit **FAIL / 1**.
+REF-08R korrigierte damals den Dateizugriff und dokumentierte danach Hashes,
+Banner und Proper-Header mit **PASS / 0**. Dieser spätere PASS hebt den FAIL
+nicht auf; DOC-01B führt diese Aktionen nicht erneut aus.
+
+Der SPL-Banner lautet `U-Boot SPL 2015.04-rc1-02853-gbd5c7d3
+(Sep 04 2015 - 10:11:08)`; Proper enthält den entsprechenden vollständigen
+Versionsstring. REF-08R zeigt ein unkomprimiertes ARM-U-Boot-Legacy-Image,
+302108 Byte Payload, Load Address `0x17800000`, Header Entry Point `0x00000000`.
+Das ist noch kein vollständig qualifizierter Übergabevertrag.
+Die `file`-Erkennung des SPL als Targa ist eine Fehlklassifikation und kein
+Bootformatbeleg.
+
+**Beleggrenzen:** Extraktion aus dem erhaltenen Rootfs-Paketbestand ist belegt;
+eine lückenlose ursprüngliche Paket-/Buildprovenienz, signierte Paketkette und
+reproduzierte Binäridentität zum Referenzcommit bleiben offen. Banner, passende
+Strings und Quellblobs allein beweisen diese Kette nicht. REF-11 prüfte die
+Mastergröße und einen begrenzten Raw-Bereich; eine erneute Ganzdatei-SHA256
+ des Masters wurde dadurch nicht erbracht. Der ältere Masterhash bleibt ein
+datierter Erhaltungsbeleg. Roher 2014-SPL, FAT-Dateien und 2015-Paketdateien
+sind getrennte Artefakte; der 2020.07-SPL aus SOURCE-18B ist eine weitere Gruppe.

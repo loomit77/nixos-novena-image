@@ -707,3 +707,47 @@ Die historischen E2E- und Fehlerbefunde bleiben erhalten. Eine vollständige
 Qualifikation sämtlicher Workflow-Fehlerfälle oder produktive Gesamtfreigabe
 folgt daraus nicht; weitergehende Fehlerfälle und Restore-Nachweise bleiben
 getrennte offene Aufgaben.
+
+
+## 2026-10-17 – NOVENA-DEBIAN-DOC-01B: statische Teilbefunde und offene Nachweise
+
+Fortschreibung zu NOVENA-STRATEGY-02; ältere Kästchen bleiben historische
+Planungsstände. Gesamtaufgabe SOURCE-18 bleibt offen.
+[Technische Belege](docs/HISTORICAL-MEDIA.md#2026-10-17--novena-debian-doc-01b-bootvertrag-der-debian-paketlinie-2015)
+und [Identitäten](docs/QUELLENVERZEICHNIS.md#2026-10-17--novena-debian-doc-01b-ref-09-bis-ref-14-quellenregister)
+sind getrennt von Hardwarequalifikation zu lesen.
+
+Erledigte statische Untersuchungen / Dokumentationsintegration:
+
+- [x] REF-09/10: 2015-Referenzcommit, externe/interne SPL-Controllerwahl,
+  SPL-/Proper-MMC-Nummerierung und Commit-Abstammung eingeordnet.
+- [x] REF-11/12: SPL-Dateisystemmodus, FAT-Partition 1 und `u-boot.img`;
+  vorhandene Raw-Konstante vom ausgewählten Ladevertrag getrennt.
+- [x] REF-13/14: EEPROM-SATA-Feature `0x0100`, MMC-0-Environment,
+  doppelte Defaults, uEnv-Import, Hooks, extlinux-/Skriptscan und
+  zImage-/DTB-Fallback einschließlich NovM-/NovS-Rootsemantik dokumentiert.
+- [x] REF-09 bis REF-14: Originalnamen und SHA256-/Sidecarabgleich registriert;
+  Extraktionsbelege REF-08/08R samt FAIL/Folge-PASS und Binäridentitäten benannt.
+- [x] 2014-Roh-/FAT-Generationen, 2015-Paketpaar und 2020.07-SPL getrennt;
+  USB-Master weiterhin als Hybridzustand eingeordnet.
+
+Noch offene technische Nachweise (hier nicht ausgeführt):
+
+- [ ] Vollständige ursprüngliche Paket-/Build- und Binär-zu-Quellprovenienz
+  des 2015-Paars; keine Gleichsetzung mit unverändertem Factory-R1/GOOD.
+- [ ] Konkreten externen ROM-/SPL-/Proper-Lade- und Übergabevertrag samt
+  Headern, Adressen, Speicherbereichen und Gesamtimage qualifizieren.
+- [ ] Proper-Initialisierung und Environment-Fallback ohne erforderliche
+  interne MMC nachweisen; tatsächliche persistente Werte bestimmen.
+- [ ] Effektive EEPROM-/uEnv-/earlyhook-/finalhook-Wirkung einschließlich
+  Gültigkeit des erneut importierten Speicherinhalts klären.
+- [ ] Externe Nutzlast-/Root-Auswahl auf derselben SD eindeutig nachweisen;
+  NovM-/NovS-PARTUUIDs und Kollisionen mit anderen Medien berücksichtigen.
+- [ ] Kernel-/initrd-/DTB-Identitäten, Formate, Größen, Lade-/Entpack- und
+  Übergabebereiche sowie Debian-Kompatibilität qualifizieren.
+- [ ] Vollständigen eigenständigen P_EXT-Boot bis Debian gesondert nachweisen;
+  erst danach gemäß STRATEGY-02 moderner Kernel, NixOS und Image-Builder.
+
+Diese offenen Punkte erteilen keine Aktionsfreigabe. Keine neue Bootloaderwahl;
+moderne DDR-Diagnose bleibt zurückgestellt und ihre Root Cause offen.
+I2C3/ES8328 bleibt geschlossen; `regulator-always-on` dauerhaft.
