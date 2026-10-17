@@ -1,5 +1,7 @@
 # Decisions
 
+> Aktueller Workflowstand: siehe Nachtrag vom 2026-10-17 am Dateiende (Zwei-Skripte-Workflow, E2E PASS; Konkurrenztest offen). Fruehere Statusangaben sind datierte historische Staende.
+
 ## 2026-09-11 – Eigenes Git-Repository
 
 Das universelle NixOS-SD-Image wird als eigenständiges Projekt
@@ -1626,3 +1628,55 @@ und produktive Freigabe getrennt führen. Keine Wiederholung des abgeschlossenen
 R4-Nachweises ohne neue diskriminierende Evidenz. Die Entscheidung vom
 12.10., Borg vorerst nicht einzusetzen, ist durch die belegte reale Sicherung
 vom 15.10. als damaliger Planungsstand überholt.
+
+
+## 2026-10-17 – Zwei-Skripte-Workflow: realer E2E-Test PASS
+
+Dieser Nachtrag ist für den aktuellen Bedienungsworkflow maßgeblich.
+Ältere Planungs-, Sperr- und Integrationshinweise bleiben historische Stände.
+Die älteren `integration/*`- und V8-Dateien bleiben unverändert erhalten.
+
+Aktuelle Bedienungsskripte auf foobox:
+
+- Projektstart: `~/novena-backups/workflow-dev/chat-start.bash`.
+- Tagesabschluss: `~/novena-backups/workflow-dev/daily-close.bash`.
+
+Beide werden über den vorhandenen GitHub-Wrapper
+`~/novena-backups/github-transport/run-and-upload.bash` ausgeführt.
+Die Dokumentation erteilt keine Ausführungs- oder Netzwerkfreigabe.
+Der Tagesabschluss führt eine reale Borg-Sicherung aus; sein Aufruf benötigt
+entsprechende Freigabe und ist keine rein lesende Statusabfrage.
+
+- **NOVENA-WORKFLOW-TWO-SCRIPTS-04: PASS** – beide Skripte installiert.
+- **NOVENA-CHAT-START-TEST-05: PASS** – Projektstart, Git-HEAD,
+  Index-SHA256, Worktree, Dokumentinventur und Übergabe erfolgreich.
+- **NOVENA-DAILYCLOSE-HARDEN-06: PASS** – Installation mit flock-Sperre,
+  Borg-Identitätsprüfung und Archivvergleich am 17.10., 09:45:53 CEST.
+  Ein separater Wiederholungsaufruf um 09:47:46–09:47:47 endete mit
+  `BASELINE_INTEGRITY=FAIL`, Exit 22; dieser FAIL bleibt erhalten.
+- **NOVENA-DAILYCLOSE-E2E-07: PASS** – realer End-to-End-Lauf am
+  17.10.2026, 09:54:18–09:54:55 CEST. Exklusive Sperre erworben,
+  Borg-Identitätsprüfung und Borgmatic-Konfiguration erfolgreich,
+  Backup erstellt. Archivbestand **5 → 6**, genau **1 neues Archiv**,
+  **0 verschwundene Archive**. Git-HEAD und Index unverändert.
+  Vollständiges TXT-Protokoll und SHA256 vorhanden; GitHub-Upload laut
+  verifiziertem Benutzerergebnis erfolgreich, hier nicht erneut abgefragt.
+
+**Abgrenzung:** Der reale E2E-Nachweis ist erfolgreich; ältere pauschale
+`PRODUCTIVE_END_TO_END_PROOF=OPEN`- beziehungsweise daraus abgeleitete
+Sperrhinweise beschreiben den damaligen Workflow. Ein separater
+Parallelstart-/Konkurrenztest der aktuellen flock-Sperre wurde noch nicht
+durchgeführt und bleibt offen. Weder der Sperrerwerb im Einzellauf noch
+historische R4-/Offline-Tests belegen diesen Konkurrenzfall. Eine umfassende
+Fehlerfallqualifikation oder produktive Gesamtfreigabe folgt daraus nicht.
+
+Evidenz: lokal vollständig gelesene Originalprotokolle und jeweils
+übereinstimmende SHA256-Sidecars; das Nachweisregister steht im
+[TEST-LOG](TEST-LOG.md#2026-10-17--zwei-skripte-workflow-realer-e2e-test-pass).
+
+Entscheidung für die Dokumentation: Die beiden `workflow-dev`-Skripte bilden
+den aktuellen Bedienungsweg. Historische Implementierungen und Statuswerte
+bleiben erhalten und werden nicht rückwirkend aufgewertet. Der erfolgreiche
+reale E2E-Lauf und die noch fehlende Konkurrenzqualifikation werden getrennt
+geführt; keine neue allgemeine Offline-Testserie oder automatische
+Wiederholung des erfolgreichen Backups wird daraus abgeleitet.
