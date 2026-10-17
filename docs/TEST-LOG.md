@@ -3006,3 +3006,44 @@ Konkurrenztest ab, belegt aber keine vollständige Qualifikation sämtlicher
 Workflow-Fehlerfälle und erteilt keine produktive Gesamtfreigabe.
 Der Test belegt keine neue Sicherung, Restore-Abnahme oder Hardwarefunktion.
 Historische Ergebnisse einschließlich früherer FAILs bleiben erhalten.
+
+## 2026-10-17 – SOURCE-18B-11 bis SOURCE-18B-18: SPL/MMC-Konsolidierung
+
+Dokumentationscheckpoint: `NOVENA-DOC-SOURCE18B-02`.
+
+Die Untersuchung der historischen U-Boot-2020.07-SPL-Artefakte
+wurde mit SOURCE-18B-18 konsolidiert.
+
+### Ergebnis
+
+- Vier historische NixOS-Images wurden als Artefaktgruppe untersucht.
+- Die reguläre Board-MMC-Initialisierung verwendet USDHC3.
+- Der CPU-MMC-Fallback verwendet die konfigurierte Basisadresse Null.
+- Ein USDHC2-Initialisierungspfad ist im untersuchten SPL nicht nachgewiesen.
+- Der vollständige autonome externe SD-Boot bleibt offen.
+
+### Archivierte Abschlussprotokolle
+
+- `NOVENA-SOURCE-18B-17-20261017-145641-2xiQIt6N.txt`
+- `NOVENA-SOURCE-18B-18-20261017-145910-wC2U6e65.txt`
+- `NOVENA-DOC-SOURCE18B-01-20261017-150128-iyRLmNz5.txt`
+
+Archiv:
+`https://github.com/loomit77/project-block-logs/tree/main/novena/2026/10`
+
+SOURCE-18B-18 bestätigte die lokalen SHA256-Sidecars
+der sieben vorangegangenen Untersuchungsprotokolle.
+Bei SOURCE-18B-11 und SOURCE-18B-12 meldete grep
+Binärdaten; die Statuszeilenausgabe war deshalb
+nicht vollständig. Dies ist von der erfolgreichen
+SHA256-Integritätsprüfung zu unterscheiden.
+
+### Nachweisgrenzen
+
+Die Untersuchung ist statisch. Es wurden keine neuen
+Hardware-Bootversuche durchgeführt.
+
+Die vollständigen Image-SHA256 wurden im
+Konsolidierungsblock nicht neu berechnet.
+
+Ein Runner-PASS ist kein Hardware-Boot-PASS.

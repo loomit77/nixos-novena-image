@@ -1680,3 +1680,33 @@ bleiben erhalten und werden nicht rückwirkend aufgewertet. Der erfolgreiche
 reale E2E-Lauf und die noch fehlende Konkurrenzqualifikation werden getrennt
 geführt; keine neue allgemeine Offline-Testserie oder automatische
 Wiederholung des erfolgreichen Backups wird daraus abgeleitet.
+
+## 2026-10-17 – SOURCE-18B: Einordnung des historischen SPL/MMC-Befunds
+
+Dokumentationscheckpoint: `NOVENA-DOC-SOURCE18B-02`.
+
+Die statische Untersuchung SOURCE-18B-11 bis SOURCE-18B-18
+präzisiert die technische Evidenz zur historischen
+SPL-/MMC-Bootkette.
+
+Für das konkret untersuchte U-Boot-2020.07-SPL ist die
+Novena-spezifische USDHC3-Initialisierung nachgewiesen.
+Der generische CPU-MMC-Fallback verwendet eine
+Controllerbasisadresse von Null.
+
+Ein funktionierender USDHC2-Initialisierungspfad und
+der vollständige autonome Boot über externe SD/P_EXT
+sind damit nicht nachgewiesen.
+
+Dies ist eine Evidenzeinordnung, keine neue
+Bootloader- oder Hardwareentscheidung.
+
+NOVENA-STRATEGY-02 bleibt unverändert maßgeblich:
+Zunächst historische Debian-Referenzkandidaten und
+eine passende historische SPL-/Proper-Bootkette
+qualifizieren, anschließend modernen Kernel,
+NixOS und reproduzierbaren Image-Builder.
+
+Vorhandene DDR-/SPL-Forschungsergebnisse, frühere
+Fehlerbefunde und die abgeschlossene I2C3/ES8328-
+Root-Cause bleiben unverändert.

@@ -6665,3 +6665,87 @@ Die historischen E2E- und Fehlerbefunde bleiben erhalten. Eine vollständige
 Qualifikation sämtlicher Workflow-Fehlerfälle oder produktive Gesamtfreigabe
 folgt daraus nicht; weitergehende Fehlerfälle und Restore-Nachweise bleiben
 getrennte offene Aufgaben.
+
+## 2026-10-17 – SOURCE-18B-11 bis SOURCE-18B-18: Historischer SPL und MMC-Bootpfad
+
+Dokumentationscheckpoint: `NOVENA-DOC-SOURCE18B-02`.
+Grundlage sind die protokollierten statischen Untersuchungen
+`SOURCE-18B-11` bis `SOURCE-18B-18`.
+
+### Untersuchtes Artefakt
+
+Historisches Novena-U-Boot-SPL aus der untersuchten
+U-Boot-2020.07-Artefaktgruppe:
+
+- Referenzdatei: `boot/reference/novena-imx6-spl.bin`
+- SHA256: `b78fea3f115a097bada3109f75a5fe51889752cbd13035e56796df24abf85c8d`
+- Größe: 52.224 Byte
+- Untersuchte VMA: `0x00907400`
+
+Die vier historisch untersuchten NixOS-Images enthalten nach den
+vorangegangenen Artefaktprüfungen denselben identifizierten SPL.
+SOURCE-18B-18 prüfte die Imagegrößen und SPL-Präfixe erneut,
+berechnete jedoch keine vollständigen Image-SHA256 neu.
+
+### MMC-Initialisierung
+
+Die historische Novena-Boardinitialisierung verwendet
+`USDHC3_BASE_ADDR = 0x02198000`.
+
+Im untersuchten SPL wurden folgende Funktionsbereiche identifiziert:
+
+- `0x0090b0e8`: Novena-spezifische Board-MMC-Initialisierung.
+- `0x0090ee60`: generische FSL-eSDHC-Initialisierung.
+- `0x0090effc`: CPU-MMC-Fallback.
+- `0x009094bc`: untersuchte Taktfunktion.
+
+Die historische Novena-Konfiguration enthält:
+
+```c
+#define CONFIG_SYS_FSL_ESDHC_ADDR 0
+#define CONFIG_SYS_FSL_USDHC_NUM  2
+```
+
+Der generische CPU-MMC-Fallback verwendet im Binary die
+Controllerbasisadresse Null. Dies stimmt mit der historischen
+Konfiguration überein.
+
+Die direkte USDHC2-Basisadresse `0x02194000` wurde bei der
+32-Bit-Literalprüfung im untersuchten SPL nicht gefunden.
+
+`CONFIG_SYS_FSL_USDHC_NUM=2` ist kein Nachweis dafür, dass das
+untersuchte SPL beide Controller initialisiert.
+
+### Bewertung und Beweisgrenzen
+
+Die nachgewiesene Board-MMC-Initialisierung ist auf USDHC3
+ausgerichtet. Ein funktionierender USDHC2-Initialisierungspfad
+des konkret untersuchten SPL ist nicht belegt.
+
+Die Abwesenheit eines direkten Adressliterals schließt
+indirekte Adressberechnungen nicht vollständig aus.
+
+Die genaue Takt-Enum-Zuordnung bleibt als Detailprüfung offen.
+
+Boot-ROM, SPL, U-Boot proper und Linux sind getrennte
+Bootphasen. MMC-Unterstützung in U-Boot proper oder Linux
+beweist keine autonome Bootfähigkeit des historischen SPL
+über den externen SD-Anschluss.
+
+Ein vollständiger eigenständiger Boot über externe SD/P_EXT
+wurde durch diese statische Untersuchung nicht nachgewiesen.
+
+### Abgrenzung zu SOURCE-17 und NOVENA-STRATEGY-02
+
+Der ältere SOURCE-17-Befund zu externer SD/USDHC2 im
+historischen Quellcode ist nicht ohne gesonderten
+Provenienznachweis auf das hier untersuchte
+U-Boot-2020.07-SPL-Binary übertragbar.
+
+Die bestehende Priorisierung NOVENA-STRATEGY-02 bleibt gültig:
+historische Debian-Referenz und passende historische
+SPL-/Proper-Bootkette zuerst untersuchen; danach moderner
+Kernel, NixOS und reproduzierbarer Image-Builder.
+
+Diese Dokumentation qualifiziert weder ein neues Image
+noch einen neuen Hardware-Boot.
