@@ -1,6 +1,6 @@
 # Test Log
 
-> Aktueller Workflowstand: siehe Nachtrag vom 2026-10-17 am Dateiende (Zwei-Skripte-Workflow, E2E PASS; Konkurrenztest offen). Fruehere Statusangaben sind datierte historische Staende.
+> Aktueller Workflowstand: siehe Nachtrag vom 2026-10-17 am Dateiende (NOVENA-WORKFLOW-FLOCK-02 PASS; konkreter Konkurrenzfall abgeschlossen). Frühere Statusangaben sind datierte historische Stände.
 
 Stand: 2026-09-13
 
@@ -2965,3 +2965,44 @@ Die erfolgreiche Installation 06 und ihr späterer gescheiterter
 Wiederholungsaufruf sind anhand Zeit und Dateiname getrennt identifiziert.
 Historische FND-000001-Felder und Hashbindungen werden nicht nachgezogen;
 dieser Nachtrag ist eine neue TEST-LOG-Fassung, kein historisches Original.
+
+## 2026-10-17 – NOVENA-WORKFLOW-FLOCK-02: Konkurrenztest PASS
+
+Test-ID: **NOVENA-WORKFLOW-FLOCK-02**, Ergebnis: **PASS**.
+Git-Checkpoint des Tests: `e5651034a17dfc5447274f77cf8dc17167a4c4e0`.
+
+Originalprotokoll:
+[NOVENA-WORKFLOW-FLOCK-02-20261017-102032-oUHIqeup.txt](https://github.com/loomit77/project-block-logs/blob/main/novena/2026/10/NOVENA-WORKFLOW-FLOCK-02-20261017-102032-oUHIqeup.txt).
+Grundlage dieses Nachtrags sind die vom Benutzer verifizierten Ergebnisse
+und die zugehörige Originalreferenz. Der GitHub-Abruf in diesem
+Dokumentationsauftrag war nicht erfolgreich; eine erneute vollständige
+Originallektüre oder SHA256-/Sidecar-Prüfung wird hier nicht behauptet.
+
+Übergebene verifizierte Ergebniswerte in ihrer Reihenfolge:
+
+```text
+BASELINE_INTEGRITY=PASS
+SCRIPT_SYNTAX=PASS
+TEST_LOCK=ACQUIRED
+DAILY_CLOSE_RESULT=FAIL_LOCKED
+CHILD_EXIT_STATUS=40
+EXPECTED_EXIT_CODE=PASS
+EXPECTED_LOCK_MESSAGE=PASS
+BACKUP_GUARD=PASS
+TEST_LOCK=RELEASED
+GIT_STABILITY=PASS
+FLOCK02_RESULT=PASS
+```
+
+Bei bereits gehaltener flock-Sperre wurde ein zweiter Aufruf von
+`daily-close.bash` sofort mit Exit-Code 40 zurückgewiesen. Die erwartete
+Sperrmeldung wurde bestätigt; die Backup-Phase wurde nicht erreicht.
+`FAIL_LOCKED` ist hier die erwartete Abweisung des Kindprozesses und kein
+Fehlschlag des Konkurrenztests. Die Testsperre wurde anschließend freigegeben.
+
+**Nachweisgrenzen:** Dieser konkrete Konkurrenzfall ist qualifiziert
+abgeschlossen. Er schließt den im vorherigen E2E-Nachtrag noch offenen
+Konkurrenztest ab, belegt aber keine vollständige Qualifikation sämtlicher
+Workflow-Fehlerfälle und erteilt keine produktive Gesamtfreigabe.
+Der Test belegt keine neue Sicherung, Restore-Abnahme oder Hardwarefunktion.
+Historische Ergebnisse einschließlich früherer FAILs bleiben erhalten.

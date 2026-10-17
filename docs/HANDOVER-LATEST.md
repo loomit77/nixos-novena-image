@@ -1,6 +1,6 @@
 # Novena – verifizierte Projektübergabe
 
-> Aktueller Workflowstand: siehe Nachtrag vom 2026-10-17 am Dateiende (Zwei-Skripte-Workflow, E2E PASS; Konkurrenztest offen). Fruehere Statusangaben sind datierte historische Staende.
+> Aktueller Workflowstand: siehe Nachtrag vom 2026-10-17 am Dateiende (NOVENA-WORKFLOW-FLOCK-02 PASS; konkreter Konkurrenzfall abgeschlossen). Frühere Statusangaben sind datierte historische Stände.
 
 Stand: 2026-10-12, Europe/Berlin  
 Prüfhost: foobox  
@@ -827,3 +827,18 @@ nur um ältere OPEN-Ausgaben zu beseitigen. Als getrennte Workflow-Folgearbeit
 bleibt der Konkurrenztest in TODO. Restore-Abnahme, Offsite-Schlüsselsicherung
 und R6-Restore bleiben offen. DDR/SPL und vollständiger externer Boot bleiben
 unverändert offen; I2C3/ES8328 bleibt abgeschlossen.
+
+## 2026-10-17 – NOVENA-WORKFLOW-FLOCK-02: Konkurrenztest PASS
+
+**NOVENA-WORKFLOW-FLOCK-02: PASS.** Der zuvor offene Konkurrenztest
+ist für den konkreten Fall „zweiter Aufruf von `daily-close.bash` bei bereits
+gehaltener flock-Sperre“ qualifiziert abgeschlossen: sofortige Abweisung
+mit Exit-Code 40; die Backup-Phase wurde nicht erreicht.
+Ergebniswerte, Git-Checkpoint, Originalprotokoll und Evidenzherkunft sind
+zentral im [TEST-LOG](TEST-LOG.md#2026-10-17--novena-workflow-flock-02-konkurrenztest-pass) dokumentiert.
+
+Dieser Nachtrag ersetzt die frühere Offenbewertung dieses Konkurrenzfalls.
+Die historischen E2E- und Fehlerbefunde bleiben erhalten. Eine vollständige
+Qualifikation sämtlicher Workflow-Fehlerfälle oder produktive Gesamtfreigabe
+folgt daraus nicht; weitergehende Fehlerfälle und Restore-Nachweise bleiben
+getrennte offene Aufgaben.

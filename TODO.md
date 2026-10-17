@@ -1,6 +1,6 @@
 # TODO – Novena: universelles NixOS-SD-Image
 
-> Aktueller Workflowstand: siehe Nachtrag vom 2026-10-17 am Dateiende (Zwei-Skripte-Workflow, E2E PASS; Konkurrenztest offen). Fruehere Statusangaben sind datierte historische Staende.
+> Aktueller Workflowstand: siehe Nachtrag vom 2026-10-17 am Dateiende (NOVENA-WORKFLOW-FLOCK-02 PASS; konkreter Konkurrenzfall abgeschlossen). Frühere Statusangaben sind datierte historische Stände.
 
 Stand: 2026-10-12 (foobox-Dokumentationscheckpoint DOC-GIT-GESAMT-19S)
 Grundlage: Projektgespräche, `AGENTS.md`, `NOVENA-ARBEITSREGELN.txt`, `docs/PROJECT-STATE.md`, `docs/TEST-LOG.md` sowie die GitHub-Repositories `loomit77/Test` und `loomit77/project-block-logs`.
@@ -683,12 +683,27 @@ produktiven Integration sind für den oben belegten Zwei-Skripte-Umfang
 
 - [x] Zwei Bedienungsskripte installiert und Projektstart getestet (04/05).
 - [x] Tagesabschluss gehärtet und realen E2E-Lauf erfolgreich durchgeführt (06/07).
-- [ ] Separaten Parallelstart-/Konkurrenztest für flock gezielt planen und
-  nach eigener Freigabe durchführen: Abweisung eines konkurrierenden Starts
-  während des gehaltenen Locks prüfen; Ergebnis nicht vorwegnehmen.
+- [x] Separaten Parallelstart-/Konkurrenztest für flock abgeschlossen:
+  NOVENA-WORKFLOW-FLOCK-02, 17.10.2026, PASS; zweiter Start bei
+  gehaltenem Lock mit Exit 40 abgewiesen, Backup-Phase nicht erreicht.
 - [ ] Weitergehende Fehlerfallqualifikation und produktive Gesamtfreigabe
   gesondert bewerten; E2E-PASS nicht als vollständige Abnahme ausgeben.
 - [ ] Restore-Abnahme, Offsite-Schlüsselsicherung und vollständigen R6-Restore
   weiterhin getrennt nachweisen.
 
 DDR/SPL und der vollständige externe SD-Boot bleiben offene Projektaufgaben.
+
+## 2026-10-17 – NOVENA-WORKFLOW-FLOCK-02: Konkurrenztest PASS
+
+**NOVENA-WORKFLOW-FLOCK-02: PASS.** Der zuvor offene Konkurrenztest
+ist für den konkreten Fall „zweiter Aufruf von `daily-close.bash` bei bereits
+gehaltener flock-Sperre“ qualifiziert abgeschlossen: sofortige Abweisung
+mit Exit-Code 40; die Backup-Phase wurde nicht erreicht.
+Ergebniswerte, Git-Checkpoint, Originalprotokoll und Evidenzherkunft sind
+zentral im [TEST-LOG](docs/TEST-LOG.md#2026-10-17--novena-workflow-flock-02-konkurrenztest-pass) dokumentiert.
+
+Dieser Nachtrag ersetzt die frühere Offenbewertung dieses Konkurrenzfalls.
+Die historischen E2E- und Fehlerbefunde bleiben erhalten. Eine vollständige
+Qualifikation sämtlicher Workflow-Fehlerfälle oder produktive Gesamtfreigabe
+folgt daraus nicht; weitergehende Fehlerfälle und Restore-Nachweise bleiben
+getrennte offene Aufgaben.
