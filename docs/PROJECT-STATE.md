@@ -6665,3 +6665,124 @@ Die historischen E2E- und Fehlerbefunde bleiben erhalten. Eine vollständige
 Qualifikation sämtlicher Workflow-Fehlerfälle oder produktive Gesamtfreigabe
 folgt daraus nicht; weitergehende Fehlerfälle und Restore-Nachweise bleiben
 getrennte offene Aufgaben.
+
+## 2026-10-17 – NOVENA-STRATEGY-01: aktuelle Projektstrategie
+
+Die ausdrücklich freigegebene Strategie priorisiert den schnellsten technisch
+belastbaren Weg zu einem vollständig eigenständig bootfähigen,
+reproduzierbaren NixOS-Image auf einer einzigen externen SD-Karte.
+Maßgeblich ist der neue
+[Strategiebeschluss](DECISIONS.md#2026-10-17--novena-strategy-01-eigenständiges-externes-nixos-sd-image)
+mit SOURCE-14–17, lokalen Protokollidentitäten und Aussagegrenzen.
+Ältere Entscheidungen und Diagnosecheckpoints bleiben historische Stände.
+
+Bevorzugtes Ziel und noch nicht vollständig hardwarequalifizierte Hypothese:
+
+`i.MX6-ROM → externe SD / P_EXT → historischer Novena-SPL → passendes historisches U-Boot proper → moderner geeigneter Linux-Kernel → initrd und Device Tree → NixOS-Root auf derselben externen SD`
+
+SOURCE-14/15 erhalten die offene DDR-/WALAT-Frage und die nicht qualifizierte
+Snapshotimplementierung. SOURCE-16 verlangt konkrete Lade- und
+Übergabeverträge. SOURCE-17 belegt den gespeicherten historischen bd5-ROM-
+Wrapper, externe SD/USDHC2 im historischen SPL-Quellcode, FAT-P1-Suchdateiname
+`u-boot.img` und statisch passenden modernen Legacy-Header im geprüften
+Umfang. Der Mischboot historischer SPL / modernes Proper ist nicht in Hardware
+qualifiziert. Dies sind Quellen-/Artefaktbefunde, kein neuer Booterfolg.
+
+Offen bleiben insbesondere:
+
+- historischer SPL über den vollständig verifizierten externen SD-/P_EXT-Pfad;
+- konkrete Eignung des passenden historischen Proper für den vorgesehenen
+ modernen Kernel, die konkrete initrd und den Device Tree einschließlich
+ Formaten, Größen, Speicherbereichen und Übergabe;
+- vollständiger eigenständiger Boot bis NixOS-Root auf derselben externen SD;
+- reproduzierbare Erzeugung und Qualifikation des Images mit dieser Zielkette;
+- DDR-Root-Cause; auch SOURCE-14/15 beweisen keinen Novena-WALAT-Verstoß.
+
+Die früheren NixOS-Boots über den internen historischen Bootloader belegen
+die neue externe Gesamtkette nicht. Eine allgemeine Ladefähigkeit für jeden
+modernen Kernel und jede initrd wird nicht behauptet.
+
+**Nächster technischer Schritt: SOURCE-18**, ausschließlich lesende
+Bestandsaufnahme der vollständigen historischen Bootloaderkette und ihrer
+Eignung für NixOS auf externer SD, nach dem Prüfauftrag im Strategiebeschluss.
+Hier nur dokumentiert, nicht ausgeführt. Historischer SPL plus modernes
+Proper bleibt Ausweichoption; moderner SPL/U-Boot v2026.07 langfristige
+Modernisierung. Weitere DDR-/WL-/DQS-Diagnose hat vorerst keinen Vorrang.
+
+Technische Folgeblöcke benötigen den bestehenden Runner mit vollständigem
+TXT und SHA256 sowie Archivierung über den bestehenden GitHub-Upload-Wrapper
+innerhalb konkreter Freigaben. Historische Originale bleiben geschützt.
+Dieser Dokumentationsschritt erzeugt keine zusätzlichen Logs und führt
+keinen Upload aus: keine Netzwerk-, Git-Schreib-, Build-, Medien- oder
+Hardwareaktion. Bestehende Nutzeränderungen bleiben erhalten.
+I2C3/ES8328 bleibt abgeschlossen; `regulator-always-on` ist dauerhaft.
+
+## 2026-10-17 – NOVENA-STRATEGY-02: maßgebliche Strategiepräzisierung
+
+Die ausdrücklich bestätigte Priorisierung ist jetzt der Weg mit dem
+geringsten technischen Risiko zum vollständig eigenständig von externer SD
+bootfähigen NixOS-System. Der
+[präzisierte Beschluss](DECISIONS.md#2026-10-17--novena-strategy-02-debian-referenz-und-geringstes-technisches-risiko)
+ergänzt NOVENA-STRATEGY-01; historische Einträge bleiben erhalten.
+
+Die Reihenfolge lautet: historisches Debian als Referenz untersuchen;
+zuerst die vollständig eigenständige externe SD-Bootkette mit historischem
+SPL und passendem historischem U-Boot proper bis Debian nachweisen;
+danach einen vorhandenen geeigneten modernen Linux-Kernel und anschließend
+NixOS verwenden; abschließend den reproduzierbaren NixOS-Image-Builder
+für diese Kette qualifizieren. Diese Schritte sind Ziele, keine neu
+erreichten Build- oder Hardwareergebnisse.
+
+Ein historischer Kandidat erhält ohne Provenienzprüfung keine Einstufung
+als Original- oder GOOD-Image. Das historische USB-Raw-Master ist nicht
+automatisch als externes SD-Bootimage geeignet. Seine dokumentierte
+Erhaltung und der historische Hybridzustand belegen keinen vollständigen
+SD-/P_EXT-Boot. Frühere NixOS-Boots mit internem Bootloader bleiben auf
+diesen damaligen Pfad beschränkt.
+
+**Nächster Schritt SOURCE-18:** rein lesende Provenienz-, Image- und
+Bootvertragsprüfung historischer Debian-Referenzkandidaten gemäß DECISIONS.
+Kandidatenidentitäten, Imageaufbau, passendes SPL-/Proper-Paar, Lade- und
+Übergabeverträge sowie die unabhängige externe Boot-/Root-Auswahl sind zu
+bewerten. SOURCE-18 ist hier nicht ausgeführt; Kandidateneignung und
+vollständiger eigenständiger historischer SD-Boot bleiben offen.
+Modernes SPL/U-Boot v2026.07 und weitere DDR-Diagnose sind vorerst
+zurückgestellt; die DDR-Root-Cause bleibt offen. I2C3/ES8328 bleibt
+abgeschlossen; `regulator-always-on` bleibt dauerhafte Boardanforderung.
+
+**Protokollkorrektur und früherer FAIL, gemäß bestätigter Benutzerangabe:**
+NOVENA-STRATEGY-01 lief über den bestehenden Runner; vollständiges TXT wurde
+erzeugt und über den GitHub-Wrapper hochgeladen. Codex legte selbst keine
+zusätzlichen Runnerlogs an und startete keinen eigenständigen Upload.
+Die frühere pauschale Aussage zum fehlenden Upload ist damit korrigiert.
+
+- NOVENA-STRATEGY-01: Codex-Dokumentation ausgeführt; HEAD unverändert;
+  Index-SHA256 gegenüber Baseline verändert; Runner FAIL, Exit 41;
+  kein Commit und kein Push.
+- NOVENA-STRATEGY-01-AUDIT: Runner PASS, Index lesbar; inhaltlicher
+  Indexvergleich mit ursprünglichem Snapshot noch nicht abgeschlossen.
+  Ein unveränderter Index ist nicht nachgewiesen; der frühere FAIL bleibt.
+
+Keine neue Remoteprüfung, Indexreparatur oder technische Qualifikation.
+NOVENA-STRATEGY-02 umfasst nur die drei freigegebenen Dokumente;
+keine Git-Schreiboperationen, Builds, Hardwaretests, Image-Schreibvorgänge
+oder Netzwerkaktionen und kein zusätzlicher Runner-/Upload-Aufruf durch Codex.
+
+
+## 2026-10-17 – Ergebnisoffene Präzisierung
+
+Ein vollständiger historischer Debian-Boot ist kein
+verbindlicher Zwischenschritt. SOURCE-18 muss
+zunächst prüfen, ob ein Debian-Referenzboot
+gegenüber dem direkten Weg zu einem eigenständig
+startenden NixOS einen nachweisbaren zusätzlichen
+Erkenntnisgewinn bietet.
+
+Die Entscheidung fällt anhand von Bootloader-
+Provenienz, Speicher- und Ladeverträgen,
+Bootmedienauswahl und den bereits vorhandenen
+NixOS-Kernelbefunden.
+
+Das Ziel bleibt der risikoärmste nachvollziehbare
+Weg zu einem vollständig eigenständig von
+externer SD bootfähigen NixOS-Image.
