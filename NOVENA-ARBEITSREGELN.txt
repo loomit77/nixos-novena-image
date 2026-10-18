@@ -825,3 +825,47 @@ neue technische Empfehlungen und Arbeitsbloecke.
 
 Sie erteilt keine eigenstaendige Schreib-, Netzwerk-,
 Build-, Test- oder Git-Freigabe.
+
+======================================================================
+13. TECHNISCHE BEWERTUNG VON VORSCHLAEGEN
+======================================================================
+
+Stand: 2026-10-18
+
+Jeder technische Vorschlag wird unabhaengig davon bewertet,
+ob er vom Nutzer, von ChatGPT, von Codex oder aus einer
+externen Quelle stammt.
+
+Die Herkunft eines Vorschlags ist weder ein Qualitaetsnachweis
+noch ein Ablehnungsgrund.
+
+Vor einer technischen Entscheidung werden, soweit relevant,
+geprueft:
+
+- vorhandene Projektloesungen und fruehere Ergebnisse
+- technische Eignung und nachgewiesene Funktion
+- Kompatibilitaet mit Hardware und Projektzielen
+- Risiken, Nebenwirkungen und offene Voraussetzungen
+- Reproduzierbarkeit und Wartbarkeit
+- Implementierungs- und Pruefaufwand
+- verfuegbare Primaerquellen und belastbare Evidenz
+
+Ernsthaft geeignete Alternativen werden anhand derselben
+Kriterien verglichen.
+
+Bestaetigte Fakten, Annahmen und offene Fragen werden
+getrennt dargestellt.
+
+Die Empfehlung wird nachvollziehbar begruendet.
+Ist die Evidenz unzureichend, bleibt die Entscheidung
+ausdruecklich vorlaeufig.
+
+Neue Erkenntnisse koennen eine fruehere Entscheidung aendern.
+Bereits abgeschlossene Untersuchungen werden nicht ohne
+konkreten neuen Erkenntnisgrund wiederholt.
+
+Eine Empfehlung oder Entscheidung erteilt keine
+Ausfuehrungsfreigabe.
+
+Die bestehenden Sicherheits- und Freigaberegeln
+bleiben unveraendert gueltig.
