@@ -854,3 +854,30 @@ I2C3/ES8328 bleibt geschlossen; `regulator-always-on` dauerhaft.
 - Aktueller NixOS-Bootpfad und DDR/SPL-Root-Cause bleiben offen.
 - Git-Bereinigung und Remote-Synchronisierung anhand
   des Abschlussprotokolls CLEANUP-03 qualifizieren.
+
+### NOVENA-DISASTER-RECOVERY-01 – Wiederherstellung auf Ersatzrechner
+
+Status: OFFEN – Durchführung später.
+
+Ziel: Bei vollständigem Ausfall der foobox die Novena-Entwicklung
+auf einem Ersatzrechner mit dem gesicherten Projektstand fortsetzen.
+
+- [ ] Borg-Sicherungsumfang und Vollständigkeit inventarisieren.
+- [ ] Git-Repositories, uncommittierte Dateien und geschützten
+      Git-Index in das Wiederherstellungskonzept aufnehmen.
+- [ ] Historische Images, Forschungsarchive, Dokumentation,
+      Blockprotokolle und Manifeste berücksichtigen.
+- [ ] Borg-Passphrase und notwendige SSH-/Git-Zugangsdaten
+      unabhängig von foobox verfügbar halten.
+- [ ] Echten Borg-Restore in ein isoliertes Ziel durchführen.
+- [ ] Wiederhergestellte Dateien und Prüfsummen kontrollieren.
+- [ ] Gepinnte Nix-/Rust-Entwicklungsumgebung reproduzieren.
+- [ ] Projekt auf einem Ersatzrechner ohne ursprüngliche
+      foobox erfolgreich prüfen.
+- [ ] Wiederherstellungsanleitung dokumentieren und sichern.
+
+Abschlusskriterium: Nachgewiesene Wiederherstellung ohne Zugriff
+auf die ursprüngliche foobox oder deren SSD.
+
+Keine produktiven Daten oder Backup-Archive während der
+vorbereitenden Bestandsaufnahme verändern.

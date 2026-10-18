@@ -18,3 +18,6 @@ kernel/panel-patch/
 
 # Laufzeit-PID-Dateien, keine Forschungsnachweise
 /test-logs/2026-10-07/bi-test-run1/*.pid
+
+# Lokale Cargo-Buildartefakte
+/tools/novena-image-assembler/target/

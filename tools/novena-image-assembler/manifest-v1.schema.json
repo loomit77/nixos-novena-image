@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Novena Debian 2015 assembly manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "profile", "sectorSize", "sourceRevision", "inputs", "layout", "bootContract"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "profile": { "type": "string", "const": "novena-debian-2015" },
+    "sectorSize": { "type": "integer", "const": 512 },
+    "sourceRevision": { "type": "string", "const": "bd5c7d3290bb94bf8af17760c321df67d2641343" },
+    "inputs": {
+      "type": "object", "additionalProperties": false,
+      "required": ["spl", "proper", "firmware", "swap", "rootfs", "kernel", "dtb"],
+      "properties": {
+        "spl": { "$ref": "#/$defs/artifact" },
+        "proper": { "$ref": "#/$defs/artifact" },
+        "firmware": { "$ref": "#/$defs/artifact" },
+        "swap": { "$ref": "#/$defs/artifact" },
+        "rootfs": { "$ref": "#/$defs/artifact" },
+        "kernel": { "$ref": "#/$defs/artifact" },
+        "dtb": { "$ref": "#/$defs/artifact" }
+      }
+    },
+    "layout": {
+      "type": "object", "additionalProperties": false,
+      "required": ["diskId", "firmwareStart", "swapStart", "rootStart", "firmwareType"],
+      "properties": {
+        "diskId": { "type": "string", "pattern": "^0x[0-9a-fA-F]{8}$", "not": { "const": "0x00000000" } },
+        "firmwareStart": { "$ref": "#/$defs/lba" },
+        "swapStart": { "$ref": "#/$defs/lba" },
+        "rootStart": { "$ref": "#/$defs/lba" },
+        "firmwareType": { "type": "string", "enum": ["06", "0b", "0c"] }
+      }
+    },
+    "bootContract": {
+      "type": "object", "additionalProperties": false,
+      "required": ["pairProvenance", "romSplProperContract", "externalMmcEnvironment", "eepromAndHooks", "bootFilesAndArguments", "kernelDtbInitrdContract", "externalRootAndFstab", "partitionIdentityAndCollisions"],
+      "properties": {
+        "pairProvenance": { "$ref": "#/$defs/evidence" },
+        "romSplProperContract": { "$ref": "#/$defs/evidence" },
+        "externalMmcEnvironment": { "$ref": "#/$defs/evidence" },
+        "eepromAndHooks": { "$ref": "#/$defs/evidence" },
+        "bootFilesAndArguments": { "$ref": "#/$defs/evidence" },
+        "kernelDtbInitrdContract": { "$ref": "#/$defs/evidence" },
+        "externalRootAndFstab": { "$ref": "#/$defs/evidence" },
+        "partitionIdentityAndCollisions": { "$ref": "#/$defs/evidence" }
+      }
+    }
+  },
+  "$defs": {
+    "lba": { "type": "integer", "minimum": 1, "maximum": 4294967295 },
+    "evidence": { "type": "string", "pattern": "\\S" },
+    "artifact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "origin", "size", "sha256"],
+      "properties": {
+        "path": { "type": "string", "pattern": "^/", "not": { "pattern": "\u0000" } },
+        "origin": { "$ref": "#/$defs/evidence" },
+        "size": { "type": "integer", "minimum": 1, "maximum": 18446744073709551615 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    }
+  }
+}
