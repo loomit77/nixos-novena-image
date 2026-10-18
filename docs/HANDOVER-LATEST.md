@@ -977,3 +977,59 @@ Kosagi-Novena-Hardware nachgewiesen.
 Dokumentations-Checkpoint synchronisieren und anschließend
 die Hardwarequalifikation gezielt planen.
 Keine Wiederholung des erfolgreichen Boots ohne Anlass.
+
+
+## NOVENA-NIXOS-86: Displaynachweis 2026-10-18
+
+**Status:** Interner Displaypfad unter NixOS 26.05
+mit Linux 6.18.49 funktional bestätigt.
+
+**Hardware- und Treiberbefunde:**
+- Historischer U-Boot-Bootpfad 2015.04.
+- Linux-Displaytreiber: `imx-drm`.
+- DRM-Connector `card1-LVDS-1`: `connected`, `enabled`.
+- Erkannter Displaymodus: 1920x1080.
+- IT6251 auf I2C-2, Adresse 0x5c, Treiber gebunden.
+- IT6251-Gerätekennung: Vendor `ca15`, Device `6251`.
+- DRM-Bridge erfolgreich registriert und eingebunden.
+- Link-Training nach vier Iterationen beendet.
+- Kernelmeldung: `display link stable`.
+- Kernelmeldung: `bridge_enable: exit success`.
+- Framebuffer: `imx-drmdrmfb`, 1920x1080,
+  16 Bit pro Pixel.
+- Login auf dem internen Display sichtbar.
+
+**Bekannte Initialisierungswarnungen:**
+- `error -6 writing to eDP addr 0x5`
+- `error -6 writing to LVDS addr 0x5`
+
+Trotz dieser Meldungen setzt der IT6251-Treiber
+seine Initialisierung fort und meldet einen
+stabilen Display-Link bei 1920x1080.
+
+**Bewertung:**
+Die Linux-seitige Displayinitialisierung ist
+durch DRM-Status und Kernelmeldungen belegt.
+Der Displaypfad gilt für diesen getesteten
+Boot als funktional bestätigt.
+
+Die beiden I2C-Fehler bleiben dokumentiert.
+Sie rechtfertigen ohne neue Fehlerbeobachtung
+keine Wiederaufnahme der bereits abgeschlossenen
+I2C3/ES8328-Root-Cause-Untersuchung.
+
+Die Etnaviv-GPU wurde erkannt, einschließlich
+`/dev/dri/renderD128`. Eine tatsächliche
+GPU-Beschleunigung wurde nicht getestet.
+
+Nicht nachgewiesen sind langfristige
+Displayzuverlässigkeit und sämtliche
+Grafikfunktionen.
+
+**Originalprotokoll:**
+`project-block-logs/novena/2026/10/NOVENA-NIXOS-85-20261018-143540-KIhZVEHW.txt`
+
+**Fortsetzung:** Displaydiagnose abgeschlossen.
+Weitere Hardwarefunktionen nach Bedarf einzeln
+qualifizieren; funktionierenden SD-Referenzstand
+unverändert erhalten.

@@ -972,3 +972,23 @@ qualifizierten Bootnachweise.
 **Referenz:** Historischer Bootpfad erfolgreich.
 Kein ungepatchtes Vergleichsimage erforderlich, solange keine
 neue konkrete Fehlerhypothese vorliegt.
+
+
+## NOVENA-NIXOS-86: Displaynachweis 2026-10-18
+
+- [x] DRM-Displaytreiber `imx-drm` identifiziert.
+- [x] LVDS-Connector als verbunden und aktiviert bestätigt.
+- [x] Displaymodus 1920x1080 nachgewiesen.
+- [x] IT6251-Treiberbindung und Gerätekennung geprüft.
+- [x] Erfolgreiches Link-Training und stabilen Link nachgewiesen.
+- [x] Linux-Framebuffer `imx-drmdrmfb` bestätigt.
+- [x] IT6251-I2C-Warnungen dokumentiert.
+- [ ] Dokumentationsänderungen prüfen und synchronisieren.
+- [ ] Etnaviv-GPU-Beschleunigung separat qualifizieren,
+      falls für den vorgesehenen Einsatz erforderlich.
+- [ ] Langzeitzuverlässigkeit des Displays bei späterem
+      regulärem Betrieb beobachten.
+
+**Ergebnis:** Displaypfad im getesteten Boot
+funktional bestätigt. Keine weiteren
+Displaytests ohne neue konkrete Fehlerhypothese.
