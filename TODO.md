@@ -941,3 +941,16 @@ und die Nix-/Rust-Schnittstelle. Ein vollständiges Jessie-Image wurde
 noch nicht gebaut. Die Bootfähigkeit auf realer Novena-Hardware ist
 nicht nachgewiesen. Die experimentellen Bootbedingungen sind keine
 qualifizierten Bootnachweise.
+
+## Historisches Debian Jessie – Stand 18.10.2026
+
+- [x] Jessie 8.2 von SD booten
+- [x] Serielle Konsole prüfen
+- [x] LVDS-Grafikausgabe wiederherstellen
+- [x] Tastatur und Maus prüfen
+- [x] Grafische Anmeldung und Abmeldung testen
+- [x] Fehlerursache und funktionierende Xorg-Konfiguration dokumentieren
+- [ ] Funktionierende Jessie-Konfiguration bei Gelegenheit
+      zusätzlich als Datei sichern
+- [ ] Optional: Persistenz nach einem späteren Neustart prüfen
+- [ ] Optional: GPU-Beschleunigung getrennt untersuchen

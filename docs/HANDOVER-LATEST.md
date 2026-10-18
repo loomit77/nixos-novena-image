@@ -910,3 +910,12 @@ freigegebener Implementierungsauftrag.
 
 Keine automatische Freigabe für Builds, Hardwaretests,
 SD-Schreibzugriffe oder weitere Codeänderungen.
+
+## Jessie-Erfolg vom 18.10.2026
+
+Historischer Jessie-SD-Boot mit grafischer Anmeldung
+und Abmeldung erfolgreich. Xorg funktioniert mit
+deaktivierter GPU-Beschleunigung.
+
+Details:
+docs/NOVENA-JESSIE-BOOT-20261018.md
