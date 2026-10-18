@@ -906,3 +906,38 @@ nicht zur Implementierung freigegeben.
 Historische Untersuchungen nicht ohne neue Evidenz wiederholen.
 Builds, SD-Schreibzugriffe und Hardwaretests benötigen weiterhin
 eine ausdrückliche Freigabe.
+
+## Debian Jessie 8.2 – experimentelles SD-Image
+
+Stand: 18.10.2026
+
+### Abgeschlossen
+
+- [x] Historische Debian-Jessie-Artefakte und Bootkomponenten inventarisiert.
+- [x] Historische U-Boot-2015-SPL-/Proper-Kombination untersucht.
+- [x] Separaten experimentellen Jessie-Firstboot-Modus implementiert.
+- [x] Referenzmodus und experimentellen Modus getrennt.
+- [x] Rust-Assembler: neun Unit-Tests erfolgreich.
+- [x] Rust-Formatprüfung erfolgreich.
+- [x] Nix-Manifestserialisierung für beide Modi geprüft.
+- [x] Nix-/Rust-Integration mit synthetischen Manifesten erfolgreich.
+- [x] Änderungen übernommen und nach Codeberg und GitHub gepusht.
+- [x] Git-Stand 2517a30426c6ee6fe7ce8b611a0a7affb54246a6 gesichert.
+
+### Nächste Schritte
+
+- [ ] Experimentelle Nix-Konfiguration mit den vorhandenen Jessie-Artefakten zusammenstellen.
+- [ ] Noch offene Bootbedingungen im experimentellen Manifest dokumentieren, ohne sie als nachgewiesen auszugeben.
+- [ ] Vollständigen Image-Build nach ausdrücklicher Freigabe durchführen.
+- [ ] Image-Größe, Partitionierung, SPL-Position und Ergebnismanifest auswerten.
+- [ ] SD-Schreibvorgang erst nach gesonderter Freigabe durchführen.
+- [ ] Ersten seriell protokollierten Bootversuch auf der Novena durchführen.
+- [ ] Ergebnisse dokumentieren und verbleibende Bootprobleme gezielt bearbeiten.
+
+### Grenzen des aktuellen Nachweises
+
+Die bisherigen erfolgreichen Prüfungen bestätigen die Implementierung
+und die Nix-/Rust-Schnittstelle. Ein vollständiges Jessie-Image wurde
+noch nicht gebaut. Die Bootfähigkeit auf realer Novena-Hardware ist
+nicht nachgewiesen. Die experimentellen Bootbedingungen sind keine
+qualifizierten Bootnachweise.
