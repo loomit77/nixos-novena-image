@@ -869,3 +869,45 @@ Ausfuehrungsfreigabe.
 
 Die bestehenden Sicherheits- und Freigaberegeln
 bleiben unveraendert gueltig.
+
+======================================================================
+14. GIT-REMOTES DES NOVENA-PROJEKTREPOSITORIES
+======================================================================
+
+Stand: 2026-10-18
+
+Auf der foobox sind fuer ~/nixos-novena-image
+folgende Git-Remotes eingerichtet:
+
+origin:
+  Codeberg
+  loomit/nixos-novena-image
+
+github:
+  GitHub
+  loomit77/nixos-novena-image
+
+Vor jedem Push werden die tatsaechlich
+konfigurierten Remote-Namen und Zieladressen
+mit git remote -v geprueft.
+
+Ein Push erfolgt ausschliesslich zu den
+geprueften und ausdruecklich freigegebenen
+Zielen.
+
+Nach dem Push wird kontrolliert, ob beide
+Remote-Branches auf den vorgesehenen Commit
+zeigen.
+
+Die dokumentierten Remote-Namen bilden den
+bestaetigten Projektstand vom 18.10.2026.
+
+Bei spaeteren Aenderungen gilt die tatsaechlich
+gepruefte Konfiguration. Die Dokumentation
+ist entsprechend zu aktualisieren.
+
+Git-Index, vorhandene Nutzeraenderungen und
+nicht freigegebene Dateien bleiben geschuetzt.
+
+Diese Regel erteilt keine eigenstaendige
+Git-, Netzwerk- oder Schreibfreigabe.
