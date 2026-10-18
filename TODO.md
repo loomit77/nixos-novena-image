@@ -954,3 +954,21 @@ qualifizierten Bootnachweise.
       zusätzlich als Datei sichern
 - [ ] Optional: Persistenz nach einem späteren Neustart prüfen
 - [ ] Optional: GPU-Beschleunigung getrennt untersuchen
+
+
+## NOVENA-NIXOS-82: Hardware-Boot 2026-10-18
+
+- [x] Historisches U-Boot 2015.04 in NixOS-Image integrieren.
+- [x] Vollständiges historisches NixOS-SD-Image bauen.
+- [x] Image auf separater 64-GB-Test-microSD verifizieren.
+- [x] Novena mit NixOS 26.05 / Linux 6.18.49 starten.
+- [x] Seriellen Login, Display-Login und `systemd running` bestätigen.
+- [x] Vollständiges Bootprotokoll NOVENA-NIXOS-81 archivieren.
+- [ ] Dokumentationsänderungen prüfen, committen und synchronisieren.
+- [ ] Vollständigen Boot mit aktuellem U-Boot 2026.07 gesondert qualifizieren.
+- [ ] IT6251-Meldungen bei späterer Displayqualifikation bewerten.
+- [ ] Fehlende CODA-VPU-Firmware bei späterer Hardwarequalifikation bewerten.
+
+**Referenz:** Historischer Bootpfad erfolgreich.
+Kein ungepatchtes Vergleichsimage erforderlich, solange keine
+neue konkrete Fehlerhypothese vorliegt.

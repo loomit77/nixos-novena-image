@@ -6928,3 +6928,56 @@ erhalten. Offene Bootbedingungen sind von Nachweisen getrennt; kein Image
 wurde gebaut und keine Bootfähigkeit ist belegt.
 
 [Schnittstelle, Evidenzgrenzen und offene Risiken](DEBIAN-REFERENCE-IMAGE.md#2026-10-18--novena-jessie-20-experimenteller-erstboot-modus).
+
+
+## NOVENA-NIXOS-82: Hardware-Boot 2026-10-18
+
+**Ergebnis:** Erster vollständiger NixOS-Boot mit dem
+experimentellen historischen U-Boot 2015.04 auf echter
+Kosagi-Novena-Hardware nachgewiesen.
+
+**Nachweise:**
+- NOVENA-NIXOS-76: historisches SD-Image gebaut.
+- NOVENA-NIXOS-77: Image-Struktur geprüft.
+- NOVENA-NIXOS-78: Bootvorbereitung.
+- NOVENA-NIXOS-79: Datenträgerinventur.
+- NOVENA-NIXOS-80: Image auf 64-GB-Test-microSD geschrieben;
+  bytegenauer SHA256-Rücklesevergleich PASS.
+- NOVENA-NIXOS-81: vollständiges serielles Bootprotokoll,
+  Login und laufendes NixOS nachgewiesen.
+
+**Technischer Ist-Zustand:**
+- SPL und U-Boot proper: historischer Stand 2015.04,
+  Commitkennung `bd5c7d3`.
+- SPL-Speichertest: PASS.
+- U-Boot erkennt 3,8 GiB DRAM und das Chimei-FHD-Panel.
+- Kernel, initrd und Device Tree werden von der Test-SD geladen.
+- Linux 6.18.49, ARMv7l, vier CPU-Kerne.
+- NixOS 26.05 (Yarara).
+- Root-Dateisystem `/dev/mmcblk1p2`, ext4, `rw`.
+- Login über die serielle Konsole erfolgreich.
+- Login auf dem Novena-Display sichtbar.
+- `systemctl is-system-running`: `running`.
+
+**Abgrenzungen:**
+- Der vollständige Boot mit dem aktuellen U-Boot 2026.07
+  ist durch diesen Test nicht nachgewiesen.
+- Die beiden Kernel-Patches waren beim erfolgreichen Boot aktiv;
+  ein ungepatchtes Vergleichsimage ist derzeit nicht erforderlich.
+- Der sichtbare Display-Login beweist noch keine vollständig
+  erfolgreiche IT6251-Initialisierung unter Linux.
+- Im Bootprotokoll stehen IT6251-I²C-Schreibfehler (`-6`)
+  und `coda 2040000.vpu: firmware request failed`.
+  Diese Beobachtungen bleiben für spätere Hardwarequalifikation
+  offen; sie widerlegen den erfolgreichen Systemboot nicht.
+- Keine vollständige Qualifikation aller Hardwarefunktionen.
+- Die Test-microSD ist der aktuelle funktionierende
+  historische Boot-Referenzstand.
+- Die ursprüngliche Debian-Jessie-SD und die SSD
+  bleiben als getrennte Systeme geschützt.
+
+**Originalprotokoll:**
+`project-block-logs/novena/2026/10/NOVENA-NIXOS-81-20261018-141155-1rgZqQi3.txt`
+
+**Image-SHA256:**
+`4748322366a17dcfcafa75d4591f60ebc34629d9e4973807ab81a7794117170c`
