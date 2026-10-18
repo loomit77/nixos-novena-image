@@ -892,7 +892,7 @@ Verbindliche Entwicklungspriorität:
 - [x] Rust-Integration committed und zu GitHub und Codeberg synchronisiert.
 - [x] Borgmatic-Datensicherung NOVENA-BORG-BACKUP-08B erfolgreich abgeschlossen.
 - [ ] P1: Offene Bootvoraussetzungen des Debian-Referenzimages anhand vorhandener Evidenz gezielt klären.
-- [ ] P1: Vollständiges Debian-12-SD-Image mit dem vorhandenen Rust-Assembler erstellen und qualifizieren.
+- [ ] P1: Vollständiges historisches Debian-Jessie-8.2-SD-Image mit dem vorhandenen Rust-Assembler erstellen und qualifizieren.
 - [ ] P1: Debian-Boot auf der Novena bis zum nutzbaren System nachweisen.
 - [ ] P2: Erst danach Rust-Assembler für das aktuelle NixOS-SD-Image erweitern.
 

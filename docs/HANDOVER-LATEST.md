@@ -878,7 +878,7 @@ Keine erneute gleichartige Untersuchung ohne neue Evidenz.
 Kennung: NOVENA-ENTSCHEIDUNG-2026-10-18-DEBIAN-FIRST
 
 Die weitere Entwicklung konzentriert sich zunächst ausschließlich
-auf ein bootfähiges Debian 12 auf der Kosagi Novena.
+auf ein bootfähiges historisches Debian Jessie 8.2 auf der Kosagi Novena.
 
 Der vorhandene Rust-Assembler unter
 tools/novena-image-assembler/ ist bereits in
@@ -892,7 +892,7 @@ NOVENA-BORG-BACKUP-08B meldete BORGMATIC_CREATE=PASS.
 Ein vollständiger Restore-Test ist damit nicht nachgewiesen.
 
 Nächster technischer Meilenstein:
-Ein mit dem Rust-Assembler erzeugtes Debian-12-SD-Image
+Ein mit dem Rust-Assembler erzeugtes historisches Debian-Jessie-8.2-SD-Image
 soll auf der Novena nachweislich booten.
 
 Vor einem Build sind die noch offenen konkreten Bootvoraussetzungen

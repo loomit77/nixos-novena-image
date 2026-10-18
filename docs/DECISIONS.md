@@ -1918,3 +1918,28 @@ Kernel-/initrd-/DTB-, Environment-, Root- und P_EXT-Nachweise bleiben offen;
 kein Original-/GOOD-Prädikat und keine neue Freigabe für Builds oder Versuche.
 Moderne DDR-Ergebnisse werden nicht umgedeutet. I2C3/ES8328 bleibt geschlossen,
 `regulator-always-on` bleibt dauerhafte Novena-Boardanforderung.
+
+## 2026-10-18 – Historisches Debian Jessie 8.2 zuerst
+
+Kennung: NOVENA-ENTSCHEIDUNG-2026-10-18-JESSIE-FIRST
+
+Diese Entscheidung präzisiert und korrigiert den Nachtrag
+NOVENA-ENTSCHEIDUNG-2026-10-18-DEBIAN-FIRST.
+
+Die unmittelbare Entwicklungspriorität ist ein reproduzierbares,
+bootfähiges historisches Debian-Jessie-8.2-SD-Image für die
+Kosagi Novena, erstellt mit dem vorhandenen Rust-Assembler.
+
+Debian 12 ist ein späterer, eigenständiger Entwicklungsschritt.
+Die Rust-Integration des aktuellen NixOS-Image-Builders bleibt
+ebenfalls zurückgestellt.
+
+Die historische Referenzkonfiguration und ihre konkrete
+Bootfähigkeit müssen anhand der vorhandenen Quellen qualifiziert
+werden. Eine vollständige Jessie-8.2-Provenienz oder Bootfähigkeit
+wird durch diese Prioritätsentscheidung nicht als bereits
+nachgewiesen behauptet.
+
+Frühere technische Befunde und abgeschlossene Untersuchungen
+bleiben unverändert. Builds, Hardwaretests und SD-Schreibzugriffe
+erfordern weiterhin eine gesonderte Freigabe.
