@@ -3264,3 +3264,30 @@ Der laufende ALSA-Paketbuild NOVENA-NIXOS-91B wird später separat ausgewertet;
 hier kein Buildabschluss behauptet. Kein Audiotest durchgeführt.
 Ein erfolgreicher Boot mit modernem U-Boot 2026.07 ist weiterhin nicht bestätigt.
 Keine Wiederaufnahme der abgeschlossenen I2C3-/ES8328-Untersuchung.
+
+## NOVENA-NIXOS-106/107 – 2026-10-18
+
+**NOVENA-NIXOS-106:** Lesende SSH-Diagnose von RTC,
+NTP, Systemzeit, Uptime und Clocksource.
+Runner und GitHub-Upload PASS.
+PCF8523 aktuell lesbar; Bootmeldung zu `hctosys`.
+SNVS-RTC zeigt 1970; NTP synchronisiert.
+
+**NOVENA-NIXOS-107:** Lesende SSH-Folgediagnose.
+Runner und GitHub-Upload PASS.
+PCF8523-Treiber als Modul konfiguriert;
+Registrierung bei ca. 104,82 Sekunden,
+anschliessend `hctosys`-Lesefehler.
+`/proc/uptime` ca. 2208 Sekunden,
+GNU-`uptime` ca. 214 Tage.
+Python 3 auf der Novena nicht installiert;
+CLOCK_GETTIME-Vergleich nicht ausgefuehrt.
+
+**Aussagegrenze:** Keine RTC-Schreibtests, keine
+Neustarts, keine Treiberaenderungen.
+Ursache des fruehen PCF8523-Lesefehlers und genaue
+GNU-`uptime`-Berechnung bleiben offen.
+
+Rohprotokolle:
+- https://github.com/loomit77/project-block-logs/blob/de07f99a37a208c095bce4fae1550af825839de5/novena/2026/10/NOVENA-NIXOS-106-20261018-164144-uRNDKsEb.txt
+- https://github.com/loomit77/project-block-logs/blob/da035c84c3d3445d119c4df5623c040286778eb0/novena/2026/10/NOVENA-NIXOS-107-20261018-164522-50EyVLbX.txt

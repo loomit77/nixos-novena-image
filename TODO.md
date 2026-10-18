@@ -1023,3 +1023,18 @@ Boot; bestätigt ist der historische Bootpfad mit U-Boot 2015.04.
 Der mechanische Kartenauswurf ist kein nachgewiesener MMC-Treiberfehler.
 I2C3/ES8328 bleibt abgeschlossen; `regulator-always-on` bleibt Boardanforderung.
 Diese Aufgabenliste erteilt keine Build-, SSH-, Medien-, Hardware- oder Git-Freigabe.
+
+## NOVENA-NIXOS-106/107 – 2026-10-18 – offene Punkte
+
+- [ ] PCF8523: Bei Bedarf statisch Treiber- und
+  Initialisierungsablauf des `hctosys`-Lesefehlers
+  untersuchen. Keine erneuten Hardwaretests ohne
+  neue Evidenz und Freigabe.
+- [ ] GNU-coreutils-`uptime`: Exakte Berechnungsweise
+  bei Bedarf statisch nachvollziehen.
+  `/proc/uptime` liefert plausible Laufzeit.
+- [ ] SNVS-RTC: Falsche Kalenderzeit dokumentiert.
+  Kein Stellen der Uhr ohne gesonderte Entscheidung.
+
+Belege: NOVENA-NIXOS-106 und NOVENA-NIXOS-107
+im Repository `loomit77/project-block-logs`.

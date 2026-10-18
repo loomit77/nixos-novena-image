@@ -7078,3 +7078,37 @@ Der laufende ALSA-Paketbuild NOVENA-NIXOS-91B bleibt separat auszuwerten;
 kein Abschlussnachweis und kein Audiotest in diesem Stand.
 I2C3/ES8328 bleibt abgeschlossen; `regulator-always-on` bleibt dauerhafte
 Novena-Board-Anforderung.
+
+## NOVENA-NIXOS-106/107 – 2026-10-18
+
+NixOS 26.05, Kernel 6.18.49, echte Novena; lesende
+SSH-Diagnosen NOVENA-NIXOS-106 und 107 abgeschlossen.
+
+- Systemzeit: am 18.10.2026 durch systemd-timesyncd
+  synchronisiert. NTP-Server: 2.nixos.pool.ntp.org.
+- Externe PCF8523: rtc0, nach dem Boot lesbar und mit
+  plausibler UTC-Zeit.
+- Beim Boot: `hctosys: unable to read the hardware clock`
+  nach Registrierung der PCF8523 bei etwa 104,8 Sekunden
+  Kernel-Laufzeit. Konkrete Fehlerursache nicht nachgewiesen.
+- Interne SNVS-RTC: rtc1, lesbar und laufend,
+  Kalenderzeit ab 1970.
+- Kernel-Konfiguration: `CONFIG_RTC_HCTOSYS=y`,
+  `CONFIG_RTC_HCTOSYS_DEVICE="rtc0"`,
+  `CONFIG_RTC_DRV_PCF8523=m`, `CONFIG_RTC_DRV_SNVS=m`.
+- GNU-coreutils-`uptime` 9.11 zeigt etwa 214 Tage,
+  während `/proc/uptime` bei NOVENA-NIXOS-107
+  rund 2208 Sekunden zeigt.
+- Der Boot begann mit falscher Kalenderzeit.
+  Initiale NTP-Synchronisierung bei etwa 169,7 Sekunden
+  Kernel-Laufzeit. Zeitkorrektur als plausible Erklärung;
+  genaue GNU-uptime-Berechnung nicht nachgewiesen.
+- Clocksource: `mxc_timer1`. Kein konkreter Nachweis
+  eines Clocksource-Defekts.
+
+Keine RTC-Schreibtests, Neustarts oder Hardwareeingriffe
+im Rahmen dieser Untersuchungen.
+
+Quellen:
+- https://github.com/loomit77/project-block-logs/blob/de07f99a37a208c095bce4fae1550af825839de5/novena/2026/10/NOVENA-NIXOS-106-20261018-164144-uRNDKsEb.txt
+- https://github.com/loomit77/project-block-logs/blob/da035c84c3d3445d119c4df5623c040286778eb0/novena/2026/10/NOVENA-NIXOS-107-20261018-164522-50EyVLbX.txt
