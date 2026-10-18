@@ -9,6 +9,10 @@
   networking.hostName = "novena";
 
   services.openssh.enable = true;
+  services.openssh.settings = {
+    PasswordAuthentication = true;
+    PermitRootLogin = "yes";
+  };
 
   users.users.root.initialPassword = "nixos";
 
