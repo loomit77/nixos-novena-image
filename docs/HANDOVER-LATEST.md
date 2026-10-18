@@ -872,3 +872,41 @@ noch eine Behebung der weiterhin offenen DDR/SPL-Ursache.
 
 Dieser historische Untersuchungsabschnitt ist geschlossen.
 Keine erneute gleichartige Untersuchung ohne neue Evidenz.
+
+## Nachtrag 2026-10-18 – Aktuelle Entwicklungspriorität
+
+Kennung: NOVENA-ENTSCHEIDUNG-2026-10-18-DEBIAN-FIRST
+
+Die weitere Entwicklung konzentriert sich zunächst ausschließlich
+auf ein bootfähiges Debian 12 auf der Kosagi Novena.
+
+Der vorhandene Rust-Assembler unter
+tools/novena-image-assembler/ ist bereits in
+image/debian-reference-image.nix integriert.
+
+Git-Checkpoint nach der Rust-Integration:
+e491651f574d20c1905194d12b37d759c500ccb7
+
+GitHub und Codeberg wurden auf diesen Stand synchronisiert.
+NOVENA-BORG-BACKUP-08B meldete BORGMATIC_CREATE=PASS.
+Ein vollständiger Restore-Test ist damit nicht nachgewiesen.
+
+Nächster technischer Meilenstein:
+Ein mit dem Rust-Assembler erzeugtes Debian-12-SD-Image
+soll auf der Novena nachweislich booten.
+
+Vor einem Build sind die noch offenen konkreten Bootvoraussetzungen
+des historischen Debian-Referenzprofils zu klären.
+Bereits abgeschlossene SPL-Untersuchungen werden ohne neue Evidenz
+nicht wiederholt.
+
+Das aktuelle NixOS-Image bleibt unverändert.
+Insbesondere wird image/novena-image.nix nicht auf Rust umgestellt.
+Die Erweiterung um ein NixOS-Profil ist bis zum erfolgreichen
+Debian-Meilenstein zurückgestellt.
+
+NOVENA-UNIVERSAL-RUST-01 ist ein vorbereiteter, aber nicht
+freigegebener Implementierungsauftrag.
+
+Keine automatische Freigabe für Builds, Hardwaretests,
+SD-Schreibzugriffe oder weitere Codeänderungen.

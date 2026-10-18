@@ -881,3 +881,28 @@ auf die ursprüngliche foobox oder deren SSD.
 
 Keine produktiven Daten oder Backup-Archive während der
 vorbereitenden Bestandsaufnahme verändern.
+
+## Nachtrag 2026-10-18 – Debian vor NixOS
+
+Kennung: NOVENA-ENTSCHEIDUNG-2026-10-18-DEBIAN-FIRST
+
+Verbindliche Entwicklungspriorität:
+
+- [x] Rust-Assembler für das historische Debian-Referenzimage entwickelt und in den separaten Nix-Builder integriert.
+- [x] Rust-Integration committed und zu GitHub und Codeberg synchronisiert.
+- [x] Borgmatic-Datensicherung NOVENA-BORG-BACKUP-08B erfolgreich abgeschlossen.
+- [ ] P1: Offene Bootvoraussetzungen des Debian-Referenzimages anhand vorhandener Evidenz gezielt klären.
+- [ ] P1: Vollständiges Debian-12-SD-Image mit dem vorhandenen Rust-Assembler erstellen und qualifizieren.
+- [ ] P1: Debian-Boot auf der Novena bis zum nutzbaren System nachweisen.
+- [ ] P2: Erst danach Rust-Assembler für das aktuelle NixOS-SD-Image erweitern.
+
+Bis zum erfolgreichen Debian-Meilenstein keine Erweiterung des
+Rust-Assemblers um ein NixOS-Profil und keine Umstellung von
+image/novena-image.nix.
+
+Der vorbereitete Auftrag NOVENA-UNIVERSAL-RUST-01 ist zurückgestellt,
+nicht zur Implementierung freigegeben.
+
+Historische Untersuchungen nicht ohne neue Evidenz wiederholen.
+Builds, SD-Schreibzugriffe und Hardwaretests benötigen weiterhin
+eine ausdrückliche Freigabe.
