@@ -189,13 +189,19 @@ pub struct OutputIdentity {
 struct Report<'a> {
     result_schema_version: u32,
     assembler_version: &'static str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    qualification: Option<&'static str>,
     manifest: &'a Manifest,
     output: &'a OutputIdentity,
 }
 pub fn report_bytes(m: &Manifest, identity: &OutputIdentity) -> Result<Vec<u8>> {
+    m.validate()?;
     let mut bytes = serde_json::to_vec_pretty(&Report {
-        result_schema_version: 1,
+        result_schema_version: if m.is_experimental() { 2 } else { 1 },
         assembler_version: env!("CARGO_PKG_VERSION"),
+        qualification: m
+            .is_experimental()
+            .then_some("experimental-unqualified-no-boot-evidence"),
         manifest: m,
         output: identity,
     })?;
@@ -332,7 +338,7 @@ pub fn assemble(m: &Manifest, output_dir: &Path) -> Result<OutputIdentity> {
         .read(true)
         .write(true)
         .create_new(true)
-        .open(output_dir.join("debian-reference.img"))?;
+        .open(output_dir.join(m.image_name()))?;
     let identity = write_image(&mut target, &plan, &mut sources)?;
     // Recheck ALL standalone artifacts as well, including those only compared on FAT.
     for source in &mut sources {

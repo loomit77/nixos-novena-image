@@ -253,3 +253,86 @@ Geändert werden nur dieser Text, der separate Debian-Builder und dessen
 Assembler-README. NixOS-Builder, historische Originale und Git-Index bleiben
 unberührt. Runner-/Sidecar-Dateien außerhalb dieser Freigabe werden nicht
 angelegt; es erfolgt kein Upload.
+
+
+## 2026-10-18 – NOVENA-JESSIE-20: experimenteller Erstboot-Modus
+
+Dies ist ein vorbereitender Assembliermodus für einen später gesondert
+freizugebenden Erstbootversuch, kein automatisch ausgeführter Erstboot und
+kein Bootnachweis. Er erzeugt weder ein Jessie-System noch Erstboot-Skripte,
+uEnv, Bootargumente oder fstab-Anpassungen. Die Bezeichnung Jessie bestätigt
+keine Jessie-8.2-Provenienz der Eingaben; diese bleibt separat zu qualifizieren.
+
+Die Nix-Funktion erhält zwei optionale Argumente:
+
+- `mode ? "reference"`: unveränderter Referenzmodus mit vollständigem
+  `bootContract`; experimentelle Metadaten müssen `null` bleiben.
+- `mode = "jessie-firstboot-experimental"`: verlangt `bootContract = null`
+  und `experimental = { openBootConditions = { ... }; };`.
+  `openBootConditions` enthält genau dieselben acht Schlüssel wie der
+  Referenz-Bootvertrag. Jeder Wert muss einen nichtleeren Text über die
+  konkrete offene Bedingung, Annahme, vorhandene Teilevidenz und erforderliche
+  spätere Qualifikation enthalten. Diese Texte sind ausdrücklich keine
+  Nachweisreferenzen zur Freischaltung des Referenzmodus.
+
+Die CLI bleibt `novena-image-assembler MANIFEST OUTPUT_DIR`. Im direkten
+JSON-Eingabemanifest wird das Experiment durch
+`profile: "novena-debian-jessie-firstboot-experimental"` gewählt;
+`schemaVersion` bleibt 1. `bootContract` ist dabei `null` oder fehlt,
+`experimental.openBootConditions` ist zwingend. Beide Metadatenarten gemeinsam
+werden abgewiesen. Im Referenzprofil muss `experimental` fehlen oder `null`
+sein. Unbekannte Profile, Felder, Duplikate und unvollständige oder leere
+Bedingungstexte werden abgewiesen. Das JSON-Schema beschreibt beide Varianten.
+Die Rust-Bibliothek verwendet jetzt `Option<BootContract>` und
+`Option<Experimental>` im `Manifest`; direkte Struct-Aufrufer müssen dies
+berücksichtigen. Alte gültige Referenz-JSON-Manifeste bleiben gültig.
+
+Die Experimentausgabe heißt `debian-jessie-firstboot-experimental.img`,
+die Derivation `novena-debian-jessie-firstboot-experimental-image`.
+`manifest.json` erhält ausschließlich im Experiment `resultSchemaVersion: 2`
+und `qualification: "experimental-unqualified-no-boot-evidence"`.
+Das normalisierte Eingabemanifest enthält Profil und alle offenen Bedingungen;
+`bootContract` wird als `null` ausgegeben. Konsumenten müssen v2 ausdrücklich
+als unqualifiziert behandeln. Die Referenzausgabe behält
+`debian-reference.img`, Ergebnisformat v1 und dessen Feldstruktur.
+
+Nur die Nachweissperre wird im ausdrücklich gewählten Experiment durch die
+Pflicht zur Dokumentation offener Bedingungen ersetzt. Die Bindung an die
+2015-Quellrevision, alle sieben Artefakte mit Herkunft, Größe und SHA256,
+reguläre Dateien, FAT-/Swap-/ext4-Erkennung, FAT-Dateivergleiche, MBR/Layout,
+SPL bei 1024 ohne FAT-Überlappung, Sektorgrenzen, Kopierhashes, erneute
+Quellprüfung sowie vollständige Rückprüfung einschließlich Nullbereichen
+bleiben im gemeinsamen Codepfad erhalten. Die Dateisystemerkennung ist
+weiterhin keine Dateisystem-Konsistenzprüfung. Ein erfolgreicher späterer
+Assemblerlauf würde ausschließlich Byte-Assemblierung und diese Prüfungen
+belegen.
+
+Offen bleiben insbesondere konkrete Paar-/Buildprovenienz, ROM/SPL/Proper-
+Header und Übergabeadressen, Proper-MMC-Nummerierung und persistentes
+Environment ohne interne MMC, EEPROM/SATA/Hooks/Recovery, wirksame
+Bootdateien und Argumente, Kernel/DTB/initrd, externes Root mit unveränderter
+fstab sowie Identitätskollisionen. Byteerhaltung kann historisch ungeeignete
+Bootkonfigurationen erhalten; der Experimentmodus repariert sie nicht.
+Die vorhandenen historischen Bootbeobachtungen qualifizieren diesen Modus
+und seine künftigen Eingaben nicht.
+
+Drei neue Rust-Quelltests prüfen Modustrennung und vollständige Bedingungen,
+Artefakt-/Layout-Sperren in beiden Profilen sowie getrennte Dateinamen und
+Ergebnisformate einschließlich unveränderter Referenzstruktur. Sie sind in
+diesem Auftrag **nicht ausgeführt**: Cargo, rustc und rustfmt fehlen auf PATH.
+Es wurden keine zusätzlichen Werkzeuge oder Downloads gestartet. Der später
+mit vorhandener Werkzeugkette geeignete reine Metadatentest-Filter ist
+`cargo test --frozen experimental` sowie
+`cargo test --frozen report_distinguishes_experiment_without_changing_reference_shape`;
+beide vermeiden die bestehenden Tests, die synthetische Image-Dateien schreiben.
+Ohne lokal verfügbare Abhängigkeiten ist zuvor zu berichten, nicht nachzuladen.
+Kein Test-PASS, Imagebuild, Nix-Evaluierungsnachweis oder Hardwarebefund wird
+hieraus abgeleitet. Die Nix-/Helferintegration bleibt praktisch ungeprüft.
+
+Die isolierte Arbeitskopie hat keine nutzbaren Git-Metadaten (`.git` ist leer);
+HEAD, Branch, Index und ein Git-Diff sind daher nicht verfügbar. Der externe
+Protokollierungsrunner wurde wegen der Grenze „nur diese Arbeitskopie“ nicht
+verwendet. NOVENA-JESSIE-20 bezeichnet diesen Implementierungsblock; eine
+fortlaufende externe INDEX-Nummer ist hier nicht verifizierbar. Keine Commits,
+Pushes, Medienzugriffe oder Hardwareversuche; kein moderner NixOS-Builder
+wurde geändert.

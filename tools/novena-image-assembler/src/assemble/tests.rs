@@ -1,4 +1,4 @@
-//! Synthetic source tests only. Not executed for NOVENA-DEBIAN-RUST-02.
+//! Synthetic source tests only. New NOVENA-JESSIE-20 tests have not been executed.
 use super::*;
 use serde_json::{json, Value};
 use std::{
@@ -48,6 +48,115 @@ fn decode(v: &Value) -> Manifest {
 }
 fn rejected(v: &Value) {
     assert!(manifest::parse(&serde_json::to_vec(v).unwrap()).is_err());
+}
+
+fn experimental_document() -> Value {
+    let mut v = document();
+    v["profile"] = json!(manifest::EXPERIMENTAL_PROFILE);
+    v["experimental"] = json!({"openBootConditions": v["bootContract"].clone()});
+    v["bootContract"] = Value::Null;
+    v
+}
+
+#[test]
+fn experimental_requires_separate_complete_open_conditions() {
+    let v = experimental_document();
+    assert!(decode(&v).is_experimental());
+    let mut missing = v.clone();
+    missing.as_object_mut().unwrap().remove("experimental");
+    rejected(&missing);
+    for key in v["experimental"]["openBootConditions"]
+        .as_object()
+        .unwrap()
+        .keys()
+    {
+        let mut missing = v.clone();
+        missing["experimental"]["openBootConditions"]
+            .as_object_mut()
+            .unwrap()
+            .remove(key);
+        rejected(&missing);
+        let mut blank = v.clone();
+        blank["experimental"]["openBootConditions"][key] = json!(" \n");
+        rejected(&blank);
+    }
+    let mut mixed = v.clone();
+    mixed["bootContract"] = document()["bootContract"].clone();
+    rejected(&mixed);
+    let mut reference = v.clone();
+    reference["profile"] = json!("novena-debian-2015");
+    rejected(&reference);
+    reference["bootContract"] = document()["bootContract"].clone();
+    rejected(&reference);
+    let mut unknown = v.clone();
+    unknown["experimental"]["bootProven"] = json!(true);
+    rejected(&unknown);
+    let bytes = serde_json::to_string(&v).unwrap();
+    let duplicate = bytes.replace(
+        "\"openBootConditions\":",
+        "\"openBootConditions\":{},\"openBootConditions\":",
+    );
+    assert!(manifest::parse(duplicate.as_bytes()).is_err());
+}
+
+#[test]
+fn experimental_keeps_artifact_and_layout_guards() {
+    for (pointer, value) in [
+        ("/inputs/rootfs/sha256", json!("A".repeat(64))),
+        ("/inputs/spl/size", json!(1025)),
+        ("/inputs/rootfs/size", json!(513)),
+        ("/inputs/kernel/path", json!("relative")),
+        ("/sourceRevision", json!("rc12")),
+        ("/layout/swapStart", json!(4)),
+        ("/layout/rootStart", json!(u32::MAX)),
+        ("/layout/firmwareType", json!("83")),
+    ] {
+        let mut v = experimental_document();
+        *v.pointer_mut(pointer).unwrap() = value;
+        rejected(&v);
+    }
+    let reference = layout::plan(&decode(&document())).unwrap();
+    let experiment = layout::plan(&decode(&experimental_document())).unwrap();
+    assert_eq!(
+        mbr::encode(&reference).unwrap(),
+        mbr::encode(&experiment).unwrap()
+    );
+    assert_eq!(reference.total_size, experiment.total_size);
+}
+
+#[test]
+fn report_distinguishes_experiment_without_changing_reference_shape() {
+    let identity = OutputIdentity {
+        size: 512,
+        sha256: "0".repeat(64),
+    };
+    let reference = decode(&document());
+    let experiment = decode(&experimental_document());
+    assert_eq!(reference.image_name(), "debian-reference.img");
+    assert_eq!(
+        experiment.image_name(),
+        "debian-jessie-firstboot-experimental.img"
+    );
+    let old: Value = serde_json::from_slice(&report_bytes(&reference, &identity).unwrap()).unwrap();
+    assert_eq!(
+        old,
+        json!({"resultSchemaVersion":1,
+        "assemblerVersion":env!("CARGO_PKG_VERSION"), "manifest":document(),
+        "output":{"size":512,"sha256":"0".repeat(64)}})
+    );
+    let bytes = report_bytes(&experiment, &identity).unwrap();
+    let report: Value = serde_json::from_slice(&bytes).unwrap();
+    assert_eq!(report["resultSchemaVersion"], 2);
+    assert_eq!(
+        report["qualification"],
+        "experimental-unqualified-no-boot-evidence"
+    );
+    assert!(report["manifest"]["bootContract"].is_null());
+    assert_eq!(
+        report["manifest"]["experimental"],
+        experimental_document()["experimental"]
+    );
+    assert_eq!(bytes, report_bytes(&experiment, &identity).unwrap());
 }
 
 #[test]

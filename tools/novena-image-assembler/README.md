@@ -35,13 +35,11 @@ Das sind Versionsanforderungen, keine aufgelösten oder geprüften Versionen.
 Laufzeitwerkzeuge: `blkid` aus util-linux und `mcopy` aus mtools sowie Linux
 `/proc/self/fd`. Kein Shellaufruf, kein Mount, kein mkfs, fsck oder resize.
 
-**Cargo.lock fehlt ausdrücklich.** Cargo, rustc und rustfmt wurden auf PATH
-nicht gefunden; auch die üblichen lokalen Cargo-Registry-Index-/Cachepfade
-wurden nicht gefunden. Eine belastbare Offline-Auflösung ist damit nicht
-belegt. Es wurde kein Cargo-Aufruf, Build oder Netzwerkzugriff versucht.
-Versionen transitiver Pakete und Registry-Prüfsummen werden nicht erfunden.
-Ein später freigegebener Lockfile-/Buildschritt muss die Auflösung und
-Nix-Pins qualifizieren, bevor reproduzierbare Builds behauptet werden können.
+`Cargo.lock` ist vorhanden und enthält aufgelöste Registry-Versionen und
+Prüfsummen; Nix importiert sie verbindlich. Die frühere Aussage über eine
+fehlende Lockdatei ist überholt. Im Auftrag NOVENA-JESSIE-20 fehlen Cargo,
+rustc und rustfmt auf PATH; deshalb wurden keine Rust-Tests ausgeführt und
+keine Werkzeuge oder Abhängigkeiten beschafft.
 
 ## Eingabeschema v1
 
@@ -57,7 +55,7 @@ JSON Schema betrachtet mathematisch ganzzahlige Fließkommazahlen dagegen
 als Integer; die CLI ist hier absichtlich strenger. Nichtleere Texte werden
 in Rust mit Unicode-Whitespace-Prüfung verlangt.
 
-Alle nachstehenden Felder sind Pflichtfelder, ohne Defaults:
+Für den unveränderten Referenzmodus sind alle nachstehenden Felder Pflichtfelder:
 
 | Feld | Inhalt |
 | --- | --- |
@@ -243,3 +241,45 @@ sind in [DEBIAN-REFERENCE-IMAGE.md](../../docs/DEBIAN-REFERENCE-IMAGE.md)
 beschrieben. Keine Nix-Evaluierung, Builds oder Tests wurden in RUST-06
 ausgeführt. Die Nix-Integration und echte FAT-/Swap-/ext4-Helferaufrufe bleiben
 praktisch unqualifiziert; vorhandene Kern-Tests ersetzen das nicht.
+
+
+## 2026-10-18 – NOVENA-JESSIE-20: experimenteller Erstboot-Modus
+
+Der explizite Nix-Modus `mode = "jessie-firstboot-experimental"` verwendet
+weiter diesen Rust-Assembler. Standard bleibt `mode = "reference"` mit
+vollständigem `bootContract`. Im Experiment ist `bootContract = null` und
+`experimental.openBootConditions` mit allen acht Bootvertrags-Schlüsseln
+als nichtleeren Beschreibungen offener Bedingungen erforderlich. Diese
+Texte sind keine Bootnachweise. Nachweisvertrag und Experimentmetadaten
+können nicht gemeinsam gesetzt werden.
+
+Die CLI bleibt unverändert. Direktes JSON wählt das Experiment über
+`profile: "novena-debian-jessie-firstboot-experimental"`, mit
+`schemaVersion: 1`, `bootContract: null` (oder ausgelassen) und den genannten
+Experimentmetadaten. Unbekannte Felder und Duplikate bleiben verboten.
+Die Rust-Struktur `Manifest` hat nun `boot_contract: Option<BootContract>`
+und `experimental: Option<Experimental>`. Referenz-JSON bleibt kompatibel;
+`experimental` muss dort fehlen oder `null` sein.
+
+Das Experiment schreibt `debian-jessie-firstboot-experimental.img` und
+`manifest.json` mit `resultSchemaVersion: 2` und
+`qualification: "experimental-unqualified-no-boot-evidence"`. Die offenen
+Bedingungen werden im normalisierten Eingabemanifest erhalten. Referenzname,
+Ergebnisformat v1 und Referenzfeldstruktur bleiben erhalten. Alle SHA256-,
+Dateisystemerkennungs-, FAT-Datei-, Layout-, SPL- und Rückprüfungen bleiben
+im gemeinsamen Codepfad. Keine neuen Abhängigkeiten oder Dateisystemänderungen.
+
+Drei neue Quelltests behandeln Modustrennung, vollständige Bedingungen,
+Artefakt-/Layout-Sperren und Ergebniskennzeichnung mit Referenzregression.
+Nicht ausgeführt: Cargo, rustc und rustfmt fehlen auf PATH. Keine Downloads,
+Imagebuilds oder Hardwaretests. Die historische Testqualifikation oben ist
+kein Nachweis für diese Änderungen. Die Git-Metadaten dieser Arbeitskopie
+sind nicht nutzbar; ein Git-Diff ist nicht verfügbar.
+
+Offen sind Jessie-/Paarprovenienz, ROM/SPL/Proper-Übergaben, internes MMC-
+Environment, EEPROM/Hooks, effektive Bootargumente, Kernel/DTB/initrd,
+externes Root/fstab und Identitätskollisionen. Der Modus erzeugt weder ein
+Debian-System noch Erstboot-Skripte und repariert keine Bootkonfiguration.
+Er ist eine Vorbereitung für spätere gesondert freizugebende Versuche.
+Die [vollständige Schnittstelle und Prüfgrenzen](../../docs/DEBIAN-REFERENCE-IMAGE.md#2026-10-18--novena-jessie-20-experimenteller-erstboot-modus)
+sind verbindlich mitzulesen. Keine Bootfähigkeit behauptet.

@@ -3077,3 +3077,14 @@ noch eine Behebung der weiterhin offenen DDR/SPL-Ursache.
 
 Dieser historische Untersuchungsabschnitt ist geschlossen.
 Keine erneute gleichartige Untersuchung ohne neue Evidenz.
+
+
+## 2026-10-18 – NOVENA-JESSIE-20: experimenteller Assembliermodus
+
+Drei Rust-Quelltests für Modustrennung, offene Bedingungen, Artefakt-/Layout-
+Sperren und Manifestkennzeichnung ergänzt, aber nicht ausgeführt: Cargo, rustc
+und rustfmt fehlen auf PATH. Keine Beschaffung. JSON-Lesbarkeit, lokale
+Schema-Referenzen und Whitespace wurden statisch geprüft. Das ist kein Rust-,
+Nix-, Image- oder Hardware-Testnachweis.
+
+[Schnittstelle, Evidenzgrenzen und offene Risiken](DEBIAN-REFERENCE-IMAGE.md#2026-10-18--novena-jessie-20-experimenteller-erstboot-modus).

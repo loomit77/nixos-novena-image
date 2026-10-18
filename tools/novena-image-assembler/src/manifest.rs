@@ -4,6 +4,7 @@ use std::{collections::BTreeMap, fmt, path::Path};
 
 pub const REVISION: &str = "bd5c7d3290bb94bf8af17760c321df67d2641343";
 pub const MAX_MANIFEST: u64 = 1024 * 1024;
+pub const EXPERIMENTAL_PROFILE: &str = "novena-debian-jessie-firstboot-experimental";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -14,7 +15,17 @@ pub struct Manifest {
     pub source_revision: String,
     pub inputs: Inputs,
     pub layout: Layout,
-    pub boot_contract: BootContract,
+    pub boot_contract: Option<BootContract>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub experimental: Option<Experimental>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct Experimental {
+    // Deliberately separate from evidence: these texts describe unresolved
+    // conditions and assumptions, never qualified boot evidence.
+    pub open_boot_conditions: BootContract,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -78,7 +89,29 @@ pub struct BootContract {
 impl Manifest {
     pub fn validate(&self) -> Result<()> {
         require(self.schema_version == 1, "schemaVersion must be 1")?;
-        require(self.profile == "novena-debian-2015", "unsupported profile")?;
+        let conditions = match self.profile.as_str() {
+            "novena-debian-2015" => {
+                require(
+                    self.experimental.is_none(),
+                    "reference forbids experimental metadata",
+                )?;
+                self.boot_contract
+                    .as_ref()
+                    .ok_or("reference requires bootContract")?
+            }
+            EXPERIMENTAL_PROFILE => {
+                require(
+                    self.boot_contract.is_none(),
+                    "experiment forbids bootContract evidence",
+                )?;
+                &self
+                    .experimental
+                    .as_ref()
+                    .ok_or("experimental metadata required")?
+                    .open_boot_conditions
+            }
+            _ => return Err("unsupported profile".into()),
+        };
         require(self.sector_size == 512, "sectorSize must be 512")?;
         require(
             self.source_revision == REVISION,
@@ -99,7 +132,7 @@ impl Manifest {
                 "lowercase SHA256 required",
             )?;
         }
-        let b = &self.boot_contract;
+        let b = conditions;
         for evidence in [
             &b.pair_provenance,
             &b.rom_spl_proper_contract,
@@ -112,10 +145,22 @@ impl Manifest {
         ] {
             require(
                 !evidence.trim().is_empty(),
-                "all eight boot evidence references required",
+                "all eight boot evidence references or experimental open conditions required",
             )?;
         }
         Ok(())
+    }
+
+    pub fn is_experimental(&self) -> bool {
+        self.profile == EXPERIMENTAL_PROFILE
+    }
+
+    pub fn image_name(&self) -> &'static str {
+        if self.is_experimental() {
+            "debian-jessie-firstboot-experimental.img"
+        } else {
+            "debian-reference.img"
+        }
     }
 }
 

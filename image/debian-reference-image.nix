@@ -8,6 +8,8 @@
 , dtb
 , layout
 , bootContract ? null
+, mode ? "reference"
+, experimental ? null
 }:
 let
   lib = pkgs.lib;
@@ -53,6 +55,12 @@ let
   contractValid = builtins.isAttrs bootContract
     && lib.all (key: builtins.hasAttr key bootContract
       && nonempty bootContract.${key}) requiredEvidence;
+  isExperimental = mode == "jessie-firstboot-experimental";
+  experimentalValid = builtins.isAttrs experimental
+    && experimental ? openBootConditions
+    && builtins.isAttrs experimental.openBootConditions
+    && lib.all (key: builtins.hasAttr key experimental.openBootConditions
+      && nonempty experimental.openBootConditions.${key}) requiredEvidence;
   inputs = {
     inherit rootfs firmware swap kernel dtb;
     spl = bootloader2015.spl;
@@ -64,19 +72,24 @@ in
 assert lib.assertMsg (host.stdenv.hostPlatform.system == "x86_64-linux")
   "Debian reference: Rust assembler requires an x86_64-linux build host";
 assert lib.assertMsg pairValid "Debian reference: explicit matched 2015 SPL/Proper pair required";
-assert lib.assertMsg contractValid "Debian reference: unresolved boot prerequisites (bootContract evidence required)";
+assert lib.assertMsg (mode == "reference" || isExperimental) "Debian: unsupported mode";
+assert lib.assertMsg (if isExperimental then bootContract == null && experimentalValid
+  else contractValid && experimental == null)
+  "Debian: reference requires bootContract only; experiment requires experimental.openBootConditions only";
 assert lib.assertMsg (lib.all artifactValid (builtins.attrValues inputs))
   "Debian reference: every input needs store path, origin, positive byte size and lowercase SHA256";
-host.runCommand "novena-debian-reference-image" {
+host.runCommand (if isExperimental then "novena-debian-jessie-firstboot-experimental-image"
+  else "novena-debian-reference-image") {
   strictDeps = true;
-  manifest = builtins.toJSON {
+  manifest = builtins.toJSON ({
     schemaVersion = 1;
-    profile = "novena-debian-2015";
+    profile = if isExperimental then "novena-debian-jessie-firstboot-experimental"
+      else "novena-debian-2015";
     sectorSize = 512;
     inputs = manifestInputs;
     inherit layout bootContract;
     sourceRevision = reference;
-  };
+  } // lib.optionalAttrs isExperimental { inherit experimental; });
   passAsFile = [ "manifest" ];
 } ''
   set -eu

@@ -6918,3 +6918,13 @@ noch eine Behebung der weiterhin offenen DDR/SPL-Ursache.
 
 Dieser historische Untersuchungsabschnitt ist geschlossen.
 Keine erneute gleichartige Untersuchung ohne neue Evidenz.
+
+
+## 2026-10-18 – NOVENA-JESSIE-20: experimenteller Assembliermodus
+
+Der separate Debian-Assembler besitzt jetzt einen expliziten experimentellen
+Jessie-Erstboot-Modus. Referenzmodus und gemeinsame Integritätsprüfungen bleiben
+erhalten. Offene Bootbedingungen sind von Nachweisen getrennt; kein Image
+wurde gebaut und keine Bootfähigkeit ist belegt.
+
+[Schnittstelle, Evidenzgrenzen und offene Risiken](DEBIAN-REFERENCE-IMAGE.md#2026-10-18--novena-jessie-20-experimenteller-erstboot-modus).

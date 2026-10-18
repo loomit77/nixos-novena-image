@@ -1943,3 +1943,14 @@ nachgewiesen behauptet.
 Frühere technische Befunde und abgeschlossene Untersuchungen
 bleiben unverändert. Builds, Hardwaretests und SD-Schreibzugriffe
 erfordern weiterhin eine gesonderte Freigabe.
+
+
+## 2026-10-18 – NOVENA-JESSIE-20: experimenteller Assembliermodus
+
+Der Referenzmodus bleibt Standard. Nur explizite Experimentwahl ersetzt die
+Bootnachweissperre durch acht getrennte Beschreibungen offener Bedingungen.
+Experimentangaben sind niemals Bootnachweise. Eigener Image-Dateiname und
+Ergebnisformat v2 kennzeichnen das unqualifizierte Ergebnis. SHA256-,
+Dateisystemerkennungs-, Layout-, SPL- und Rückprüfungen bleiben gemeinsam.
+
+[Schnittstelle, Evidenzgrenzen und offene Risiken](DEBIAN-REFERENCE-IMAGE.md#2026-10-18--novena-jessie-20-experimenteller-erstboot-modus).

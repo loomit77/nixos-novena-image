@@ -297,3 +297,13 @@ vom aktuellen P_EXT-/Allocator-Untersuchungsstrang dokumentiert:
   USB-Medienstruktur, U-Boot-Generationen, NovM-/NovS-Zuordnung,
   `novena-mmc-disk-r1.img`, Debian-Installer-Linie, verifiziertes lokales
   Raw-Master-Image sowie offene Provenienzfragen.
+
+## Experimenteller Debian-Jessie-Erstboot-Modus
+
+Der separate [Debian-Assembler](tools/novena-image-assembler/README.md)
+unterstützt neben dem unveränderten Referenzmodus die explizite Auswahl
+`mode = "jessie-firstboot-experimental"`. Er dokumentiert offene Bootbedingungen
+getrennt von Nachweisen und kennzeichnet Image und Ergebnismanifest als
+experimentell unqualifiziert. Die Integritätsprüfungen bleiben erhalten.
+[Schnittstelle, offene Bedingungen und Prüfgrenzen](docs/DEBIAN-REFERENCE-IMAGE.md#2026-10-18--novena-jessie-20-experimenteller-erstboot-modus)
+sind dokumentiert. Keine Aussage über Bootfähigkeit oder bestätigte Jessie-Provenienz.
