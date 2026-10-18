@@ -983,3 +983,43 @@ Die früheren Abschnitte ohne automatische Sicherung beschreiben das damalige
 Verfahren; für das aktuelle Skript gilt der reale Backupumfang dieses Nachtrags.
 Restore, vollständige Tagesabdeckung und Konkurrenzverhalten sind durch den
 Einzellauf nicht zusätzlich qualifiziert.
+
+## 2026-10-18 – Tagesabschluss und Borg-Sicherung
+
+Kennung: NOVENA-DAY-CLOSE-2026-10-18-BORG
+
+- Projektpriorität: universelles NixOS-SD-Image (NIXOS-FIRST).
+- Git-HEAD vor der Dokumentationsaktualisierung:
+  `2c33a6cf4b0454fc2dae22e0a3c3cf62e9737281`.
+- Vorhandene Nutzeränderungen: `configuration.nix` und `modules/`;
+  nicht in den Tagesabschluss übernommen.
+- NOVENA-NIXOS-114A/114B: statische Prüfungen PASS.
+- NOVENA-NIXOS-114C/114D: growpart nicht verfügbar;
+  keine erfolgreiche Partitionserweiterungsprüfung.
+- NOVENA-NIXOS-114E: Offline-Build fehlgeschlagen;
+  SHA256-Abweichung beim tinycc-musl-Quellbezug.
+- NOVENA-NIXOS-114F: Nix-Cache-Verfügbarkeit geprüft.
+- NOVENA-NIXOS-114G: cloud-utils/growpart aus dem
+  offiziellen Nix-Cache verfügbar gemacht; PASS.
+- NOVENA-NIXOS-114H: Ergebnis hier nicht nachgewiesen;
+  gesondert anhand des Originalprotokolls auswerten.
+- Root-Partitionserweiterung: noch nicht für den
+  produktiven SD-Boot freigegeben.
+- ALSA-Build: zum Zeitpunkt von NOVENA-DAY-CLOSE-18D
+  weiterhin aktiv; Ergebnis offen.
+- Novena: ausgeschaltet; kein weiterer Hardwaretest.
+- NOVENA-DAY-CLOSE-18C: Borg-Sicherung erfolgreich.
+  Archivbestand 8 auf 9; ein neues Archiv nachgewiesen,
+  kein vorheriges Archiv verschwunden.
+- Borg-Identität, Konfiguration und Git-Checkpoint:
+  PASS. Git-HEAD und Index blieben bei der Sicherung
+  unverändert.
+- Dokumentations-Commit und Push: zum Zeitpunkt dieses
+  Nachtrags noch ausstehend.
+
+Evidenz: Originalprotokolle im GitHub-Repository
+`loomit77/project-block-logs`, Verzeichnis `novena/2026/10/`.
+
+Dieser Nachtrag bestätigt keine erfolgreiche ALSA-Erstellung,
+keine Root-Erweiterung auf der echten SD und keinen neuen
+Hardwareboot.
