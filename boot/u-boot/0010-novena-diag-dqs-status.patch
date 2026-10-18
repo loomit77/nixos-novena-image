@@ -1,0 +1,612 @@
+diff --git a/arch/arm/mach-imx/mx6/ddr.c b/arch/arm/mach-imx/mx6/ddr.c
+--- a/arch/arm/mach-imx/mx6/ddr.c
++++ b/arch/arm/mach-imx/mx6/ddr.c
+@@ -16,21 +16,32 @@
+ #include <wait_bit.h>
+ 
+ #if defined(CONFIG_MX6_DDRCAL)
+-static void reset_read_data_fifos(void)
++static void reset_read_data_fifos(u32 *executed_bitmap,
++				  u32 *failed_bitmap, unsigned int slot_base)
+ {
+ 	struct mmdc_p_regs *mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
++	int wait_ret = 0;
+ 
+ 	/* Reset data FIFOs twice. */
+ 	setbits_le32(&mmdc0->mpdgctrl0, 1 << 31);
+-	wait_for_bit_le32(&mmdc0->mpdgctrl0, 1 << 31, 0, 100, 0);
++	*executed_bitmap |= 1U << slot_base;
++	wait_ret = wait_for_bit_le32(&mmdc0->mpdgctrl0, 1 << 31, 0, 100, 0);
++	if (wait_ret < 0)
++		*failed_bitmap |= 1U << slot_base;
+ 
+ 	setbits_le32(&mmdc0->mpdgctrl0, 1 << 31);
+-	wait_for_bit_le32(&mmdc0->mpdgctrl0, 1 << 31, 0, 100, 0);
+-}
+-
+-static void precharge_all(const bool cs0_enable, const bool cs1_enable)
++	*executed_bitmap |= 1U << (slot_base + 1);
++	wait_ret = wait_for_bit_le32(&mmdc0->mpdgctrl0, 1 << 31, 0, 100, 0);
++	if (wait_ret < 0)
++		*failed_bitmap |= 1U << (slot_base + 1);
++}
++
++static void precharge_all(const bool cs0_enable, const bool cs1_enable,
++			  u32 *executed_bitmap, u32 *failed_bitmap,
++			  unsigned int slot_base)
+ {
+ 	struct mmdc_p_regs *mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
++	int wait_ret = 0;
+ 
+ 	/*
+ 	 * Issue the Precharge-All command to the DDR device for both
+@@ -40,12 +51,18 @@
+ 	 */
+ 	if (cs0_enable) { /* CS0 */
+ 		writel(0x04008050, &mmdc0->mdscr);
+-		wait_for_bit_le32(&mmdc0->mdscr, 1 << 14, 1, 100, 0);
++		*executed_bitmap |= 1U << slot_base;
++		wait_ret = wait_for_bit_le32(&mmdc0->mdscr, 1 << 14, 1, 100, 0);
++		if (wait_ret < 0)
++			*failed_bitmap |= 1U << slot_base;
+ 	}
+ 
+ 	if (cs1_enable) { /* CS1 */
+ 		writel(0x04008058, &mmdc0->mdscr);
+-		wait_for_bit_le32(&mmdc0->mdscr, 1 << 14, 1, 100, 0);
++		*executed_bitmap |= 1U << (slot_base + 1);
++		wait_ret = wait_for_bit_le32(&mmdc0->mdscr, 1 << 14, 1, 100, 0);
++		if (wait_ret < 0)
++			*failed_bitmap |= 1U << (slot_base + 1);
+ 	}
+ }
+ 
+@@ -323,10 +340,21 @@
+ 	u32 pddword = 0x00ffff00; /* best so far, place into MPPDCMPR1 */
+ 	u32 errors = 0;
+ 	u32 initdelay = 0x40404040;
++	u32 executed_bitmap = 0;
++	u32 failed_bitmap = 0;
++	u32 status6 = 0;
++	u32 status_val = 0;
++	u32 ds = sysinfo->dsize;
++	u32 ci = 0;
++	u32 ca = 0;
++	u32 calib_mdmisc = 0;
++	u32 t = 0;
++	int wait_ret = 0;
+ 
+ 	/* check to see which chip selects are enabled */
+ 	cs0_enable_initial = readl(&mmdc0->mdctl) & 0x80000000;
+ 	cs1_enable_initial = readl(&mmdc0->mdctl) & 0x40000000;
++	ci = (u32)cs0_enable_initial | ((u32)cs1_enable_initial << 1);
+ 
+ 	/* disable DDR logic power down timer: */
+ 	clrbits_le32(&mmdc0->mdpdc, 0xff00);
+@@ -357,7 +385,10 @@
+ 		writel(0x00008028, &mmdc0->mdscr);
+ 
+ 	/* poll to make sure the con_ack bit was asserted */
+-	wait_for_bit_le32(&mmdc0->mdscr, 1 << 14, 1, 100, 0);
++	executed_bitmap |= 1U << 0;
++	wait_ret = wait_for_bit_le32(&mmdc0->mdscr, 1 << 14, 1, 100, 0);
++	if (wait_ret < 0)
++		failed_bitmap |= 1U << 0;
+ 
+ 	/*
+ 	 * Check MDMISC register CALIB_PER_CS to see which CS calibration
+@@ -368,7 +399,9 @@
+ 	 * to avoid any potential issues.  This will get re-enabled at end
+ 	 * of calibration.
+ 	 */
+-	if ((readl(&mmdc0->mdmisc) & 0x00100000) == 0)
++	calib_mdmisc = readl(&mmdc0->mdmisc);
++	t = !!(calib_mdmisc & 0x00100000);
++	if ((calib_mdmisc & 0x00100000) == 0)
+ 		clrbits_le32(&mmdc0->mdctl, 1 << 30);	/* clear SDE_1 */
+ 	else
+ 		clrbits_le32(&mmdc0->mdctl, 1 << 31);	/* clear SDE_0 */
+@@ -379,8 +412,10 @@
+ 	 */
+ 	cs0_enable = readl(&mmdc0->mdctl) & 0x80000000;
+ 	cs1_enable = readl(&mmdc0->mdctl) & 0x40000000;
+-
+-	precharge_all(cs0_enable, cs1_enable);
++	ca = (u32)cs0_enable | ((u32)cs1_enable << 1);
++
++	precharge_all(cs0_enable, cs1_enable, &executed_bitmap,
++		      &failed_bitmap, 1);
+ 
+ 	/* Write the pre-defined value into MPPDCMPR1 */
+ 	writel(pddword, &mmdc0->mppdcmpr1);
+@@ -391,7 +426,10 @@
+ 	 * this bit until it clears to indicate completion of the write access.
+ 	 */
+ 	setbits_le32(&mmdc0->mpswdar0, 1);
+-	wait_for_bit_le32(&mmdc0->mpswdar0, 1 << 0, 0, 100, 0);
++	executed_bitmap |= 1U << 3;
++	wait_ret = wait_for_bit_le32(&mmdc0->mpswdar0, 1 << 0, 0, 100, 0);
++	if (wait_ret < 0)
++		failed_bitmap |= 1U << 3;
+ 
+ 	/* Set the RD_DL_ABS# bits to their default values
+ 	 * (will be calibrated later in the read delay-line calibration).
+@@ -415,7 +453,7 @@
+ 	 * Reset the read data FIFOs (two resets); only need to issue reset
+ 	 * to PHY0 since in x64 mode, the reset will also go to PHY1.
+ 	 */
+-	reset_read_data_fifos();
++	reset_read_data_fifos(&executed_bitmap, &failed_bitmap, 4);
+ 
+ 	/*
+ 	 * Start the automatic read DQS gating calibration process by
+@@ -438,18 +476,27 @@
+ 	setbits_le32(&mmdc0->mpdgctrl0, 5 << 28);
+ 
+ 	/* Poll for completion.  MPDGCTRL0[HW_DG_EN] should be 0 */
+-	wait_for_bit_le32(&mmdc0->mpdgctrl0, 1 << 28, 0, 100, 0);
++	executed_bitmap |= 1U << 6;
++	wait_ret = wait_for_bit_le32(&mmdc0->mpdgctrl0, 1 << 28, 0, 100, 0);
++	if (wait_ret < 0)
++		failed_bitmap |= 1U << 6;
+ 
+ 	/*
+ 	 * Check to see if any errors were encountered during calibration
+ 	 * (check MPDGCTRL0[HW_DG_ERR]).
+ 	 * Check both PHYs for x64 configuration, if x32, check only PHY0.
+ 	 */
+-	if (readl(&mmdc0->mpdgctrl0) & 0x00001000)
++	status_val = readl(&mmdc0->mpdgctrl0);
++	status6 |= ((status_val >> 12) & 1);
++	if (status_val & 0x00001000)
+ 		errors |= 1;
+ 
+-	if ((sysinfo->dsize == 0x2) && (readl(&mmdc1->mpdgctrl0) & 0x00001000))
+-		errors |= 2;
++	if (sysinfo->dsize == 0x2) {
++		status_val = readl(&mmdc1->mpdgctrl0);
++		status6 |= ((status_val >> 12) & 1) << 1;
++		if (status_val & 0x00001000)
++			errors |= 2;
++	}
+ 
+ 	/* now disable mpdgctrl0[DG_CMP_CYC] */
+ 	clrbits_le32(&mmdc0->mpdgctrl0, 1 << 30);
+@@ -480,14 +527,15 @@
+ 	 */
+ 	debug("Starting Read Delay calibration.\n");
+ 
+-	reset_read_data_fifos();
++	reset_read_data_fifos(&executed_bitmap, &failed_bitmap, 7);
+ 
+ 	/*
+ 	 * 4. Issue the Precharge-All command to the DDR device for both
+ 	 * chip selects.  If only using one chip select, then precharge
+ 	 * only the desired chip select.
+ 	 */
+-	precharge_all(cs0_enable, cs1_enable);
++	precharge_all(cs0_enable, cs1_enable, &executed_bitmap,
++		      &failed_bitmap, 9);
+ 
+ 	/*
+ 	 * 9. Read delay-line calibration
+@@ -502,15 +550,23 @@
+ 	 * setting MPRDDLHWCTL[HW_RD_DL_EN] = 0.   Also, ensure that
+ 	 * no error bits were set.
+ 	 */
+-	wait_for_bit_le32(&mmdc0->mprddlhwctl, 1 << 4, 0, 100, 0);
++	executed_bitmap |= 1U << 11;
++	wait_ret = wait_for_bit_le32(&mmdc0->mprddlhwctl, 1 << 4, 0, 100, 0);
++	if (wait_ret < 0)
++		failed_bitmap |= 1U << 11;
+ 
+ 	/* check both PHYs for x64 configuration, if x32, check only PHY0 */
+-	if (readl(&mmdc0->mprddlhwctl) & 0x0000000f)
++	status_val = readl(&mmdc0->mprddlhwctl);
++	status6 |= (status_val & 0xf) << 2;
++	if (status_val & 0x0000000f)
+ 		errors |= 4;
+ 
+-	if ((sysinfo->dsize == 0x2) &&
+-	    (readl(&mmdc1->mprddlhwctl) & 0x0000000f))
+-		errors |= 8;
++	if (sysinfo->dsize == 0x2) {
++		status_val = readl(&mmdc1->mprddlhwctl);
++		status6 |= (status_val & 0xf) << 6;
++		if (status_val & 0x0000000f)
++			errors |= 8;
++	}
+ 
+ 	debug("Ending Read Delay calibration. Error mask: 0x%x\n", errors);
+ 
+@@ -521,14 +577,15 @@
+ 	 */
+ 	debug("Starting Write Delay calibration.\n");
+ 
+-	reset_read_data_fifos();
++	reset_read_data_fifos(&executed_bitmap, &failed_bitmap, 12);
+ 
+ 	/*
+ 	 * 4. Issue the Precharge-All command to the DDR device for both
+ 	 * chip selects. If only using one chip select, then precharge
+ 	 * only the desired chip select.
+ 	 */
+-	precharge_all(cs0_enable, cs1_enable);
++	precharge_all(cs0_enable, cs1_enable, &executed_bitmap,
++		      &failed_bitmap, 14);
+ 
+ 	/*
+ 	 * 8. Set the WR_DL_ABS# bits to their default values.
+@@ -556,19 +613,27 @@
+ 	 * by setting MPWRDLHWCTL[HW_WR_DL_EN] = 0.
+ 	 * Also, ensure that no error bits were set.
+ 	 */
+-	wait_for_bit_le32(&mmdc0->mpwrdlhwctl, 1 << 4, 0, 100, 0);
++	executed_bitmap |= 1U << 16;
++	wait_ret = wait_for_bit_le32(&mmdc0->mpwrdlhwctl, 1 << 4, 0, 100, 0);
++	if (wait_ret < 0)
++		failed_bitmap |= 1U << 16;
+ 
+ 	/* Check both PHYs for x64 configuration, if x32, check only PHY0 */
+-	if (readl(&mmdc0->mpwrdlhwctl) & 0x0000000f)
++	status_val = readl(&mmdc0->mpwrdlhwctl);
++	status6 |= (status_val & 0xf) << 10;
++	if (status_val & 0x0000000f)
+ 		errors |= 16;
+ 
+-	if ((sysinfo->dsize == 0x2) &&
+-	    (readl(&mmdc1->mpwrdlhwctl) & 0x0000000f))
+-		errors |= 32;
++	if (sysinfo->dsize == 0x2) {
++		status_val = readl(&mmdc1->mpwrdlhwctl);
++		status6 |= (status_val & 0xf) << 14;
++		if (status_val & 0x0000000f)
++			errors |= 32;
++	}
+ 
+ 	debug("Ending Write Delay calibration. Error mask: 0x%x\n", errors);
+ 
+-	reset_read_data_fifos();
++	reset_read_data_fifos(&executed_bitmap, &failed_bitmap, 17);
+ 
+ 	/* Enable DDR logic power down timer */
+ 	setbits_le32(&mmdc0->mdpdc, 0x00005500);
+@@ -598,7 +663,10 @@
+ 	writel(0x0, &mmdc0->mdscr);	/* CS0 */
+ 
+ 	/* Poll to make sure the con_ack bit is clear */
+-	wait_for_bit_le32(&mmdc0->mdscr, 1 << 14, 0, 100, 0);
++	executed_bitmap |= 1U << 19;
++	wait_ret = wait_for_bit_le32(&mmdc0->mdscr, 1 << 14, 0, 100, 0);
++	if (wait_ret < 0)
++		failed_bitmap |= 1U << 19;
+ 
+ 	/*
+ 	 * Print out the registers that were updated as a result
+@@ -639,6 +707,12 @@
+ 	}
+ 
+ 	debug("Final do_dqs_calibration error mask: 0x%x\n", errors);
++
++	printf("NOVENA-DIAG DQS PATH v=1 ds=%u ci=%x ca=%x t=%u\n",
++	       ds, ci, ca, t);
++	printf("NOVENA-DIAG DQS WAIT e=%08x f=%08x\n",
++	       executed_bitmap, failed_bitmap);
++	printf("NOVENA-DIAG DQS STATUS s=%08x\n", status6);
+ 
+ 	return errors;
+ }
+diff --git a/board/kosagi/novena/novena_spl.c b/board/kosagi/novena/novena_spl.c
+--- a/board/kosagi/novena/novena_spl.c
++++ b/board/kosagi/novena/novena_spl.c
+@@ -399,11 +399,7 @@
+ {
+ 	int ret;
+ 
+-	puts("NOVENA-DIAG D18 enter board_mmc_init\n");
+-	puts("NOVENA-DIAG D19 before mxc_get_clock\n");
+ 	usdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+-	printf("NOVENA-DIAG D20 after mxc_get_clock clk=%u\n",
+-	       usdhc_cfg.sdhc_clk);
+ 	ret = fsl_esdhc_initialize(bis, &usdhc_cfg);
+ 	printf("NOVENA-DIAG D32 after fsl_esdhc_initialize ret=%d\n", ret);
+ 
+@@ -544,6 +540,7 @@
+ void board_init_f(ulong dummy)
+ {
+ 	int wl_ret;
++	int dqs_ret = 0;
+ 	/* setup AIPS and disable watchdog */
+ 	arch_cpu_init();
+ 
+@@ -583,5 +580,6 @@
+ 	udelay(100);
+ 	wl_ret = mmdc_do_write_level_calibration(&novena_ddr_info);
+ 	printf("NOVENA-DIAG WL ret=%d\n", wl_ret);
+-	mmdc_do_dqs_calibration(&novena_ddr_info);
+-}
++	dqs_ret = mmdc_do_dqs_calibration(&novena_ddr_info);
++	printf("NOVENA-DIAG DQS RET ret=%d\n", dqs_ret);
++}
+diff --git a/common/dlmalloc.c b/common/dlmalloc.c
+--- a/common/dlmalloc.c
++++ b/common/dlmalloc.c
+@@ -601,7 +601,6 @@
+ void mem_malloc_init(ulong start, ulong size)
+ {
+ 	ulong novena_diag_q1;
+-	ulong novena_diag_q2;
+ 
+ 	mem_malloc_start = (ulong)map_sysmem(start, size);
+ 	mem_malloc_end = mem_malloc_start + size;
+@@ -617,10 +616,8 @@
+ #if CONFIG_IS_ENABLED(SYS_MALLOC_CLEAR_ON_INIT)
+ 	memset((void *)mem_malloc_start, 0x0, size);
+ #endif
+-	novena_diag_q2 = *(volatile ulong *)&mem_malloc_brk;
+-
+-	printf("NOVENA-DIAG Q1/Q2 q1=%08lx q2=%08lx\\n",
+-	       novena_diag_q1, novena_diag_q2);
++
++	printf("NOVENA-DIAG HEAP q1=%08lx\n", novena_diag_q1);
+ }
+ 
+ /* field-extraction macros */
+diff --git a/common/spl/spl.c b/common/spl/spl.c
+--- a/common/spl/spl.c
++++ b/common/spl/spl.c
+@@ -595,8 +595,6 @@
+ 	bootdev.boot_device = loader->boot_device;
+ 	bootdev.boot_device_name = NULL;
+ 
+-	printf("NOVENA-DIAG P1 before loader callback brk=%08lx\n",
+-	       mem_malloc_brk);
+ 	ret = loader->load_image(spl_image, &bootdev);
+ #ifdef CONFIG_SPL_LEGACY_IMAGE_CRC_CHECK
+ 	if (!ret && spl_image->dcrc_length) {
+@@ -695,6 +693,7 @@
+ 		ulong novena_diag_c0;
+ 		ulong novena_diag_c1;
+ 		ulong novena_diag_c2;
++		unsigned int valid = 0;
+ 
+ 		novena_diag_c0 = *novena_diag_control;
+ 		*novena_diag_control = 0x18300000UL;
+@@ -702,10 +701,11 @@
+ 		*novena_diag_control = novena_diag_c0;
+ 		novena_diag_c2 = *novena_diag_control;
+ 		mem_malloc_init(SPL_SYS_MALLOC_START, SPL_SYS_MALLOC_SIZE);
+-		printf("NOVENA-DIAG C0/C1/C2 c0=%08lx c1=%08lx c2=%08lx\n",
+-		       novena_diag_c0, novena_diag_c1, novena_diag_c2);
+-		printf("NOVENA-DIAG P0 after mem_malloc_init brk=%08lx\n",
+-		       mem_malloc_brk);
++		valid = (novena_diag_c0 == 0) |
++			((novena_diag_c2 == 0) << 1) |
++			((novena_diag_c2 == novena_diag_c0) << 2);
++		printf("NOVENA-DIAG CTRL c1=%08lx valid=%x\n",
++		       novena_diag_c1, valid);
+ 		gd->flags |= GD_FLG_FULL_MALLOC_INIT;
+ 	}
+ 	if (!(gd->flags & GD_FLG_SPL_INIT)) {
+diff --git a/common/spl/spl_mmc.c b/common/spl/spl_mmc.c
+--- a/common/spl/spl_mmc.c
++++ b/common/spl/spl_mmc.c
+@@ -382,13 +382,10 @@
+ 	log_debug("boot_device=%d, mmc_dev=%d\n", bootdev->boot_device,
+ 		  mmc_dev);
+ 	if (!mmc || spl_mmc_get_mmc_devnum(mmc) != mmc_dev) {
+-		printf("NOVENA-DIAG D0 before spl_mmc_find_device dev=%d\n", mmc_dev);
+ 		ret = spl_mmc_find_device(&mmc, mmc_dev);
+ 		if (ret)
+ 			return ret;
+-		puts("NOVENA-DIAG D1 after spl_mmc_find_device\n");
+-
+-		puts("NOVENA-DIAG D2 before mmc_init\n");
++
+ 		ret = mmc_init(mmc);
+ 		if (ret) {
+ 			mmc = NULL;
+diff --git a/drivers/mmc/fsl_esdhc_imx.c b/drivers/mmc/fsl_esdhc_imx.c
+--- a/drivers/mmc/fsl_esdhc_imx.c
++++ b/drivers/mmc/fsl_esdhc_imx.c
+@@ -415,7 +415,6 @@
+ 	u32	flags = IRQSTAT_CC | IRQSTAT_CTOE;
+ 	struct fsl_esdhc *regs = priv->esdhc_regs;
+ 	unsigned long start;
+-	printf("NOVENA-DIAG D5 enter esdhc_send_cmd CMD=%u\n", cmd->cmdidx);
+ 
+ 	if (IS_ENABLED(CONFIG_SYS_FSL_ERRATUM_ESDHC111) &&
+ 	    cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION)
+@@ -426,18 +425,12 @@
+ 	sync();
+ 
+ 	/* Wait for the bus to be idle */
+-	printf("NOVENA-DIAG D6 before CICHB/CIDHB wait PRSSTAT=%08x\n",
+-	       esdhc_read32(&regs->prsstat));
+ 	while ((esdhc_read32(&regs->prsstat) & PRSSTAT_CICHB) ||
+ 			(esdhc_read32(&regs->prsstat) & PRSSTAT_CIDHB))
+ 		;
+-	puts("NOVENA-DIAG D7 after CICHB/CIDHB wait\n");
+-
+-	printf("NOVENA-DIAG D8 before DLA wait PRSSTAT=%08x\n",
+-	       esdhc_read32(&regs->prsstat));
++
+ 	while (esdhc_read32(&regs->prsstat) & PRSSTAT_DLA)
+ 		;
+-	puts("NOVENA-DIAG D9 after DLA wait\n");
+ 
+ 	/* Set up for a data transfer if we have one */
+ 	if (data) {
+@@ -453,7 +446,6 @@
+ 	esdhc_write32(&regs->irqsigen, 0);
+ 
+ 	/* Send the command */
+-	printf("NOVENA-DIAG D10 before CMDARG/XFERTYP CMD=%u\n", cmd->cmdidx);
+ 	esdhc_write32(&regs->cmdarg, cmd->cmdarg);
+ 	if (IS_ENABLED(CONFIG_FSL_USDHC)) {
+ 		u32 mixctrl = esdhc_read32(&regs->mixctrl);
+@@ -480,8 +472,6 @@
+ 	}
+ 
+ 	irqstat = esdhc_read32(&regs->irqstat);
+-	printf("NOVENA-DIAG D11 command completion CMD=%u IRQSTAT=%08x\n",
+-	       cmd->cmdidx, irqstat);
+ 
+ 	if (irqstat & CMD_ERR) {
+ 		err = -ECOMM;
+@@ -569,21 +559,15 @@
+ 	if (err) {
+ 		esdhc_write32(&regs->sysctl, esdhc_read32(&regs->sysctl) |
+ 			      SYSCTL_RSTC);
+-		printf("NOVENA-DIAG D12 before RSTC wait SYSCTL=%08x\n",
+-		       esdhc_read32(&regs->sysctl));
+ 		while (esdhc_read32(&regs->sysctl) & SYSCTL_RSTC)
+ 			;
+-		puts("NOVENA-DIAG D13 after RSTC wait\n");
+ 
+ 		if (data) {
+ 			esdhc_write32(&regs->sysctl,
+ 				      esdhc_read32(&regs->sysctl) |
+ 				      SYSCTL_RSTD);
+-			printf("NOVENA-DIAG D14 before RSTD wait SYSCTL=%08x\n",
+-			       esdhc_read32(&regs->sysctl));
+ 			while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTD))
+ 				;
+-			puts("NOVENA-DIAG D15 after RSTD wait\n");
+ 		}
+ 
+ 		/* If this was CMD11, then notify that power cycle is needed */
+@@ -1105,13 +1089,10 @@
+ {
+ 	ulong start;
+ 
+-	puts("NOVENA-DIAG D26 enter esdhc_reset\n");
+ 	/* reset the controller */
+ 	esdhc_setbits32(&regs->sysctl, SYSCTL_RSTA | SYSCTL_RSTT);
+ 
+ 	/* hardware clears the bit when it is done */
+-	printf("NOVENA-DIAG D27 after reset write SYSCTL=%08x\n",
+-	       esdhc_read32(&regs->sysctl));
+ 	start = get_timer(0);
+ 	while ((esdhc_read32(&regs->sysctl) & (SYSCTL_RSTA | SYSCTL_RSTT))) {
+ 		if (get_timer(start) > 100) {
+@@ -1177,16 +1158,13 @@
+ 	u32 caps;
+ 	int ret;
+ 
+-	puts("NOVENA-DIAG D24 enter fsl_esdhc_init\n");
+ 	if (!priv)
+ 		return -EINVAL;
+ 
+ 	regs = priv->esdhc_regs;
+ 
+ 	/* First reset the eSDHC controller */
+-	puts("NOVENA-DIAG D25 before esdhc_reset\n");
+ 	ret = esdhc_reset(regs);
+-	printf("NOVENA-DIAG D28 after esdhc_reset ret=%d\n", ret);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -1313,28 +1291,18 @@
+ 	struct mmc *mmc;
+ 	int ret;
+ 
+-	puts("NOVENA-DIAG D21 enter fsl_esdhc_initialize\n");
+ 	if (!cfg)
+ 		return -EINVAL;
+ 
+-	printf("NOVENA-DIAG D21A before priv calloc start=%08lx end=%08lx brk=%08lx\n",
+-		mem_malloc_start, mem_malloc_end, mem_malloc_brk);
+ 	priv = calloc(sizeof(struct fsl_esdhc_priv), 1);
+-	printf("NOVENA-DIAG D21B after priv calloc priv=%p brk=%08lx\n",
+-		priv, mem_malloc_brk);
+ 	if (!priv)
+ 		return -ENOMEM;
+-	printf("NOVENA-DIAG D21C before plat calloc brk=%08lx\n",
+-		mem_malloc_brk);
+ 	plat = calloc(sizeof(struct fsl_esdhc_plat), 1);
+-	printf("NOVENA-DIAG D21D after plat calloc plat=%p brk=%08lx\n",
+-		plat, mem_malloc_brk);
+ 	if (!plat) {
+ 		free(priv);
+ 		return -ENOMEM;
+ 	}
+ 
+-	puts("NOVENA-DIAG D22 after priv/plat allocations\n");
+ 	priv->esdhc_regs = (struct fsl_esdhc *)(unsigned long)(cfg->esdhc_base);
+ 	priv->sdhc_clk = cfg->sdhc_clk;
+ 	priv->wp_enable  = cfg->wp_enable;
+@@ -1362,9 +1330,7 @@
+ 	if (IS_ENABLED(CONFIG_ESDHC_DETECT_8_BIT_QUIRK))
+ 		mmc_cfg->host_caps &= ~MMC_MODE_8BIT;
+ 
+-	puts("NOVENA-DIAG D23 before fsl_esdhc_init\n");
+ 	ret = fsl_esdhc_init(priv, plat);
+-	printf("NOVENA-DIAG D29 after fsl_esdhc_init ret=%d\n", ret);
+ 	if (ret) {
+ 		debug("%s init failure\n", __func__);
+ 		free(plat);
+@@ -1372,9 +1338,7 @@
+ 		return ret;
+ 	}
+ 
+-	puts("NOVENA-DIAG D30 before mmc_create\n");
+ 	mmc = mmc_create(&plat->cfg, priv);
+-	printf("NOVENA-DIAG D31 after mmc_create mmc=%p\n", mmc);
+ 	if (!mmc)
+ 		return -EIO;
+ 
+diff --git a/drivers/mmc/mmc.c b/drivers/mmc/mmc.c
+--- a/drivers/mmc/mmc.c
++++ b/drivers/mmc/mmc.c
+@@ -3133,7 +3133,6 @@
+ 	int err = 0;
+ 	__maybe_unused ulong start;
+ 
+-	puts("NOVENA-DIAG D3 enter mmc_init\n");
+ #if CONFIG_IS_ENABLED(DM_MMC)
+ 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(mmc->dev);
+ 
+@@ -3145,7 +3144,6 @@
+ 	start = get_timer(0);
+ 
+ 	if (!mmc->init_in_progress) {
+-		puts("NOVENA-DIAG D4 before mmc_start_init\n");
+ 		err = mmc_start_init(mmc);
+ 	}
+ 
+@@ -3253,7 +3251,6 @@
+ 	int ret;
+ 
+ 	ret = board_mmc_init(bis);
+-	printf("NOVENA-DIAG D33 after board_mmc_init ret=%d\n", ret);
+ 	if (ret < 0)
+ 		cpu_mmc_init(bis);
+ 
+@@ -3266,7 +3263,6 @@
+ 	static int initialized;
+ 	int ret;
+ 
+-	puts("NOVENA-DIAG D16 enter mmc_initialize\n");
+ 	if (initialized)	/* Avoid initializing mmc multiple times */
+ 		return 0;
+ 	initialized = 1;
+@@ -3274,7 +3270,6 @@
+ #if !CONFIG_IS_ENABLED(BLK)
+ #if !CONFIG_IS_ENABLED(MMC_TINY)
+ 	mmc_list_init();
+-	puts("NOVENA-DIAG D17 after mmc_list_init\n");
+ #endif
+ #endif
+ 	ret = mmc_probe(bis);
+@@ -3285,10 +3280,7 @@
+ 	print_mmc_devices(',');
+ #endif
+ 
+-	puts("NOVENA-DIAG D34 before mmc_do_preinit\n");
+ 	mmc_do_preinit();
+-	puts("NOVENA-DIAG D35 after mmc_do_preinit\n");
+-	puts("NOVENA-DIAG D36 before normal return mmc_initialize\n");
+ 	return 0;
+ }
+ 

@@ -1,0 +1,244 @@
+diff --git a/board/kosagi/novena/novena_spl.c b/board/kosagi/novena/novena_spl.c
+index 4f2a9caeb2..7d2342f325 100644
+--- a/board/kosagi/novena/novena_spl.c
++++ b/board/kosagi/novena/novena_spl.c
+@@ -397,8 +397,17 @@ int board_mmc_getcd(struct mmc *mmc)
+ 
+ int board_mmc_init(struct bd_info *bis)
+ {
++	int ret;
++
++	puts("NOVENA-DIAG D18 enter board_mmc_init\n");
++	puts("NOVENA-DIAG D19 before mxc_get_clock\n");
+ 	usdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+-	return fsl_esdhc_initialize(bis, &usdhc_cfg);
++	printf("NOVENA-DIAG D20 after mxc_get_clock clk=%u\n",
++	       usdhc_cfg.sdhc_clk);
++	ret = fsl_esdhc_initialize(bis, &usdhc_cfg);
++	printf("NOVENA-DIAG D32 after fsl_esdhc_initialize ret=%d\n", ret);
++
++	return ret;
+ }
+ #endif
+ 
+diff --git a/common/spl/spl_mmc.c b/common/spl/spl_mmc.c
+index cc16709dc9..8242295d7e 100644
+--- a/common/spl/spl_mmc.c
++++ b/common/spl/spl_mmc.c
+@@ -382,10 +382,13 @@ int spl_mmc_load(struct spl_image_info *spl_image,
+ 	log_debug("boot_device=%d, mmc_dev=%d\n", bootdev->boot_device,
+ 		  mmc_dev);
+ 	if (!mmc || spl_mmc_get_mmc_devnum(mmc) != mmc_dev) {
++		printf("NOVENA-DIAG D0 before spl_mmc_find_device dev=%d\n", mmc_dev);
+ 		ret = spl_mmc_find_device(&mmc, mmc_dev);
+ 		if (ret)
+ 			return ret;
++		puts("NOVENA-DIAG D1 after spl_mmc_find_device\n");
+ 
++		puts("NOVENA-DIAG D2 before mmc_init\n");
+ 		ret = mmc_init(mmc);
+ 		if (ret) {
+ 			mmc = NULL;
+diff --git a/drivers/mmc/fsl_esdhc_imx.c b/drivers/mmc/fsl_esdhc_imx.c
+index 87125493c0..0b89d531b8 100644
+--- a/drivers/mmc/fsl_esdhc_imx.c
++++ b/drivers/mmc/fsl_esdhc_imx.c
+@@ -415,6 +415,7 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
+ 	u32	flags = IRQSTAT_CC | IRQSTAT_CTOE;
+ 	struct fsl_esdhc *regs = priv->esdhc_regs;
+ 	unsigned long start;
++	printf("NOVENA-DIAG D5 enter esdhc_send_cmd CMD=%u\n", cmd->cmdidx);
+ 
+ 	if (IS_ENABLED(CONFIG_SYS_FSL_ERRATUM_ESDHC111) &&
+ 	    cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION)
+@@ -425,12 +426,18 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
+ 	sync();
+ 
+ 	/* Wait for the bus to be idle */
++	printf("NOVENA-DIAG D6 before CICHB/CIDHB wait PRSSTAT=%08x\n",
++	       esdhc_read32(&regs->prsstat));
+ 	while ((esdhc_read32(&regs->prsstat) & PRSSTAT_CICHB) ||
+ 			(esdhc_read32(&regs->prsstat) & PRSSTAT_CIDHB))
+ 		;
++	puts("NOVENA-DIAG D7 after CICHB/CIDHB wait\n");
+ 
++	printf("NOVENA-DIAG D8 before DLA wait PRSSTAT=%08x\n",
++	       esdhc_read32(&regs->prsstat));
+ 	while (esdhc_read32(&regs->prsstat) & PRSSTAT_DLA)
+ 		;
++	puts("NOVENA-DIAG D9 after DLA wait\n");
+ 
+ 	/* Set up for a data transfer if we have one */
+ 	if (data) {
+@@ -446,6 +453,7 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
+ 	esdhc_write32(&regs->irqsigen, 0);
+ 
+ 	/* Send the command */
++	printf("NOVENA-DIAG D10 before CMDARG/XFERTYP CMD=%u\n", cmd->cmdidx);
+ 	esdhc_write32(&regs->cmdarg, cmd->cmdarg);
+ 	if (IS_ENABLED(CONFIG_FSL_USDHC)) {
+ 		u32 mixctrl = esdhc_read32(&regs->mixctrl);
+@@ -472,6 +480,8 @@ static int esdhc_send_cmd_common(struct fsl_esdhc_priv *priv, struct mmc *mmc,
+ 	}
+ 
+ 	irqstat = esdhc_read32(&regs->irqstat);
++	printf("NOVENA-DIAG D11 command completion CMD=%u IRQSTAT=%08x\n",
++	       cmd->cmdidx, irqstat);
+ 
+ 	if (irqstat & CMD_ERR) {
+ 		err = -ECOMM;
+@@ -559,15 +569,21 @@ out:
+ 	if (err) {
+ 		esdhc_write32(&regs->sysctl, esdhc_read32(&regs->sysctl) |
+ 			      SYSCTL_RSTC);
++		printf("NOVENA-DIAG D12 before RSTC wait SYSCTL=%08x\n",
++		       esdhc_read32(&regs->sysctl));
+ 		while (esdhc_read32(&regs->sysctl) & SYSCTL_RSTC)
+ 			;
++		puts("NOVENA-DIAG D13 after RSTC wait\n");
+ 
+ 		if (data) {
+ 			esdhc_write32(&regs->sysctl,
+ 				      esdhc_read32(&regs->sysctl) |
+ 				      SYSCTL_RSTD);
++			printf("NOVENA-DIAG D14 before RSTD wait SYSCTL=%08x\n",
++			       esdhc_read32(&regs->sysctl));
+ 			while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTD))
+ 				;
++			puts("NOVENA-DIAG D15 after RSTD wait\n");
+ 		}
+ 
+ 		/* If this was CMD11, then notify that power cycle is needed */
+@@ -1089,10 +1105,13 @@ static int esdhc_reset(struct fsl_esdhc *regs)
+ {
+ 	ulong start;
+ 
++	puts("NOVENA-DIAG D26 enter esdhc_reset\n");
+ 	/* reset the controller */
+ 	esdhc_setbits32(&regs->sysctl, SYSCTL_RSTA | SYSCTL_RSTT);
+ 
+ 	/* hardware clears the bit when it is done */
++	printf("NOVENA-DIAG D27 after reset write SYSCTL=%08x\n",
++	       esdhc_read32(&regs->sysctl));
+ 	start = get_timer(0);
+ 	while ((esdhc_read32(&regs->sysctl) & (SYSCTL_RSTA | SYSCTL_RSTT))) {
+ 		if (get_timer(start) > 100) {
+@@ -1158,13 +1177,16 @@ static int fsl_esdhc_init(struct fsl_esdhc_priv *priv,
+ 	u32 caps;
+ 	int ret;
+ 
++	puts("NOVENA-DIAG D24 enter fsl_esdhc_init\n");
+ 	if (!priv)
+ 		return -EINVAL;
+ 
+ 	regs = priv->esdhc_regs;
+ 
+ 	/* First reset the eSDHC controller */
++	puts("NOVENA-DIAG D25 before esdhc_reset\n");
+ 	ret = esdhc_reset(regs);
++	printf("NOVENA-DIAG D28 after esdhc_reset ret=%d\n", ret);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -1291,6 +1313,7 @@ int fsl_esdhc_initialize(struct bd_info *bis, struct fsl_esdhc_cfg *cfg)
+ 	struct mmc *mmc;
+ 	int ret;
+ 
++	puts("NOVENA-DIAG D21 enter fsl_esdhc_initialize\n");
+ 	if (!cfg)
+ 		return -EINVAL;
+ 
+@@ -1303,6 +1326,7 @@ int fsl_esdhc_initialize(struct bd_info *bis, struct fsl_esdhc_cfg *cfg)
+ 		return -ENOMEM;
+ 	}
+ 
++	puts("NOVENA-DIAG D22 after priv/plat allocations\n");
+ 	priv->esdhc_regs = (struct fsl_esdhc *)(unsigned long)(cfg->esdhc_base);
+ 	priv->sdhc_clk = cfg->sdhc_clk;
+ 	priv->wp_enable  = cfg->wp_enable;
+@@ -1330,7 +1354,9 @@ int fsl_esdhc_initialize(struct bd_info *bis, struct fsl_esdhc_cfg *cfg)
+ 	if (IS_ENABLED(CONFIG_ESDHC_DETECT_8_BIT_QUIRK))
+ 		mmc_cfg->host_caps &= ~MMC_MODE_8BIT;
+ 
++	puts("NOVENA-DIAG D23 before fsl_esdhc_init\n");
+ 	ret = fsl_esdhc_init(priv, plat);
++	printf("NOVENA-DIAG D29 after fsl_esdhc_init ret=%d\n", ret);
+ 	if (ret) {
+ 		debug("%s init failure\n", __func__);
+ 		free(plat);
+@@ -1338,7 +1364,9 @@ int fsl_esdhc_initialize(struct bd_info *bis, struct fsl_esdhc_cfg *cfg)
+ 		return ret;
+ 	}
+ 
++	puts("NOVENA-DIAG D30 before mmc_create\n");
+ 	mmc = mmc_create(&plat->cfg, priv);
++	printf("NOVENA-DIAG D31 after mmc_create mmc=%p\n", mmc);
+ 	if (!mmc)
+ 		return -EIO;
+ 
+diff --git a/drivers/mmc/mmc.c b/drivers/mmc/mmc.c
+index 2e56556065..723f051dc2 100644
+--- a/drivers/mmc/mmc.c
++++ b/drivers/mmc/mmc.c
+@@ -3132,6 +3132,8 @@ int mmc_init(struct mmc *mmc)
+ {
+ 	int err = 0;
+ 	__maybe_unused ulong start;
++
++	puts("NOVENA-DIAG D3 enter mmc_init\n");
+ #if CONFIG_IS_ENABLED(DM_MMC)
+ 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(mmc->dev);
+ 
+@@ -3142,8 +3144,10 @@ int mmc_init(struct mmc *mmc)
+ 
+ 	start = get_timer(0);
+ 
+-	if (!mmc->init_in_progress)
++	if (!mmc->init_in_progress) {
++		puts("NOVENA-DIAG D4 before mmc_start_init\n");
+ 		err = mmc_start_init(mmc);
++	}
+ 
+ 	if (!err)
+ 		err = mmc_complete_init(mmc);
+@@ -3246,7 +3250,11 @@ static int mmc_probe(struct bd_info *bis)
+ #else
+ static int mmc_probe(struct bd_info *bis)
+ {
+-	if (board_mmc_init(bis) < 0)
++	int ret;
++
++	ret = board_mmc_init(bis);
++	printf("NOVENA-DIAG D33 after board_mmc_init ret=%d\n", ret);
++	if (ret < 0)
+ 		cpu_mmc_init(bis);
+ 
+ 	return 0;
+@@ -3257,6 +3265,8 @@ int mmc_initialize(struct bd_info *bis)
+ {
+ 	static int initialized;
+ 	int ret;
++
++	puts("NOVENA-DIAG D16 enter mmc_initialize\n");
+ 	if (initialized)	/* Avoid initializing mmc multiple times */
+ 		return 0;
+ 	initialized = 1;
+@@ -3264,6 +3274,7 @@ int mmc_initialize(struct bd_info *bis)
+ #if !CONFIG_IS_ENABLED(BLK)
+ #if !CONFIG_IS_ENABLED(MMC_TINY)
+ 	mmc_list_init();
++	puts("NOVENA-DIAG D17 after mmc_list_init\n");
+ #endif
+ #endif
+ 	ret = mmc_probe(bis);
+@@ -3274,7 +3285,10 @@ int mmc_initialize(struct bd_info *bis)
+ 	print_mmc_devices(',');
+ #endif
+ 
++	puts("NOVENA-DIAG D34 before mmc_do_preinit\n");
+ 	mmc_do_preinit();
++	puts("NOVENA-DIAG D35 after mmc_do_preinit\n");
++	puts("NOVENA-DIAG D36 before normal return mmc_initialize\n");
+ 	return 0;
+ }
+ 

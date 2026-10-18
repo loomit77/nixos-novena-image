@@ -12,3 +12,9 @@ kernel/panel-patch/
 *.swp
 *~
 .DS_Store
+
+# Lokal archivierte NXP-Herstellerhandbuecher
+/research/nxp-reference-manuals/sources/
+
+# Laufzeit-PID-Dateien, keine Forschungsnachweise
+/test-logs/2026-10-07/bi-test-run1/*.pid

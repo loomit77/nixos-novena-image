@@ -20,6 +20,16 @@ pkgs.buildUBoot {
     ./0001-novena-spl-boot-second-stage-from-external-sd.patch
     ./0002-novena-boot-external-sd-by-default.patch
     ./0003-novena-use-non-persistent-default-environment.patch
+    ./0004-novena-uboot-diag-d0-d36.patch
+    ./0005-novena-diag-d21a-d21d.patch
+    ./0006-novena-diag-brk-p0-p1.patch
+    ./0007-novena-diag-brk-q1-q2.patch
+    ./0008-novena-diag-control-c0-c2.patch
+    ./0009-novena-diag-write-level-status.patch
+    ./0010-novena-diag-dqs-status.patch
+    ./0011-novena-spl-disable-bank-interleaving.patch
+    ./0012-novena-ddr-read-specific-dummy-write.patch
+    ./0013-novena-spl-rtt-nom-rzq2.patch
   ];
 
   extraConfig = ''

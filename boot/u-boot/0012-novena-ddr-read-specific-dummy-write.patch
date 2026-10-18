@@ -1,0 +1,12 @@
+--- a/arch/arm/mach-imx/mx6/ddr.c
++++ b/arch/arm/mach-imx/mx6/ddr.c
+@@ -537,6 +537,9 @@
+ 	precharge_all(cs0_enable, cs1_enable, &executed_bitmap,
+ 		      &failed_bitmap, 9);
+ 
++	setbits_le32(&mmdc0->mpswdar0, 1);
++	wait_for_bit_le32(&mmdc0->mpswdar0, 1 << 0, 0, 100, 0);
++
+ 	/*
+ 	 * 9. Read delay-line calibration
+ 	 * Start the automatic read calibration process by asserting

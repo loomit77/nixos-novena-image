@@ -1,0 +1,47 @@
+Skript gestartet auf 2026-10-07 16:30:08+02:00 [COMMAND="sudo picocom --baud 115200 --flow none --parity none --databits 8 --stopbits 1 '/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_BH00304A-if00-port0'" TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="236" LINES="66"]
+[sudo] Passwort für loomit: 
+]3008;start=dfe995a3c20149b68232f03b3fcaaf72;user=loomit;hostname=foobox;machineid=b7acb7403a2a4bdaa5d12e712da2bd37;bootid=f8d5409210624d8e942d6b1decef564f;pid=74630;pidfdid=81705;comm=sudo;targetuser=root;type=session\picocom v3.1
+
+port is        : /dev/serial/by-id/usb-FTDI_FT232R_USB_UART_BH00304A-if00-port0
+flowcontrol    : none
+baudrate is    : 115200
+parity is      : none
+databits are   : 8
+stopbits are   : 1
+escape is      : C-a
+local echo is  : no
+noinit is      : no
+noreset is     : no
+hangup is      : no
+nolock is      : no
+send_cmd is    : sz -vv
+receive_cmd is : rz -vv -E
+imap is        : 
+omap is        : 
+emap is        : crcrlf,delbs,
+logfile is     : none
+initstring     : none
+exit_after is  : not set
+exit is        : no
+
+Type [C-a] [C-h] to see available commands
+Terminal ready
+
+U-Boot SPL 2026.07-00003-gf8baca04e22d (Sep 21 2026 - 09:52:43 +0000)
+NOVENA-DIAG WL wait=0 gcr0=00000000 hwerr0=f0f87878 gcr1=000000d0 hwerr1=e1e1f0e1
+NOVENA-DIAG WL ret=0
+NOVENA-DIAG DQS PATH v=1 ds=2 ci=1 ca=1 t=0
+NOVENA-DIAG DQS WAIT e=000f7bfb f=00000000
+NOVENA-DIAG DQS STATUS s=00000000
+NOVENA-DIAG DQS RET ret=0
+NOVENA-DIAG HEAP q1=00000000
+NOVENA-DIAG CTRL c1=00000000 valid=7
+Trying to boot from MMC1
+NOVENA-DIAG D32 after fsl_esdhc_initialize ret=-12
+
+*** local echo: yes ***
+
+Terminating...
+Thanks for using picocom
+]3008;end=dfe995a3c20149b68232f03b3fcaaf72\
+Skript beendet auf 2026-10-07 16:31:19+02:00 [COMMAND_EXIT_CODE="0"]

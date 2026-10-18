@@ -437,3 +437,32 @@ Sollwerte. Tatsächlichen Git-Zustand lesend prüfen, Nutzeränderungen erhalten
 Der erfolgreiche Starttest belegt die genannten Startfunktionen; der offene
 flock-Konkurrenztest betrifft den Tagesabschluss. DDR/SPL und externer Boot
 bleiben offen; I2C3/ES8328 bleibt abgeschlossen.
+
+## 2026-10-18 – Historischer Debian-Bootpfad BOOT-05 bis BOOT-08
+
+Die gezielte historische Untersuchung NOVENA-DEBIAN-BOOT-05
+bis NOVENA-DEBIAN-BOOT-08 vom 17.10.2026 ist abgeschlossen.
+
+BOOT-08 verglich die historischen U-Boot-Revisionen
+c5efeadb913c8246be372054adcd6106ad4fe067 und
+3d26413e65f985131a9573d99a51fd47e7253188
+hinsichtlich SPL-Konstanten, Headerbehandlung,
+Ladeadressen und relevanter Quellcodeunterschiede.
+
+Die statische Adressberechnung ergab
+ADDRESS_CALCULATION_RESULT=PASS.
+Der Untersuchungsblock endete mit
+NOVENA_DEBIAN_BOOT_08_RESULT=PASS.
+
+Originalprotokoll:
+NOVENA-DEBIAN-BOOT-08-20261017-220809-F8puRUnB.txt
+
+GitHub-Protokollarchiv:
+loomit77/project-block-logs/novena/2026/10/
+
+Der erfolgreiche historische Vergleich belegt weder
+einen vollständigen Boot des aktuellen NixOS-Images
+noch eine Behebung der weiterhin offenen DDR/SPL-Ursache.
+
+Dieser historische Untersuchungsabschnitt ist geschlossen.
+Keine erneute gleichartige Untersuchung ohne neue Evidenz.

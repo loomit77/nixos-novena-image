@@ -1,0 +1,20 @@
+--- a/common/spl/spl.c
++++ b/common/spl/spl.c
+@@ -595,6 +595,8 @@
+ 	bootdev.boot_device = loader->boot_device;
+ 	bootdev.boot_device_name = NULL;
+ 
++	printf("NOVENA-DIAG P1 before loader callback brk=%08lx\n",
++	       mem_malloc_brk);
+ 	ret = loader->load_image(spl_image, &bootdev);
+ #ifdef CONFIG_SPL_LEGACY_IMAGE_CRC_CHECK
+ 	if (!ret && spl_image->dcrc_length) {
+@@ -689,6 +691,8 @@
+ 
+ 	if (IS_ENABLED(CONFIG_SPL_SYS_MALLOC)) {
+ 		mem_malloc_init(SPL_SYS_MALLOC_START, SPL_SYS_MALLOC_SIZE);
++		printf("NOVENA-DIAG P0 after mem_malloc_init brk=%08lx\n",
++		       mem_malloc_brk);
+ 		gd->flags |= GD_FLG_FULL_MALLOC_INIT;
+ 	}
+ 	if (!(gd->flags & GD_FLG_SPL_INIT)) {

@@ -1,0 +1,23 @@
+--- a/common/spl/spl.c	2026-09-30 08:59:56.797798950 +0200
++++ b/common/spl/spl.c	2026-09-30 08:59:56.829727319 +0200
+@@ -690,7 +690,20 @@
+ 	spl_set_bd();
+ 
+ 	if (IS_ENABLED(CONFIG_SPL_SYS_MALLOC)) {
++		volatile ulong *novena_diag_control =
++			(volatile ulong *)0x18200030UL;
++		ulong novena_diag_c0;
++		ulong novena_diag_c1;
++		ulong novena_diag_c2;
++
++		novena_diag_c0 = *novena_diag_control;
++		*novena_diag_control = 0x18300000UL;
++		novena_diag_c1 = *novena_diag_control;
++		*novena_diag_control = novena_diag_c0;
++		novena_diag_c2 = *novena_diag_control;
+ 		mem_malloc_init(SPL_SYS_MALLOC_START, SPL_SYS_MALLOC_SIZE);
++		printf("NOVENA-DIAG C0/C1/C2 c0=%08lx c1=%08lx c2=%08lx\n",
++		       novena_diag_c0, novena_diag_c1, novena_diag_c2);
+ 		printf("NOVENA-DIAG P0 after mem_malloc_init brk=%08lx\n",
+ 		       mem_malloc_brk);
+ 		gd->flags |= GD_FLG_FULL_MALLOC_INIT;

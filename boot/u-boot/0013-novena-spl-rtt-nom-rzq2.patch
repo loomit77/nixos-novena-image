@@ -1,0 +1,15 @@
+--- a/board/kosagi/novena/novena_spl.c
++++ b/board/kosagi/novena/novena_spl.c
+@@ -493,11 +493,11 @@
+ 	.cs_density	= 32,	/* 32Gb per CS */
+ 	/* Single chip select */
+ 	.ncs		= 1,
+ 	.cs1_mirror	= 0,
+ 	.rtt_wr		= 0,	/* RTT_Wr = RZQ/4 */
+-	.rtt_nom	= 1,	/* RTT_Nom = RZQ/2 */
++	.rtt_nom	= 2,	/* RTT_Nom = RZQ/2 */
+ 	.walat		= 0,	/* Write additional latency */
+ 	.ralat		= 5,	/* Read additional latency */
+ 	.mif3_mode	= 3,	/* Command prediction working mode */
+ 	.bi_on		= 0,	/* Bank interleaving disabled */
+ 	.sde_to_rst	= 0x10,	/* 14 cycles, 200us (JEDEC default) */

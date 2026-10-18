@@ -1,0 +1,21 @@
+--- a/drivers/mmc/fsl_esdhc_imx.c
++++ b/drivers/mmc/fsl_esdhc_imx.c
+@@ -1317,10 +1317,18 @@
+ 	if (!cfg)
+ 		return -EINVAL;
+ 
++	printf("NOVENA-DIAG D21A before priv calloc start=%08lx end=%08lx brk=%08lx\n",
++		mem_malloc_start, mem_malloc_end, mem_malloc_brk);
+ 	priv = calloc(sizeof(struct fsl_esdhc_priv), 1);
++	printf("NOVENA-DIAG D21B after priv calloc priv=%p brk=%08lx\n",
++		priv, mem_malloc_brk);
+ 	if (!priv)
+ 		return -ENOMEM;
++	printf("NOVENA-DIAG D21C before plat calloc brk=%08lx\n",
++		mem_malloc_brk);
+ 	plat = calloc(sizeof(struct fsl_esdhc_plat), 1);
++	printf("NOVENA-DIAG D21D after plat calloc plat=%p brk=%08lx\n",
++		plat, mem_malloc_brk);
+ 	if (!plat) {
+ 		free(priv);
+ 		return -ENOMEM;

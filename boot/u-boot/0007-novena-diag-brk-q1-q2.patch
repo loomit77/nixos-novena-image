@@ -1,0 +1,27 @@
+--- a/common/dlmalloc.c
++++ b/common/dlmalloc.c
+@@ -600,9 +600,13 @@
+ 
+ void mem_malloc_init(ulong start, ulong size)
+ {
++	ulong novena_diag_q1;
++	ulong novena_diag_q2;
++
+ 	mem_malloc_start = (ulong)map_sysmem(start, size);
+ 	mem_malloc_end = mem_malloc_start + size;
+ 	mem_malloc_brk = mem_malloc_start;
++	novena_diag_q1 = *(volatile ulong *)&mem_malloc_brk;
+ 
+ #ifdef CONFIG_SYS_MALLOC_DEFAULT_TO_INIT
+ 	malloc_init();
+@@ -613,6 +617,10 @@
+ #if CONFIG_IS_ENABLED(SYS_MALLOC_CLEAR_ON_INIT)
+ 	memset((void *)mem_malloc_start, 0x0, size);
+ #endif
++	novena_diag_q2 = *(volatile ulong *)&mem_malloc_brk;
++
++	printf("NOVENA-DIAG Q1/Q2 q1=%08lx q2=%08lx\\n",
++	       novena_diag_q1, novena_diag_q2);
+ }
+ 
+ /* field-extraction macros */
