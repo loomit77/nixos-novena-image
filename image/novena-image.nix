@@ -1,6 +1,8 @@
 { config, lib, pkgs, ... }:
 
 let
+  historical = config.novena.image.bootloader == "historical-2015";
+
   system = config.system.build.toplevel;
 
   kernel = config.system.build.kernel;
@@ -15,17 +17,39 @@ let
 
   initrd = "${config.system.build.initialRamdisk}/initrd";
 
-  novenaUboot = import ../boot/u-boot { inherit pkgs; };
+  # Select one complete pair; never select SPL and Proper independently.
+  novenaUboot =
+    if historical then
+      import ../boot/u-boot/historical-2015.nix { inherit pkgs; }
+    else
+      import ../boot/u-boot { inherit pkgs; };
+  properFilename = if historical then "u-boot.img" else "u-boot-dtb.img";
   novenaSpl = "${novenaUboot}/SPL";
-  novenaUbootImage = "${novenaUboot}/u-boot-dtb.img";
+  novenaUbootImage = "${novenaUboot}/${properFilename}";
 
-  bootCmd = pkgs.writeText "boot.cmd" ''
+  bootCmd = pkgs.writeText "boot.cmd" (if historical then ''
+    echo NOVENA_NIXOS_HISTORICAL_2015_EXPERIMENTAL
+    setenv bootargs 'systemConfig=${system} init=${system}/init loglevel=7 console=ttymxc1,115200 console=tty0'
+    if mmc dev 1 && mmc rescan; then
+      if fatload mmc 1:1 0x12000000 zImage; then
+        if fatload mmc 1:1 0x20000000 initrd.uimg; then
+          if fatload mmc 1:1 0x1f000000 novena.dtb; then
+            bootz 0x12000000 0x20000000 0x1f000000
+          fi
+        fi
+      fi
+    fi
+    echo NOVENA_NIXOS_BOOT_FAILED
+    while test 1 = 1; do
+      sleep 1
+    done
+  '' else ''
     setenv bootargs 'systemConfig=${system} init=${system}/init loglevel=7 console=ttymxc1,115200 console=tty0'
     fatload mmc 1:1 0x12000000 zImage
     fatload mmc 1:1 0x20000000 initrd.uimg
     fatload mmc 1:1 0x1f000000 novena.dtb
     bootz 0x12000000 0x20000000 0x1f000000
-  '';
+  '');
 
   bootScr = pkgs.runCommand "boot.scr"
     {
@@ -96,7 +120,7 @@ let
         -i 2178694E \
         $out
 
-      mcopy -i $out ${novenaUbootImage} ::u-boot-dtb.img
+      mcopy -i $out ${novenaUbootImage} ::${properFilename}
       mcopy -i $out ${zImage} ::zImage
       mcopy -i $out ${initrdUimg} ::initrd.uimg
       mcopy -i $out ${novenaDtb} ::novena.dtb
@@ -124,6 +148,10 @@ let
       firmwareStart=16384
       firmwareSectors=262144
       rootStart=278528
+
+      splBytes=$(stat -c %s ${novenaSpl})
+      test "$splBytes" -gt 0
+      test $((1024 + splBytes)) -le $((firmwareStart * 512))
 
       rootBytes=$(stat -c %s ${rootfsImage})
       rootSectors=$(( (rootBytes + 511) / 512 ))
@@ -176,15 +204,26 @@ EOF
 
 in
 {
-  system.build.novenaBootCmd = bootCmd;
-  system.build.novenaBootScr = bootScr;
-  system.build.novenaInitrdUimg = initrdUimg;
+  options.novena.image.bootloader = lib.mkOption {
+    type = lib.types.enum [ "current-2026" "historical-2015" ];
+    default = "current-2026";
+    description = ''
+      Complete SPL/Proper pair for the Novena image.
+      historical-2015 is experimental and not NixOS-boot-qualified.
+    '';
+  };
 
-  system.build.novenaKernel = zImage;
-  system.build.novenaDtb = novenaDtb;
+  config = {
+    system.build.novenaBootCmd = bootCmd;
+    system.build.novenaBootScr = bootScr;
+    system.build.novenaInitrdUimg = initrdUimg;
 
-  system.build.novenaRootfs = rootfsImage;
-  system.build.novenaFirmware = firmwareImage;
+    system.build.novenaKernel = zImage;
+    system.build.novenaDtb = novenaDtb;
 
-  system.build.novenaImage = novenaImage;
+    system.build.novenaRootfs = rootfsImage;
+    system.build.novenaFirmware = firmwareImage;
+
+    system.build.novenaImage = novenaImage;
+  };
 }
