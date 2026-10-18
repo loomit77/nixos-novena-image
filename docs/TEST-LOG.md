@@ -3192,3 +3192,75 @@ Grafikfunktionen.
 
 **Originalprotokoll:**
 `project-block-logs/novena/2026/10/NOVENA-NIXOS-85-20261018-143540-KIhZVEHW.txt`
+
+
+## 2026-10-18 – SD-Wiederherstellung und Systemstatus
+
+**Evidenzbasis:** Vom Nutzer für diesen Dokumentationsauftrag ausdrücklich
+bestätigte Fakten vom 18.10.2026. Zu NOVENA-NIXOS-99C und NOVENA-NIXOS-102
+wurden im Repository keine zugehörigen Rohlogs gefunden; Originalprotokolle,
+Sidecars, genaue Ausführungszeiten und Runner-/Uploadstatus wurden hier nicht
+unabhängig geprüft. Die folgenden Ergebnisse dokumentieren die bestätigte
+Durchführung, keine in diesem Auftrag erneut ausgeführten Prüfungen.
+
+### Zwischenfall und Wiederherstellungsentscheidung
+
+NixOS 26.05 Yarara mit Linux 6.18.49 war zuvor auf der realen Novena über
+historisches U-Boot 2015.04 erfolgreich gebootet (NOVENA-NIXOS-82).
+Während des laufenden Betriebs wurde die 64-GB-microSD versehentlich mechanisch
+ausgeworfen. Der Kernel meldete Kartenentfernung, I/O-Fehler, Journal-Abbruch
+und ein beschädigtes Root-Dateisystem. Das ist kein nachgewiesener MMC-Treiberfehler.
+
+Auf foobox wurde die SD für diesen Vorgang als `/dev/sdb` identifiziert;
+diese Bezeichnung ist keine dauerhafte Geräteidentität. Ein lesender `e2fsck`
+zeigte Inkonsistenzen. Der Nutzer entschied sich für die Wiederherstellung aus
+dem bekannten Referenzimage statt für eine Reparatur.
+
+### NOVENA-NIXOS-99C – Wiederherstellung und Rückverifikation PASS
+
+Referenzimage (Symlink auf ein Nix-Store-Image):
+`/home/loomit/novena-backups/build-results/novena-nixos-26.05-historical-2015.img`
+
+- Tatsächliche Imagegröße: **2581291008 Bytes**.
+- SHA256: `4748322366a17dcfcafa75d4591f60ebc34629d9e4973807ab81a7794117170c`.
+- SD vollständig mit diesem Referenzimage überschrieben.
+- Gesamten geschriebenen Imagebereich anschließend gelesen und per SHA256
+  mit dem Referenzimage verglichen: **PASS**. Der Nachweis umfasst die
+  2581291008 Imagebytes, nicht den darüber hinausgehenden Bereich der 64-GB-SD.
+- Referenzimage unverändert erhalten.
+
+### Anschließender Boot und SSH-Zugang
+
+Die Novena startete anschließend erfolgreich; Anmeldung über die serielle
+Konsole funktionierte. Ethernet `end0` erhielt `192.168.11.12/24`.
+
+SSH-Hostschlüssel nach Image-Wiederherstellung, ED25519-Fingerabdruck:
+`SHA256:4gN1uo4TKe5SZIWe7XPRG2fuN+A7n/W6nRE+3vU5kJw`.
+Der Fingerabdruck wurde unabhängig über die serielle Konsole verifiziert.
+Erst nach erfolgreichem Abgleich wurde der `known_hosts`-Eintrag auf foobox
+aktualisiert.
+
+Die wiederhergestellte SD enthielt keine `/root/.ssh/authorized_keys`.
+Der öffentliche foobox-Schlüssel wurde erneut auf der Novena autorisiert.
+Sein Fingerabdruck lautet:
+`SHA256:gucuSswYjvyAIqrHwQLZ7wyEWkGhzXp0hr9WPx6ZeQs`.
+Es werden ausschließlich öffentliche Fingerabdrücke dokumentiert.
+
+### NOVENA-NIXOS-102 – SSH- und Systemstatus PASS
+
+- SSH-Anmeldung: **PASS**.
+- NixOS **26.05 Yarara**, Linux **6.18.49 armv7l**.
+- `systemctl is-system-running`: `running`.
+- Root: `/dev/mmcblk1p2`, ext4, `rw`.
+- Keine fehlgeschlagenen systemd-Dienste.
+- Keine Treffer bei der gezielten Suche nach Dateisystem-/I/O-Fehlern seit
+  dem Neustart. Dies beschreibt den Suchumfang, keine umfassende Fehlerfreiheit.
+- Root-Dateisystem: **2.2G** gesamt, **1.6G** belegt, **472M** verfügbar,
+  **78 %** Belegung.
+
+**Offen und abgegrenzt:** SSH-Autorisierung deklarativ dauerhaft sicherstellen;
+Root-Partition für größere SD-Karten beziehungsweise dynamische Erweiterung prüfen.
+Der laufende ALSA-Paketbuild NOVENA-NIXOS-91B wird später separat ausgewertet;
+hier kein Buildabschluss behauptet. Kein Audiotest durchgeführt.
+Ein erfolgreicher Boot mit modernem U-Boot 2026.07 ist weiterhin nicht bestätigt.
+Keine Wiederaufnahme der abgeschlossenen I2C3-/ES8328-Untersuchung.

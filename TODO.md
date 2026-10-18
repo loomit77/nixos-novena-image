@@ -1,5 +1,7 @@
 # TODO – Novena: universelles NixOS-SD-Image
 
+> Aktueller NixOS-Stand: siehe Nachtrag „2026-10-18 – SD-Wiederherstellung und Systemstatus“ am Dateiende. Ältere Aufgabenstände bleiben historische Checkpoints.
+
 > Aktueller Workflowstand: siehe Nachtrag vom 2026-10-17 am Dateiende (NOVENA-WORKFLOW-FLOCK-02 PASS; konkreter Konkurrenzfall abgeschlossen). Frühere Statusangaben sind datierte historische Stände.
 
 Stand: 2026-10-12 (foobox-Dokumentationscheckpoint DOC-GIT-GESAMT-19S)
@@ -992,3 +994,32 @@ neue konkrete Fehlerhypothese vorliegt.
 **Ergebnis:** Displaypfad im getesteten Boot
 funktional bestätigt. Keine weiteren
 Displaytests ohne neue konkrete Fehlerhypothese.
+
+
+## 2026-10-18 – SD-Wiederherstellung und Systemstatus
+
+Grundlage: vom Nutzer bestätigter Stand vom 18.10.2026;
+Durchführung und Aussagegrenzen siehe [TEST-LOG](docs/TEST-LOG.md#2026-10-18--sd-wiederherstellung-und-systemstatus).
+Dieser Nachtrag ergänzt die historischen Checkpoints NOVENA-NIXOS-82/86.
+
+- [x] Nach versehentlichem mechanischem Auswerfen der 64-GB-microSD im Betrieb
+  Wiederherstellung aus dem bekannten Referenzimage statt Dateisystemreparatur gewählt.
+- [x] NOVENA-NIXOS-99C: SD vollständig mit dem Referenzimage überschrieben;
+  SHA256-Rücklesevergleich des geschriebenen Imagebereichs PASS.
+- [x] Anschließenden Boot und seriellen Login bestätigt; `end0`: `192.168.11.12/24`.
+- [x] SSH-Hostfingerabdruck seriell unabhängig abgeglichen und `known_hosts`
+  auf foobox aktualisiert; öffentlichen foobox-Schlüssel erneut autorisiert.
+- [x] NOVENA-NIXOS-102: SSH PASS, NixOS 26.05 Yarara / Linux 6.18.49 armv7l,
+  `systemctl is-system-running = running`, Root ext4 rw, keine fehlgeschlagenen
+  Dienste und keine Treffer der gezielten Dateisystem-/I/O-Fehlersuche seit Neustart.
+- [ ] P1: Dauerhafte SSH-Autorisierung deklarativ in der NixOS-Konfiguration sicherstellen.
+- [ ] P2: Root-Partition für größere SD-Karten beziehungsweise dynamische Erweiterung
+  prüfen; derzeit 2.2G gesamt, 1.6G belegt, 472M verfügbar, 78 % Belegung.
+- [ ] Laufenden ALSA-Paketbuild NOVENA-NIXOS-91B später separat auswerten;
+  kein Abschluss- oder Erfolgsnachweis in diesem Stand.
+
+Kein Audiotest durchgeführt. U-Boot 2026.07 bleibt ohne bestätigten erfolgreichen
+Boot; bestätigt ist der historische Bootpfad mit U-Boot 2015.04.
+Der mechanische Kartenauswurf ist kein nachgewiesener MMC-Treiberfehler.
+I2C3/ES8328 bleibt abgeschlossen; `regulator-always-on` bleibt Boardanforderung.
+Diese Aufgabenliste erteilt keine Build-, SSH-, Medien-, Hardware- oder Git-Freigabe.
