@@ -1,5 +1,7 @@
 # Project State
 
+> Aktuelle Entwicklungspriorität: **NOVENA-ENTSCHEIDUNG-2026-10-18-NIXOS-FIRST**, siehe Nachtrag am Dateiende. Frühere Priorisierungen bleiben historische Stände.
+
 > Aktueller NixOS-Stand: siehe Nachtrag „2026-10-18 – SD-Wiederherstellung und Systemstatus“ am Dateiende. Ältere Zustandsangaben bleiben historische Checkpoints.
 
 > Aktueller Workflowstand: siehe Nachtrag vom 2026-10-17 am Dateiende (NOVENA-WORKFLOW-FLOCK-02 PASS; konkreter Konkurrenzfall abgeschlossen). Frühere Statusangaben sind datierte historische Stände.
@@ -7112,3 +7114,36 @@ im Rahmen dieser Untersuchungen.
 Quellen:
 - https://github.com/loomit77/project-block-logs/blob/de07f99a37a208c095bce4fae1550af825839de5/novena/2026/10/NOVENA-NIXOS-106-20261018-164144-uRNDKsEb.txt
 - https://github.com/loomit77/project-block-logs/blob/da035c84c3d3445d119c4df5623c040286778eb0/novena/2026/10/NOVENA-NIXOS-107-20261018-164522-50EyVLbX.txt
+
+
+## 2026-10-18 – NIXOS-FIRST: Entwicklungspriorität und Nachweisgrenzen
+
+Maßgeblich ist **NOVENA-ENTSCHEIDUNG-2026-10-18-NIXOS-FIRST** im
+[neuen Beschluss](DECISIONS.md#2026-10-18--universelles-nixos-sd-image-zuerst).
+Das universelle externe NixOS-SD-Image hat Vorrang; DEBIAN-FIRST und
+JESSIE-FIRST bleiben historische Priorisierungen.
+
+**Bestätigt:** Jessie 8.2 bootete von SD (NOVENA-JESSIE-48); grafische
+Anmeldung und Abmeldung sind im [Jessie-Abschluss](NOVENA-JESSIE-BOOT-20261018.md)
+dokumentiert. NixOS 26.05 / Linux 6.18.49 bootete von externer SD mit
+historischem SPL/U-Boot 2015.04 (NOVENA-NIXOS-81/82). Die späteren Nachträge
+zu Display, SD-Wiederherstellung und Systemstatus bleiben gültig.
+
+**Offen:** Die Qualifikation des universellen Image-Builders und jedes neu
+erzeugten Images bleibt artefaktbezogen nachzuweisen. Insbesondere ist ein
+Hardwareboot kein Nachweis für ein neues Rust-Image. Die noch offene
+Rust-Jessie-Imagequalifikation ist keine Voraussetzung für weitere
+NixOS-Entwicklung. Rust-Assembler und Jessie-Arbeiten bleiben erhalten;
+Jessie dient weiter als historische funktionierende Referenz.
+
+Ältere pauschale Aussagen „vollständiger externer Boot offen“ gelten für den
+modernen SPL-/U-Boot-2026.07-Pfad, nicht für den belegten historischen
+NixOS-Bootpfad. Moderne DDR-/SPL-Ursache bleibt separat offen und
+zurückgestellt. Vollständige Hardwarequalifikation, deklarative
+SSH-Autorisierung, Root-Erweiterung und die übrigen konkret dokumentierten
+Folgefragen bleiben offen. Keine Wiederaufnahme abgeschlossener
+Untersuchungen; `regulator-always-on` bleibt Boardanforderung.
+
+Dieser Nachtrag übernimmt bestätigte Auftragsfakten und vorhandene
+Dokumentation; keine erneute Originalprotokoll- oder Hardwareprüfung.
+Er ist keine Ausführungsfreigabe.

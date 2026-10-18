@@ -1,5 +1,7 @@
 # Decisions
 
+> Aktuelle Entwicklungspriorität: **NOVENA-ENTSCHEIDUNG-2026-10-18-NIXOS-FIRST**, siehe Nachtrag am Dateiende. Frühere Priorisierungen bleiben historische Stände.
+
 > Aktueller Workflowstand: siehe Nachtrag vom 2026-10-17 am Dateiende (Zwei-Skripte-Workflow, E2E PASS; Konkurrenztest offen). Fruehere Statusangaben sind datierte historische Staende.
 
 ## 2026-09-11 – Eigenes Git-Repository
@@ -1954,3 +1956,48 @@ Ergebnisformat v2 kennzeichnen das unqualifizierte Ergebnis. SHA256-,
 Dateisystemerkennungs-, Layout-, SPL- und Rückprüfungen bleiben gemeinsam.
 
 [Schnittstelle, Evidenzgrenzen und offene Risiken](DEBIAN-REFERENCE-IMAGE.md#2026-10-18--novena-jessie-20-experimenteller-erstboot-modus).
+
+
+## 2026-10-18 – Universelles NixOS-SD-Image zuerst
+
+Kennung: **NOVENA-ENTSCHEIDUNG-2026-10-18-NIXOS-FIRST**
+Dokumentationsauftrag: NOVENA-DOC-NIXOS-FIRST-01.
+
+**Beschluss:** Das universelle, reproduzierbare und eigenständig von externer
+SD bootfähige NixOS-Image hat ab jetzt Entwicklungsvorrang. Dieser additive
+Beschluss löst die Priorisierung DEBIAN-FIRST und JESSIE-FIRST ab. Deren
+historische Aussagen und die zugrunde liegenden Arbeiten bleiben erhalten.
+
+**Faktenbasis:** Debian Jessie 8.2 bootete erfolgreich von SD
+(NOVENA-JESSIE-48); grafische Anmeldung und Abmeldung sind in
+[NOVENA-JESSIE-BOOT-20261018](NOVENA-JESSIE-BOOT-20261018.md) dokumentiert.
+NixOS 26.05 mit Linux 6.18.49 bootete erfolgreich von externer SD mit
+historischem SPL/U-Boot 2015.04 (NOVENA-NIXOS-81/82;
+[Bootnachweis](TEST-LOG.md#novena-nixos-82-hardware-boot-2026-10-18)).
+Die erfolgreichen Hardwareboots begründen die Rückkehr zum NixOS-Hauptziel.
+
+**Aussagegrenze:** Ein erfolgreicher Hardwareboot qualifiziert ausschließlich
+den belegten Artefakt- und Teststand. Er belegt weder die Bootfähigkeit eines
+neu erzeugten Rust-Images noch die Reproduzierbarkeit eines neuen Builders.
+Jessie-Booterfolg und Qualifikation eines mit Rust erzeugten Jessie-Images
+bleiben getrennte Meilensteine; Letztere wird hier nicht als erledigt erklärt.
+
+Jessie bleibt historische, funktionierende Referenz. Rust-Assembler,
+Debian-Nix-Integration und Jessie-Arbeiten bleiben erhalten; ihre weitere
+Qualifikation ist nachgeordnet. Ein Rust-NixOS-Profil ist keine Voraussetzung
+für die Fortsetzung des NixOS-Projekts. Die frühere Sperrfolge „erst Rust-Jessie
+qualifizieren, danach NixOS“ gilt als Priorisierung nicht mehr.
+NOVENA-UNIVERSAL-RUST-01 erhält dadurch keine Implementierungsfreigabe.
+
+Moderne DDR-/SPL-Fragen und der vollständige Boot mit U-Boot 2026.07 bleiben
+separat offen und vorerst zurückgestellt. Der historische Booterfolg löst
+deren Root Cause nicht auf. Abgeschlossene BOOT-05–08-, Display- und
+I2C3-/ES8328-Untersuchungen werden ohne neue diskriminierende Evidenz nicht
+wiederholt; `regulator-always-on` bleibt dauerhafte Boardanforderung.
+
+Evidenzbasis dieses Beschlusses sind die im Auftrag bestätigten Fakten und
+die vorhandene Projektdokumentation. Die referenzierten Originalprotokolle
+NOVENA-JESSIE-48 und NOVENA-NIXOS-81 wurden in diesem Auftrag nicht erneut
+geprüft; sie liegen nicht im Repository vor. Keine neue Hardwarequalifikation.
+Der Beschluss erteilt keine Build-, Nix-Evaluierungs-, Medien-, Hardware-,
+Netzwerk- oder Git-Schreibfreigabe.

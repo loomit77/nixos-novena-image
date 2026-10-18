@@ -1,5 +1,7 @@
 # TODO – Novena: universelles NixOS-SD-Image
 
+> Aktuelle Entwicklungspriorität: **NOVENA-ENTSCHEIDUNG-2026-10-18-NIXOS-FIRST**, siehe Nachtrag am Dateiende. Frühere Priorisierungen bleiben historische Stände.
+
 > Aktueller NixOS-Stand: siehe Nachtrag „2026-10-18 – SD-Wiederherstellung und Systemstatus“ am Dateiende. Ältere Aufgabenstände bleiben historische Checkpoints.
 
 > Aktueller Workflowstand: siehe Nachtrag vom 2026-10-17 am Dateiende (NOVENA-WORKFLOW-FLOCK-02 PASS; konkreter Konkurrenzfall abgeschlossen). Frühere Statusangaben sind datierte historische Stände.
@@ -1038,3 +1040,51 @@ Diese Aufgabenliste erteilt keine Build-, SSH-, Medien-, Hardware- oder Git-Frei
 
 Belege: NOVENA-NIXOS-106 und NOVENA-NIXOS-107
 im Repository `loomit77/project-block-logs`.
+
+
+## 2026-10-18 – NIXOS-FIRST: maßgebliche Aufgabenabgrenzung
+
+Kennung: **NOVENA-ENTSCHEIDUNG-2026-10-18-NIXOS-FIRST**;
+[Beschluss](docs/DECISIONS.md#2026-10-18--universelles-nixos-sd-image-zuerst).
+Diese Liste präzisiert ältere offene Kästchen additiv; historische
+Entscheidungen und Aufgabenstände bleiben unverändert erhalten.
+
+- [x] Historischer Jessie-8.2-SD-Boot nachgewiesen (NOVENA-JESSIE-48);
+  grafische Anmeldung und Abmeldung dokumentiert in
+  [NOVENA-JESSIE-BOOT-20261018](docs/NOVENA-JESSIE-BOOT-20261018.md).
+  Ältere Aufgaben „Debian-Boot bis zum nutzbaren System nachweisen“ sind
+  für diesen Referenzstand erfüllt und kein Anlass für Wiederholung.
+- [x] NixOS 26.05 / Linux 6.18.49 von externer SD mit historischem
+  SPL/U-Boot 2015.04 gebootet (NOVENA-NIXOS-81/82). Ältere pauschale
+  NixOS-Erstboot-Aufgaben sind für diesen Stand erfüllt.
+- [ ] **P1 – Universelles NixOS-SD-Image:** Vorhandene Artefaktprovenienz
+  und Bootnachweise als Grundlage der weiteren Builder-/Imagequalifikation
+  abgleichen; universellen Betrieb, Reproduzierbarkeit, Installation und
+  Recovery artefaktbezogen weiter qualifizieren. Historische Buildnachweise
+  und Hardwareboots nicht auf neue Images übertragen.
+- [ ] **P1 – NixOS-Konfiguration:** Deklarative SSH-Autorisierung gemäß
+  Wiederherstellungsnachtrag sicherstellen, in einem gesonderten Auftrag.
+- [ ] **P2 – NixOS-Folgefragen:** Root-Erweiterung prüfen; ALSA-Buildabschluss
+  separat auswerten. Audio, VPU-Firmware, RTC-/uptime-Fragen und bei Bedarf
+  GPU-Funktion bleiben gezielte Folgearbeiten, keine pauschale Hardwareabnahme.
+- [ ] **Nachgeordnet – Rust/Jessie:** Qualifikation eines neu mit Rust
+  erzeugten Jessie-Images bleibt eigenständig offen. Der historische
+  Jessie-Boot beweist diese Artefaktqualifikation nicht. Frühere offene
+  Build-/Manifest-/Erstboot-Aufgaben sind nur in diesem Geltungsbereich
+  weiterzuführen, nicht als erneuter allgemeiner Jessie-Bootnachweis.
+  Rust-Assembler und Jessie-Arbeiten erhalten; Jessie bleibt Referenz.
+- [ ] **Gesondert zu entscheiden – Rust/NixOS:** Die frühere Voraussetzung
+  „erst Rust-Jessie, danach NixOS“ entfällt als Priorität. Daraus folgt keine
+  Freigabe für NOVENA-UNIVERSAL-RUST-01 oder eine Rust-Umstellung.
+- [ ] **Separat zurückgestellt – modernes DDR/SPL:** Ursache und vollständiger
+  Boot mit U-Boot 2026.07 bleiben offen. Hierauf beziehen sich ältere offene
+  SPL-/DDR- und vollständige Bootketten-TODOs; der historische Bootpfad ist
+  bereits erfolgreich. Keine Wiederholung abgeschlossener Untersuchungen.
+
+Die funktionale Displayqualifikation NOVENA-NIXOS-86 bleibt abgeschlossen;
+ältere IT6251-Qualifikationsaufgaben sind entsprechend eingegrenzt.
+Langzeitzuverlässigkeit und weitere Grafikfunktionen bleiben getrennt.
+I2C3/ES8328 bleibt geschlossen; `regulator-always-on` dauerhaft.
+Vorhandene Provenienzlücken werden durch diese Priorisierung nicht geschlossen.
+Keine Builds, Nix-Evaluierungen, SD-Schreibzugriffe, Hardwaretests oder
+Git-Mutationen durch diesen Dokumentationsauftrag freigegeben.

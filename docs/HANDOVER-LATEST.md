@@ -1,5 +1,7 @@
 # Novena – verifizierte Projektübergabe
 
+> Aktuelle Entwicklungspriorität: **NOVENA-ENTSCHEIDUNG-2026-10-18-NIXOS-FIRST**, siehe Nachtrag am Dateiende. Frühere Priorisierungen bleiben historische Stände.
+
 > Aktueller NixOS-Stand: siehe Nachtrag „2026-10-18 – SD-Wiederherstellung und Systemstatus“ am Dateiende. Für die Wiederaufnahme ist dieser Folgestand zu beachten.
 
 > Aktueller Workflowstand: siehe Nachtrag vom 2026-10-17 am Dateiende (NOVENA-WORKFLOW-FLOCK-02 PASS; konkreter Konkurrenzfall abgeschlossen). Frühere Statusangaben sind datierte historische Stände.
@@ -1077,3 +1079,38 @@ bleibt ohne bestätigten erfolgreichen Boot. Abgeschlossene Display- und
 I2C3-/ES8328-Untersuchungen bleiben geschlossen; `regulator-always-on` bleibt
 Boardanforderung. Dieser Stand erteilt keine Freigabe für weitere Builds,
 SSH-Verbindungen, Medienzugriffe, Hardwaretests oder Git-Mutationen.
+
+
+## 2026-10-18 – NIXOS-FIRST: maßgebliche Wiederaufnahmepriorität
+
+Kennung: **NOVENA-ENTSCHEIDUNG-2026-10-18-NIXOS-FIRST**;
+[Beschluss und Evidenzgrenzen](DECISIONS.md#2026-10-18--universelles-nixos-sd-image-zuerst).
+Das universelle NixOS-SD-Image steht wieder an erster Stelle.
+Die früheren DEBIAN-FIRST-/JESSIE-FIRST-Vorgaben sind als Reihenfolge abgelöst.
+
+Jessie 8.2 bootete erfolgreich von SD (NOVENA-JESSIE-48), einschließlich
+dokumentierter grafischer Anmeldung und Abmeldung im
+[Jessie-Abschluss](NOVENA-JESSIE-BOOT-20261018.md). NixOS 26.05 mit Kernel
+6.18.49 bootete erfolgreich von externer SD mit historischem SPL/U-Boot
+2015.04 (NOVENA-NIXOS-81/82). Die neueren System- und Displaynachweise in
+dieser Übergabe bleiben erhalten. Jessie bleibt funktionierende historische
+Referenz; Rust-Assembler und sämtliche Jessie-Arbeiten bleiben erhalten.
+
+Für die Fortsetzung zuerst die priorisierten Aufgaben im
+[TODO-Nachtrag](../TODO.md#2026-10-18--nixos-first-maßgebliche-aufgabenabgrenzung)
+und die vorhandenen Artefakt-/Bootnachweise auswerten. Nächster Planungsgegenstand
+ist die weitere Qualifikation des universellen NixOS-Images auf Basis des
+funktionierenden historischen Bootpfads. Ein neuer Build oder eine
+Rust-Umstellung ist damit nicht beauftragt. Ein neu erzeugtes Rust-Image
+benötigt eigene Qualifikation; der bestehende Hardwareboot ersetzt sie nicht.
+
+Moderne DDR-/SPL-Fragen und U-Boot 2026.07 bleiben separat offen.
+Keine erneuten abgeschlossenen Jessie-/BOOT-05–08-, Display- oder
+I2C3-/ES8328-Untersuchungen ohne neue diskriminierende Evidenz.
+`regulator-always-on` bleibt Boardanforderung. Weitere Builds,
+Nix-Evaluierungen, SSH-/Netzwerkzugriffe, SD-Schreibzugriffe, Hardwaretests
+und Git-Mutationen benötigen eigene konkrete Freigaben.
+
+NOVENA-DOC-NIXOS-FIRST-01 ändert ausschließlich vier Dokumente.
+Die Aussagen beruhen auf bestätigten Auftragsfakten und vorhandener
+Dokumentation; keine erneute Prüfung der extern referenzierten Originallogs.
