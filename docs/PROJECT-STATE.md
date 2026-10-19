@@ -7173,3 +7173,37 @@ HEAD, Index-SHA256 und SHA256 des bisherigen Moduls unverändert.
 ist ausdrücklich **NICHT freigegeben**. Die Integration ist kein Build-,
 Medien- oder Hardwareerfolg. Keine Builds, Hardwaretests oder
 Datenträgeroperationen im Rahmen dieses Auftrags.
+
+## 2026-10-19 – NOVENA-NIXOS-114T: alsa-utils integriert
+
+Einzige funktionale Änderung: `configuration.nix` ergänzt
+`environment.systemPackages = with pkgs; [ alsa-utils ];`.
+Die bestehende Root-Grow-, Bootloader- und Image-Konfiguration bleibt erhalten.
+
+Evidenzbasis: reine lokale NixOS-Modulauswertung mit der in
+NOVENA-NIXOS-114N dokumentierten Nixpkgs-Quelle
+`/nix/store/nqkh6j5xlyvlw4hlrw4ybpq1cis79szf-source` und denselben Modulen
+wie in `flake.nix` (`configuration.nix`, `image/novena-image.nix`).
+`nix-instantiate --store dummy:// --eval --strict --json` mit
+`allow-import-from-derivation = false` und `substitute = false`:
+Exitcode 0, Paketgleichheitsprüfung gegen `pkgs.alsa-utils` ergibt `true`,
+enthaltenes Paket `alsa-utils-armv7l-unknown-linux-gnueabihf-1.2.14`;
+keine fehlgeschlagenen NixOS-Assertions. `boot.growPartition` und
+`fileSystems."/".autoResize` ergeben weiterhin `true`, Bootloaderauswahl
+weiterhin `current-2026`. Kein Netzwerkzugriff und kein Build.
+Ein erster Auswertungsaufruf meldete für `--option offline true`
+„unknown setting 'offline'“; der abschließende Aufruf ohne diese unwirksame
+Option war erfolgreich und ohne Warnung. Verwendet wurden lokale Quellen.
+
+`git diff --check` ohne Befund. Git-Index-SHA256 unverändert;
+`flake.nix`, `flake.lock`, `hardware/novena.nix` und
+`image/novena-image.nix` per SHA256 unverändert.
+Integrationsdokumentation ausschließlich in `TODO.md` und dieser Datei.
+Keine Hardwaretests oder Datenträgeroperationen durchgeführt.
+
+**Noch kein vollständiger Image-Build** dieses Integrationsstands.
+**Noch keine Audio-Hardwarequalifikation.**
+**Produktive SD-Root-Grow-Qualifikation OFFEN.**
+Die Auswertung belegt die Paketaufnahme in die Konfiguration, keine
+Build- oder Hardwarequalifikation; bestehende historische Nachweise
+werden nicht auf diesen Stand übertragen.

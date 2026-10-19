@@ -1099,3 +1099,18 @@ Git-Mutationen durch diesen Dokumentationsauftrag freigegeben.
   Root-Grow-Vorgang ist ausdrücklich **NICHT freigegeben**.
   Die Konfigurationsintegration belegt keine erfolgreiche Erweiterung
   auf SD. Keine Builds, Hardwaretests oder Datenträgeroperationen.
+
+## 2026-10-19 – NOVENA-NIXOS-114T: ALSA-Werkzeuge integriert
+
+- [x] `alsa-utils` in `configuration.nix` unter
+  `environment.systemPackages = with pkgs; [ alsa-utils ];` ergänzt.
+- [x] Reine lokale NixOS-Modulauswertung ohne Build und Netzwerkzugriff:
+  `alsa-utils-armv7l-unknown-linux-gnueabihf-1.2.14` ist tatsächlich in
+  `environment.systemPackages` enthalten; keine fehlgeschlagenen Assertions.
+  Root-Grow weiterhin zweimal `true`; Bootloader-/Image-Konfiguration unverändert.
+- [x] `git diff --check` ohne Befund; Git-Index unverändert.
+- [ ] **Noch kein vollständiger Image-Build** dieses Integrationsstands.
+- [ ] **Noch keine Audio-Hardwarequalifikation.**
+- [ ] **Produktive SD-Root-Grow-Qualifikation OFFEN.**
+
+Keine Builds, Hardwaretests oder Datenträgeroperationen durchgeführt.

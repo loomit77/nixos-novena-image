@@ -10,6 +10,10 @@
 
   boot.growPartition = true;
 
+  environment.systemPackages = with pkgs; [
+    alsa-utils
+  ];
+
   networking.hostName = "novena";
 
   services.openssh.enable = true;
