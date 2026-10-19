@@ -466,3 +466,30 @@ noch eine Behebung der weiterhin offenen DDR/SPL-Ursache.
 
 Dieser historische Untersuchungsabschnitt ist geschlossen.
 Keine erneute gleichartige Untersuchung ohne neue Evidenz.
+
+## Tagesabschluss 2026-10-19 – Fortsetzung
+
+Aktueller technischer Stand:
+Das historische NixOS-Image mit ALSA und Grow ist gebaut
+und statisch erfolgreich geprüft.
+
+Image:
+`/nix/store/wzkx9cn7la3qpwqxp3lvjhlpjgsam24h-nixos-novena-sd-image.img`
+
+SHA256:
+`1c854d6a148bd212aca5ebe7e3705c84bc4f6b0e5ff62c1f4a211cf5b0fd3406`
+
+Maßgebliche Protokolle:
+- NOVENA-NIXOS-HISTORICAL-ALSA-GROW-03
+- NOVENA-NIXOS-HISTORICAL-ALSA-GROW-04
+- NOVENA-NIXOS-HISTORICAL-ALSA-GROW-05
+- NOVENA-NIXOS-HISTORICAL-ALSA-GROW-05R
+
+Nächster Schritt:
+Test-SD auf foobox eindeutig identifizieren.
+Danach nur mit gesonderter Freigabe schreiben,
+zurücklesen und auf der Novena booten.
+
+Den aktuellen Git-Checkpoint und Backupstatus
+aus dem jüngsten Tagesabschlussprotokoll übernehmen.
+Historische Checkpoints bleiben erhalten.

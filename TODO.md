@@ -1114,3 +1114,19 @@ Git-Mutationen durch diesen Dokumentationsauftrag freigegeben.
 - [ ] **Produktive SD-Root-Grow-Qualifikation OFFEN.**
 
 Keine Builds, Hardwaretests oder Datenträgeroperationen durchgeführt.
+
+## Tagesabschluss 2026-10-19 – nächster Hardwaretest
+
+- [x] NixOS-Image mit historischem U-Boot 2015, ALSA und Grow vollständig gebaut.
+- [x] SPL, U-Boot proper, Kernel und Device Tree mit dem erfolgreichen Image vom 18.10. bytegenau verglichen.
+- [x] boot.cmd und boot.scr verglichen: ausschließlich NixOS-Systempfad geändert.
+- [x] initrd-Archive entpackt und Dateiinventare verglichen.
+- [ ] Test-SD auf foobox eindeutig identifizieren.
+- [ ] Neues Image nach gesonderter Geräteprüfung auf Test-SD schreiben.
+- [ ] Geschriebenes Image vollständig zurücklesen und verifizieren.
+- [ ] Novena-Boot mit serieller Aufzeichnung testen.
+- [ ] ALSA auf der Novena prüfen.
+- [ ] Automatische Vergrößerung der Root-Partition und des Dateisystems prüfen.
+- [ ] Ergebnisse dokumentieren und qualifizieren.
+
+Kein SD-Schreibvorgang und kein Hardwaretest am 19.10.2026.

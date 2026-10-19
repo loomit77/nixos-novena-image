@@ -1114,3 +1114,53 @@ und Git-Mutationen benötigen eigene konkrete Freigaben.
 NOVENA-DOC-NIXOS-FIRST-01 ändert ausschließlich vier Dokumente.
 Die Aussagen beruhen auf bestätigten Auftragsfakten und vorhandener
 Dokumentation; keine erneute Prüfung der extern referenzierten Originallogs.
+
+## Tagesabschluss 2026-10-19 – historisches NixOS-Image
+
+### Bestätigtes Image
+
+Pfad:
+`/nix/store/wzkx9cn7la3qpwqxp3lvjhlpjgsam24h-nixos-novena-sd-image.img`
+
+SHA256:
+`1c854d6a148bd212aca5ebe7e3705c84bc4f6b0e5ff62c1f4a211cf5b0fd3406`
+
+Größe: 2.588.422.144 Byte.
+
+Konfiguration:
+- NixOS 26.05
+- Kernel 6.18.49
+- Historischer U-Boot 2015
+- alsa-utils 1.2.14
+- boot.growPartition = true
+- Root autoResize = true
+
+### Verifizierte Ergebnisse
+
+- HISTORICAL-ALSA-GROW-03: PASS, Image gebaut.
+- HISTORICAL-ALSA-GROW-04: PASS, Bootdateien verglichen.
+- HISTORICAL-ALSA-GROW-05: FAIL, Locale-Fehler bei comm.
+- HISTORICAL-ALSA-GROW-05R: PASS, korrigierter Vergleich.
+
+SPL, U-Boot proper, zImage und novena.dtb sind
+byteidentisch mit dem am 18.10. erfolgreich gestarteten Image.
+
+boot.cmd und boot.scr unterscheiden sich nach Normalisierung
+ausschließlich im NixOS-Systempfad.
+
+Beide initrd-Archive enthalten jeweils 1.998 Dateieinträge.
+Geänderte Store-Objekte betreffen insbesondere initrd-units,
+initrd-fstab, initrd-system.conf und initrd-parse-etc.service.
+Die vollständige inhaltliche Gleichwertigkeit der neu
+adressierten Store-Objekte ist nicht abschließend nachgewiesen.
+
+### Offene Hardwarequalifikation
+
+Das neue Image wurde noch nicht auf SD geschrieben.
+Ein Hardwareboot mit diesem Image steht aus.
+ALSA und Grow sind noch nicht auf der Novena geprüft.
+
+Der nächste Schritt ist die eindeutige Identifikation
+der Test-SD auf foobox.
+
+Keine weiteren Builds oder Hardwaretests ohne gesonderte Freigabe.
