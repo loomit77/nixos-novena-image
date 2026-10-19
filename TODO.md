@@ -1088,3 +1088,14 @@ I2C3/ES8328 bleibt geschlossen; `regulator-always-on` dauerhaft.
 Vorhandene Provenienzlücken werden durch diese Priorisierung nicht geschlossen.
 Keine Builds, Nix-Evaluierungen, SD-Schreibzugriffe, Hardwaretests oder
 Git-Mutationen durch diesen Dokumentationsauftrag freigegeben.
+
+## 2026-10-19 – NOVENA-NIXOS-114Q-R1: Root-Grow-Konfiguration
+
+- [x] Geprüften Entwurf `/tmp/NOVENA-NIXOS-114O/proposed.diff` integriert:
+  `boot.growPartition = true` und `fileSystems."/".autoResize = true`.
+  Nur der Import von `modules/novena-grow-root.nix` wurde entfernt;
+  die bisherige Moduldatei bleibt unverändert erhalten.
+- [ ] **Produktive SD-Qualifikation: OFFEN.** Der erste produktive
+  Root-Grow-Vorgang ist ausdrücklich **NICHT freigegeben**.
+  Die Konfigurationsintegration belegt keine erfolgreiche Erweiterung
+  auf SD. Keine Builds, Hardwaretests oder Datenträgeroperationen.

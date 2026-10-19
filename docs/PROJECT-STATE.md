@@ -7147,3 +7147,29 @@ Untersuchungen; `regulator-always-on` bleibt Boardanforderung.
 Dieser Nachtrag übernimmt bestätigte Auftragsfakten und vorhandene
 Dokumentation; keine erneute Originalprotokoll- oder Hardwareprüfung.
 Er ist keine Ausführungsfreigabe.
+
+## 2026-10-19 – NOVENA-NIXOS-114Q-R1: Root-Grow-Konfiguration integriert
+
+Evidenzbasis: vorhandener Worktree und geprüfter Entwurf
+`/tmp/NOVENA-NIXOS-114O/proposed.diff`. In `configuration.nix` ist
+`boot.growPartition = true` aktiviert; in `hardware/novena.nix` ist
+`fileSystems."/".autoResize = true` aktiviert. Der Import des bisherigen
+Moduls `modules/novena-grow-root.nix` ist entfernt, die Moduldatei bleibt
+unverändert erhalten. Keine weiteren funktionalen Änderungen.
+
+Reine lokale NixOS-Modulauswertung mit der im Originalprotokoll
+NOVENA-NIXOS-114N der gepinnten Revision zugeordneten Nixpkgs-Quelle und
+denselben Modulen wie in `flake.nix`: beide Optionen `true`, bisheriger
+Service nicht vorhanden, `x-systemd.growfs` für Root gesetzt und
+`growpart` vor `systemd-growfs-root.service`; keine fehlgeschlagenen
+NixOS-Assertions. Auswertung mit `nix-instantiate --store dummy:// --eval
+--strict --json` und deaktiviertem Import-from-Derivation, ohne Build.
+Die vorherigen Flake-/Daemon-Auswertungsversuche scheiterten an den
+Sandbox-Zugriffsgrenzen. Beide Konfigurationsdateien stimmen bytegenau
+mit den Entwurfsdateien überein; `git diff --check` ohne Befund.
+HEAD, Index-SHA256 und SHA256 des bisherigen Moduls unverändert.
+
+**Produktive SD-Qualifikation: OFFEN.** Der erste produktive Root-Grow-Vorgang
+ist ausdrücklich **NICHT freigegeben**. Die Integration ist kein Build-,
+Medien- oder Hardwareerfolg. Keine Builds, Hardwaretests oder
+Datenträgeroperationen im Rahmen dieses Auftrags.

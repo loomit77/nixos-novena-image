@@ -7,6 +7,7 @@
   fileSystems."/" = {
     device = "/dev/disk/by-label/NIXOS_SD";
     fsType = "ext4";
+    autoResize = true;
   };
 
   fileSystems."/boot/firmware" = {

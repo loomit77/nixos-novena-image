@@ -1,10 +1,14 @@
 { config, pkgs, ... }:
 {
-  imports = [ ./hardware/novena.nix ];
+  imports = [
+    ./hardware/novena.nix
+  ];
 
   nixpkgs.overlays = [
     (import ./overlays/reproducible-bash.nix)
   ];
+
+  boot.growPartition = true;
 
   networking.hostName = "novena";
 
