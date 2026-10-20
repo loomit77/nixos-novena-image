@@ -1152,3 +1152,49 @@ Kein SD-Schreibvorgang und kein Hardwaretest am 19.10.2026.
 
 Kein Hardwaretest und kein SD-Schreibzugriff im Rahmen dieser
 Dokumentationsaktualisierung.
+
+## Nachtrag 2026-10-20 – Doppelbuild mit historischem U-Boot
+
+<!-- NOVENA-DOC-DUAL-BUILD-2026-10-20 -->
+
+- [x] Quellstand einschließlich Kernelpatch 0007 auf foobox und VM102 synchronisiert; Archiv- und Dateiprüfsummen identisch (NOVENA-DUAL-SOURCE-SYNC-29).
+- [x] Historischen U-Boot 2015 auf beiden Rechnern ausgewählt; identische Nix-Image-Derivation nachgewiesen (NOVENA-DUAL-NIX-EVAL-30).
+- [x] Zwei unabhängige Builds in getrennten tmux-Sitzungen gestartet (NOVENA-DUAL-BUILD-START-31).
+- [x] Beide Builds um 09:01 Uhr als laufend bestätigt (NOVENA-DUAL-BUILD-STATUS-32).
+- [ ] Abschlussstatus und Fehlerfreiheit beider Builds anhand der vollständigen Logs prüfen.
+- [ ] Fertige Imagegrößen und SHA256-Prüfsummen vergleichen.
+- [ ] Bei Abweichungen Ursachen untersuchen, ohne unkontrollierte Neubuilds.
+- [ ] Neues NixOS-Image nach gesonderter Freigabe auf SD schreiben und vollständig rückverifizieren.
+- [ ] Vollständigen NixOS-Boot auf der Novena seriell dokumentieren.
+
+Der historische U-Boot 2015 wurde bereits auf realer Novena-Hardware
+erfolgreich gestartet. Diese historische Hardwarevalidierung ist nicht
+mit der noch offenen vollständigen NixOS-Bootvalidierung des neuen
+Images gleichzusetzen.
+
+Während der Doppelbuilds keine Kernel-, U-Boot- oder Imagequellen
+verändern und keine konkurrierenden Builds starten.
+
+## Nachtrag 2026-10-20 – Dual-Build-Reproduzierbarkeit
+
+Referenz: `NOVENA-DUAL-REPRO-2026-10-20`
+
+Abschlussbericht:
+`docs/NOVENA-DUAL-REPRO-2026-10-20.md`
+
+- [x] Zwei vollständige SD-Image-Builds erfolgreich.
+- [x] Byteidentische FAT32-Bootpartition bestätigt.
+- [x] Vollständigen Root-Dateivergleich abgeschlossen.
+- [x] Inhaltsunterschiede auf Coreutils 9.11 und
+      Boost 1.89.0 eingegrenzt.
+- [x] Identische Derivationen und unterschiedliche,
+      jeweils gültige Store-Ausgaben nachgewiesen.
+- [x] Lesende Vergleichsuntersuchung abgeschlossen.
+- [ ] P2: Ursache der nicht bitreproduzierbaren
+      Coreutils-/Boost-Ausgaben untersuchen,
+      ausschließlich nach gesonderter Freigabe.
+- [ ] Vollständige Image-Bitreproduzierbarkeit
+      gegebenenfalls in einem eigenen Auftrag qualifizieren.
+
+Keine erneuten Vergleichsblöcke ohne neue Evidenz.
+Die Novena-Bootqualifikation bleibt eigenständig.
