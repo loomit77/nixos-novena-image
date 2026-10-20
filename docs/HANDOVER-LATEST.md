@@ -1164,3 +1164,67 @@ Der nächste Schritt ist die eindeutige Identifikation
 der Test-SD auf foobox.
 
 Keine weiteren Builds oder Hardwaretests ohne gesonderte Freigabe.
+
+## 2026-10-20 – VM102-Build und Reproduzierbarkeitsstatus
+
+### Drei nachgewiesene Images auf foobox
+
+| Stand | U-Boot | SHA256-Anfang | Hardwarestatus |
+| --- | --- | --- | --- |
+| Referenz 18.10. | 2015.04 | `47483223` | Boot PASS |
+| Älteres Testimage | 2026.07 | `937776db` | Vollständiger Boot nicht nachgewiesen |
+| ALSA/Grow 19.10. | 2015.04 | `1c854d6a` | Noch offen |
+
+Die drei Image-Dateien wurden in NOVENA-VM-REPRO-03
+auf foobox als vorhanden bestätigt.
+
+### VM102
+
+Der unabhängige ARMv7-NixOS-Image-Build endete am
+20.10.2026 um 03:22:49 MESZ mit BUILD_EXIT_STATUS=0.
+
+Image:
+`/nix/store/qw34m98di75dsbwygfhmyapp9rk28fk4-nixos-novena-sd-image.img`
+
+Größe: 2.588.422.144 Byte
+
+SHA256:
+`b1ae43b3ce973377faa92faa5d466a94f3cda4357dacca26e1390a0e67cc7ad9`
+
+Buildquelle: `/home/loomit/novena-cross` (kein Git-Repository).
+Sieben geprüfte Quelldateien sind zwischen VM102 und
+foobox SHA256-identisch, einschließlich `flake.lock`,
+Image-Modul und beider U-Boot-Definitionen.
+
+Die statische Modulkonfiguration setzt den Bootloader-Default
+auf `current-2026`. Der VM-Build enthielt ALSA/Grow.
+Die vollständige Identität aller Build-Eingaben und eine
+bitidentische Reproduktion sind nicht nachgewiesen.
+
+Das VM-Image unterscheidet sich in Größe und SHA256 vom
+älteren modernen Testimage; der Entwicklungsstand ist
+nicht gleichgesetzt. Es unterscheidet sich auch vom
+historischen ALSA/Grow-Image.
+
+### Prüfprotokolle
+
+- NOVENA-VM-REPRO-01: PASS, Build- und Imageidentität.
+- NOVENA-VM-REPRO-02: PASS, tatsächliches VM-Quellverzeichnis.
+- NOVENA-VM-REPRO-03: PASS, sieben Quelldateien identisch;
+  drei Images auf foobox bestätigt.
+- NOVENA-VM-REPRO-04: FAIL, `python3` auf VM102 nicht
+  verfügbar. Lokales Image analysiert, VM-Teil nicht ausgeführt.
+  Kein Hinweis auf einen Build- oder Imagefehler.
+
+### Entscheidung und Fortsetzung
+
+Kein weiterer Build zur Reproduktion alter Entwicklungsstände.
+Beim nächsten neuen Image werden foobox und VM102 mit
+exakt derselben Konfiguration gebaut; danach Vergleich der
+vollständigen Image-Prüfsummen.
+
+Nächster Hardwaretest: ALSA/Grow-Image vom 19.10. mit
+historischem U-Boot 2015.04. Vor jedem SD-Schreibzugriff
+Datenträger eindeutig identifizieren und gesonderte
+Freigabe einholen. Serielle Bootaufzeichnung und ALSA/Grow-
+Qualifikation stehen aus.

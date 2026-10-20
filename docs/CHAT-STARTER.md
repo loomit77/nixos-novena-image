@@ -493,3 +493,37 @@ zurücklesen und auf der Novena booten.
 Den aktuellen Git-Checkpoint und Backupstatus
 aus dem jüngsten Tagesabschlussprotokoll übernehmen.
 Historische Checkpoints bleiben erhalten.
+
+## Fortsetzung 2026-10-20 – Hardwaretest vorbereiten
+
+Auf foobox sind drei vollständige NixOS-Images bestätigt:
+
+1. Historisches U-Boot 2015.04, Hardwareboot PASS:
+   `/nix/store/hs4ygzgcd53hpy5hnxrrgvryw95fk5c8-nixos-novena-sd-image.img`
+   SHA256 `4748322366a17dcfcafa75d4591f60ebc34629d9e4973807ab81a7794117170c`
+
+2. Modernes U-Boot 2026.07, vollständiger Hardwareboot nicht nachgewiesen:
+   `/nix/store/p4fwzdzm8j57xji213vcva4wg5a79hiq-nixos-novena-sd-image.img`
+   SHA256 `937776dbb17f0a870fca22519c20a04845dd530de7db8c0496b3e5d286cc2934`
+
+3. Historisches U-Boot 2015.04 mit ALSA/Grow, noch nicht hardwaregetestet:
+   `/nix/store/wzkx9cn7la3qpwqxp3lvjhlpjgsam24h-nixos-novena-sd-image.img`
+   SHA256 `1c854d6a148bd212aca5ebe7e3705c84bc4f6b0e5ff62c1f4a211cf5b0fd3406`
+
+VM102: ARMv7-Image-Build am 20.10. erfolgreich:
+`/nix/store/qw34m98di75dsbwygfhmyapp9rk28fk4-nixos-novena-sd-image.img`
+SHA256 `b1ae43b3ce973377faa92faa5d466a94f3cda4357dacca26e1390a0e67cc7ad9`
+
+Die sieben geprüften Quelldateien auf foobox und VM102 sind identisch.
+Der VM-Build nutzte nach statischer Konfiguration den Default
+`current-2026`; das Image ist nicht bitidentisch mit den verglichenen
+älteren Images. Ein vollständiger Reproduzierbarkeitsnachweis
+liegt nicht vor. Beim nächsten neuen Image auf beiden Hosts
+exakt dieselbe Konfiguration verwenden.
+
+NOVENA-VM-REPRO-04 scheiterte auf VM102 an fehlendem `python3`;
+das ist kein Image-Fehler.
+
+Nächster Schritt: Novena/serielle Konsole vorbereiten, Test-SD
+eindeutig identifizieren und ausschließlich nach Freigabe das
+ALSA/Grow-Image vom 19.10. schreiben und testen.

@@ -1130,3 +1130,25 @@ Keine Builds, Hardwaretests oder Datenträgeroperationen durchgeführt.
 - [ ] Ergebnisse dokumentieren und qualifizieren.
 
 Kein SD-Schreibvorgang und kein Hardwaretest am 19.10.2026.
+
+## 2026-10-20 – VM-Reproduzierbarkeit und Hardwarevorbereitung
+
+- [x] VM102: vollständiger ARMv7-NixOS-Image-Build erfolgreich.
+- [x] VM102-Image: 2.588.422.144 Byte, SHA256
+  `b1ae43b3ce973377faa92faa5d466a94f3cda4357dacca26e1390a0e67cc7ad9`.
+- [x] Sieben geprüfte Quelldateien zwischen foobox und VM102 SHA256-identisch.
+- [x] Drei vollständige Images auf foobox nachgewiesen:
+  historisch 2015 (Boot PASS), modern 2026.07 (kein vollständiger Boot),
+  historisch 2015 mit ALSA/Grow (Hardwaretest offen).
+- [x] VM-Vergleichsblock 04 ausgewertet: VM-Teil wegen fehlendem
+  `python3` abgebrochen; kein Image- oder Buildfehler.
+- [ ] Reproduzierbarkeit: Beim nächsten Image exakt gleiche
+  Konfiguration auf foobox und VM102 bauen und Images vergleichen.
+  Keine zusätzlichen Builds für die bisherigen Vergleichsstände.
+- [ ] Novena aufbauen und serielle Konsole anschließen.
+- [ ] Test-SD eindeutig identifizieren.
+- [ ] ALSA/Grow-Image vom 19.10. nach Freigabe schreiben,
+  zurücklesen und auf der Novena qualifizieren.
+
+Kein Hardwaretest und kein SD-Schreibzugriff im Rahmen dieser
+Dokumentationsaktualisierung.
