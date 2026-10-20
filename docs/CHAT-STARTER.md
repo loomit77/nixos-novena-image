@@ -527,3 +527,33 @@ das ist kein Image-Fehler.
 Nächster Schritt: Novena/serielle Konsole vorbereiten, Test-SD
 eindeutig identifizieren und ausschließlich nach Freigabe das
 ALSA/Grow-Image vom 19.10. schreiben und testen.
+
+## Aktueller Arbeitsstand 2026-10-20 – Doppelbuild
+
+<!-- NOVENA-DOC-DUAL-BUILD-2026-10-20 -->
+
+Die beiden vollständigen NixOS-SD-Image-Builds auf foobox
+und VM102 wurden erfolgreich abgeschlossen.
+
+Beide verwendeten dieselbe Image-Derivation und erzeugten
+denselben Store-Ausgabepfad. Die Images sind nicht
+byteidentisch. MBR, erste 8 MiB und FAT32-Bootpartition
+sind identisch.
+
+Der vollständige Root-Dateivergleich grenzt die
+Inhaltsunterschiede auf Coreutils 9.11 und Boost 1.89.0 ein.
+Die jeweiligen Derivationen sind identisch; die erzeugten
+Store-Ausgaben unterscheiden sich und sind jeweils gültig.
+Die eigentliche Ursache ist noch nicht nachgewiesen.
+
+Abschlussbericht:
+docs/NOVENA-DUAL-REPRO-2026-10-20.md
+
+Der historische U-Boot 2015 wurde auf der Novena getestet.
+Die vollständige Bootqualifikation des neuen NixOS-Images
+steht weiterhin aus.
+
+Die Novena war zuletzt ausgeschaltet. Kein neuer Build,
+SD-Schreibzugriff oder Hardwaretest ohne gesonderte Freigabe.
+
+Vor Fortsetzung aktuelle TODO, Handover und Git-Status lesen.

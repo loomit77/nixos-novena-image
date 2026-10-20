@@ -1,0 +1,49 @@
+Subject: [PATCH] ASoC: imx-es8328: configure codec MCLK at link init
+
+Read the codec DT clock rate and pass it to the codec DAI before PCM
+startup. Without set_sysclk, ES8328 provider mode has no rate constraints
+and hw_params fails with "No MCLK configured". Clock enable and power
+management remain owned by the codec component. Reject a zero rate.
+
+Prepared against Linux 6.18.49; static qualification only.
+
+---
+--- a/sound/soc/fsl/imx-es8328.c
++++ b/sound/soc/fsl/imx-es8328.c
+@@ -3,6 +3,7 @@
+ // Copyright 2012 Freescale Semiconductor, Inc.
+ // Copyright 2012 Linaro Ltd.
+ 
++#include <linux/clk.h>
+ #include <linux/gpio/consumer.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+@@ -50,7 +51,27 @@
+ {
+ 	struct imx_es8328_data *data = container_of(rtd->card,
+ 					struct imx_es8328_data, card);
+-	int ret = 0;
++	struct snd_soc_dai *codec_dai = snd_soc_rtd_to_codec(rtd, 0);
++	struct clk *mclk;
++	unsigned long mclk_rate;
++	int ret;
++
++	/* The codec component has already enabled its DT-supplied MCLK. */
++	mclk = clk_get(codec_dai->dev, NULL);
++	if (IS_ERR(mclk))
++		return dev_err_probe(data->dev, PTR_ERR(mclk),
++				     "Failed to get codec MCLK\n");
++
++	mclk_rate = clk_get_rate(mclk);
++	clk_put(mclk);
++	if (!mclk_rate)
++		return dev_err_probe(data->dev, -EINVAL,
++				     "Invalid codec MCLK rate\n");
++
++	ret = snd_soc_dai_set_sysclk(codec_dai, 0, mclk_rate, SND_SOC_CLOCK_IN);
++	if (ret)
++		return dev_err_probe(data->dev, ret,
++				     "Failed to configure codec MCLK\n");
+ 
+ 	if (data->jack_gpiod) {
+ 		/* Headphone jack detection */

@@ -44,6 +44,11 @@
       name = "novena-innolux-n133hse-ea1";
       patch = ../kernel/0002-drm-panel-add-innolux-n133hse-ea1.patch;
     }
+
+    {
+      name = "novena-es8328-mclk";
+      patch = ../kernel/0007-asoc-imx-es8328-configure-codec-mclk.patch;
+    }
   ];
 
   hardware.deviceTree.overlays = [

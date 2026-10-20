@@ -1228,3 +1228,51 @@ historischem U-Boot 2015.04. Vor jedem SD-Schreibzugriff
 Datenträger eindeutig identifizieren und gesonderte
 Freigabe einholen. Serielle Bootaufzeichnung und ALSA/Grow-
 Qualifikation stehen aus.
+
+## Nachtrag 2026-10-20 – Abschluss des unabhängigen Doppelbuilds
+
+<!-- NOVENA-DOC-DUAL-BUILD-2026-10-20 -->
+
+Die zuvor dokumentierten laufenden Builds sind abgeschlossen.
+Beide vollständigen ARMv7-NixOS-SD-Image-Builds waren erfolgreich.
+
+Buildhosts:
+- foobox: Nix 2.35.2
+- VM102: Nix 2.31.2
+
+Identischer Store-Ausgabepfad:
+`/nix/store/cd8kj8nr539kkv7xl5zmvz0xss4n95gf-nixos-novena-sd-image.img`
+
+Imagegröße jeweils: 2588422144 Bytes.
+
+Image-SHA256:
+- foobox: 5e4413cba9d284041fe3b1ca42e403e46d1cc53abdadc6c9346c62214a8d961c
+- VM102: 67f7899000584867467c8740e39df46ef67d3320fd06ca69d0607b01c8af528c
+
+MBR, erste 8 MiB und vollständige FAT32-Bootpartition
+sind byteidentisch.
+
+Root-Dateivergleich:
+- foobox: 155047 Einträge
+- VM102: 155045 Einträge
+- Zwei zusätzliche Boost-Shared-Library-Pfade auf foobox
+- Unterschiedliche gemeinsame Dateien: Coreutils-ELF
+  und `/nix-path-registration`
+
+Coreutils- und Boost-Derivationen sind auf beiden Hosts
+byteidentisch. Die jeweiligen Store-Ausgaben besitzen
+unterschiedliche NAR-Hashes, sind jedoch jeweils gültig.
+Die technische Ursache der Nichtreproduzierbarkeit bleibt
+offen und wird nicht ohne neuen Auftrag untersucht.
+
+Verbindlicher Abschlussbericht:
+docs/NOVENA-DUAL-REPRO-2026-10-20.md
+
+Kernelpatch 0007 und seine Einbindung in hardware/novena.nix
+gehören zum untersuchten Image-Stand. Der historische
+U-Boot 2015 wurde bereits auf der echten Novena getestet.
+Die vollständige Bootqualifikation des neuen NixOS-Images
+steht noch aus.
+
+Keine neuen Builds, SD-Schreibzugriffe oder Hardwaretests
+ohne ausdrückliche Freigabe.
