@@ -168,8 +168,8 @@ label-id: 0x2178694e
 unit: sectors
 sector-size: 512
 
-1 : start=$firmwareStart, size=$firmwareSectors, type=c
-2 : start=$rootStart, size=$rootSectors, type=83, bootable
+1 : start=$firmwareStart, size=$firmwareSectors, type=c, bootable
+2 : start=$rootStart, size=$rootSectors, type=83
 EOF
 
       sfdisk $out < partition-table.sfdisk
