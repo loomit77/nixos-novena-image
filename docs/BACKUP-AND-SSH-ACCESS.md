@@ -142,3 +142,31 @@ Primärbeleg: `novena/2026/10/NOVENA-BORG-USB-SOURCES-145-20261021-100549-n6ytCv
 - Backup 140: `borgmatic` PID 20558 und `borg` PID 20582 liefen um 10:05:49 noch (42:01 beziehungsweise 41:30). **Kein Abschlussnachweis.**
 
 **Offen:** USB-Repository- und Borgmatic-Konfigurationspfad durch sichere, auf Pfadwerte beschränkte Auswertung der *tatsächlichen* Skript-Variablen und ihrer Referenzen belegen. Keine weiteren Wiederholungen der reinen Stichwortsuche; keine Backups oder SSH-Verbindungen zu diesem Zweck starten.
+
+## Proxmox-Host: SSH-Zugang
+
+Historisch verifiziert am 19. und 20. Oktober 2026:
+
+- Hostname: `pve`
+- Proxmox-IP: `192.168.178.94`
+- Netzwerkschnittstelle: `vmbr0`
+- Proxmox VE: `9.2.11`
+- SSH-Zugriff von foobox: erfolgreich (`SSH_EXIT_STATUS=0`)
+- SSH-Benutzer: anhand der bisherigen Protokolle noch nicht bestätigt
+- SSH-Schlüssel und besondere Optionen: noch zu bestätigen
+
+Originalprotokolle im Repository `loomit77/project-block-logs`:
+
+- `NOVENA-PROXMOX-01-INVENTORY-20261019-101315-2uKZ7yta.txt`
+- `NOVENA-PROXMOX-02-STORAGE-20261019-101525-KmBNsBAw.txt`
+- `PROXMOX-BORG-VM-CREATE-14-20261020-121928-utIKvveu.txt`
+
+Abgrenzung:
+
+- Proxmox-Host: `192.168.178.94`
+- VM102 (`nixos-base`): `192.168.178.18`
+- VM103 (`borg-backup`): `192.168.178.20`
+
+Die Proxmox-Verbindung wurde historisch nachgewiesen.
+Bei dieser Dokumentationsänderung wurde keine neue
+SSH-Verbindung hergestellt.
