@@ -62,3 +62,39 @@ Der direkte Borg-Aufruf in Block 131 verwendete diese Hostkeydatei nicht; ihn ni
 - Vollständige SSH-Inventur weiterer Hosts (z. B. Proxmox/VM102/L14) separat anhand aktueller Konfiguration und geprüfter Logs ergänzen, nicht aus Erinnerungen erraten.
 - Unabhängige Aufbewahrung und Wiederherstellung der SSH-Schlüssel, Passphrasen und Borg-Recovery-Informationen qualifizieren.
 - VM103 Exitcode 105 bis zur konkreten Ursache untersuchen; danach separat autorisierter Backup- und Restore-Test.
+
+
+## Ergänzung 21.10.2026 – belegte SSH-Ziele, systemd und Backup-Status
+
+Diese Ergänzung hat Vorrang vor den älteren, oben stehenden Statusaussagen, soweit sie denselben Sachverhalt betreffen. Keine geheimen Schlüssel oder Passphrasen enthalten.
+
+### Proxmox / VM102 / VM103: überprüfte Verbindungen
+
+- **NixOS-Build-VM102:** `loomit@192.168.178.18`, Hostname `nixos-base`. SSH-Verbindung am 20.10.2026 in `NOVENA-DUAL-SSH-VERIFY-28` nach Hostkeyprüfung PASS; am 20.10. in `NOVENA-VM102-BUILD-RESULT-44` erneut erreicht. ED25519-Hostfingerabdruck `SHA256:T2Gh++PlrP3SWgO+pYqQkcJlRuv+lKHCUGDLxPNdMDY`. Ein vorheriger Aufruf scheiterte wegen veraltetem RSA-Eintrag in `~/.ssh/known_hosts` (`NOVENA-DUAL-SSH-CONNECT-27`); niemals `StrictHostKeyChecking` abschalten. SSH-Schlüsseldatei und aktuell verwendete Hostkey-Datei für diesen Zugang anhand des erfolgreichen Befehls vor erneuter Verwendung prüfen.
+- **Borg-VM103:** `borgadmin@192.168.178.20`, Hostname `borg-backup`, Debian 13. Erfolgreicher SSH-Login in `PROXMOX-BORG-CLOUD-SSH-39` (20.10.2026). SSH-Identität und dedizierte known-hosts-Datei stehen im obigen VM103-Abschnitt; Fingerabdruck dort ebenfalls dokumentiert.
+- **Proxmox-Host:** SSH-Hostkeyprüfung in `PROXMOX-BORG-CLOUD-SSH-39` PASS. Der exakte, in diesem Protokoll nicht ausgegebene SSH-Benutzer, Host/IP, Hostkey-Fingerprint und verwendete Identity-Datei sind **noch nicht als verifizierter Direktbefehl erfasst**. Diese Werte aus dem erfolgreichen Originalkommando oder der lokalen SSH-Konfiguration ergänzen, nicht aus VM-IP oder Erinnerung ableiten.
+- **Schlüssel auf foobox:** `/home/loomit/.ssh/id_ed25519.pub` hat laut `PROXMOX-BORG-SSH-PRECHECK-15` den Fingerabdruck `SHA256:gucuSswYjvyAIqrHwQLZ7wyEWkGhzXp0hr9WPx6ZeQs`. Das ist der **Client-Public-Key**, kein Server-Hostkey.
+
+### Verifizierter früherer VM103-systemd-Auftrag
+
+Der vorherige Lauf verwendete **eine transiente systemd-Service-Unit** mit dem exakten Namen `novena-borg-vm103-first-backup.service`. Primärbeleg: `NOVENA-BORG-VM103-FIRST-BACKUP-97-20261021-072751-nWuuEppd.txt`, darin `Running as unit: novena-borg-vm103-first-backup.service` und anschließend `active`. Der genaue ursprüngliche `systemd-run`-Befehl ist aus diesem Log **nicht** rekonstruierbar. Nicht mit den distributionsseitigen `borgmatic.service` oder `borgmatic-user.service` verwechseln.
+
+Inventur `NOVENA-BORG-VM103-SYSTEMD-INVENTORY-141` und `NOVENA-BORG-VM103-SYSTEMD-HISTORY-142`: Distributions-Borgmatic-Units inaktiv, Timer deaktiviert, keine aktuell aktive transiente Backup-Unit. Eine abgeschlossene transiente Unit kann aus der Liste verschwinden. Für künftige lange Backups die zuvor geprüfte systemd-Startweise rekonstruieren und über den Runner starten; **keinen zweiten Lauf parallel starten**.
+
+### VM103-Berechtigungsreparatur und aktueller Sicherungslauf
+
+- `NOVENA-BORG-VM103-PERMISSIONS-137` und `NOVENA-BORG-VM103-POLICY-138`: Borgmatic sichert `/home/loomit`, keine Ausschlussmuster. Zwei nicht lesbare Objekte festgestellt.
+- `NOVENA-BORG-VM103-PERMISSION-FIX-139`: gezielte Änderung der Dateimodi bestätigt: `~/.cache/yay/arm-linux-gnueabihf-gcc-stage1/pkg` **111 → 511**, `~/novena-arch/ArchLinuxARM-armv7-latest/usr/lib/dbus-daemon-launch-helper` **110 → 510**. Eigentümer/Gruppen unverändert. Für eventuelle Rücknahme ursprüngliche Modi dokumentiert; nicht unbesehen zurücksetzen.
+- `NOVENA-BORG-VM103-BACKUP-140`: am 21.10.2026 09:21:29 auf foobox über interaktiven Runner gestartet, **nicht über systemd**. Prozessprüfung in `SYSTEMD-INVENTORY-141` zeigt echte `borg create`-Ausführung **ohne `--dry-run`** und SSH zu VM103. `SYSTEMD-HISTORY-142` bestätigt Borg noch aktiv um 09:31. **Abschluss, erfolgreiches Archiv und Restore weiterhin unbestätigt**, bis Abschlussprotokoll und Archivliste geprüft wurden. Den laufenden Auftrag nicht parallel erneut starten.
+
+### Backup-Weg A – USB: ergänzende Identität
+
+`NOVENA-BORG-BACKUP-08B` bestätigt am 18.10.2026 `BORGMATIC_CREATE=PASS`, den Mount-Check und die aus der Konfiguration gelesene Repository-Location, gibt den genauen Pfad jedoch nicht aus. In `SYSTEMD-INVENTORY-141` ist ein eingesteckter SanDisk-Datenträger mit Label `NOVENA_BORG`, Partitions-UUID `851d09dc-4e9b-4d3f-b99b-df4fd1bde0fbc` und Dateisystem-UUID `b9161f3a-5903-4761-936f-42360d13d84e` dokumentiert. Diese Kennungen sind Identifikationshilfen, kein Ersatz für eine Mount-/Repository-Prüfung. **Exakten USB-Repositorypfad und Borgmatic-Konfigurationsdatei noch aus foobox-Konfiguration belegen.**
+
+### Unmittelbar offene Inventur
+
+1. Proxmox: tatsächlichen erfolgreichen SSH-Aufruf einschließlich Benutzer, Ziel und Hostkeydatei **ohne Geheimnisse** verifizieren.
+2. VM102: exakte SSH-Optionen aus erfolgreichem Originalkommando/SSH-Konfiguration prüfen.
+3. USB-Borg: Konfigurationsdatei, tatsächlichen Repositorypfad, Mount und Launcher/Startweise belegen.
+4. VM103: ursprünglichen systemd-run-Aufruf aus der erhaltenen Befehlsdatei/Originalhistorie rekonstruieren; Abschluss und Archiv von Block 140 separat prüfen.
+5. Nach Dokumentationsänderung GitHub/Codeberg-Stand vergleichen und Codeberg synchronisieren; nicht annehmen, dass ein GitHub-Commit automatisch bei Codeberg ankommt.
