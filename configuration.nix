@@ -10,6 +10,8 @@
 
   boot.growPartition = true;
 
+  hardware.graphics.enable = true;
+
   environment.systemPackages = with pkgs; [
     alsa-utils
   ];
