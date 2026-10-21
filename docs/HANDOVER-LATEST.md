@@ -1369,3 +1369,75 @@ Keine Port-Resets, keine USB-Stromversorgungsänderung, kein unbegründetes
 `disable-over-current`. Wiederaufnahme nur mit neuer unterscheidungskräftiger
 Evidenz; keine neue Aktionsfreigabe. Fehlende CODA/VPU-Firmware separat offen.
 Die übrigen datierten Projektstände und Arbeitsstränge bleiben maßgeblich.
+
+<!-- NOVENA-DAYCLOSE-20261021-239 -->
+## 2026-10-21 – Image 2 und Übergabe für den 22.10.
+
+- Image 1: Kernelpatch 0007 und U-Boot 2026.07.
+  Realer Novena-Test durchgeführt.
+  Manueller Start von `boot.scr` auf `mmc 1:1` erfolgreich;
+  Linux und NixOS erreichten die serielle Login-Anzeige.
+  Dies ist kein Nachweis für automatischen Boot.
+- U-Boot-Diagnose Block 190: Die automatische
+  Partitionssuche berücksichtigt MBR-Bootmarkierungen.
+- Block 193: Korrektur im Image-Builder:
+  FAT32/FIRMWARE (p1) bootable, ext4/NIXOS_SD (p2)
+  nicht bootable.
+- Image 2: vollständiger foobox-Build Block 195 PASS,
+  Git-Quellstand `6fce37e5498fcbc1c3bf78685dd5baf7d900f346`.
+- Image 2:
+  `/nix/store/n7bm1lbqbhxk62h1n45k0xwis9nzk091-nixos-novena-sd-image.img`
+- Imagegröße: `2588422144` Bytes.
+- SHA256:
+  `144d71c37536d09e5e47d41eb270fa131bdd154244fdd2d21a37a4b0d958777d`
+- Block 237: Image vorhanden, Größe und SHA256
+  stimmen, MBR-Signatur und Partitionseinträge PASS.
+  p1 Bootflag 0x80, p2 Bootflag 0x00.
+- Block 238: Tagesabschluss-Vorprüfung PASS;
+  Git-Worktree sauber, Workflow-Skripte vorhanden.
+- Mesa-Commit `1cefe299` liegt nach dem Image-2-
+  Quellstand. Mesa ist damit nicht als Bestandteil
+  dieses Images nachgewiesen.
+- Automatischer Hardwareboot von Image 2:
+  NICHT GETESTET.
+- Hardwaretest auf 2026-10-22 verschoben.
+  Vorher SD-Zielgerät eindeutig bestimmen.
+  Schreiben nur nach gesonderter Freigabe.
+- Kein neuer Build und keine weiteren Patches
+  vor diesem Hardwaretest.
+- Borg: reguläres Daily-Close-Backup und separates
+  VM103-Backup sind getrennt nachzuweisen.
+  VM103 war zuvor mit Exitcode 105 fehlgeschlagen;
+  kein erfolgreicher neuer Lauf wird hier behauptet.
+- Der Dokumentationsabschluss ist nicht selbst
+  der Nachweis einer Borg-Sicherung.
+
+## Aktuelle Fortsetzung – 2026-10-22
+
+Wir setzen das universelle Novena-NixOS-SD-Image-
+Projekt fort.
+
+Der letzte geprüfte Image-Kandidat ist Image 2 vom
+21.10.2026 mit korrigierter MBR-Bootmarkierung.
+Build 195 und Integritätsprüfung 237: PASS.
+
+Image:
+`/nix/store/n7bm1lbqbhxk62h1n45k0xwis9nzk091-nixos-novena-sd-image.img`
+
+SHA256:
+`144d71c37536d09e5e47d41eb270fa131bdd154244fdd2d21a37a4b0d958777d`
+
+Image 1 wurde bereits real getestet. Manueller
+Boot von `boot.scr` auf `mmc 1:1` erreichte NixOS.
+Image 2 wurde noch nicht hardwareseitig getestet.
+
+Nächster Auftrag:
+1. Tagesabschluss- und Borg-Ergebnisse vom
+   21.10. anhand der Originalprotokolle prüfen.
+2. Aktuellen Git- und Dokumentationsstand prüfen.
+3. SD-Zielgerät eindeutig identifizieren.
+4. Nach ausdrücklicher Freigabe Image 2 schreiben.
+5. Automatischen Boot über serielle Konsole testen.
+
+Keine Builds, Patches, Git-Änderungen oder
+Hardwarezugriffe ohne Freigabe.

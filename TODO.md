@@ -1288,3 +1288,17 @@ historischer Dienstlauf und Over-current-Ursache nicht bewiesen.
 Keine routinemäßige Fortsetzung: keine Port-Resets, Stromversorgungsänderung
 oder unbegründete `disable-over-current`-Ergänzung. Wiederaufnahme der
 USB-Ursachenanalyse nur bei neuer unterscheidungskräftiger Evidenz.
+
+<!-- NOVENA-DAYCLOSE-20261021-239 -->
+## 2026-10-22 – Priorität: Image 2 testen
+
+- [x] Image 1 real testen; manueller NixOS-Boot.
+- [x] Bootflag-Ursache untersuchen.
+- [x] Korrigiertes Image 2 vollständig bauen.
+- [x] Image 2 SHA256/MBR prüfen (Block 237).
+- [ ] Tagesabschluss und beide Borg-Backups
+      anhand ihrer Originalprotokolle bewerten.
+- [ ] SD-Zielgerät auf foobox identifizieren.
+- [ ] Nach Freigabe Image 2 auf SD schreiben.
+- [ ] Automatischen Boot auf Novena testen.
+- [ ] Ergebnis dokumentieren.

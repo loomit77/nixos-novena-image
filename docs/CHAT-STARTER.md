@@ -634,3 +634,34 @@ und den aktuellen Git-Zustand prüfen.
 
 Dieser Nachtrag hat Vorrang vor älteren, ausdrücklich
 als historisch gekennzeichneten Statusangaben.
+
+<!-- NOVENA-DAYCLOSE-20261021-239 -->
+## Aktuelle Fortsetzung – 2026-10-22
+
+Wir setzen das universelle Novena-NixOS-SD-Image-
+Projekt fort.
+
+Der letzte geprüfte Image-Kandidat ist Image 2 vom
+21.10.2026 mit korrigierter MBR-Bootmarkierung.
+Build 195 und Integritätsprüfung 237: PASS.
+
+Image:
+`/nix/store/n7bm1lbqbhxk62h1n45k0xwis9nzk091-nixos-novena-sd-image.img`
+
+SHA256:
+`144d71c37536d09e5e47d41eb270fa131bdd154244fdd2d21a37a4b0d958777d`
+
+Image 1 wurde bereits real getestet. Manueller
+Boot von `boot.scr` auf `mmc 1:1` erreichte NixOS.
+Image 2 wurde noch nicht hardwareseitig getestet.
+
+Nächster Auftrag:
+1. Tagesabschluss- und Borg-Ergebnisse vom
+   21.10. anhand der Originalprotokolle prüfen.
+2. Aktuellen Git- und Dokumentationsstand prüfen.
+3. SD-Zielgerät eindeutig identifizieren.
+4. Nach ausdrücklicher Freigabe Image 2 schreiben.
+5. Automatischen Boot über serielle Konsole testen.
+
+Keine Builds, Patches, Git-Änderungen oder
+Hardwarezugriffe ohne Freigabe.

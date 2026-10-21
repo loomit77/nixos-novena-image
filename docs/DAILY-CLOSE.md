@@ -1091,3 +1091,45 @@ Die TXT-Protokolle und SHA256-Sidecars liegen im privaten
 GitHub-Repository `loomit77/project-block-logs` unter
 `novena/2026/10/`. Wrapper-PASS ist kein Beweis
 für einen fachlich erfolgreichen Borg-Lauf.
+
+<!-- NOVENA-DAYCLOSE-20261021-239 -->
+## 2026-10-21 – Image 2 und Übergabe für den 22.10.
+
+- Image 1: Kernelpatch 0007 und U-Boot 2026.07.
+  Realer Novena-Test durchgeführt.
+  Manueller Start von `boot.scr` auf `mmc 1:1` erfolgreich;
+  Linux und NixOS erreichten die serielle Login-Anzeige.
+  Dies ist kein Nachweis für automatischen Boot.
+- U-Boot-Diagnose Block 190: Die automatische
+  Partitionssuche berücksichtigt MBR-Bootmarkierungen.
+- Block 193: Korrektur im Image-Builder:
+  FAT32/FIRMWARE (p1) bootable, ext4/NIXOS_SD (p2)
+  nicht bootable.
+- Image 2: vollständiger foobox-Build Block 195 PASS,
+  Git-Quellstand `6fce37e5498fcbc1c3bf78685dd5baf7d900f346`.
+- Image 2:
+  `/nix/store/n7bm1lbqbhxk62h1n45k0xwis9nzk091-nixos-novena-sd-image.img`
+- Imagegröße: `2588422144` Bytes.
+- SHA256:
+  `144d71c37536d09e5e47d41eb270fa131bdd154244fdd2d21a37a4b0d958777d`
+- Block 237: Image vorhanden, Größe und SHA256
+  stimmen, MBR-Signatur und Partitionseinträge PASS.
+  p1 Bootflag 0x80, p2 Bootflag 0x00.
+- Block 238: Tagesabschluss-Vorprüfung PASS;
+  Git-Worktree sauber, Workflow-Skripte vorhanden.
+- Mesa-Commit `1cefe299` liegt nach dem Image-2-
+  Quellstand. Mesa ist damit nicht als Bestandteil
+  dieses Images nachgewiesen.
+- Automatischer Hardwareboot von Image 2:
+  NICHT GETESTET.
+- Hardwaretest auf 2026-10-22 verschoben.
+  Vorher SD-Zielgerät eindeutig bestimmen.
+  Schreiben nur nach gesonderter Freigabe.
+- Kein neuer Build und keine weiteren Patches
+  vor diesem Hardwaretest.
+- Borg: reguläres Daily-Close-Backup und separates
+  VM103-Backup sind getrennt nachzuweisen.
+  VM103 war zuvor mit Exitcode 105 fehlgeschlagen;
+  kein erfolgreicher neuer Lauf wird hier behauptet.
+- Der Dokumentationsabschluss ist nicht selbst
+  der Nachweis einer Borg-Sicherung.
