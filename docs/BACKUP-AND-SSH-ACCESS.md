@@ -114,3 +114,17 @@ Primärbeleg: privates GitHub-Protokoll `novena/2026/10/NOVENA-BORG-ACCESS-INVEN
 - Um 09:56:10 liefen `borgmatic` (PID 20558) und `borg` (PID 20582) aus Block 140 noch, ca. 32 Minuten nach Start. **Kein bestätigter Archivabschluss**.
 
 **Sicherer Folgeweg:** Bestehende originale `*.command.bash`-Dateien des erfolgreichen USB-Backups und des systemd-Starts gezielt *lesend* auf Startmechanismus und Konfigurationspfad prüfen, mit Geheimnis-Redaktion; Proxmox-Verbindungsparameter nur aus verifizierten Befehlen übernehmen. Während Block 140 läuft, keinen zweiten Borg-Lauf starten. GitHub-Änderung bedeutet keine automatische Codeberg-Synchronisation.
+
+
+## Quelleninventur 21.10.2026, 10:03 – ACCESS-SOURCES-144
+
+Primärbeleg: `novena/2026/10/NOVENA-BORG-ACCESS-SOURCES-144-20261021-100350-rn4OGGbf.txt` im privaten Protokollrepository; `BLOCK_RESULT=PASS`, `FILES_MODIFIED=NO`, `GIT_CHANGED=NO`.
+
+- Erfolgreicher USB-Backup-Befehl lokal verfügbar: `/home/loomit/novena-backups/block-logs/NOVENA-BORG-BACKUP-08B.command.bash` (99 Zeilen, Borgmatic-/Repository-/Mount-/Konfigurationsreferenzen). Weitere relevante Befehlsdateien: `NOVENA-BORG-BACKUP-08A.command.bash` (54 Zeilen), `NOVENA-BORG-REPO-PATH-01.command.bash` (82 Zeilen), `NOVENA-BORG-USB-CHECK-02.command.bash` (78 Zeilen). **Konkreter USB-Repositorypfad und Konfigurationsort wurden im redigierten Protokoll nicht ausgegeben**; aus diesen Dateien noch gezielt extrahieren, ohne Geheimnisse zu veröffentlichen.
+- VM103-Skripte lesbar: `/home/loomit/.config/novena-borg/run-vm103-backup.bash` (75 Zeilen, Preflight und Borgmatic), `/home/loomit/.config/novena-borg/execute-vm103-backup.bash` (37 Zeilen, Borg create/Borgmatic). **Inhalte und genaue Aufrufkette noch nicht geprüft**; kein zusätzlicher Lauf.
+- Die erwartete Datei `NOVENA-BORG-VM103-FIRST-BACKUP-97.command.bash` fehlt unter `~/novena-backups/block-logs/`. Der Unit-Name `novena-borg-vm103-first-backup.service` bleibt dennoch aus dem hochgeladenen Originalprotokoll 97 belegt; ursprünglicher Startbefehl offen.
+- Kein `PROXMOX-*.command.bash` im untersuchten Logverzeichnis gefunden. Daraus folgt **nicht**, dass es keinen Proxmox-SSH-Zugang gibt.
+- USB-Borgmatic-YAML wurde in den zwei durchsuchten Verzeichnisbäumen nicht gefunden. Das ist keine vollständige Dateisystemsuche.
+- Borgmatic PID 20558 und Borg PID 20582 aus Block 140 liefen um 10:03:50 weiter; **Archivabschluss weiterhin offen**.
+
+Nächste Dokumentationsmaßnahme: feste, eng begrenzte und redigierte Auswertung der vier vorhandenen USB-Befehlsdateien sowie gegebenenfalls Suche nach dem systemd-Startaufruf; keine weitere allgemeine Vollinventur und kein paralleler Backup-Start.
