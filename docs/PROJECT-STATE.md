@@ -7261,3 +7261,39 @@ Die TXT-Protokolle und SHA256-Sidecars liegen im privaten
 GitHub-Repository `loomit77/project-block-logs` unter
 `novena/2026/10/`. Wrapper-PASS ist kein Beweis
 für einen fachlich erfolgreichen Borg-Lauf.
+
+
+## 2026-10-21 – NOVENA-DDR-IMPLEMENT-168: historischer DDR-Quellport
+
+`IMPLEMENTATION_RESULT=PASS_SOURCE_ONLY`: boardlokale Gesamtsequenz aus
+`bd5c7d3290bb94bf8af17760c321df67d2641343` für den gepinnten U-Boot 2026.07
+integriert. Aktiv sind 0001–0008 und der neue Patch 0014; 0009–0013 bleiben
+unverändert erhalten, aber inaktiv. SPD/CRC/Fallback, Integer-Timing,
+historischer IOMUX/MMDC, WL und vollständiges DQS-Training sind zusammen
+übertragen. Historische PHY1-/MAPSR-/Polling-Auffälligkeiten sind bewusst
+erhalten, keine experimentellen Korrekturen. Moderner CRT- und externer
+USDHC2-/Proper-mmc1-Vertrag bleiben erhalten.
+
+[Bericht mit Herkunft, Abweichungen und Prüfgrenzen](NOVENA-DDR-IMPLEMENT-168.md).
+Nur statischer Text-/Quellvergleich, kein Build, keine Nix-Evaluierung, kein
+Hardwaretest, kein Medienzugriff, keine Git-Schreiboperation. SPL-Größe,
+Stack, Linkbarkeit, reale SPD-Wahl, DDR-Funktion und vollständiger externer
+Boot bleiben für diesen neuen Port offen. Alte Hardwareergebnisse und die
+offene DDR-Root-Cause werden nicht umgedeutet.
+
+## DDR-Port: Build- und Artefaktstand 2026-10-21
+
+- NOVENA-DDR-IMPLEMENT-168: historischer DDR-Initialisierungspfad
+  als Board-lokaler Patch 0014 für U-Boot 2026.07 eingebunden.
+- NOVENA-DDR-BUILD-174: vollständiges NixOS-SD-Image erfolgreich gebaut.
+- NOVENA-DDR-ARTIFACT-CHECK-175: SPL bytegenau im Image bestätigt;
+  Partitionstabelle, MBR und U-Boot-Proper geprüft.
+- NOVENA-DDR-SPL-MEMORY-176: IVT/Boot Data konsistent;
+  ROM-Ladebereich 0x00907000–0x00914000 innerhalb OCRAM.
+- SPL: 52224 Bytes; Image: 2588422144 Bytes.
+- Image-SHA256:
+  f6002d0688cb3b81447943485ebcf4f8ff19facad52038fa7f0d2e6a1fbc8b43
+- SPL-ELF/Map nicht im installierten Paket vorhanden:
+  vollständige Stack-/Heap-/BSS-Belegung nicht abschließend verifiziert.
+- Hardware-Boot und DDR-Initialisierung auf echter Novena nicht getestet.
+- Keine SD-Karte beschrieben; Hardwaretest nur nach gesonderter Freigabe.

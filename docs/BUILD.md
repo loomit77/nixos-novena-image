@@ -270,3 +270,24 @@ Diese Verzeichnisse sind Arbeitskopien und werden nicht versioniert.
 
 Dauerhaft relevante Kerneländerungen müssen als Patchdateien unter
 `kernel/` vorliegen.
+
+
+## 2026-10-21 – NOVENA-DDR-IMPLEMENT-168: neuer Quellstand, noch ungebaut
+
+Der moderne Baustein `boot/u-boot/default.nix` verwendet weiterhin den
+bestehenden 2026.07-Pin; aktive Projektpatches jetzt 0001–0008 → 0014.
+0009–0013 bleiben unveränderte inaktive historische Experimente. 0014
+bindet `ddr3.o` nur unter `CONFIG_XPL_BUILD` ein, aktiviert `DDR_SPD` und
+deaktiviert die allgemeinen `MX6_DDRCAL`-Routinen. Der historische
+boardlokale Pfad ersetzt den bisherigen DDR-Block vollständig.
+
+Es wurde kein Build und keine Nix-Evaluierung ausgeführt. Bei einem später
+separat freizugebenden vollständigen Image-Build die neue reale Patchphase,
+Kconfig, SPL-ELF/Map/Symbole, OCRAM-/Stack-/BSS-/Heap-Abstände, 64-KiB-Limit
+und IVT-/ROM-Ladebereich prüfen. SPL und `u-boot-dtb.img` müssen aus
+demselben Paket stammen. Alter LOCALVERSION-Text ist kein Portnachweis;
+Patch-, ELF- und Imagehash erfassen. Diagnoseausgaben von 0004–0008 bleiben
+aktiv; alte WL-/DQS-WAIT-Bitmaps aus 0009/0010 gelten hier nicht.
+
+[Provenienz, Quellprüfungen und vollständige spätere Buildkriterien](NOVENA-DDR-IMPLEMENT-168.md#j-anforderungen-an-einen-später-separat-freizugebenden-build).
+`IMPLEMENTATION_RESULT=PASS_SOURCE_ONLY`, keine Build- oder Bootqualifikation.

@@ -2001,3 +2001,27 @@ NOVENA-JESSIE-48 und NOVENA-NIXOS-81 wurden in diesem Auftrag nicht erneut
 geprüft; sie liegen nicht im Repository vor. Keine neue Hardwarequalifikation.
 Der Beschluss erteilt keine Build-, Nix-Evaluierungs-, Medien-, Hardware-,
 Netzwerk- oder Git-Schreibfreigabe.
+
+
+## 2026-10-21 – NOVENA-DDR-IMPLEMENT-168: quellentreue DDR-Reproduktion
+
+Auf ausdrücklichen Implementierungsauftrag wird die zusammenhängende
+Novena-DDR-Sequenz aus `bd5c7d3` boardlokal als Patch 0014 integriert.
+0001–0008 bleiben aktiv; 0009–0013 werden ausschließlich aus der aktiven
+Nix-Liste genommen und als historische Versuche bytegleich erhalten.
+Keine Änderung der allgemeinen i.MX6-DDR-Datei, keine zweite DDR-Sequenz.
+
+Bewusst erhalten: PHY1-MDMISC-Restore, fehlender WL-/PHY0-Latenzrestore,
+historische MAPSR-Masken, WL-Softfail ohne moderne Lane-Korrektur,
+Gatingkorrektur `0xc0`, beide aktiven Dummy Writes, Integer-Timingrechnung,
+Chipbreite als IOMUX-Argument und unbegrenztes Polling. Das bestätigt
+weder deren Hardwareeignung noch eine Root Cause. Notwendige Anpassungen:
+moderne Includes/Typen und CRT-Rückkehr, explizite I2C1-Buswahl samt
+Setupfehler-Fallback; bestehender externer USDHC2-/mmc1-Vertrag bleibt.
+
+HISTORY-167R hat gegenüber früheren historischen Zwischeninterpretationen
+Vorrang: bewusst begrenzte Mainline-Aufnahme, kein behaupteter SPD-Ausbau
+2016. Historische Mainline-Fremderfolge qualifizieren nicht den neuen Port.
+[Entscheidungsdetails und Abweichungsliste](NOVENA-DDR-IMPLEMENT-168.md).
+Abnahme ausschließlich `PASS_SOURCE_ONLY`; Builds, Medienaktionen und
+Hardwaretests bleiben getrennte, hier nicht erteilte Freigaben.

@@ -25,11 +25,9 @@ pkgs.buildUBoot {
     ./0006-novena-diag-brk-p0-p1.patch
     ./0007-novena-diag-brk-q1-q2.patch
     ./0008-novena-diag-control-c0-c2.patch
-    ./0009-novena-diag-write-level-status.patch
-    ./0010-novena-diag-dqs-status.patch
-    ./0011-novena-spl-disable-bank-interleaving.patch
-    ./0012-novena-ddr-read-specific-dummy-write.patch
-    ./0013-novena-spl-rtt-nom-rzq2.patch
+    # 0009-0013 remain historical experiments, superseded by the complete
+    # board-local DDR sequence. See docs/NOVENA-DDR-IMPLEMENT-168.md.
+    ./0014-novena-historical-ddr-init.patch
   ];
 
   extraConfig = ''

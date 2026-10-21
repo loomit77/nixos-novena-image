@@ -1,0 +1,1770 @@
+Subject: [PATCH] novena: reproduce bd5c7d3 DDR sequence board locally
+
+NOVENA-DDR-IMPLEMENT-168. Apply after project patches 0001-0008.
+Supersedes active DDR experiments 0009-0013; their files remain preserved.
+Historical source: xobs/u-boot-novena bd5c7d3290bb94bf8af17760c321df67d2641343.
+Target: ece349ade2973e220f524ce59e59711cc919263f (2026.07).
+See docs/NOVENA-DDR-IMPLEMENT-168.md for provenance and deliberate quirks.
+Source-only integration: no build or hardware qualification.
+
+diff --git a/board/kosagi/novena/Makefile b/board/kosagi/novena/Makefile
+--- a/board/kosagi/novena/Makefile
++++ b/board/kosagi/novena/Makefile
+@@ -3,7 +3,7 @@
+ # Copyright (C) 2014 Marek Vasut <marex@denx.de>
+ 
+ ifdef CONFIG_XPL_BUILD
+-obj-y	:= novena_spl.o
++obj-y	:= novena_spl.o ddr3.o
+ else
+ obj-y	:= novena.o
+ obj-$(CONFIG_VIDEO_IPUV3)	+= video.o
+diff --git a/board/kosagi/novena/ddr3.c b/board/kosagi/novena/ddr3.c
+new file mode 100644
+--- /dev/null
++++ b/board/kosagi/novena/ddr3.c
+@@ -0,0 +1,1521 @@
++/*
++ * Copyright (C) 2010-2011 Freescale Semiconductor, Inc.
++ *
++ * See file CREDITS for list of people who contributed to this
++ * project.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 of
++ * the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
++ * MA 02111-1307 USA
++ */
++#include <config.h>
++#include <stdio.h>
++#include <linux/types.h>
++#include <linux/kernel.h>
++#include <linux/string.h>
++#include <linux/delay.h>
++#include <asm/arch/imx-regs.h>
++#include <asm/arch/iomux.h>
++#include <asm/arch/mx6-ddr.h>
++#include <asm/arch/mx6q-ddr.h>
++#include <asm/arch/sys_proto.h>
++#include <asm/io.h>
++#include <i2c.h>
++#include <ddr_spd.h>
++#include <hang.h>
++#include <log.h>
++#include "spd.h"
++
++#if !defined(CONFIG_MX6Q) || !defined(CONFIG_SPL_I2C)
++#error "Historical Novena DDR requires MX6Q and SPL I2C"
++#endif
++#define CONFIG_PERFORM_RAM_TEST
++
++
++#define MPDGCTRL0_PHY0 0x021b083c
++#define MPDGCTRL1_PHY0 0x021b0840
++#define MPDGCTRL0_PHY1 0x021b483c
++#define MPDGCTRL1_PHY1 0x021b4840
++#define MPRDDLCTL_PHY0 0x021b0848
++#define MPRDDLCTL_PHY1 0x021b4848
++#define MPWRDLCTL_PHY0 0x021b0850
++#define MPWRDLCTL_PHY1 0x021b4850
++
++#define MDPDC 0x0004
++#define MDCFG0 0x000C
++#define MDCFG1 0x0010
++#define MDCFG2 0x0014
++#define MAPSR 0x0404
++#define MDREF 0x0020
++#define MDASP 0x0040
++#define MPZQHWCTRL 0x0800
++#define MDSCR 0x001C
++#define MPWLGCR 0x0808
++#define MPWLDECTRL0 0x080c
++#define MPWLDECTRL1 0x0810
++#define MDCTL 0x0000
++#define MDMISC 0x0018
++#define MPPDCMPR1 0x088C
++#define MPSWDAR 0x0894
++#define MPRDDLCTL 0x0848
++#define MPMUR 0x08B8
++#define MPDGCTRL0 0x083C
++#define MPDGHWST0 0x087C
++#define MPDGHWST1 0x0880
++#define MPDGHWST2 0x0884
++#define MPDGHWST3 0x0888
++#define MPDGCTRL1 0x0840
++#define MPRDDLHWCTL 0x0860
++#define MPWRDLCTL 0x0850
++#define MPWRDLHWCTL 0x0864
++
++#define GET_BIT(n,x) ( ( (x) >> (n) ) & 1 )
++
++static inline void mmdcp0_setbit(uint32_t bit, uint32_t offset)
++{
++	*((volatile uint32_t *)(MMDC_P0_BASE_ADDR + offset)) |= (1 << bit);
++}
++
++static inline void mmdcp1_setbit(uint32_t bit, uint32_t offset)
++{
++	*((volatile uint32_t *)(MMDC_P1_BASE_ADDR + offset)) |= (1 << bit);
++}
++
++static inline void mmdcp0_clrbit(uint32_t bit, uint32_t offset)
++{
++	*((volatile uint32_t *)(MMDC_P0_BASE_ADDR + offset)) &= ~(1 << bit);
++}
++
++static inline uint32_t read_mmdcp0(uint32_t offset)
++{
++	return readl(MMDC_P0_BASE_ADDR + offset);
++}
++
++static inline uint32_t read_mmdcp1(uint32_t offset)
++{
++	return readl(MMDC_P1_BASE_ADDR + offset);
++}
++
++static inline void write_mmdcp0(uint32_t value, uint32_t offset)
++{
++	writel(value, MMDC_P0_BASE_ADDR + offset);
++}
++
++static inline void write_mmdcp1(uint32_t value, uint32_t offset)
++{
++	writel(value, MMDC_P1_BASE_ADDR + offset);
++}
++
++static void dram_fatal(uint8_t arg)
++{
++	printf("Fatal DDR error 0x%02x\r\n", arg);
++	while(1);
++}
++
++#ifdef CONFIG_PERFORM_RAM_TEST
++static int write_random_data(int bank)
++{
++	ulong	addr, writeval, count, feedback, sum1;
++	int	size;
++	ulong	base_address = 0x10000000;
++
++	if (bank == 0)
++		addr = base_address;
++	else
++		addr = base_address + 0x90000000;
++
++	/* Get the value to write.  */
++	writeval = 0x0;
++
++	count = 0x20000;
++	size = 2;
++	sum1 = 0;
++
++	debug("16-bit writes @ 0x%08lx - 0x%08lx / %u: ",
++		addr, addr + (count * sizeof(addr)*size), sizeof(addr) * size);
++
++	while (count-- > 0) {
++		feedback = (GET_BIT(14, writeval) == GET_BIT(13, writeval));
++		writeval = (writeval << 1) + feedback;
++		writeval &= 0x7FFF;
++		*((ushort  *)addr) = (ushort )writeval;
++		sum1 += (ushort )writeval;
++		addr += size;
++	}
++	debug("checksum: %08lx\n", sum1);
++	return 0;
++}
++
++static int read_random_data(int bank)
++{
++	ulong	addr, writeval, count, feedback, sum1, sum2;
++	int	size;
++	ulong	base_address = 0x10000000;
++
++	/* Address is specified since argc > 1 */
++	if (bank == 0)
++		addr = base_address;
++	else
++		addr = base_address + 0x90000000;
++
++	/* Get the value to write.  */
++	writeval = 0x0;
++	size = 2;
++
++	sum1 = 0;
++	sum2 = 0;
++	count = 0x20000;
++	feedback = 0;
++
++	debug("16-bit reads @ 0x%08lx - 0x%08lx / %u: ",
++		addr, addr + (count * sizeof(addr)*size), sizeof(addr) * size);
++
++	while (count-- > 0) {
++		feedback = (GET_BIT(14, writeval) == GET_BIT(13, writeval));
++		writeval = (writeval << 1) + feedback;
++		writeval &= 0x7FFF;
++		sum1 += (ushort )writeval;
++		sum2 += *((ushort  *)addr);
++		addr += size;
++	}
++	debug("computed: %08lx, readback: %08lx\n", sum1, sum2);
++	return sum1 != sum2;
++}
++#endif /* CONFNIG_PERFORM_RAM_TEST */
++
++static void reset_read_data_fifos(void)
++{
++	 /* Read data FIFOs reset1.  */
++	mmdcp0_setbit(31, MPDGCTRL0);
++	while (read_mmdcp0(MPDGCTRL0) & 0x80000000)
++		debug("1");
++
++	/* Read data FIFOs reset2 */
++	mmdcp0_setbit(31, MPDGCTRL0);
++	while (read_mmdcp0(MPDGCTRL0) & 0x80000000)
++		debug("2");
++}
++
++static void precharge_all(int cs0_enable, int cs1_enable)
++{
++	/*
++	 * Issue the Precharge-All command to the DDR device for both
++	 * chip selects.  Note, CON_REQ bit should also remain set.
++	 * If only using one chip select, then precharge only the desired
++	 * chip select.
++	 */
++	if (cs0_enable == 1) { /* CS0 */
++		write_mmdcp0(0x04008050, MDSCR);
++		while (!(read_mmdcp0(MDSCR) & 0x4000))
++			debug("x");
++	}
++
++	if (cs1_enable == 1) { /* CS1 */
++		write_mmdcp0(0x04008058, MDSCR);
++		while (!(read_mmdcp0(MDSCR) & 0x4000))
++			debug("y");
++	}
++}
++
++static void force_delay_measurement(int bus_size)
++{
++	write_mmdcp0(0x800, MPMUR);
++	if (bus_size == 0x2)
++		write_mmdcp1(0x800, MPMUR);
++}
++
++static void modify_dg_result(u32 reg_st0, u32 reg_st1, u32 reg_ctrl)
++{
++	u32 dg_tmp_val, dg_dl_abs_offset, dg_hc_del, val_ctrl;
++
++	/*
++	 * DQS gating absolute offset should be modified from reflecting
++	 *(HW_DG_LOWx + HW_DG_UPx)/2 to reflecting (HW_DG_UPx - 0x80)
++	 */
++
++	val_ctrl = readl(reg_ctrl);
++	val_ctrl &= 0xf0000000;
++
++	dg_tmp_val = ((readl(reg_st0) & 0x07ff0000) >> 16) - 0xc0;
++	dg_dl_abs_offset = dg_tmp_val & 0x7f;
++	dg_hc_del = (dg_tmp_val & 0x780) << 1;
++
++	val_ctrl |= dg_dl_abs_offset + dg_hc_del;
++
++	dg_tmp_val = ((readl(reg_st1) & 0x07ff0000) >> 16) - 0xc0;
++	dg_dl_abs_offset = dg_tmp_val & 0x7f;
++	dg_hc_del = (dg_tmp_val & 0x780) << 1;
++
++	val_ctrl |= (dg_dl_abs_offset + dg_hc_del) << 16;
++
++	writel(val_ctrl, reg_ctrl);
++}
++
++static int do_write_level_calibration(void)
++{
++	int esdmisc_val, zq_val;
++	int errors = 0;
++	int ldectrl[4];
++	uint32_t ddr_mr1 = 0x4;
++
++	/*
++	 * Stash old values in case calibration fails,
++	 * we need to restore them
++	 */
++	ldectrl[0] = read_mmdcp0(MPWLDECTRL0);
++	ldectrl[1] = read_mmdcp0(MPWLDECTRL1);
++	ldectrl[2] = read_mmdcp1(MPWLDECTRL0);
++	ldectrl[3] = read_mmdcp1(MPWLDECTRL1);
++
++	/* disable DDR logic power down timer */
++	write_mmdcp0(read_mmdcp0(MDPDC) & 0xffff00ff, MDPDC);
++
++	/* disable Adopt power down timer */
++	write_mmdcp0(read_mmdcp0(MAPSR) | 0x1, MAPSR);
++
++	debug("Start write leveling calibration");
++
++	/*
++	 * 2. disable auto refresh and ZQ calibration
++	 * before proceeding with Write Leveling calibration
++	 */
++	esdmisc_val = read_mmdcp0(MDREF);
++	write_mmdcp0(0x0000C000, MDREF);
++	zq_val = read_mmdcp0(MPZQHWCTRL);
++	write_mmdcp0(zq_val & ~(0x3), MPZQHWCTRL);
++
++	/* 3. increase walat and ralat to maximum */
++	mmdcp0_setbit(6, MDMISC); //set RALAT to max
++	mmdcp0_setbit(7, MDMISC);
++	mmdcp0_setbit(8, MDMISC);
++	mmdcp0_setbit(16, MDMISC); //set WALAT to max
++	mmdcp0_setbit(17, MDMISC);
++
++	mmdcp1_setbit(6, MDMISC); //set RALAT to max
++	mmdcp1_setbit(7, MDMISC);
++	mmdcp1_setbit(8, MDMISC);
++	mmdcp1_setbit(16, MDMISC); //set WALAT to max
++	mmdcp1_setbit(17, MDMISC);
++
++	/*
++	 * 4 & 5. Configure the external DDR device to enter write-leveling
++	 * mode through Load Mode Register command.
++	 * Register setting:
++	 * Bits[31:16] MR1 value (0x0080 write leveling enable)
++	 * Bit[9] set WL_EN to enable MMDC DQS output
++	 * Bits[6:4] set CMD bits for Load Mode Register programming
++	 * Bits[2:0] set CMD_BA to 0x1 for DDR MR1 programming
++	 */
++	write_mmdcp0(0x00808231, MDSCR);
++
++	/* 6. Activate automatic calibration by setting MPWLGCR[HW_WL_EN] */
++	write_mmdcp0(0x00000001, MPWLGCR);
++
++	/*
++	 * 7. Upon completion of this process the MMDC de-asserts
++	 * the MPWLGCR[HW_WL_EN]
++	 */
++	while (read_mmdcp0(MPWLGCR) & 0x00000001)
++		debug(".");
++
++	/*
++	 * 8. check for any errors: check both PHYs for x64 configuration,
++	 * if x32, check only PHY0
++	 */
++	if (read_mmdcp0(MPWLGCR) & 0x00000F00)
++		errors |= 1;
++	if (read_mmdcp1(MPWLGCR) & 0x00000F00)
++		errors |= 2;
++	debug(" Done.  Error mask: 0x%x\n", errors);
++
++	/* check to see if cal failed */
++	if ((read_mmdcp0(MPWLDECTRL0)) == 0x001F001F
++	 && (read_mmdcp0(MPWLDECTRL1)) == 0x001F001F
++	 && (read_mmdcp1(MPWLDECTRL0)) == 0x001F001F
++	 && (read_mmdcp1(MPWLDECTRL1)) == 0x001F001F) {
++		debug("Cal seems to have soft-failed due to memory "
++			"not supporting write leveling on all channels. "
++			"Restoring original write leveling values.\n");
++		write_mmdcp0(ldectrl[0], MPWLDECTRL0);
++		write_mmdcp0(ldectrl[1], MPWLDECTRL1);
++		write_mmdcp1(ldectrl[2], MPWLDECTRL0);
++		write_mmdcp1(ldectrl[3], MPWLDECTRL1);
++		errors |= 4;
++	}
++
++	/*
++	 * User should issue MRS command to exit write leveling mode
++	 * through Load Mode Register command
++	 * Register setting:
++	 * Bits[31:16] MR1 value "ddr_mr1" value from initialization
++	 * Bit[9] clear WL_EN to disable MMDC DQS output
++	 * Bits[6:4] set CMD bits for Load Mode Register programming
++	 * Bits[2:0] set CMD_BA to 0x1 for DDR MR1 programming
++	 */
++	write_mmdcp0((ddr_mr1 << 16) + 0x8031, MDSCR);
++
++	/* re-enable auto refresh and zq cal */
++	write_mmdcp0(esdmisc_val, MDREF);
++	write_mmdcp0(zq_val, MPZQHWCTRL);
++
++#ifdef DEBUG
++	debug("\tMMDC_MPWLDECTRL0 after write level cal: 0x%08X\n",
++		read_mmdcp0(MPWLDECTRL0));
++	debug("\tMMDC_MPWLDECTRL1 after write level cal: 0x%08X\n",
++		read_mmdcp0(MPWLDECTRL1));
++	debug("\tMMDC_MPWLDECTRL0 after write level cal: 0x%08X\n",
++		read_mmdcp1(MPWLDECTRL0));
++	debug("\tMMDC_MPWLDECTRL1 after write level cal: 0x%08X\n",
++		read_mmdcp1(MPWLDECTRL1));
++#else
++	/* We must force a readback of these values, to get them to stick */
++	read_mmdcp0(MPWLDECTRL0);
++	read_mmdcp0(MPWLDECTRL1);
++	read_mmdcp1(MPWLDECTRL0);
++	read_mmdcp1(MPWLDECTRL1);
++#endif
++	/* enable DDR logic power down timer: */
++	write_mmdcp0(read_mmdcp0((MDPDC)) | 0x00005500, MDPDC);
++
++	/* Enable Adopt power down timer: */
++	write_mmdcp0(read_mmdcp0((MAPSR)) & 0xfffffff7, MAPSR);
++
++	/* Clear CON_REQ */
++	write_mmdcp0(0, MDSCR);
++
++	return errors;
++}
++
++static int do_dqs_calibration(void)
++{
++	int esdmisc_val;
++	int bus_size;
++	int temp_ref;
++	int cs0_enable;
++	int cs1_enable;
++	int cs0_enable_initial;
++	int cs1_enable_initial;
++	int PDDWord = 0x00ffff00; /* best so far, place into MPPDCMPR1 */
++	int errors = 0;
++	unsigned int initdelay = 0x40404040;
++
++	/* check to see which chip selects are enabled */
++	cs0_enable_initial = (read_mmdcp0(MDCTL) & 0x80000000) >> 31;
++	cs1_enable_initial = (read_mmdcp0(MDCTL) & 0x40000000) >> 30;
++
++	/* disable DDR logic power down timer: */
++	write_mmdcp0(read_mmdcp0(MDPDC) & 0xffff00ff, MDPDC);
++
++	/* disable Adopt power down timer: */
++	mmdcp0_setbit(1, MAPSR);
++
++	/* set DQS pull ups */
++	writel(readl(MX6_IOM_DRAM_SDQS0) | 0x7000, MX6_IOM_DRAM_SDQS0);
++	writel(readl(MX6_IOM_DRAM_SDQS1) | 0x7000, MX6_IOM_DRAM_SDQS1);
++	writel(readl(MX6_IOM_DRAM_SDQS2) | 0x7000, MX6_IOM_DRAM_SDQS2);
++	writel(readl(MX6_IOM_DRAM_SDQS3) | 0x7000, MX6_IOM_DRAM_SDQS3);
++	writel(readl(MX6_IOM_DRAM_SDQS4) | 0x7000, MX6_IOM_DRAM_SDQS4);
++	writel(readl(MX6_IOM_DRAM_SDQS5) | 0x7000, MX6_IOM_DRAM_SDQS5);
++	writel(readl(MX6_IOM_DRAM_SDQS6) | 0x7000, MX6_IOM_DRAM_SDQS6);
++	writel(readl(MX6_IOM_DRAM_SDQS7) | 0x7000, MX6_IOM_DRAM_SDQS7);
++
++	/* Save old RALAT and WALAT values */
++	esdmisc_val = read_mmdcp0(MDMISC);
++
++	mmdcp0_setbit(6, MDMISC); //set RALAT to max
++	mmdcp0_setbit(7, MDMISC);
++	mmdcp0_setbit(8, MDMISC);
++	mmdcp0_setbit(16, MDMISC); //set WALAT to max
++	mmdcp0_setbit(17, MDMISC);
++
++	/* Disable auto refresh before proceeding with calibration */
++	temp_ref = read_mmdcp0(MDREF);
++	write_mmdcp0(0x0000c000, MDREF);
++
++	/*
++	 * Per the ref manual, issue one refresh cycle MDSCR[CMD]= 0x2,
++	 * this also sets the CON_REQ bit.
++	 */
++	if (cs0_enable_initial == 1)
++		write_mmdcp0(0x00008020, MDSCR);
++	if (cs1_enable_initial == 1)
++		write_mmdcp0(0x00008028, MDSCR);
++
++	/* poll to make sure the con_ack bit was asserted */
++	while (!(read_mmdcp0(MDSCR) & 0x00004000))
++		debug("c");
++
++	/*
++	 * Check MDMISC register CALIB_PER_CS to see which CS calibration
++	 * is targeted to (under normal cases, it should be cleared
++	 * as this is the default value, indicating calibration is directed
++	 * to CS0).
++	 * Disable the other chip select not being target for calibration
++	 * to avoid any potential issues.  This will get re-enabled at end
++	 * of calibration.
++	 */
++	if ((read_mmdcp0(MDMISC) & 0x00100000) == 0)
++		/* clear SDE_1 */
++		mmdcp0_clrbit(30, MDCTL);
++	else
++		/* clear SDE_0 */
++		mmdcp0_clrbit(31, MDCTL);
++
++	/*
++	 * Check to see which chip selects are now enabled for
++	 * the remainder of the calibration.
++	 */
++	cs0_enable = (read_mmdcp0(MDCTL) & 0x80000000) >> 31;
++	cs1_enable = (read_mmdcp0(MDCTL) & 0x40000000) >> 30;
++
++	/* Check to see what the data bus size is */
++	bus_size = (read_mmdcp0(MDCTL) & 0x30000) >> 16;
++	debug("Data bus size: %d (%d bits)\n", bus_size, 1 << (bus_size + 4));
++
++	precharge_all(cs0_enable, cs1_enable);
++
++	/* Write the pre-defined value into MPPDCMPR1 */
++	write_mmdcp0(PDDWord, MPPDCMPR1);
++
++	/*
++	 * Issue a write access to the external DDR device by setting
++	 * the bit SW_DUMMY_WR (bit 0) in the MPSWDAR0 and then poll
++	 * this bit until it clears to indicate completion of the write access.
++	 */
++	mmdcp0_setbit(0, MPSWDAR);
++	while (read_mmdcp0(MPSWDAR) & 0x00000001)
++		debug(".");
++
++	/* Set the RD_DL_ABS# bits to their default values
++	 * (will be calibrated later in the read delay-line calibration).
++	 * Both PHYs for x64 configuration, if x32, do only PHY0.
++	 */
++	write_mmdcp0(initdelay, MPRDDLCTL);
++	if (bus_size == 0x2)
++		write_mmdcp1(initdelay, MPRDDLCTL);
++
++	/* Force a measurment, for previous delay setup to take effect. */
++	force_delay_measurement(bus_size);
++
++	/*
++	 * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
++	 * Read DQS Gating calibration
++	 * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
++	 */
++	debug("Starting Read DQS Gating calibration [");
++
++	/*
++	 * Reset the read data FIFOs (two resets); only need to issue reset
++	 * to PHY0 since in x64 mode, the reset will also go to PHY1.
++	 */
++	reset_read_data_fifos();
++
++	/*
++	 * Start the automatic read DQS gating calibration process by
++	 * asserting MPDGCTRL0[HW_DG_EN] and MPDGCTRL0[DG_CMP_CYC]
++	 * and then poll MPDGCTRL0[HW_DG_EN]] until this bit clears
++	 * to indicate completion.
++	 * Also, ensure that MPDGCTRL0[HW_DG_ERR] is clear to indicate
++	 * no errors were seen during calibration.
++	 */
++
++	/*
++	 * Set bit 30: chooses option to wait 32 cycles instead of
++	 * 16 before comparing read data.
++	 */
++	mmdcp0_setbit(30, MPDGCTRL0);
++
++	/* Set bit 28 to start automatic read DQS gating calibration */
++	mmdcp0_setbit(28, MPDGCTRL0);
++
++	/* Poll for completion.  MPDGCTRL0[HW_DG_EN] should be 0 */
++	while (read_mmdcp0(MPDGCTRL0) & 0x10000000)
++		debug(".");
++
++	/*
++	 * Check to see if any errors were encountered during calibration
++	 * (check MPDGCTRL0[HW_DG_ERR]).
++	 * Check both PHYs for x64 configuration, if x32, check only PHY0.
++	 */
++	if (read_mmdcp0(MPDGCTRL0) & 0x00001000) {
++		debug("0");
++		errors |= 1;
++	}
++	if ((bus_size == 0x2) && (read_mmdcp1(MPDGCTRL0) & 0x00001000)) {
++		debug("1");
++		errors |= 2;
++	}
++
++	/*
++	 * DQS gating absolute offset should be modified from
++	 * reflecting (HW_DG_LOWx + HW_DG_UPx)/2 to
++	 * reflecting (HW_DG_UPx - 0x80)
++	 */
++	modify_dg_result(MMDC_P0_BASE_ADDR + MPDGHWST0,
++		MMDC_P0_BASE_ADDR + MPDGHWST1,
++		MMDC_P0_BASE_ADDR + MPDGCTRL0);
++	modify_dg_result(MMDC_P0_BASE_ADDR + MPDGHWST2,
++		MMDC_P0_BASE_ADDR + MPDGHWST3,
++		MMDC_P0_BASE_ADDR + MPDGCTRL1);
++	if (bus_size == 0x2) {
++		modify_dg_result((MMDC_P1_BASE_ADDR + MPDGHWST0),
++			(MMDC_P1_BASE_ADDR + MPDGHWST1),
++			(MMDC_P1_BASE_ADDR + MPDGCTRL0));
++		modify_dg_result((MMDC_P1_BASE_ADDR + MPDGHWST2),
++			(MMDC_P1_BASE_ADDR + MPDGHWST3),
++			(MMDC_P1_BASE_ADDR + MPDGCTRL1));
++	}
++	debug("] Done.  Error mask: 0x%x.\n", errors);
++
++	/*
++	 * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
++	 * Read delay Calibration
++	 * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
++	 */
++	debug("Starting Read Delay calibration [");
++
++	reset_read_data_fifos();
++
++	/*
++	 * 4. Issue the Precharge-All command to the DDR device for both
++	 * chip selects.  If only using one chip select, then precharge
++	 * only the desired chip select.
++	 */
++	precharge_all(cs0_enable, cs1_enable);
++
++
++	/* *********** 5. 6. 7. set the pre-defined word ************ */
++	write_mmdcp0(PDDWord, MPPDCMPR1);
++
++	/*
++	 * Issue a write access to the external DDR device by setting
++	 * the bit SW_DUMMY_WR (bit 0) in the MPSWDAR0 and then poll
++	 * this bit until it clears to indicate completion of the write access.
++	 */
++	mmdcp0_setbit(0, MPSWDAR);
++	while (read_mmdcp0(MPSWDAR) & 0x00000001)
++		debug("d");
++
++	/* 8. set initial delays to center up dq in clock */
++	write_mmdcp0(initdelay, MPRDDLCTL);
++	if (bus_size == 0x2)
++		write_mmdcp1(initdelay, MPRDDLCTL);
++//	debug("initial delay 0: %08x / initial delay 1: %08x\n",
++//		read_mmdcp0(MPRDDLCTL), read_mmdcp1(MPRDDLCTL));
++
++	/*
++	 * 9. Read delay-line calibration
++	 * Start the automatic read calibration process by asserting
++	 * MPRDDLHWCTL[HW_RD_DL_EN].
++	 */
++	write_mmdcp0(0x00000030, MPRDDLHWCTL);
++
++	/*
++	 * 10. poll for completion
++	 * MMDC indicates that the write data calibration had finished by
++	 * setting MPRDDLHWCTL[HW_RD_DL_EN] = 0.   Also, ensure that
++	 * no error bits were set.
++	 */
++	while (read_mmdcp0(MPRDDLHWCTL) & 0x00000010)
++		debug("p");
++
++	/* check both PHYs for x64 configuration, if x32, check only PHY0 */
++	if (read_mmdcp0(MPRDDLHWCTL) & 0x0000000f) {
++		debug("0");
++		errors |= 4;
++	}
++	if ((bus_size == 0x2) && (read_mmdcp1(MPRDDLHWCTL) & 0x0000000f)) {
++		debug("1");
++		errors |= 8;
++	}
++	debug("] Done.  Error mask: 0x%x.\n", errors);
++
++	/*
++	 * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
++	 * Write delay Calibration
++	 * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
++	 */
++	debug("Starting Write Delay calibration [");
++
++	reset_read_data_fifos();
++
++	/*
++	 * 4. Issue the Precharge-All command to the DDR device for both
++	 * chip selects. If only using one chip select, then precharge
++	 * only the desired chip select.
++	 */
++	precharge_all(cs0_enable, cs1_enable);
++
++#if 0
++	/* *********** 5. 6. 7. set the pre-defined word ************ */
++	write_mmdcp0(PDDWord, MPPDCMPR1);
++
++	/*
++	 * Issue a write access to the external DDR device by setting
++	 * the bit SW_DUMMY_WR (bit 0) in the MPSWDAR0 and then poll this bit
++	 * until it clears to indicate completion of the write access.
++	 */
++	mmdcp0_setbit(0, MPSWDAR);
++	while (read_mmdcp0(MPSWDAR) & 0x00000001)
++		debug("w");
++#endif
++
++	/*
++	 * 8. Set the WR_DL_ABS# bits to their default values.
++	 * Both PHYs for x64 configuration, if x32, do only PHY0.
++	 */
++	write_mmdcp0(initdelay, MPWRDLCTL);
++	if (bus_size == 0x2)
++		write_mmdcp1(initdelay, MPWRDLCTL);
++
++	/*
++	 * XXX This isn't in the manual. Force a measurment,
++	 * for previous delay setup to effect.
++	 */
++	force_delay_measurement(bus_size);
++
++	/*
++	 * 9. 10. Start the automatic write calibration process
++	 * by asserting MPWRDLHWCTL0[HW_WR_DL_EN].
++	 */
++	write_mmdcp0(0x00000030, MPWRDLHWCTL);
++
++	/*
++	 * Poll for completion.
++	 * MMDC indicates that the write data calibration had finished
++	 * by setting MPWRDLHWCTL[HW_WR_DL_EN] = 0.
++	 * Also, ensure that no error bits were set.
++	 */
++	while (read_mmdcp0(MPWRDLHWCTL) & 0x00000010)
++		debug("p");
++
++	/* Check both PHYs for x64 configuration, if x32, check only PHY0 */
++	if (read_mmdcp0(MPWRDLHWCTL) & 0x0000000f) {
++		debug("0");
++		errors |= 16;
++	}
++	if ((bus_size == 0x2) && (read_mmdcp1(MPWRDLHWCTL) & 0x0000000f)) {
++		debug("1");
++		errors |= 32;
++	}
++
++	debug("] Done.  Error mask: 0x%x.\n", errors);
++
++	reset_read_data_fifos();
++
++	/* Enable DDR logic power down timer: */
++	write_mmdcp0(read_mmdcp0(MDPDC) | 0x00005500, MDPDC);
++
++	/* Enable Adopt power down timer: */
++	write_mmdcp0(read_mmdcp0(MAPSR) & 0xfffffff7, MAPSR);
++
++	/* Restore MDMISC value (RALAT, WALAT) to MMDCP1 */
++	write_mmdcp1(esdmisc_val, MDMISC);
++
++	/* Clear DQS pull ups */
++	writel(readl(MX6_IOM_DRAM_SDQS0) & ~0x7000, MX6_IOM_DRAM_SDQS0);
++	writel(readl(MX6_IOM_DRAM_SDQS1) & ~0x7000, MX6_IOM_DRAM_SDQS1);
++	writel(readl(MX6_IOM_DRAM_SDQS2) & ~0x7000, MX6_IOM_DRAM_SDQS2);
++	writel(readl(MX6_IOM_DRAM_SDQS3) & ~0x7000, MX6_IOM_DRAM_SDQS3);
++	writel(readl(MX6_IOM_DRAM_SDQS4) & ~0x7000, MX6_IOM_DRAM_SDQS4);
++	writel(readl(MX6_IOM_DRAM_SDQS5) & ~0x7000, MX6_IOM_DRAM_SDQS5);
++	writel(readl(MX6_IOM_DRAM_SDQS6) & ~0x7000, MX6_IOM_DRAM_SDQS6);
++	writel(readl(MX6_IOM_DRAM_SDQS7) & ~0x7000, MX6_IOM_DRAM_SDQS7);
++
++	/* Re-enable SDE (chip selects) if they were set initially */
++	if (cs1_enable_initial == 1)
++		/* Set SDE_1 */
++		mmdcp0_setbit(30, MDCTL);
++
++	if (cs0_enable_initial == 1)
++		/* Set SDE_0 */
++		mmdcp0_setbit(31, MDCTL);
++
++	/* Re-enable to auto refresh */
++	write_mmdcp0(temp_ref, MDREF);
++
++	/* Clear the MDSCR (including the con_req bit) */
++	write_mmdcp0(0x0, MDSCR); // CS0
++
++	/* Poll to make sure the con_ack bit is clear */
++	while ((read_mmdcp0(MDSCR) & 0x00004000))
++		debug("c");
++
++	/*
++	 * Print out the registers that were updated as a result
++	 * of the calibration process.
++	 */
++	debug("MMDC registers updated from calibration\n");
++	debug("Read DQS gating calibration:\n");
++	debug("\tMPDGCTRL0 PHY0 (0x021b083c) = 0x%08X\n", readl(MPDGCTRL0_PHY0));
++	debug("\tMPDGCTRL1 PHY0 (0x021b0840) = 0x%08X\n", readl(MPDGCTRL1_PHY0));
++	debug("\tMPDGCTRL0 PHY1 (0x021b483c) = 0x%08X\n", readl(MPDGCTRL0_PHY1));
++	debug("\tMPDGCTRL1 PHY1 (0x021b4840) = 0x%08X\n", readl(MPDGCTRL1_PHY1));
++	debug("Read calibration:\n");
++	debug("\tMPRDDLCTL PHY0 (0x021b0848) = 0x%08X\n", readl(MPRDDLCTL_PHY0));
++	debug("\tMPRDDLCTL PHY1 (0x021b4848) = 0x%08X\n", readl(MPRDDLCTL_PHY1));
++	debug("Write calibration:\n");
++	debug("\tMPWRDLCTL PHY0 (0x021b0850) = 0x%08X\n", readl(MPWRDLCTL_PHY0));
++	debug("\tMPWRDLCTL PHY1 (0x021b4850) = 0x%08X\n", readl(MPWRDLCTL_PHY1));
++	/*
++	 * Registers below are for debugging purposes.  These print out
++	 * the upper and lower boundaries captured during
++	 * read DQS gating calibration.
++	 */
++	debug("Status registers bounds for read DQS gating:\n");
++	debug("\tMPDGHWST0 PHY0 (0x021b087c) = 0x%08X\n", readl(0x021b087c));
++	debug("\tMPDGHWST1 PHY0 (0x021b0880) = 0x%08X\n", readl(0x021b0880));
++	debug("\tMPDGHWST2 PHY0 (0x021b0884) = 0x%08X\n", readl(0x021b0884));
++	debug("\tMPDGHWST3 PHY0 (0x021b0888) = 0x%08X\n", readl(0x021b0888));
++	debug("\tMPDGHWST0 PHY1 (0x021b487c) = 0x%08X\n", readl(0x021b487c));
++	debug("\tMPDGHWST1 PHY1 (0x021b4880) = 0x%08X\n", readl(0x021b4880));
++	debug("\tMPDGHWST2 PHY1 (0x021b4884) = 0x%08X\n", readl(0x021b4884));
++	debug("\tMPDGHWST3 PHY1 (0x021b4888) = 0x%08X\n", readl(0x021b4888));
++
++	debug("Final do_dqs_calibration error mask: 0x%x\n", errors);
++
++	return errors;
++}
++
++static uint32_t novena_read_spd(struct mx6_ddr_sysinfo *sysinfo,
++			 struct mx6_ddr3_cfg *cfg, int spd_i2c_ret)
++{
++	struct ddr3_spd_eeprom_s spd;
++	int ret;
++	int chip   = 0x50;	/* Address of the SPD I2C device */
++	int addr   = 0x0;	/* Start of SPD address */
++	int alen   = 0x1;	/* Address is one-byte long */
++	uint32_t capacity;
++	uint32_t mtb_scale;
++
++	/* Explicit I2C1 selection; setup failure follows the read-error fallback. */
++	ret = spd_i2c_ret;
++	if (!ret)
++		ret = i2c_set_bus_num(0);
++	if (!ret) {
++		i2c_init(CONFIG_SYS_I2C_SPEED, 0);
++		ret = i2c_read(chip, addr, alen, (uint8_t *)&spd, sizeof(spd));
++	}
++	if (!ret)
++		puts("NOVENA-DDR SPD read from I2C1:0x50\n");
++	if (ret != 0) {
++		printf("Error reading SPD on DDR3: %d\n", ret);
++		printf("Using canned SPD instead.\n");
++		memcpy((void *)&spd, default_spd, sizeof(spd));
++	}
++
++	if (ddr3_spd_check(&spd)) {
++		printf("Using canned SPD\n");
++		memcpy((void *)&spd, default_spd, sizeof(spd));
++	}
++
++	switch (spd.tck_min) {
++	case 0x14:
++		cfg->mem_speed = 800;
++		if (spd.tfaw_min == 0x40) {
++			cfg->pagesz = 1;
++			debug("\t1K page size\n");
++		} else if (spd.tfaw_min == 0x90) {
++			cfg->pagesz = 2;
++			debug("\t2K page size\n");
++		}
++		else
++			debug("Unknown page size: 0x%02x\n", spd.tfaw_min);
++		break;
++	case 0x0f:
++		cfg->mem_speed = 1066;
++		if (spd.tfaw_min == 0x2c) {
++			cfg->pagesz = 1;
++			debug("\t1K page size\n");
++		} else if (spd.tfaw_min == 0x90) {
++			cfg->pagesz = 2;
++			debug("\t2K page size\n");
++		}
++		else
++			debug("Unknown page size: 0x%02x\n", spd.tfaw_min);
++		break;
++	case 0x0c:
++		cfg->mem_speed = 1333;
++		if (spd.tfaw_min == 0xf0) {
++			cfg->pagesz = 1;
++			debug("\t1K page size\n");
++		} else if (spd.tfaw_min == 0x68) {
++			cfg->pagesz = 2;
++			debug("\t2K page size\n");
++		}
++		else
++			debug("Unknown page size: 0x%02x\n", spd.tfaw_min);
++		break;
++	case 0x0a:
++		cfg->mem_speed = 1600;
++		if (spd.tfaw_min == 0xf0) {
++			cfg->pagesz = 1;
++			debug("\t1K page size\n");
++		} else if (spd.tfaw_min == 0x40) {
++			cfg->pagesz = 2;
++			debug("\t2K page size\n");
++		}
++		else
++			debug("Unknown page size: 0x%02x\n", spd.tfaw_min);
++		break;
++	case 0x09:
++		cfg->pagesz = 1;
++		cfg->mem_speed = 1866;
++		break;
++	case 0x08:
++		cfg->pagesz = 1;
++		cfg->mem_speed = 2133;
++		break;
++	default:
++		if (spd.tck_min <= 0xf) {
++			debug("**undecodable but sufficiently fast "
++					"clock rate detected\n");
++			cfg->mem_speed = 1066;
++		} else {
++			debug("**undecodable but too slow "
++					"clock rate detected\n");
++			cfg->mem_speed = 800;
++		}
++		break;
++	}
++	debug("\tDDR3-%d speed rating detected\n", cfg->mem_speed);
++	if (cfg->mem_speed < 1066) {
++		printf("memory is too slow.\n");
++		dram_fatal(0x05);
++	}
++
++	cfg->density = (256 * (1 << (spd.density_banks & 0xf))) / 1024;
++	debug("\tIndividual chip density is %d Gib\n", cfg->density);
++
++	cfg->width = (1 << (spd.organization & 0x7)) * 4;
++	debug("\tChips have a width of %d bits\n", cfg->width);
++
++	if ((spd.density_banks & 0x30) != 0) {
++		printf("\tWarning: memory has an unsupported bank size\n");
++		dram_fatal(0x06);
++	}
++	cfg->banks = 8;
++	debug("\t%d address banks\n", cfg->banks);
++
++	cfg->rowaddr = ((spd.addressing >> 3) & 0x7) + 12;
++	cfg->coladdr = (spd.addressing & 0x7) + 9;
++	debug("\tRows: %d, Cols: %d\n", cfg->rowaddr, cfg->coladdr);
++
++	sysinfo->ncs = ((spd.organization >> 3) & 0x7) + 1;
++	debug("\tThere are %d chip selects (ranks)\n", sysinfo->ncs);
++
++	capacity = (64 / cfg->width) * sysinfo->ncs * (cfg->density * 1024);
++	debug("\tTotal memory capacity: %d Mib (%d MiB)\n",
++			capacity, capacity / 8);
++
++	/* We only support 64-bit modules */
++	if (spd.bus_width != 0x3) {
++		printf("Unsupported device width, fatal.\n");
++		dram_fatal(0x03);
++	}
++	sysinfo->dsize = 2;
++	debug("\tModule width is 64 bits, no ECC\n");
++
++	sysinfo->cs_density = (capacity / (256 * sysinfo->ncs)) / 4;
++	debug("\tCS density: %d Gb\n", sysinfo->cs_density);
++
++	/*
++	 * MTB is in periods of some fraction of nanoseconds.  Convert to
++	 * ns*100, which is what MX6 uses.
++	 */
++	mtb_scale = (spd.mtb_dividend * 100) / spd.mtb_divisor;
++
++	cfg->trcd = spd.trcd_min + 1;
++	cfg->trcd *= mtb_scale;
++	debug("\ttRCD: %d\n", cfg->trcd);
++
++	cfg->trcmin = (((spd.tras_trc_ext & 0xf0) << 4) | spd.trc_min_lsb) + 1;
++	cfg->trcmin *= mtb_scale;
++	debug("\ttRC: %d\n", cfg->trcmin);
++
++	cfg->trasmin = (((spd.tras_trc_ext & 0xf) << 8) | spd.tras_min_lsb) + 1;
++	cfg->trasmin *= mtb_scale;
++	debug("\ttRAS: %d\n", cfg->trasmin);
++
++	/* Set self-refresh temperature flag to extended range, if present */
++	cfg->SRT = 0;
++	if ((spd.therm_ref_opt & 0x1) && !(spd.therm_ref_opt & 0x2))
++		cfg->SRT = 1;
++
++	/* Items with (*) will be calibrated later */
++	sysinfo->cs1_mirror = 0;	/* Novena doesn't use mirroring */
++	sysinfo->bi_on = 0;		/* Novena doesn't use interleaving */
++	sysinfo->rtt_nom = 2;		/* (*) RTT_Nom = RZQ/2 */
++	sysinfo->rtt_wr = 2;		/* (*) RTT_Wr = RZQ/4 */
++	sysinfo->ralat = 3;		/* (*) Read additional latency */
++	sysinfo->walat = 3;		/* (*) Write additional latency */
++	sysinfo->mif3_mode = 3;		/* Command prediction working mode */
++	sysinfo->rst_to_cke = 0x23;	/* 33 cycles, 500us (JEDEC default) */
++	sysinfo->sde_to_rst = 0x10;	/* 14 cycles, 200us (JEDEC default) */
++
++	return 0;
++}
++
++static int novena_memory_test(void)
++{
++#ifdef CONFIG_PERFORM_RAM_TEST
++	write_random_data(0);
++	return read_random_data(0);
++#endif
++	return 0;
++}
++
++/*
++ * Historical arch/arm/cpu/armv7/mx6/ddr.c, board-local copies.
++ * Copyright (C) 2014 Gateworks Corporation
++ * Author: Tim Harvey <tharvey@gateworks.com>
++ * SPDX-License-Identifier: GPL-2.0+
++ */
++static void novena_dram_iocfg(unsigned width,
++		      const struct mx6dq_iomux_ddr_regs *ddr,
++		      const struct mx6dq_iomux_grp_regs *grp)
++{
++	volatile struct mx6dq_iomux_ddr_regs *mx6_ddr_iomux;
++	volatile struct mx6dq_iomux_grp_regs *mx6_grp_iomux;
++
++	mx6_ddr_iomux = (struct mx6dq_iomux_ddr_regs *)MX6DQ_IOM_DDR_BASE;
++	mx6_grp_iomux = (struct mx6dq_iomux_grp_regs *)MX6DQ_IOM_GRP_BASE;
++
++	/* DDR IO Type */
++	mx6_grp_iomux->grp_ddr_type = grp->grp_ddr_type;
++	mx6_grp_iomux->grp_ddrpke = grp->grp_ddrpke;
++
++	/* Clock */
++	mx6_ddr_iomux->dram_sdclk_0 = ddr->dram_sdclk_0;
++	mx6_ddr_iomux->dram_sdclk_1 = ddr->dram_sdclk_1;
++
++	/* Address */
++	mx6_ddr_iomux->dram_cas = ddr->dram_cas;
++	mx6_ddr_iomux->dram_ras = ddr->dram_ras;
++	mx6_grp_iomux->grp_addds = grp->grp_addds;
++
++	/* Control */
++	mx6_ddr_iomux->dram_reset = ddr->dram_reset;
++	mx6_ddr_iomux->dram_sdcke0 = ddr->dram_sdcke0;
++	mx6_ddr_iomux->dram_sdcke1 = ddr->dram_sdcke1;
++	mx6_ddr_iomux->dram_sdba2 = ddr->dram_sdba2;
++	mx6_ddr_iomux->dram_sdodt0 = ddr->dram_sdodt0;
++	mx6_ddr_iomux->dram_sdodt1 = ddr->dram_sdodt1;
++	mx6_grp_iomux->grp_ctlds = grp->grp_ctlds;
++
++	/* Data Strobes */
++	mx6_grp_iomux->grp_ddrmode_ctl = grp->grp_ddrmode_ctl;
++	mx6_ddr_iomux->dram_sdqs0 = ddr->dram_sdqs0;
++	mx6_ddr_iomux->dram_sdqs1 = ddr->dram_sdqs1;
++	if (width >= 32) {
++		mx6_ddr_iomux->dram_sdqs2 = ddr->dram_sdqs2;
++		mx6_ddr_iomux->dram_sdqs3 = ddr->dram_sdqs3;
++	}
++	if (width >= 64) {
++		mx6_ddr_iomux->dram_sdqs4 = ddr->dram_sdqs4;
++		mx6_ddr_iomux->dram_sdqs5 = ddr->dram_sdqs5;
++		mx6_ddr_iomux->dram_sdqs6 = ddr->dram_sdqs6;
++		mx6_ddr_iomux->dram_sdqs7 = ddr->dram_sdqs7;
++	}
++
++	/* Data */
++	mx6_grp_iomux->grp_ddrmode = grp->grp_ddrmode;
++	mx6_grp_iomux->grp_b0ds = grp->grp_b0ds;
++	mx6_grp_iomux->grp_b1ds = grp->grp_b1ds;
++	if (width >= 32) {
++		mx6_grp_iomux->grp_b2ds = grp->grp_b2ds;
++		mx6_grp_iomux->grp_b3ds = grp->grp_b3ds;
++	}
++	if (width >= 64) {
++		mx6_grp_iomux->grp_b4ds = grp->grp_b4ds;
++		mx6_grp_iomux->grp_b5ds = grp->grp_b5ds;
++		mx6_grp_iomux->grp_b6ds = grp->grp_b6ds;
++		mx6_grp_iomux->grp_b7ds = grp->grp_b7ds;
++	}
++	mx6_ddr_iomux->dram_dqm0 = ddr->dram_dqm0;
++	mx6_ddr_iomux->dram_dqm1 = ddr->dram_dqm1;
++	if (width >= 32) {
++		mx6_ddr_iomux->dram_dqm2 = ddr->dram_dqm2;
++		mx6_ddr_iomux->dram_dqm3 = ddr->dram_dqm3;
++	}
++	if (width >= 64) {
++		mx6_ddr_iomux->dram_dqm4 = ddr->dram_dqm4;
++		mx6_ddr_iomux->dram_dqm5 = ddr->dram_dqm5;
++		mx6_ddr_iomux->dram_dqm6 = ddr->dram_dqm6;
++		mx6_ddr_iomux->dram_dqm7 = ddr->dram_dqm7;
++	}
++}
++
++#define MR(val, ba, cmd, cs1) \
++	((val << 16) | (1 << 15) | (cmd << 4) | (cs1 << 3) | ba)
++#ifdef CONFIG_MX6SX
++#define MMDC1(entry, value)	do {} while (0)
++#else
++#define MMDC1(entry, value) do { mmdc1->entry = value; } while (0)
++#endif
++static void novena_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
++		  const struct mx6_mmdc_calibration *calib,
++		  const struct mx6_ddr3_cfg *ddr3_cfg)
++{
++	volatile struct mmdc_p_regs *mmdc0;
++#ifndef CONFIG_MX6SX
++	volatile struct mmdc_p_regs *mmdc1;
++#endif
++	u32 val;
++	u8 tcke, tcksrx, tcksre, txpdll, taofpd, taonpd, trrd;
++	u8 todtlon, taxpd, tanpd, tcwl, txp, tfaw, tcl;
++	u8 todt_idle_off = 0x4; /* from DDR3 Script Aid spreadsheet */
++	u16 trcd, trc, tras, twr, tmrd, trtp, trp, twtr, trfc, txs, txpr;
++	u16 cs0_end;
++	u16 tdllk = 0x1ff; /* DLL locking time: 512 cycles (JEDEC DDR3) */
++	u8 coladdr;
++	int clkper; /* clock period in picoseconds */
++	int clock; /* clock freq in mHz */
++	int cs;
++
++	mmdc0 = (struct mmdc_p_regs *)MMDC_P0_BASE_ADDR;
++#ifndef CONFIG_MX6SX
++	mmdc1 = (struct mmdc_p_regs *)MMDC_P1_BASE_ADDR;
++#endif
++
++	/* MX6D/MX6Q: 1066 MHz memory clock, clkper = 1.894ns = 1894ps */
++	if (is_cpu_type(MXC_CPU_MX6Q) || is_cpu_type(MXC_CPU_MX6D)) {
++		clock = 528;
++		tcwl = 4;
++	}
++	/* MX6S/MX6DL: 800 MHz memory clock, clkper = 2.5ns = 2500ps */
++	else {
++		clock = 400;
++		tcwl = 3;
++	}
++	clkper = (1000 * 1000) / clock; /* pico seconds */
++	todtlon = tcwl;
++	taxpd = tcwl;
++	tanpd = tcwl;
++
++	switch (ddr3_cfg->density) {
++	case 1: /* 1Gb per chip */
++		trfc = DIV_ROUND_UP(110000, clkper) - 1;
++		txs = DIV_ROUND_UP(120000, clkper) - 1;
++		break;
++	case 2: /* 2Gb per chip */
++		trfc = DIV_ROUND_UP(160000, clkper) - 1;
++		txs = DIV_ROUND_UP(170000, clkper) - 1;
++		break;
++	case 4: /* 4Gb per chip */
++		trfc = DIV_ROUND_UP(260000, clkper) - 1;
++		txs = DIV_ROUND_UP(270000, clkper) - 1;
++		break;
++	case 8: /* 8Gb per chip */
++		trfc = DIV_ROUND_UP(350000, clkper) - 1;
++		txs = DIV_ROUND_UP(360000, clkper) - 1;
++		break;
++	default:
++		/* invalid density */
++		puts("invalid chip density\n");
++		hang();
++		break;
++	}
++	txpr = txs;
++
++	switch (ddr3_cfg->mem_speed) {
++	case 800:
++		txp = DIV_ROUND_UP(max(3 * clkper, 7500), clkper) - 1;
++		tcke = DIV_ROUND_UP(max(3 * clkper, 7500), clkper) - 1;
++		if (ddr3_cfg->pagesz == 1) {
++			tfaw = DIV_ROUND_UP(40000, clkper) - 1;
++			trrd = DIV_ROUND_UP(max(4 * clkper, 10000), clkper) - 1;
++		} else {
++			tfaw = DIV_ROUND_UP(50000, clkper) - 1;
++			trrd = DIV_ROUND_UP(max(4 * clkper, 10000), clkper) - 1;
++		}
++		break;
++	case 1066:
++		txp = DIV_ROUND_UP(max(3 * clkper, 7500), clkper) - 1;
++		tcke = DIV_ROUND_UP(max(3 * clkper, 5625), clkper) - 1;
++		if (ddr3_cfg->pagesz == 1) {
++			tfaw = DIV_ROUND_UP(37500, clkper) - 1;
++			trrd = DIV_ROUND_UP(max(4 * clkper, 7500), clkper) - 1;
++		} else {
++			tfaw = DIV_ROUND_UP(50000, clkper) - 1;
++			trrd = DIV_ROUND_UP(max(4 * clkper, 10000), clkper) - 1;
++		}
++		break;
++	case 1333:
++		txp = DIV_ROUND_UP(max(3 * clkper, 6000), clkper) - 1;
++		tcke = DIV_ROUND_UP(max(3 * clkper, 5625), clkper) - 1;
++		if (ddr3_cfg->pagesz == 1) {
++			tfaw = DIV_ROUND_UP(30000, clkper) - 1;
++			trrd = DIV_ROUND_UP(max(4 * clkper, 6000), clkper) - 1;
++		} else {
++			tfaw = DIV_ROUND_UP(45000, clkper) - 1;
++			trrd = DIV_ROUND_UP(max(4 * clkper, 7500), clkper) - 1;
++		}
++		break;
++	case 1600:
++		txp = DIV_ROUND_UP(max(3 * clkper, 6000), clkper) - 1;
++		tcke = DIV_ROUND_UP(max(3 * clkper, 5000), clkper) - 1;
++		if (ddr3_cfg->pagesz == 1) {
++			tfaw = DIV_ROUND_UP(30000, clkper) - 1;
++			trrd = DIV_ROUND_UP(max(4 * clkper, 6000), clkper) - 1;
++		} else {
++			tfaw = DIV_ROUND_UP(40000, clkper) - 1;
++			trrd = DIV_ROUND_UP(max(4 * clkper, 7500), clkper) - 1;
++		}
++		break;
++	default:
++		puts("invalid memory speed\n");
++		hang();
++		break;
++	}
++	txpdll = DIV_ROUND_UP(max(10 * clkper, 24000), clkper) - 1;
++	tcksre = DIV_ROUND_UP(max(5 * clkper, 10000), clkper);
++	taonpd = DIV_ROUND_UP(2000, clkper) - 1;
++	tcksrx = tcksre;
++	taofpd = taonpd;
++	twr  = DIV_ROUND_UP(15000, clkper) - 1;
++	tmrd = DIV_ROUND_UP(max(12 * clkper, 15000), clkper) - 1;
++	trc  = DIV_ROUND_UP(ddr3_cfg->trcmin, clkper / 10) - 1;
++	tras = DIV_ROUND_UP(ddr3_cfg->trasmin, clkper / 10) - 1;
++	tcl  = DIV_ROUND_UP(ddr3_cfg->trcd, clkper / 10) - 3;
++	trp  = DIV_ROUND_UP(ddr3_cfg->trcd, clkper / 10) - 1;
++	twtr = ROUND(max(4 * clkper, 7500) / clkper, 1) - 1;
++	trcd = trp;
++	trtp = twtr;
++	cs0_end = 4 * sysinfo->cs_density - 1;
++
++	debug("density:%d Gb (%d Gb per chip)\n",
++	      sysinfo->cs_density, ddr3_cfg->density);
++	debug("clock: %dMHz (%d ps)\n", clock, clkper);
++	debug("memspd:%d\n", ddr3_cfg->mem_speed);
++	debug("tcke=%d\n", tcke);
++	debug("tcksrx=%d\n", tcksrx);
++	debug("tcksre=%d\n", tcksre);
++	debug("taofpd=%d\n", taofpd);
++	debug("taonpd=%d\n", taonpd);
++	debug("todtlon=%d\n", todtlon);
++	debug("tanpd=%d\n", tanpd);
++	debug("taxpd=%d\n", taxpd);
++	debug("trfc=%d\n", trfc);
++	debug("txs=%d\n", txs);
++	debug("txp=%d\n", txp);
++	debug("txpdll=%d\n", txpdll);
++	debug("tfaw=%d\n", tfaw);
++	debug("tcl=%d\n", tcl);
++	debug("trcd=%d\n", trcd);
++	debug("trp=%d\n", trp);
++	debug("trc=%d\n", trc);
++	debug("tras=%d\n", tras);
++	debug("twr=%d\n", twr);
++	debug("tmrd=%d\n", tmrd);
++	debug("tcwl=%d\n", tcwl);
++	debug("tdllk=%d\n", tdllk);
++	debug("trtp=%d\n", trtp);
++	debug("twtr=%d\n", twtr);
++	debug("trrd=%d\n", trrd);
++	debug("txpr=%d\n", txpr);
++	debug("cs0_end=%d\n", cs0_end);
++	debug("ncs=%d\n", sysinfo->ncs);
++	debug("Rtt_wr=%d\n", sysinfo->rtt_wr);
++	debug("Rtt_nom=%d\n", sysinfo->rtt_nom);
++	debug("SRT=%d\n", ddr3_cfg->SRT);
++	debug("tcl=%d\n", tcl);
++	debug("twr=%d\n", twr);
++
++	/*
++	 * board-specific configuration:
++	 *  These values are determined empirically and vary per board layout
++	 *  see:
++	 *   appnote, ddr3 spreadsheet
++	 */
++	mmdc0->mpwldectrl0 = calib->p0_mpwldectrl0;
++	mmdc0->mpwldectrl1 = calib->p0_mpwldectrl1;
++	mmdc0->mpdgctrl0 = calib->p0_mpdgctrl0;
++	mmdc0->mpdgctrl1 = calib->p0_mpdgctrl1;
++	mmdc0->mprddlctl = calib->p0_mprddlctl;
++	mmdc0->mpwrdlctl = calib->p0_mpwrdlctl;
++	if (sysinfo->dsize > 1) {
++		MMDC1(mpwldectrl0, calib->p1_mpwldectrl0);
++		MMDC1(mpwldectrl1, calib->p1_mpwldectrl1);
++		MMDC1(mpdgctrl0, calib->p1_mpdgctrl0);
++		MMDC1(mpdgctrl1, calib->p1_mpdgctrl1);
++		MMDC1(mprddlctl, calib->p1_mprddlctl);
++		MMDC1(mpwrdlctl, calib->p1_mpwrdlctl);
++	}
++
++	/* Read data DQ Byte0-3 delay */
++	mmdc0->mprddqby0dl = 0x33333333;
++	mmdc0->mprddqby1dl = 0x33333333;
++	if (sysinfo->dsize > 0) {
++		mmdc0->mprddqby2dl = 0x33333333;
++		mmdc0->mprddqby3dl = 0x33333333;
++	}
++
++	if (sysinfo->dsize > 1) {
++		MMDC1(mprddqby0dl, 0x33333333);
++		MMDC1(mprddqby1dl, 0x33333333);
++		MMDC1(mprddqby2dl, 0x33333333);
++		MMDC1(mprddqby3dl, 0x33333333);
++	}
++
++	/* MMDC Termination: rtt_nom:2 RZQ/2(120ohm), rtt_nom:1 RZQ/4(60ohm) */
++	val = (sysinfo->rtt_nom == 2) ? 0x00011117 : 0x00022227;
++	mmdc0->mpodtctrl = val;
++	if (sysinfo->dsize > 1)
++		MMDC1(mpodtctrl, val);
++
++	/* complete calibration */
++	val = (1 << 11); /* Force measurement on delay-lines */
++	mmdc0->mpmur0 = val;
++	if (sysinfo->dsize > 1)
++		MMDC1(mpmur0, val);
++
++	/* Step 1: configuration request */
++	mmdc0->mdscr = (u32)(1 << 15); /* config request */
++
++	/* Step 2: Timing configuration */
++	mmdc0->mdcfg0 = (trfc << 24) | (txs << 16) | (txp << 13) |
++			(txpdll << 9) | (tfaw << 4) | tcl;
++	mmdc0->mdcfg1 = (trcd << 29) | (trp << 26) | (trc << 21) |
++			(tras << 16) | (1 << 15) /* trpa */ |
++			(twr << 9) | (tmrd << 5) | tcwl;
++	mmdc0->mdcfg2 = (tdllk << 16) | (trtp << 6) | (twtr << 3) | trrd;
++	mmdc0->mdotc = (taofpd << 27) | (taonpd << 24) | (tanpd << 20) |
++		       (taxpd << 16) | (todtlon << 12) | (todt_idle_off << 4);
++	mmdc0->mdasp = cs0_end; /* CS addressing */
++
++	/* Step 3: Configure DDR type */
++	mmdc0->mdmisc = (sysinfo->cs1_mirror << 19) | (sysinfo->walat << 16) |
++			(sysinfo->bi_on << 12) | (sysinfo->mif3_mode << 9) |
++			(sysinfo->ralat << 6);
++
++	/* Step 4: Configure delay while leaving reset */
++	mmdc0->mdor = (txpr << 16) | (sysinfo->sde_to_rst << 8) |
++		      (sysinfo->rst_to_cke << 0);
++
++	/* Step 5: Configure DDR physical parameters (density and burst len) */
++	coladdr = ddr3_cfg->coladdr;
++	if (ddr3_cfg->coladdr == 8)		/* 8-bit COL is 0x3 */
++		coladdr += 4;
++	else if (ddr3_cfg->coladdr == 12)	/* 12-bit COL is 0x4 */
++		coladdr += 1;
++	mmdc0->mdctl =  (ddr3_cfg->rowaddr - 11) << 24 |	/* ROW */
++			(coladdr - 9) << 20 |			/* COL */
++			(1 << 19) |		/* Burst Length = 8 for DDR3 */
++			(sysinfo->dsize << 16);		/* DDR data bus size */
++
++	/* Step 6: Perform ZQ calibration */
++	val = 0xa1390001; /* one-time HW ZQ calib */
++	mmdc0->mpzqhwctrl = val;
++	if (sysinfo->dsize > 1)
++		MMDC1(mpzqhwctrl, val);
++
++	/* Step 7: Enable MMDC with desired chip select */
++	mmdc0->mdctl |= (1 << 31) |			     /* SDE_0 for CS0 */
++			((sysinfo->ncs == 2) ? 1 : 0) << 30; /* SDE_1 for CS1 */
++
++	/* Step 8: Write Mode Registers to Init DDR3 devices */
++	for (cs = 0; cs < sysinfo->ncs; cs++) {
++		/* MR2 */
++		val = (sysinfo->rtt_wr & 3) << 9 | (ddr3_cfg->SRT & 1) << 7 |
++		      ((tcwl - 3) & 3) << 3;
++		mmdc0->mdscr = MR(val, 2, 3, cs);
++		/* MR3 */
++		mmdc0->mdscr = MR(0, 3, 3, cs);
++		/* MR1 */
++		val = ((sysinfo->rtt_nom & 1) ? 1 : 0) << 2 |
++		      ((sysinfo->rtt_nom & 2) ? 1 : 0) << 6;
++		mmdc0->mdscr = MR(val, 1, 3, cs);
++		/* MR0 */
++		val = ((tcl - 1) << 4) |	/* CAS */
++		      (1 << 8)   |		/* DLL Reset */
++		      ((twr - 3) << 9);		/* Write Recovery */
++		mmdc0->mdscr = MR(val, 0, 3, cs);
++		/* ZQ calibration */
++		val = (1 << 10);
++		mmdc0->mdscr = MR(val, 0, 4, cs);
++	}
++
++	/* Step 10: Power down control and self-refresh */
++	mmdc0->mdpdc = (tcke & 0x7) << 16 |
++			5            << 12 |  /* PWDT_1: 256 cycles */
++			5            <<  8 |  /* PWDT_0: 256 cycles */
++			1            <<  7 |  /* SLOW_PD */
++			1            <<  6 |  /* BOTH_CS_PD */
++			(tcksrx & 0x7) << 3 |
++			(tcksre & 0x7);
++	mmdc0->mapsr = 0x00001006; /* ADOPT power down enabled */
++
++	/* Step 11: Configure ZQ calibration: one-time and periodic 1ms */
++	val = 0xa1390003;
++	mmdc0->mpzqhwctrl = val;
++	if (sysinfo->dsize > 1)
++		MMDC1(mpzqhwctrl, val);
++
++	/* Step 12: Configure and activate periodic refresh */
++	mmdc0->mdref = (1 << 14) | /* REF_SEL: Periodic refresh cycle: 32kHz */
++		       (7 << 11);  /* REFR: Refresh Rate - 8 refreshes */
++
++	/* Step 13: Deassert config request - init complete */
++	mmdc0->mdscr = 0x00000000;
++
++	/* wait for auto-ZQ calibration to complete */
++	mdelay(1);
++}
++
++/* Configure MX6Q/DUAL mmdc DDR io registers */
++static struct mx6dq_iomux_ddr_regs novena_ddr_ioregs = {
++	/* SDCLK[0:1], CAS, RAS, Reset: Differential input, 40ohm */
++	.dram_sdclk_0		= 0x00020038,
++	.dram_sdclk_1		= 0x00020038,
++	.dram_cas		= 0x00000038,
++	.dram_ras		= 0x00000038,
++	.dram_reset		= 0x00000038,
++	/* SDCKE[0:1]: 100k pull-up */
++	.dram_sdcke0		= 0x00003000,
++	.dram_sdcke1		= 0x00003000,
++	/* SDBA2: pull-up disabled */
++	.dram_sdba2		= 0x00000000,
++	/* SDODT[0:1]: 100k pull-up, 40 ohm */
++	.dram_sdodt0		= 0x00000038,
++	.dram_sdodt1		= 0x00000038,
++	/* SDQS[0:7]: Differential input, 40 ohm */
++	.dram_sdqs0		= 0x00000038,
++	.dram_sdqs1		= 0x00000038,
++	.dram_sdqs2		= 0x00000038,
++	.dram_sdqs3		= 0x00000038,
++	.dram_sdqs4		= 0x00000038,
++	.dram_sdqs5		= 0x00000038,
++	.dram_sdqs6		= 0x00000038,
++	.dram_sdqs7		= 0x00000038,
++
++	/* DQM[0:7]: Differential input, 40 ohm */
++	.dram_dqm0		= 0x00000038,
++	.dram_dqm1		= 0x00000038,
++	.dram_dqm2		= 0x00000038,
++	.dram_dqm3		= 0x00000038,
++	.dram_dqm4		= 0x00000038,
++	.dram_dqm5		= 0x00000038,
++	.dram_dqm6		= 0x00000038,
++	.dram_dqm7		= 0x00000038,
++};
++
++/* Configure MX6Q/DUAL mmdc GRP io registers */
++static struct mx6dq_iomux_grp_regs novena_grp_ioregs = {
++	/* DDR3 */
++	.grp_ddr_type		= 0x000c0000,
++	.grp_ddrmode_ctl	= 0x00020000,
++	/* Disable DDR pullups */
++	.grp_ddrpke		= 0x00000000,
++	/* ADDR[00:16], SDBA[0:1]: 40 ohm */
++	.grp_addds		= 0x00000038,
++	/* CS0/CS1/SDBA2/CKE0/CKE1/SDWE: 40 ohm */
++	.grp_ctlds		= 0x00000038,
++	/* DATA[00:63]: Differential input, 40 ohm */
++	.grp_ddrmode		= 0x00020000,
++	.grp_b0ds		= 0x00000038,
++	.grp_b1ds		= 0x00000038,
++	.grp_b2ds		= 0x00000038,
++	.grp_b3ds		= 0x00000038,
++	.grp_b4ds		= 0x00000038,
++	.grp_b5ds		= 0x00000038,
++	.grp_b6ds		= 0x00000038,
++	.grp_b7ds		= 0x00000038,
++};
++
++static struct mx6_mmdc_calibration novena_mmdc_calib = {
++	/* write leveling calibration determine */
++	.p0_mpwldectrl0		= 0x00420048,
++	.p0_mpwldectrl1		= 0x006f0059,
++	.p1_mpwldectrl0		= 0x005a0104,
++	.p1_mpwldectrl1		= 0x01070113,
++	/* Read DQS Gating calibration */
++	.p0_mpdgctrl0		= 0x437c040b,
++	.p0_mpdgctrl1		= 0x0413040e,
++	.p1_mpdgctrl0		= 0x444f0446,
++	.p1_mpdgctrl1		= 0x044d0422,
++	/* Read Calibration: DQS delay relative to DQ read access */
++	.p0_mprddlctl		= 0x4c424249,
++	.p1_mprddlctl		= 0x4e48414f,
++	/* Write Calibration: DQ/DM delay relative to DQS write access */
++	.p0_mpwrdlctl		= 0x42414641,
++	.p1_mpwrdlctl		= 0x46374b43,
++	.mpzqlp2ctl		= 0,
++};
++
++static struct mx6_ddr_sysinfo novena_ddr_info = {
++	/* Width of data bus: 0=16, 1=32, 2=64 */
++	.dsize		= 2,
++	/* Config for full 4GB range so that get_mem_size() works */
++	.cs_density	= 32,	/* 32Gb per CS */
++	/* Single chip select */
++	.ncs		= 1,
++	.cs1_mirror	= 0,
++	.rtt_wr		= 1,	/* RTT_Wr = RZQ/4 */
++	.rtt_nom	= 2,	/* RTT_Nom = RZQ/2 */
++	.walat		= 3,	/* Write additional latency */
++	.ralat		= 7,	/* Read additional latency */
++	.mif3_mode	= 3,	/* Command prediction working mode */
++	.bi_on		= 1,	/* Bank interleaving enabled */
++	.sde_to_rst	= 0x10,	/* 14 cycles, 200us (JEDEC default) */
++	.rst_to_cke	= 0x23,	/* 33 cycles, 500us (JEDEC default) */
++	.pd_fast_exit	= 0,
++	.ddr_type	= 0,
++	.refsel		= 1,
++	.refr		= 7,
++};
++
++static struct mx6_ddr3_cfg novena_ddr3_cfg = {
++	.mem_speed	= 1600,
++	.density	= 4,
++	.width		= 64,
++	.banks		= 8,
++	.rowaddr	= 16,
++	.coladdr	= 10,
++	.pagesz		= 2,
++	.trcd		= 1300,
++	.trcmin		= 4900,
++	.trasmin	= 3590,
++	.SRT		= 0,
++};
++
++/*
++ * NOVENA-DDR-IMPLEMENT-168: bd5c7d3290bb94bf8af17760c321df67d2641343.
++ * Preserve historical PHY1 MDMISC restore, MAPSR masks, chip-width IOMUX,
++ * integer timing, WL softfail and unbounded polling deliberately.
++ * These are reproduction choices, not fixes or hardware qualifications.
++ * All writable tables have nonzero initializers (.data); SPD is on stack.
++ */
++void novena_ddr_init(int spd_i2c_ret);
++
++void novena_ddr_init(int spd_i2c_ret)
++{
++	int wl_ret, dqs_ret;
++
++	novena_read_spd(&novena_ddr_info, &novena_ddr3_cfg, spd_i2c_ret);
++	novena_dram_iocfg(novena_ddr3_cfg.width,
++			 &novena_ddr_ioregs, &novena_grp_ioregs);
++	novena_dram_cfg(&novena_ddr_info, &novena_mmdc_calib,
++			&novena_ddr3_cfg);
++	wl_ret = do_write_level_calibration();
++	dqs_ret = do_dqs_calibration();
++	/* Observe only; historical continuation on errors is preserved. */
++	printf("NOVENA-DDR historical WL=%d DQS=%d\n", wl_ret, dqs_ret);
++	printf("Running post-config memory test... ");
++	if (novena_memory_test())
++		printf("Fail!\n");
++	else
++		printf("Pass\n");
++	/* Return to modern CRT: BSS clear and board_init_r happen there. */
++}
+diff --git a/board/kosagi/novena/novena_spl.c b/board/kosagi/novena/novena_spl.c
+--- a/board/kosagi/novena/novena_spl.c
++++ b/board/kosagi/novena/novena_spl.c
+@@ -249,11 +249,15 @@
+ 	}
+ };
+ 
+-static void novena_spl_setup_iomux_i2c(void)
+-{
+-	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info0);
++static int novena_spl_setup_iomux_i2c(void)
++{
++	int spd_i2c_ret;
++
++	spd_i2c_ret = setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info0);
+ 	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+ 	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
++
++	return spd_i2c_ret;
+ }
+ 
+ /*
+@@ -411,117 +415,8 @@
+ }
+ #endif
+ 
+-/* Configure MX6Q/DUAL mmdc DDR io registers */
+-static struct mx6dq_iomux_ddr_regs novena_ddr_ioregs = {
+-	/* SDCLK[0:1], CAS, RAS, Reset: Differential input, 40ohm */
+-	.dram_sdclk_0		= 0x00020038,
+-	.dram_sdclk_1		= 0x00020038,
+-	.dram_cas		= 0x00000038,
+-	.dram_ras		= 0x00000038,
+-	.dram_reset		= 0x00000038,
+-	/* SDCKE[0:1]: 100k pull-up */
+-	.dram_sdcke0		= 0x00000038,
+-	.dram_sdcke1		= 0x00000038,
+-	/* SDBA2: pull-up disabled */
+-	.dram_sdba2		= 0x00000000,
+-	/* SDODT[0:1]: 100k pull-up, 40 ohm */
+-	.dram_sdodt0		= 0x00000038,
+-	.dram_sdodt1		= 0x00000038,
+-	/* SDQS[0:7]: Differential input, 40 ohm */
+-	.dram_sdqs0		= 0x00000038,
+-	.dram_sdqs1		= 0x00000038,
+-	.dram_sdqs2		= 0x00000038,
+-	.dram_sdqs3		= 0x00000038,
+-	.dram_sdqs4		= 0x00000038,
+-	.dram_sdqs5		= 0x00000038,
+-	.dram_sdqs6		= 0x00000038,
+-	.dram_sdqs7		= 0x00000038,
+-
+-	/* DQM[0:7]: Differential input, 40 ohm */
+-	.dram_dqm0		= 0x00000038,
+-	.dram_dqm1		= 0x00000038,
+-	.dram_dqm2		= 0x00000038,
+-	.dram_dqm3		= 0x00000038,
+-	.dram_dqm4		= 0x00000038,
+-	.dram_dqm5		= 0x00000038,
+-	.dram_dqm6		= 0x00000038,
+-	.dram_dqm7		= 0x00000038,
+-};
+-
+-/* Configure MX6Q/DUAL mmdc GRP io registers */
+-static struct mx6dq_iomux_grp_regs novena_grp_ioregs = {
+-	/* DDR3 */
+-	.grp_ddr_type		= 0x000c0000,
+-	.grp_ddrmode_ctl	= 0x00020000,
+-	/* Disable DDR pullups */
+-	.grp_ddrpke		= 0x00000000,
+-	/* ADDR[00:16], SDBA[0:1]: 40 ohm */
+-	.grp_addds		= 0x00000038,
+-	/* CS0/CS1/SDBA2/CKE0/CKE1/SDWE: 40 ohm */
+-	.grp_ctlds		= 0x00000038,
+-	/* DATA[00:63]: Differential input, 40 ohm */
+-	.grp_ddrmode		= 0x00020000,
+-	.grp_b0ds		= 0x00000038,
+-	.grp_b1ds		= 0x00000038,
+-	.grp_b2ds		= 0x00000038,
+-	.grp_b3ds		= 0x00000038,
+-	.grp_b4ds		= 0x00000038,
+-	.grp_b5ds		= 0x00000038,
+-	.grp_b6ds		= 0x00000038,
+-	.grp_b7ds		= 0x00000038,
+-};
+-
+-static struct mx6_mmdc_calibration novena_mmdc_calib = {
+-	/* write leveling calibration determine */
+-	.p0_mpwldectrl0		= 0x00420048,
+-	.p0_mpwldectrl1		= 0x006f0059,
+-	.p1_mpwldectrl0		= 0x005a0104,
+-	.p1_mpwldectrl1		= 0x01070113,
+-	/* Read DQS Gating calibration */
+-	.p0_mpdgctrl0		= 0x437c040b,
+-	.p0_mpdgctrl1		= 0x0413040e,
+-	.p1_mpdgctrl0		= 0x444f0446,
+-	.p1_mpdgctrl1		= 0x044d0422,
+-	/* Read Calibration: DQS delay relative to DQ read access */
+-	.p0_mprddlctl		= 0x4c424249,
+-	.p1_mprddlctl		= 0x4e48414f,
+-	/* Write Calibration: DQ/DM delay relative to DQS write access */
+-	.p0_mpwrdlctl		= 0x42414641,
+-	.p1_mpwrdlctl		= 0x46374b43,
+-};
+-
+-static struct mx6_ddr_sysinfo novena_ddr_info = {
+-	/* Width of data bus: 0=16, 1=32, 2=64 */
+-	.dsize		= 2,
+-	/* Config for full 4GB range so that get_mem_size() works */
+-	.cs_density	= 32,	/* 32Gb per CS */
+-	/* Single chip select */
+-	.ncs		= 1,
+-	.cs1_mirror	= 0,
+-	.rtt_wr		= 0,	/* RTT_Wr = RZQ/4 */
+-	.rtt_nom	= 1,	/* RTT_Nom = RZQ/2 */
+-	.walat		= 0,	/* Write additional latency */
+-	.ralat		= 5,	/* Read additional latency */
+-	.mif3_mode	= 3,	/* Command prediction working mode */
+-	.bi_on		= 1,	/* Bank interleaving enabled */
+-	.sde_to_rst	= 0x10,	/* 14 cycles, 200us (JEDEC default) */
+-	.rst_to_cke	= 0x23,	/* 33 cycles, 500us (JEDEC default) */
+-	.refsel = 1,	/* Refresh cycles at 32KHz */
+-	.refr = 7,	/* 8 refresh commands per refresh cycle */
+-};
+-
+-static struct mx6_ddr3_cfg elpida_4gib_1600 = {
+-	.mem_speed	= 1600,
+-	.density	= 4,
+-	.width		= 64,
+-	.banks		= 8,
+-	.rowaddr	= 16,
+-	.coladdr	= 10,
+-	.pagesz		= 2,
+-	.trcd		= 1375,
+-	.trcmin		= 4875,
+-	.trasmin	= 3500,
+-};
++/* Board-local historical DDR sequence, before the modern CRT BSS clear. */
++void novena_ddr_init(int spd_i2c_ret);
+ 
+ static void ccgr_init(void)
+ {
+@@ -543,6 +438,8 @@
+  */
+ void board_init_f(ulong dummy)
+ {
++	int spd_i2c_ret;
++
+ 	/* setup AIPS and disable watchdog */
+ 	arch_cpu_init();
+ 
+@@ -564,7 +461,7 @@
+ 	novena_spl_setup_iomux_buttons();
+ 	novena_spl_setup_iomux_enet();
+ 	novena_spl_setup_iomux_fpga();
+-	novena_spl_setup_iomux_i2c();
++	spd_i2c_ret = novena_spl_setup_iomux_i2c();
+ 	novena_spl_setup_iomux_pcie();
+ 	novena_spl_setup_iomux_sdhc();
+ 	novena_spl_setup_iomux_spi();
+@@ -574,12 +471,6 @@
+ 	/* UART clocks enabled and gd valid - init serial console */
+ 	preloader_console_init();
+ 
+-	/* Start the DDR DRAM */
+-	mx6dq_dram_iocfg(64, &novena_ddr_ioregs, &novena_grp_ioregs);
+-	mx6_dram_cfg(&novena_ddr_info, &novena_mmdc_calib, &elpida_4gib_1600);
+-
+-	/* Perform DDR DRAM calibration */
+-	udelay(100);
+-	mmdc_do_write_level_calibration(&novena_ddr_info);
+-	mmdc_do_dqs_calibration(&novena_ddr_info);
+-}
++	/* Exactly one DDR initialization; return to the modern SPL CRT. */
++	novena_ddr_init(spd_i2c_ret);
++}
+diff --git a/board/kosagi/novena/spd.h b/board/kosagi/novena/spd.h
+new file mode 100644
+--- /dev/null
++++ b/board/kosagi/novena/spd.h
+@@ -0,0 +1,29 @@
++#ifndef __NOVENA_SPD_H__
++#define __NOVENA_SPD_H__
++static const char default_spd[] = {
++	0x92, 0x13, 0x0b, 0x03, 0x04, 0x21, 0x02, 0x01, 0x03, 0x11, 0x01,
++	0x08, 0x0a, 0x00, 0xfe, 0x00, 0x69, 0x78, 0x69, 0x30, 0x69, 0x11,
++	0x18, 0x81, 0x20, 0x08, 0x3c, 0x3c, 0x00, 0xf0, 0x83, 0x01, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x86, 0x00, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x2f, 0x11, 0x01, 0x00, 0x00, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x98, 0x01, 0x14,
++	0x41, 0xc0, 0x0e, 0x31, 0x8b, 0x7d, 0x53, 0x39, 0x39, 0x30, 0x35,
++	0x34, 0x36, 0x39, 0x2d, 0x31, 0x34, 0x35, 0x2e, 0x41, 0x30, 0x30,
++	0x4c, 0x46, 0x20, 0x00, 0x00, 0x80, 0x2c, 0x00, 0x00, 0x00, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	0x00, 0x00, 0x5a,
++};
++#endif /* __NOVENA_SPD_H__ */
+diff --git a/configs/novena_defconfig b/configs/novena_defconfig
+--- a/configs/novena_defconfig
++++ b/configs/novena_defconfig
+@@ -7,7 +7,8 @@
+ CONFIG_NR_DRAM_BANKS=1
+ CONFIG_ENV_SIZE=0x4000
+ CONFIG_MX6Q=y
+-CONFIG_MX6_DDRCAL=y
++# CONFIG_MX6_DDRCAL is not set
++CONFIG_DDR_SPD=y
+ CONFIG_TARGET_KOSAGI_NOVENA=y
+ CONFIG_SYS_I2C_MXC_I2C1=y
+ CONFIG_SYS_I2C_MXC_I2C2=y

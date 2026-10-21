@@ -3291,3 +3291,52 @@ GNU-`uptime`-Berechnung bleiben offen.
 Rohprotokolle:
 - https://github.com/loomit77/project-block-logs/blob/de07f99a37a208c095bce4fae1550af825839de5/novena/2026/10/NOVENA-NIXOS-106-20261018-164144-uRNDKsEb.txt
 - https://github.com/loomit77/project-block-logs/blob/da035c84c3d3445d119c4df5623c040286778eb0/novena/2026/10/NOVENA-NIXOS-107-20261018-164522-50EyVLbX.txt
+
+
+## 2026-10-21 – NOVENA-DDR-IMPLEMENT-168: reine Quellprüfung
+
+Kein neuer Hardwareversuch. Vor Änderungen die vier vollständigen
+A-B-B-A-Rohlogs vom 07.10. und das DDR-08H-Seriallog vom 14.10. gelesen:
+Q1/C1 ZERO vor D32 `ret=-12`; kein isolierter Fix daraus abgeleitet.
+Vorarbeitsprotokolle PORT-162, DDR-PORT-164, HISTORY-165, EXTRACT-166 und
+HISTORY-167R lokal gefunden; vollständige TXT-Hashes stimmen mit Sidecars
+überein, relevante Berichte/Quellbefunde berücksichtigt.
+
+Quellimplementierung im neuen Patch 0014; vollständige Hunk-Kontexte des
+alten und neuen Stacks rein im Prozessspeicher verglichen, neue Patchdatei
+gegen die beabsichtigten fünf Quellziele rückverglichen. Historische
+WL-/DQS-/IOMUX-/MMDC-Funktionskörper, Decoder ab Lesefehlerzweig, 256
+Ersatzbytes und gemeinsame CRC-Funktion stimmen im dokumentierten Umfang.
+Einziger Board-DDR-Aufruf, keine zusätzliche BSS-/board_init_r-Übergabe,
+USDHC2 und Proper-mmc1 textuell erhalten. Patches 0001–0013 bytegleich
+gegen HEAD; Index unverändert. Zwei anfängliche Textrekonstruktionen
+scheiterten vor Dateianlage an Patchkopf-/Hunk-Formatannahmen; danach
+vollständiger eindeutiger Kontextabgleich erfolgreich.
+
+Details, Hashes, Grenzen und spätere Kriterien:
+[NOVENA-DDR-IMPLEMENT-168](NOVENA-DDR-IMPLEMENT-168.md).
+Kein Compiler, Linker, Build, Nix-Aufruf, Hardware-/Blockgeräte-/Netzwerkzugriff
+oder Git-Schreibzugriff. Externer Runner nicht gestartet, da Schreibzugriffe
+außerhalb des Hauptprojekts untersagt sind; kein vollständiges Runner-TXT
+für diesen Auftrag behauptet. `IMPLEMENTATION_RESULT=PASS_SOURCE_ONLY`.
+
+## 2026-10-21: DDR-Build und statische Qualifikation
+
+- 168: DDR-Port source-only PASS.
+- 171: fehlerhafter Flake-Attributaufruf, kein Build.
+- 172: Git-/Patch-/Flake-Precheck PASS.
+- 173: tatsächliches Image-Attribut `system.build.novenaImage`
+  und lokale `path:`-Flake bestätigt.
+- 174: vollständiger NixOS-SD-Image-Build PASS.
+- 175: SPL/Image-Bytevergleich, MBR, Partitionierung PASS.
+- 176: IVT und ROM-Ladebereich PASS_WITH_DOCUMENTED_LIMITATIONS.
+- 177: Git-Bestandsaufnahme PASS.
+
+Ergebnis: Statische Artefaktprüfung erfolgreich. Keine Aussage über
+den tatsächlichen DDR-Boot auf Hardware. ELF-/Map-Laufzeitgrenzen offen.
+
+Image:
+`/nix/store/ycwfjyfgjy6qymrgz21z8ns95a94n0zv-nixos-novena-sd-image.img`
+
+Image-SHA256:
+`f6002d0688cb3b81447943485ebcf4f8ff19facad52038fa7f0d2e6a1fbc8b43`

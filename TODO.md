@@ -1265,3 +1265,14 @@ Die TXT-Protokolle und SHA256-Sidecars liegen im privaten
 GitHub-Repository `loomit77/project-block-logs` unter
 `novena/2026/10/`. Wrapper-PASS ist kein Beweis
 für einen fachlich erfolgreichen Borg-Lauf.
+
+## Novena DDR – nächster Schritt (2026-10-21)
+
+- [x] Historische DDR-Initialisierung in U-Boot 2026.07 integrieren.
+- [x] Vollständiges NixOS-SD-Image bauen.
+- [x] SPL, IVT, Partitionierung und Image statisch prüfen.
+- [ ] SPL-ELF/Map-Speicherbelegung bei Bedarf gezielt qualifizieren.
+- [ ] Kontrollierten Hardwaretest vorbereiten; serielle Konsole sichern.
+- [ ] Vor SD-Schreibvorgang ausdrücklich Freigabe einholen.
+- [ ] DDR-Kaltstartverhalten und Bootablauf auf echter Novena prüfen.
+- [ ] Ergebnisse anschließend dokumentieren und archivieren.
