@@ -128,3 +128,17 @@ Primärbeleg: `novena/2026/10/NOVENA-BORG-ACCESS-SOURCES-144-20261021-100350-rn4
 - Borgmatic PID 20558 und Borg PID 20582 aus Block 140 liefen um 10:03:50 weiter; **Archivabschluss weiterhin offen**.
 
 Nächste Dokumentationsmaßnahme: feste, eng begrenzte und redigierte Auswertung der vier vorhandenen USB-Befehlsdateien sowie gegebenenfalls Suche nach dem systemd-Startaufruf; keine weitere allgemeine Vollinventur und kein paralleler Backup-Start.
+
+
+## USB-Quellenauswertung 21.10.2026, 10:05 – USB-SOURCES-145
+
+Primärbeleg: `novena/2026/10/NOVENA-BORG-USB-SOURCES-145-20261021-100549-n6ytCvRA.txt`; `BLOCK_RESULT=PASS`, `CONFIG_CHANGED=NO`, `GIT_CHANGED=NO`.
+
+- Die lesbare Befehlsdatei `NOVENA-BORG-BACKUP-08B.command.bash` enthält `borgmatic`, `--config`, `BORG_REPO`, `findmnt` und `mountpoint`. Das belegt die verwendeten Mechanismen, **nicht** den tatsächlich expandierten Konfigurations- oder Repositorypfad.
+- `NOVENA-BORG-BACKUP-08A.command.bash` enthält `borgmatic` und `findmnt`.
+- `NOVENA-BORG-REPO-PATH-01.command.bash` enthält eine nur indirekte/relative `REPOSITORY`-Zuweisung sowie `BORG_REPO`; der ausgegebene Marker `INDIRECT_OR_RELATIVE` ist **kein Pfad**.
+- `NOVENA-BORG-USB-CHECK-02.command.bash` enthält `findmnt`.
+- Zum Zeitpunkt der Inventur kein Mountpunkt mit `borg` oder `backup` im Namen in `/proc/self/mounts` ausgegeben. Ein anders benannter Mountpunkt ist damit nicht ausgeschlossen.
+- Backup 140: `borgmatic` PID 20558 und `borg` PID 20582 liefen um 10:05:49 noch (42:01 beziehungsweise 41:30). **Kein Abschlussnachweis.**
+
+**Offen:** USB-Repository- und Borgmatic-Konfigurationspfad durch sichere, auf Pfadwerte beschränkte Auswertung der *tatsächlichen* Skript-Variablen und ihrer Referenzen belegen. Keine weiteren Wiederholungen der reinen Stichwortsuche; keine Backups oder SSH-Verbindungen zu diesem Zweck starten.
