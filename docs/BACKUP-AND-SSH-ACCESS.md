@@ -98,3 +98,19 @@ Inventur `NOVENA-BORG-VM103-SYSTEMD-INVENTORY-141` und `NOVENA-BORG-VM103-SYSTEM
 3. USB-Borg: Konfigurationsdatei, tatsächlichen Repositorypfad, Mount und Launcher/Startweise belegen.
 4. VM103: ursprünglichen systemd-run-Aufruf aus der erhaltenen Befehlsdatei/Originalhistorie rekonstruieren; Abschluss und Archiv von Block 140 separat prüfen.
 5. Nach Dokumentationsänderung GitHub/Codeberg-Stand vergleichen und Codeberg synchronisieren; nicht annehmen, dass ein GitHub-Commit automatisch bei Codeberg ankommt.
+
+
+## Inventur-Nachtrag 21.10.2026, 09:56 – ACCESS-INVENTORY-143
+
+Primärbeleg: privates GitHub-Protokoll `novena/2026/10/NOVENA-BORG-ACCESS-INVENTORY-143-20261021-095610-dbJrrT5l.txt`; `BLOCK_RESULT=PASS`, `GIT_CHANGED=NO`.
+
+- `ssh -G 192.168.178.18`: `user loomit`, `hostname 192.168.178.18`, Port 22, Standard-`identityfile`-Kandidaten einschließlich `~/.ssh/id_ed25519`, `StrictHostKeyChecking ask`, Standard-`known_hosts`. Das zeigt **Konfigurationsdefaults**, nicht den bei früheren erfolgreichen SSH-Tests exakt verwendeten Befehl.
+- `ssh -G 192.168.178.20`: ebenfalls Defaultbenutzer `loomit`; **für VM103 nicht als Login-Vorlage verwenden**. Der belegte funktionierende Benutzer ist `borgadmin` mit explizitem Schlüssel und dedizierter Hostkeydatei, siehe oben.
+- `~/.ssh/config` war nicht lesbar/vorhanden; keine Proxmox-Host-Aliase ermittelt. **Proxmox-IP/Benutzer noch offen.**
+- Standard-`known_hosts`: Eintrag für `192.168.178.18` vorhanden, für `192.168.178.20` nicht vorhanden. VM103 verwendet eine **separate** bekannte Hostkeydatei; das Fehlen im Standardfile ist daher kein Verbindungsfehler.
+- USB-Mount-Abfrage lieferte keinen Treffer mit Label `NOVENA_BORG` zum Inventurzeitpunkt. **Kein Beweis für fehlenden Datenträger oder Repositoryverlust.**
+- Unter `~/.config` wurde nur `/home/loomit/.config/novena-borg/vm103-borgmatic.yaml` als Borgmatic-YAML gefunden. Das schließt eine USB-Konfiguration an anderer Stelle oder in anderem Format nicht aus. **USB-Repositorypfad bleibt offen.**
+- VM103-Skripte vorhanden: `/home/loomit/.config/novena-borg/run-vm103-backup.pre96.bash`, `run-vm103-backup.bash` und `execute-vm103-backup.bash`. Der Inhalt wurde **nicht** geprüft; keine Variante ohne Prüfung als endgültigen Startweg deklarieren.
+- Um 09:56:10 liefen `borgmatic` (PID 20558) und `borg` (PID 20582) aus Block 140 noch, ca. 32 Minuten nach Start. **Kein bestätigter Archivabschluss**.
+
+**Sicherer Folgeweg:** Bestehende originale `*.command.bash`-Dateien des erfolgreichen USB-Backups und des systemd-Starts gezielt *lesend* auf Startmechanismus und Konfigurationspfad prüfen, mit Geheimnis-Redaktion; Proxmox-Verbindungsparameter nur aus verifizierten Befehlen übernehmen. Während Block 140 läuft, keinen zweiten Borg-Lauf starten. GitHub-Änderung bedeutet keine automatische Codeberg-Synchronisation.
