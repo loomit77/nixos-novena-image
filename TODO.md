@@ -1276,3 +1276,15 @@ für einen fachlich erfolgreichen Borg-Lauf.
 - [ ] Vor SD-Schreibvorgang ausdrücklich Freigabe einholen.
 - [ ] DDR-Kaltstartverhalten und Bootablauf auf echter Novena prüfen.
 - [ ] Ergebnisse anschließend dokumentieren und archivieren.
+
+## 2026-10-21 – USB-Abschluss 208–213
+
+- [x] Bereits ausgewertete USB-Diagnoseblöcke 208–213 quellenorientiert
+      konsolidiert; Untersuchung bei offener Ursache vorläufig abgeschlossen.
+- [ ] CODA/VPU-Firmware als eigenständigen offenen Befund weiterführen.
+
+[Bericht und Evidenzgrenzen](docs/NOVENA-USB-2026-10-21.md): u3-Zuordnung,
+historischer Dienstlauf und Over-current-Ursache nicht bewiesen.
+Keine routinemäßige Fortsetzung: keine Port-Resets, Stromversorgungsänderung
+oder unbegründete `disable-over-current`-Ergänzung. Wiederaufnahme der
+USB-Ursachenanalyse nur bei neuer unterscheidungskräftiger Evidenz.

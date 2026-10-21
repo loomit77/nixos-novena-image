@@ -3340,3 +3340,18 @@ Image:
 
 Image-SHA256:
 `f6002d0688cb3b81447943485ebcf4f8ff19facad52038fa7f0d2e6a1fbc8b43`
+
+## 2026-10-21 – USB 208–213: dokumentarische Konsolidierung
+
+NOVENA-USB-DOC-CODEX-215-R1 dokumentiert die bereits ausgewerteten Blöcke
+208 bis 213 auf Basis der im Auftrag bestätigten Ergebnisse und vorhandener
+lokaler Quellen. Kein neuer Diagnoseblock, Build oder Hardwaretest.
+Originalprotokolle 208–213 im Repository nicht gefunden und nicht erneut
+geprüft; externe Archivbelege sind keine lokal geprüften Dateien. Keine
+rekonstruierten Exitcodes, Sidecarabgleiche oder Einzelblockzuordnungen.
+
+Ergebnis: historische Paketinstallation und Dienstaktivierung belegt, kein
+historischer Dienstausführungserfolg; USB-Enumeration trotz Over-current-
+Meldung; untersuchte USB-/Regulator-DT-Eigenschaften gleich, vollständiger
+Binärvergleich nicht durchgeführt. Ursache offen, Untersuchung vorläufig
+abgeschlossen. [Quellen, Topologie, Meldungen und Aussagegrenzen](NOVENA-USB-2026-10-21.md).

@@ -1353,3 +1353,19 @@ und den aktuellen Git-Zustand prüfen.
 
 Dieser Nachtrag hat Vorrang vor älteren, ausdrücklich
 als historisch gekennzeichneten Statusangaben.
+
+## 2026-10-21 – USB-Übergabe nach Abschluss 208–213
+
+NOVENA-USB-DOC-CODEX-215-R1: USB-Untersuchung vorläufig abgeschlossen,
+Ursache offen. Geräteenumeration unter Linux 6.18.49 trotz Over-current-
+Meldung; weder elektrischer Überstrom noch fehlerhafte Signalauswertung
+bewiesen. Historische Dienstaktivierung ist kein erfolgreicher Bootlauf;
+u3 nicht sicher einem Linux-Pfad zugeordnet. Manpage-/README-Widerspruch
+und begrenzten DT-Vergleich beachten.
+
+[Maßgeblicher USB-Abschlussbericht](NOVENA-USB-2026-10-21.md) trennt lokale
+Quellen von auftragsbestätigten Ergebnissen und externen Archivbelegen.
+Keine Port-Resets, keine USB-Stromversorgungsänderung, kein unbegründetes
+`disable-over-current`. Wiederaufnahme nur mit neuer unterscheidungskräftiger
+Evidenz; keine neue Aktionsfreigabe. Fehlende CODA/VPU-Firmware separat offen.
+Die übrigen datierten Projektstände und Arbeitsstränge bleiben maßgeblich.

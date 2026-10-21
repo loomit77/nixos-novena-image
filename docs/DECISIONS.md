@@ -2025,3 +2025,16 @@ Vorrang: bewusst begrenzte Mainline-Aufnahme, kein behaupteter SPD-Ausbau
 [Entscheidungsdetails und Abweichungsliste](NOVENA-DDR-IMPLEMENT-168.md).
 Abnahme ausschließlich `PASS_SOURCE_ONLY`; Builds, Medienaktionen und
 Hardwaretests bleiben getrennte, hier nicht erteilte Freigaben.
+
+## 2026-10-21 – USB-Untersuchung vorläufig abschließen
+
+NOVENA-USB-DOC-CODEX-215-R1, Diagnoseblöcke 208–213:
+USB-Geräte werden erkannt; die Ursache der Over-current-Warnung ist offen.
+Weder tatsächlicher elektrischer Überstrom noch fehlerhafte Signalauswertung
+sind nachgewiesen. Historischer Hub-Dienst und begrenzter DT-Teilvergleich
+begründen keinen Eingriff. [Begründung und Quellenstatus](NOVENA-USB-2026-10-21.md).
+
+Beschluss: keine USB-Port-Resets, keine Änderung der USB-Stromversorgung,
+kein unbegründetes Setzen von `disable-over-current`. Ursachenanalyse nur
+bei neuer, unterscheidungskräftiger Evidenz wieder aufnehmen; dies erteilt
+keine Test- oder Änderungsfreigabe. CODA/VPU-Firmware bleibt separat offen.

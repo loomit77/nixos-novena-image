@@ -7297,3 +7297,18 @@ offene DDR-Root-Cause werden nicht umgedeutet.
   vollständige Stack-/Heap-/BSS-Belegung nicht abschließend verifiziert.
 - Hardware-Boot und DDR-Initialisierung auf echter Novena nicht getestet.
 - Keine SD-Karte beschrieben; Hardwaretest nur nach gesonderter Freigabe.
+
+## 2026-10-21 – USB-Abschluss, Diagnoseblöcke 208–213
+
+NOVENA-USB-DOC-CODEX-215-R1: USB-Untersuchung vorläufig abgeschlossen,
+Ursache der Over-current-Warnung offen. Unter Linux 6.18.49 werden am
+Host `ci_hdrc.1` / `2184200.usb`, Bus 1, die Hubs und ASIX erkannt.
+Weder elektrischer Überstrom noch fehlerhafte Signalauswertung sind bewiesen.
+Der USB-/Regulator-Teilvergleich der Referenz vom 11.09. mit dem laufenden
+DT zeigt Übereinstimmung, keinen vollständigen binären DT-Vergleich.
+Historischer Hub-Dienst aktiviert, erfolgreicher Bootlauf und u3-Zuordnung
+nicht bewiesen; README-/Manpage-Portbenennungen widersprechen sich.
+[Abschlussbericht mit Quellenstatus und DTB-Identitätspräzisierung](NOVENA-USB-2026-10-21.md).
+CODA/VPU-Firmware bleibt separat offen. Keine Port-Resets,
+Stromversorgungsänderung oder unbegründete `disable-over-current`-Ergänzung.
+Wiederaufnahme nur bei neuer unterscheidungskräftiger Evidenz.
