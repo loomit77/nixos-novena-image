@@ -1198,3 +1198,70 @@ Abschlussbericht:
 
 Keine erneuten Vergleichsblöcke ohne neue Evidenz.
 Die Novena-Bootqualifikation bleibt eigenständig.
+
+## Nachtrag 2026-10-21: Audio, Borg VM103 und Tagesabschluss
+### Offene Aufgaben aus dem Abschluss 2026-10-21
+
+- [ ] P1: Borg-VM103-Exitcode 105 anhand des Originalprotokolls
+      und der Quellverzeichnisrechte untersuchen.
+- [ ] Erste vollständige VM103-Borg-Sicherung nach gesonderter
+      Freigabe erfolgreich abschließen und Archiv nachweisen.
+- [ ] Wiederherstellbarkeit durch einen gezielten Restore-Test
+      nachweisen.
+- [ ] Lautsprecherhardware nur bei später verfügbarer
+      Messtechnik und neuer Freigabe weiter untersuchen.
+- [x] Funktionierende Kopfhörerausgabe unter NixOS bestätigt.
+- [x] VM103-Repository lesend erreicht; null Archive nachgewiesen.
+
+### Audio / Novena
+
+- NixOS 26.05, Linux 6.18.49 ARMv7, Patch 0007.
+- Kopfhörerausgabe funktioniert.
+- Interne Lautsprecher sind angeschlossen, bleiben aber ohne hörbare Ausgabe.
+- Während der Wiedergabe waren Speaker, LOUT2, ROUT2 und
+  audio-amp im ASoC-DAPM-Pfad aktiv.
+- `es8328-power` war enabled, GPIO5_17 stand auf HIGH.
+- Das belegt keine physisch gemessene Spannung an den
+  Lautsprecherverstärkern U10A/U12A.
+- Originalschaltplan: NS4890B/TS4990IST, Versorgung
+  `P5.0V_DELAYED`, Steuerung `AUD_PA_SHDN`.
+- Kein Multimeter vorhanden. Hardwaremessungen und weitere
+  Lautsprecherdiagnose auf unbestimmte Zeit zurückgestellt.
+- Keine weitere Kernel-, DTS- oder GPIO-Änderung beauftragt.
+
+### Borg / VM103
+
+- Backupziel: Debian-13-VM103, 3-TB-Datenträger.
+- Repository:
+  `ssh://borgadmin@192.168.178.20/srv/borg-storage/novena/foobox`
+- Das verschlüsselte Borg-Repository ist über die bestehende
+  SSH-Konfiguration erreichbar.
+- Die erste Sicherung wurde am 2026-10-21 durch Block 97
+  als temporärer Dienst gestartet.
+- Originalprotokoll:
+  `~/novena-backups/vm103-backup-state/first-backup-20261021-073016.log`
+- Borgmatic scheiterte bei `borg create --dry-run --list`
+  mit Exitcode 105 (Backup permission issue).
+- Block 135 bestätigte: Repository erreichbar, aber null Archive.
+- Deshalb ist noch keine erfolgreiche VM103-Sicherung nachgewiesen.
+- Restore-Test offen.
+- Das bisherige USB-Borg-Repository bleibt unverändert.
+- Nächster Backupschritt: Berechtigungsursache gezielt untersuchen,
+  anschließend erst nach Freigabe Sicherung erneut starten.
+- Wichtig: Für Borg die vorhandene Datei
+  `~/.config/novena-borg/vm103-known-hosts` verwenden.
+  Der direkte Borg-Aufruf in Block 131 nutzte diese nicht.
+
+### Nachweise
+
+- NOVENA-PATCH-0007-SPEAKER-POWER-LIVE-130
+- NOVENA-DAY-CLOSE-PRECHECK-131
+- NOVENA-BORG-SSH-PRECHECK-132
+- NOVENA-BORG-ORIGINAL-RUN-133
+- NOVENA-BORG-FIRST-BACKUP-STATUS-134
+- NOVENA-BORG-ARCHIVE-VERIFY-135
+
+Die TXT-Protokolle und SHA256-Sidecars liegen im privaten
+GitHub-Repository `loomit77/project-block-logs` unter
+`novena/2026/10/`. Wrapper-PASS ist kein Beweis
+für einen fachlich erfolgreichen Borg-Lauf.
