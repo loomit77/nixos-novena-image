@@ -29,7 +29,7 @@ let
 
   bootCmd = pkgs.writeText "boot.cmd" (if historical then ''
     echo NOVENA_NIXOS_HISTORICAL_2015_EXPERIMENTAL
-    setenv bootargs 'systemConfig=${system} init=${system}/init loglevel=7 console=ttymxc1,115200 console=tty0'
+    setenv bootargs 'systemConfig=${system} init=${system}/init loglevel=4 console=ttymxc1,115200 console=tty0'
     if mmc dev 1 && mmc rescan; then
       if fatload mmc 1:1 0x12000000 zImage; then
         if fatload mmc 1:1 0x20000000 initrd.uimg; then
@@ -44,7 +44,7 @@ let
       sleep 1
     done
   '' else ''
-    setenv bootargs 'systemConfig=${system} init=${system}/init loglevel=7 console=ttymxc1,115200 console=tty0'
+    setenv bootargs 'systemConfig=${system} init=${system}/init loglevel=4 console=ttymxc1,115200 console=tty0'
     fatload mmc 1:1 0x12000000 zImage
     fatload mmc 1:1 0x20000000 initrd.uimg
     fatload mmc 1:1 0x1f000000 novena.dtb

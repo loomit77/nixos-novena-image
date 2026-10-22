@@ -26,7 +26,7 @@
 
   boot.kernelParams = [
     "console=tty0"
-    "loglevel=7"
+    "loglevel=4"
   ];
 
   boot.kernelPatches = [
