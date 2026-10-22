@@ -12,8 +12,26 @@
 
   hardware.graphics.enable = true;
 
+  # Development image: diagnostic tools for Novena hardware tests.
   environment.systemPackages = with pkgs; [
     alsa-utils
+
+    # Network and Ethernet diagnostics
+    iproute2
+    iputils
+    ethtool
+
+    # I2C, USB and PCI diagnostics
+    i2c-tools
+    usbutils
+    pciutils
+
+    # SATA storage diagnostics
+    smartmontools
+
+    # Process and file diagnostics
+    strace
+    lsof
   ];
 
   networking.hostName = "novena";
