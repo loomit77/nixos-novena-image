@@ -2,6 +2,43 @@
 
 Stand: 2026-10-21. Diese Datei dokumentiert **nachgewiesene Verbindungsparameter und Fundstellen**, keine Passwörter oder privaten Schlüssel. Sie ist keine Freigabe zum Verbindungsaufbau, Backup oder Restore.
 
+## Aktueller Betriebsstand – Nachtrag 2026-10-22
+
+Maßgeblich sind die vollständig lokal gelesenen Erfolgsprotokolle vom
+21.10.2026, jeweils SHA256 gegen den vorhandenen Sidecar geprüft:
+
+- USB: `NOVENA-DAYCLOSE-BORG-248-20261021-183629-nBVemDtT.txt`,
+  SHA256 `209838251c2d616c48ba975f4432568235663d46302c7faec650501394983f35`.
+  `daily-close.bash`: Exit 0, Archive 11 → 12, genau ein neues,
+  keine verschwundenen Archive, HEAD und Index unverändert.
+- VM103: `NOVENA-VM103-BORG-BACKUP-255-20261021-185554-5QVPZZYM.txt`,
+  SHA256 `060a01d2ce159b1c3c1484dfccb665ec90df6b62741b74bded8fb29ebcb41e70`.
+  `execute-vm103-backup.bash`: Preflight/Mount-Guard PASS, Create und
+  anschließende Liste erfolgreich, drei Archive einschließlich
+  `foobox-2026-10-21T18:58:49`, Exit 0.
+
+Die lokalen Skripte und beide Borgmatic-Konfigurationen wurden am 22.10.
+inhaltlich gelesen, ohne Geheimnisse zu übernehmen. USB-Konfiguration:
+`~/.config/borgmatic/novena.yaml`, Repository
+`/run/media/loomit/NOVENA_BORG/repository`. Der aktuelle USB-Launcher prüft
+Dateisystem-UUID und Repository-ID; der VM103-Launcher ruft den bestehenden
+Preflight einschließlich entferntem Mount-Guard und Imagesynchronisation auf.
+Beide Startwege benötigen keine zusätzlichen Argumente.
+
+Der neue gemeinsame Einstieg und seine Grenzen stehen im
+[Backup-Runbook](BACKUP-RUNBOOK.md). Er ist ausschließlich statisch und mit
+Mocks geprüft; kein neuer realer Backup- oder Restore-Nachweis.
+Die früheren Aussagen „null Archive“, „Abschluss offen“ und „Inhalte nicht
+geprüft“ sind durch diese Evidenz überholt. Der frühere Exit 105 bleibt ein
+historischer Fehler; eine erneute Ursachenuntersuchung wird nicht abgeleitet.
+Restore-Abnahme und unabhängige Schlüsselwiederherstellung bleiben offen.
+
+## Historische Zwischenstände und Zugangsnachweise
+
+Die folgenden Abschnitte bleiben mit ihrem damaligen Umfang erhalten.
+Ihre damaligen offenen Backupfragen sind gegen den obigen aktuellen Stand
+zu lesen; laufende Prozesse und Folgeaufträge sind keine heutigen Aufträge.
+
 ## Grundregeln
 
 - `AGENTS.md` und `NOVENA-ARBEITSREGELN.txt` haben Vorrang. Vor Zugriffen aktuellen HEAD, Index, Worktree und Primärprotokolle prüfen.
@@ -170,3 +207,45 @@ Abgrenzung:
 Die Proxmox-Verbindung wurde historisch nachgewiesen.
 Bei dieser Dokumentationsänderung wurde keine neue
 SSH-Verbindung hergestellt.
+
+
+## USB-Mount-Nachtrag 2026-10-22 – INDEX-1K-78
+
+Laut Nutzerbestätigung schlugen NOVENA-BORG-USB-04/05 am 22.10. mit Exit 26
+fehl: Datenträger erkannt, nicht eingehängt; VM103 erfolgreich. Dies ist hier
+keine erneute Prüfung vollständiger Originalprotokolle. Bestätigte Identität:
+ext4, Label NOVENA_BORG, Dateisystem-UUID
+`b9161f3a-5903-4761-936f-42360d13d84e`; Repository
+`/run/media/loomit/NOVENA_BORG/repository`. `/dev/sda1` bleibt ausschließlich
+ein historischer Gerätename.
+
+Der gemeinsame Launcher ergänzt UUID-basierte Mountvorbereitung und das
+normale Aushängen ausschließlich selbst bestätigter eigener Mounts unter
+der gemeinsamen Sperre. Bestehende Borg-Launcher bleiben unverändert.
+USB-Mountfehler verhindern keinen VM103-Versuch. Vorhandene korrekte Mounts
+bleiben eingehängt, fremde Mounts bleiben unangetastet. Unmountfehler werden
+als Gesamtfehler gemeldet, ohne Wiederholung.
+
+**Produktive automatische Einbindung noch nicht freigegeben.** Eine sichere
+administrative fstab-user-Einrichtung und ihre Rechte auf foobox sind nicht
+nachgewiesen. Der Launcher verwendet kein sudo, keine Passwortabfrage und
+keinen Root-Gesamtlauf. Exakter Konfigurationsvertrag, lokale Rechtebreite,
+Schutz des Mountpfads und Ausschluss konkurrierender Automounter stehen im
+[Runbook](BACKUP-RUNBOOK.md#berechtigungen-und-freigabegrenze).
+`--check` bestätigt diese Rechte nicht und startet weder Geräteabfragen noch
+Mount, Unmount, Borg oder SSH. Statische und Mock-Prüfung PASS; kein echter
+Backup-/Mount-/Unmount-/SSH-Lauf, keine Systeminstallation, kein Commit/Push.
+
+
+## Betriebsarten-Nachtrag 2026-10-22 – INDEX-1K-79
+
+Der gemeinsame Projekt-Launcher bietet `--usb`, `--hdd` und `--all`;
+ohne Argument bleibt der kombinierte Ablauf erhalten. `--hdd` bezeichnet
+hier ausschließlich das vorhandene VM103-Borg-Backup. Alle Modi halten
+dieselbe Sperre und erhalten die bestehenden argumentfreien Startwege und
+Guards. `--check` bleibt ein lokaler Check beider Ziele ohne Mount/Borg/SSH.
+Fish-Funktionen liegen ausschließlich im Projekt, ohne Benutzerinstallation.
+Bedienung, Exitcodes, Testumfang und vorbereiteter administrativer fstab-user-
+Eintrag stehen im [Runbook](BACKUP-RUNBOOK.md). Mountrechte bleiben
+`NOT_RELEASED`: keine Systemänderung, keine sudoers-Regel, keine reale
+Mount-/Unmount- oder Backupqualifikation. Nur statische und isolierte Mocks.

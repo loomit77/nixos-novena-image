@@ -3397,3 +3397,39 @@ abgeschlossen. [Quellen, Topologie, Meldungen und Aussagegrenzen](NOVENA-USB-202
   kein erfolgreicher neuer Lauf wird hier behauptet.
 - Der Dokumentationsabschluss ist nicht selbst
   der Nachweis einer Borg-Sicherung.
+
+
+## 2026-10-22 – INDEX-1K-77: Backup-Orchestrierung, statisch und gemockt
+
+Frage: Kann ein gemeinsamer Einstieg die belegten Launcher seriell starten,
+beide Ergebnisse erhalten und Konkurrenz ohne Backup-Ausführung abweisen?
+Prüfung: `bash -n scripts/novena-backup.bash`,
+`python3 -B tests/novena-backup-mock.py`,
+`git --no-optional-locks diff --check`: jeweils Exit 0.
+Mocks: Check ohne Launcher/Dateianlage, ungültige Argumente, alle vier
+Zielergebniskombinationen und Originalexitcodes, USB vor VM103,
+Sperrhaltung während beider Kinder, Abweisung bei belegter Sperre,
+fehlender Launcher ohne Zielstart. Ergebnis PASS.
+Temporäres HOME ausschließlich im Projekt; Borg/Borgmatic/SSH durch
+Sentinel-Mocks blockiert. Kein echter Backup-, SSH-, Restore-, Init-,
+Prune- oder Delete-Aufruf. Keine externe Skriptänderung.
+Git-Index vor/nach unverändert:
+`1f5347abda9faad0b6ae14b52f9bfffeb423ae99a0178f05f139c77de43d33c8`.
+Kein Commit/Push. Keine reale Qualifikation des neuen Einstiegs.
+Die vorhandenen Originalprotokolle 248/255 wurden vollständig gelesen und
+gegen Sidecars geprüft; Fundstellen im Backup-Zugangsdokument.
+Werkzeugausgaben im Chat; kein vollständiges Runner-Rohprotokoll angelegt,
+da externe Schreibzugriffe ausgeschlossen waren. Keine Nachkonstruktion als
+Originalnachweis. Details und Prüfkommandos im [Runbook](BACKUP-RUNBOOK.md).
+
+
+## 2026-10-22 – INDEX-1K-79: getrennte Backup-Betriebsarten
+
+Nachweiszweck: Auswahl der Ziele ohne Queraufruf, gemeinsame Sperre und sichere
+Mountbereinigung bei unveränderten externen Startwegen. `bash -n`, `fish -n`,
+`python3 -B tests/novena-backup-mock.py` und `git diff --check`: Exit 0.
+Mocks prüfen drei Modi, Standardablauf, Originalexitcodes, fehlende nicht gewählte
+Voraussetzungen, Sperren, fstab-Optionen, Mountidentität/-besitz, Mount-/Unmountfehler,
+weiter belegten Zielpfad, TERM und Fish-Exitcode 37. Temporärdateien ausschließlich
+im Projekt; kein echter Backup-/Mount-/Unmount-/SSH-/Borglauf. Kein externer Runner
+wegen Schreibgrenze; Werkzeugausgaben im Chat, kein vollständiges Rohprotokoll.

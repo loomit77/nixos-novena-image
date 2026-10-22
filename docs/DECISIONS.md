@@ -2038,3 +2038,28 @@ Beschluss: keine USB-Port-Resets, keine Änderung der USB-Stromversorgung,
 kein unbegründetes Setzen von `disable-over-current`. Ursachenanalyse nur
 bei neuer, unterscheidungskräftiger Evidenz wieder aufnehmen; dies erteilt
 keine Test- oder Änderungsfreigabe. CODA/VPU-Firmware bleibt separat offen.
+
+
+## 2026-10-22 – INDEX-1K-77: bestehende Backup-Startwege beibehalten
+
+Grundlage: lokale Launcher, Konfigurationen und vollständige Erfolgsprotokolle
+248/255 vom 21.10., Sidecar-Hashes stimmen überein. Der gemeinsame Einstieg
+ruft USB über `daily-close.bash`, danach VM103 über
+`execute-vm103-backup.bash` auf, jeweils ohne zusätzliche Parameter.
+08B wird wegen seiner historischen HEAD-/Clean-Bindung nicht wiederverwendet.
+Keine Übernahme oder Änderung von Geheimnissen und Guards. USB-Fehler
+verhindern den unabhängigen VM103-Versuch nicht; Wiederholungen entfallen.
+Der lokale Check startet ausdrücklich nicht den SSH-/Imagesync-Preflight.
+Gemeinsame Sperre gilt für den neuen Einstieg; direkte Altstarts bleiben eine
+Betriebsgrenze. Externe Tagesabschlussdateien bleiben unverändert, Integration
+als Ersatz des bisherigen Bedienaufrufs im Runbook vorbereitet.
+
+
+## 2026-10-22 – INDEX-1K-79: getrennte Backup-Betriebsarten
+
+Die Optionen --usb/--hdd/--all wählen bestehende argumentfreie Launcher unter
+derselben Sperre. Nicht gewählte Ziele benötigen keine lokalen Voraussetzungen.
+--check prüft weiterhin beide Ziele rein lokal. Keine Änderung der Borgparameter
+oder externer Guards; nach USB-Fehler folgt im kombinierten Modus weiterhin VM103.
+Die fstab-user-Lösung bleibt administrativ vorzubereiten und ist nicht betrieblich
+freigegeben. Fish-Funktionen werden ausschließlich im Projekt bereitgestellt.

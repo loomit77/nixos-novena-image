@@ -7354,3 +7354,22 @@ Wiederaufnahme nur bei neuer unterscheidungskräftiger Evidenz.
   kein erfolgreicher neuer Lauf wird hier behauptet.
 - Der Dokumentationsabschluss ist nicht selbst
   der Nachweis einer Borg-Sicherung.
+
+
+## 2026-10-22 – INDEX-1K-77: gemeinsamer Backup-Einstieg vorbereitet
+
+`scripts/novena-backup.bash` orchestriert die vorhandenen USB-/VM103-Launcher
+nacheinander unter einer gemeinsamen Sperre. `--check` bleibt rein lokal.
+Die externen Bedienabläufe wurden nicht verändert. Statische und gemockte
+Prüfung PASS; kein realer Lauf des neuen Einstiegs. Die separat belegten
+Backups 248/255 vom 21.10. sind im [Betriebsstand](BACKUP-AND-SSH-ACCESS.md)
+eingeordnet. Bedienung, Tagesabschluss-Einbindung und Sperrgrenzen:
+[Runbook](BACKUP-RUNBOOK.md). Restore-Abnahme bleibt offen.
+
+
+## 2026-10-22 – INDEX-1K-79: getrennte Backup-Betriebsarten
+
+Der gemeinsame Backup-Launcher unterstützt getrennte USB-, VM103- und kombinierte
+Betriebsarten; ohne Argument bleibt der kombinierte Ablauf erhalten. Fish-Funktionen
+liegen nur im Projekt. Statische und isolierte Mocktests PASS; reale Mountrechte
+weiterhin NOT_RELEASED, kein echter Backup-/SSH-/Mountlauf. Details: [Runbook](BACKUP-RUNBOOK.md).
