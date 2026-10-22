@@ -1302,3 +1302,56 @@ USB-Ursachenanalyse nur bei neuer unterscheidungskräftiger Evidenz.
 - [ ] Nach Freigabe Image 2 auf SD schreiben.
 - [ ] Automatischen Boot auf Novena testen.
 - [ ] Ergebnis dokumentieren.
+
+<!-- NOVENA-PROXMOX-VM104-2026-10-22 -->
+## 2026-10-22 – VM104: NixOS-Build-Host
+
+### Abgeschlossen
+
+- [x] VM104 als eigenständige Proxmox-VM eingerichtet.
+- [x] NixOS-Build-Host-Konfiguration aktiviert.
+- [x] Hostname `novena-clean-builder` bestätigt.
+- [x] Nix-Funktionen und grundlegende Build-Werkzeuge geprüft.
+- [x] Geklonte SSH-Hostschlüssel durch eigene Schlüssel ersetzt.
+- [x] SSH-Verbindung von foobox mit neuen Hostschlüsseln geprüft.
+- [x] `known_hosts` auf foobox aktualisiert.
+- [x] Grundeinrichtung durch NOVENA-PROXMOX-50 abgeschlossen.
+
+### Offen
+
+- [ ] VM104-Konfiguration und Zugangskonzept dauerhaft sichern.
+- [ ] Alte SSH-Hostschlüsselsicherung nach gesonderter
+      Freigabe kontrolliert entfernen.
+- [ ] Repository- und Quellstandsübertragung nach VM104 planen.
+- [ ] Build-Workflow für VM104 dokumentieren.
+- [ ] Ersten vollständigen Novena-Cross-Build auf VM104
+      gesondert freigeben und durchführen.
+- [ ] Build-Ergebnis, Artefaktidentität und SHA256 prüfen.
+- [ ] VM104-Build mit vorhandenen Referenzartefakten vergleichen.
+- [ ] Ergebnisse und Provenienz in die Projektdokumentation übernehmen.
+
+VM102, VM103 und VM9003 bleiben eigenständige Systeme.
+Keine Build- oder Hardwarefreigabe durch diesen TODO-Nachtrag.
+
+<!-- NOVENA-DUAL-BUILD-20261022-CURRENT -->
+## Nachtrag 2026-10-22 – VM102/VM104
+
+Die vollständigen Novena-NixOS-SD-Image-Builds wurden
+am 22.10.2026 gegen 19:40 MESZ auf VM102 und VM104
+mit identischem Quellsnapshot gestartet.
+
+Der ursprüngliche Symlink-Fehler wurde korrigiert.
+Die Fehlversuche sind archiviert.
+
+Letzter bestätigter Status um 19:42 MESZ:
+Beide Builds liefen. Ein fertiges Vergleichsimage
+war zu diesem Zeitpunkt nicht nachgewiesen.
+
+Offen: Abschlussstatus, Exitcodes, Imagegrößen,
+SHA256, Vergleich mit foobox und Provenienz.
+
+Die Builds dürfen nicht erneut gestartet oder
+ohne gesonderte Freigabe unterbrochen werden.
+
+Backup: scripts/novena-backup.bash --all.
+Der USB-Teil enthält bereits den Tagesabschluss.

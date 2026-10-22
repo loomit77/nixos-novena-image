@@ -665,3 +665,26 @@ Nächster Auftrag:
 
 Keine Builds, Patches, Git-Änderungen oder
 Hardwarezugriffe ohne Freigabe.
+
+<!-- NOVENA-DUAL-BUILD-20261022-CURRENT -->
+## Nachtrag 2026-10-22 – VM102/VM104
+
+Die vollständigen Novena-NixOS-SD-Image-Builds wurden
+am 22.10.2026 gegen 19:40 MESZ auf VM102 und VM104
+mit identischem Quellsnapshot gestartet.
+
+Der ursprüngliche Symlink-Fehler wurde korrigiert.
+Die Fehlversuche sind archiviert.
+
+Letzter bestätigter Status um 19:42 MESZ:
+Beide Builds liefen. Ein fertiges Vergleichsimage
+war zu diesem Zeitpunkt nicht nachgewiesen.
+
+Offen: Abschlussstatus, Exitcodes, Imagegrößen,
+SHA256, Vergleich mit foobox und Provenienz.
+
+Die Builds dürfen nicht erneut gestartet oder
+ohne gesonderte Freigabe unterbrochen werden.
+
+Backup: scripts/novena-backup.bash --all.
+Der USB-Teil enthält bereits den Tagesabschluss.

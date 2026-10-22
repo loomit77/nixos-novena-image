@@ -621,3 +621,108 @@ Die dokumentierten Erfolgs-/Fehlerteilfälle bleiben begrenzt. Netzwerkfehler,
 Wiederaufnahme, Idempotenz, Konfliktfälle und Hilfeabgleich bleiben offen.
 Technisches Blockergebnis und Transportergebnis sind getrennt zu bewerten.
 Die Protokollarchivierung erweitert keine Projektfreigabe.
+
+<!-- NOVENA-PROXMOX-VM104-2026-10-22 -->
+## 2026-10-22 – Separater NixOS-Build-Host VM104
+
+Auf dem Proxmox-Host `pve` wurde VM104 als eigenständiger
+NixOS-Build-Host eingerichtet.
+
+### Verifizierter Zustand
+
+- VM-ID: 104
+- Proxmox-VM-Name: `novena-clean-builder`
+- Gast-Hostname: `novena-clean-builder`
+- IPv4 im aktuellen Netz: `192.168.178.22`
+- NixOS: 25.11
+- Kernel: 6.12.69
+- Nix: 2.31.2
+- CPU: 4 virtuelle Kerne
+- RAM: 16 GiB
+- Virtueller Systemdatenträger: 150 GiB
+- Nix-Funktionen: `fetch-tree`, `flakes`, `nix-command`
+- Build-Werkzeuge: Git, GCC, Make, Python 3, jq und rsync
+- SSH-Dienst: aktiv
+- SSH-Verbindung von foobox: erfolgreich geprüft
+
+Die Konfiguration verwendet das Modul
+`/etc/nixos/novena-build-host.nix`.
+
+Das vorhandene Passwortzugangsmodul bleibt aktiv.
+Für administrative Gastbefehle ist weiterhin die
+vorgesehene interaktive sudo-Authentifizierung erforderlich.
+Passworteingaben dürfen nicht über den GitHub-Runner
+protokolliert werden.
+
+### SSH-Hostschlüssel
+
+Die ursprünglich vom VM-Template übernommenen
+SSH-Hostschlüssel wurden am 2026-10-22 offline ersetzt.
+
+Neue Fingerabdrücke:
+
+- ED25519:
+  `SHA256:lIk75abMz8u9igfaIcWZ/ikww0Y72j53sFl8UlgefLY`
+- RSA:
+  `SHA256:3hI5nN+gWlsLH/jb1VDm8gH7Upj2xgc1H6/SdNtPYf8`
+
+Der neue Hostschlüssel wurde vor der Aktualisierung
+von `known_hosts` auf foobox geprüft.
+
+Die bisherigen Schlüssel sind vorläufig auf VM104 unter
+`/root/novena50-old-ssh-hostkeys` gesichert.
+Ihre spätere Entfernung benötigt einen eigenen,
+kontrollierten Arbeitsschritt.
+
+### Nachweise
+
+Die vollständigen TXT-Protokolle und SHA256-Sidecars
+befinden sich im privaten Repository
+`loomit77/project-block-logs`, Verzeichnis
+`novena/2026/10/`.
+
+- NOVENA-PROXMOX-46: FAIL, Offline-Zugriff nicht erfolgreich
+- NOVENA-PROXMOX-47: FAIL, gleiche Fehlerphase
+- NOVENA-PROXMOX-48: FAIL, inaktives LVM-Volume festgestellt
+- NOVENA-PROXMOX-49: PASS, LVM-Zugriff und alte Schlüssel geprüft
+- NOVENA-PROXMOX-50: PASS, neue Schlüssel und SSH bestätigt
+
+Die fehlgeschlagenen Zwischenblöcke behalten ihren
+historischen FAIL-Status.
+
+### Abgrenzung
+
+VM104 ist als NixOS-Build-Host vorbereitet.
+Ein vollständiger Novena-Cross-Build auf VM104
+wurde damit noch nicht nachgewiesen.
+
+VM102 bleibt der getrennte bisherige Build-Host;
+VM103 bleibt der getrennte Backup-Host.
+Das Template VM9003 wurde nicht verändert.
+
+Ein neuer Build, ein Datentransfer oder eine
+Umstellung des Build-Workflows benötigt
+eine gesonderte Freigabe.
+
+<!-- NOVENA-DUAL-BUILD-20261022-CURRENT -->
+## Nachtrag 2026-10-22 – VM102/VM104
+
+Die vollständigen Novena-NixOS-SD-Image-Builds wurden
+am 22.10.2026 gegen 19:40 MESZ auf VM102 und VM104
+mit identischem Quellsnapshot gestartet.
+
+Der ursprüngliche Symlink-Fehler wurde korrigiert.
+Die Fehlversuche sind archiviert.
+
+Letzter bestätigter Status um 19:42 MESZ:
+Beide Builds liefen. Ein fertiges Vergleichsimage
+war zu diesem Zeitpunkt nicht nachgewiesen.
+
+Offen: Abschlussstatus, Exitcodes, Imagegrößen,
+SHA256, Vergleich mit foobox und Provenienz.
+
+Die Builds dürfen nicht erneut gestartet oder
+ohne gesonderte Freigabe unterbrochen werden.
+
+Backup: scripts/novena-backup.bash --all.
+Der USB-Teil enthält bereits den Tagesabschluss.
