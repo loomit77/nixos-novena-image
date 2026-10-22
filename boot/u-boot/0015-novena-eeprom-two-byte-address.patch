@@ -1,0 +1,13 @@
+Novena: use two-byte personality EEPROM address
+
+The Novena personality EEPROM requires two internal
+address bytes at I2C bus 2, address 0x56.
+
+Correct the DM-I2C address length from 1 to 2.
+
+---
+--- a/board/kosagi/novena/novena.c
++++ b/board/kosagi/novena/novena.c
+@@ -150 +150 @@
+-	ret = i2c_get_chip_for_busnum(2, 0x56, 1, &eeprom);
++	ret = i2c_get_chip_for_busnum(2, 0x56, 2, &eeprom);

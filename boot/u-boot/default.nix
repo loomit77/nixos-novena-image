@@ -28,6 +28,7 @@ pkgs.buildUBoot {
     # 0009-0013 remain historical experiments, superseded by the complete
     # board-local DDR sequence. See docs/NOVENA-DDR-IMPLEMENT-168.md.
     ./0014-novena-historical-ddr-init.patch
+    ./0015-novena-eeprom-two-byte-address.patch
   ];
 
   extraConfig = ''
