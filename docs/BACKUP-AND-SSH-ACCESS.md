@@ -1,5 +1,74 @@
 # Novena – SSH-Zugänge und Borg-Wiederherstellungswege
 
+## Aktueller produktiver Stand – 23.10.2026
+
+Dieser Abschnitt hat Vorrang vor älteren Statusaussagen und offenen
+Untersuchungsaufträgen weiter unten. Historische Protokolle bleiben
+zur Nachvollziehbarkeit erhalten.
+
+### Erfolgreiche Sicherungen
+
+- **USB-Borg:** Am 23.10.2026 um 21:17 Uhr erfolgreich.
+  `BACKUP_CREATE=PASS`, Archive 14 → 15,
+  `NEW_ARCHIVES=1`, `NEW_ARCHIVE_PROOF=PASS`,
+  `USB_STATUS=PASS`, `USB_UNMOUNT_STATUS=PASS`.
+  Der Git-HEAD und der Index blieben unverändert.
+- **VM103-Borg:** Erfolgreicher Lauf vom 23.10.2026,
+  21:25–21:31 Uhr, mit dem gemeinsamen Launcher im Modus `--hdd`.
+  Neues Archiv: `foobox-2026-10-23T21:28:31`.
+  Archiv-ID:
+  `14ef0a45b9d17dd2356ead815e26c02dbdb84be4d7a695cb02637c87e9c1ac6f`.
+  `VM103_STATUS=PASS`, `OVERALL_STATUS=PASS`.
+- **Kombinierter Ablauf:** Am 22.10.2026 mit USB und VM103
+  erfolgreich (`NOVENA-DOC-BACKUP-GIT-02`).
+- **Restore:** Ein vollständiger, isolierter Wiederherstellungstest
+  ist für beide Ziele weiterhin offen.
+
+### Aktuelle Konfiguration und Fehlerursachen
+
+- Gemeinsamer Einstieg:
+  `bash ~/nixos-novena-image/scripts/novena-backup.bash`
+  mit `--usb`, `--hdd`, `--all` oder `--check`.
+- USB: ext4-UUID
+  `b9161f3a-5903-4761-936f-42360d13d84e`,
+  Mountpoint `/run/media/loomit/NOVENA_BORG`,
+  Repository darunter `repository`.
+  Der fstab-Benutzermount ist produktiv qualifiziert.
+  Am 23.10. fehlten die Verzeichnisse unter `/run/media/loomit`;
+  nach administrativer Wiederherstellung funktionierte der
+  unveränderte USB-Launcher. `/run` ist flüchtig.
+  Der Launcher erstellt den Mountpoint nicht selbst.
+- VM103: Konfiguration
+  `~/.config/novena-borg/vm103-borgmatic.yaml`.
+  Am 23.10. führte Borg-Fehler 105 zu einem fehlgeschlagenen
+  Testlauf. Nicht lesbare Dateien und Verzeichnisse unter
+  `/home/loomit/chatcmd-build` wurden nachgewiesen.
+  Der Benutzer genehmigte den vollständigen Ausschluss dieses
+  Verzeichnisses. `exclude_patterns` wurde ergänzt,
+  die Borgmatic-Konfiguration validiert und anschließend ein
+  neues VM103-Archiv erfolgreich erstellt.
+  Eine ausschließliche Kausalitätsprüfung sämtlicher zuvor
+  gemeldeter Dateizugriffsfehler wurde nicht durchgeführt.
+- Die VM103-Konfiguration liegt außerhalb des Projekt-Git.
+  Der Ausschluss muss bei einer Wiederherstellung der
+  Konfiguration ausdrücklich berücksichtigt werden.
+
+### Primärbelege
+
+Private GitHub-Protokolle unter `loomit77/project-block-logs`,
+Verzeichnis `novena/2026/10/`:
+
+- `NOVENA-DOC-BACKUP-GIT-02-20261022-205025-tkPaajdy.txt`
+- `NOVENA-BACKUP-44B-20261023-210749-dITR491H.txt`
+- `NOVENA-BACKUP-DIAGNOSE-45-20261023-211425-zorUPrPv.txt`
+- `NOVENA-VM103-BORG-DIAGNOSE-46-20261023-211923-UR7POb1f.txt`
+- `NOVENA-VM103-CONFIG-47B-20261023-212314-rxB5a4IT.txt`
+- `NOVENA-VM103-BACKUP-48-20261023-212521-WnDzV6wT.txt`
+
+Der erfolgreiche GitHub-Upload eines Protokolls beweist nur dessen
+Übertragung. Fachlicher Backup-Erfolg erfordert zusätzlich die
+Borg-Erfolgs- und Archivnachweise im jeweiligen Originalprotokoll.
+
 Stand: 2026-10-21. Diese Datei dokumentiert **nachgewiesene Verbindungsparameter und Fundstellen**, keine Passwörter oder privaten Schlüssel. Sie ist keine Freigabe zum Verbindungsaufbau, Backup oder Restore.
 
 ## Aktueller Betriebsstand – Nachtrag 2026-10-22

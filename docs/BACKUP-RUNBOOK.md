@@ -1,5 +1,106 @@
 # Novena-Backup: gemeinsamer Einstieg
 
+## Produktiver Ablauf und Fehlerbehandlung – 23.10.2026
+
+Dieser Abschnitt ist der aktuelle Betriebsstand. Frühere
+`NOT_RELEASED`- und `nur Mocks`-Aussagen weiter unten beschreiben
+historische Zwischenstände vor der produktiven Qualifikation.
+
+### Verbindlicher Startweg
+
+Auf foobox ausschließlich den bestehenden gemeinsamen Launcher
+verwenden, bei Novena-Projektarbeiten über den GitHub-Runner
+`~/novena-backups/github-transport/run-and-upload.bash`.
+
+| Modus | Zweck |
+| --- | --- |
+| `--usb` | Nur USB-Borg einschließlich Tagesabschluss |
+| `--hdd` | Nur VM103-Borg |
+| `--all` | USB und danach VM103 |
+| ohne Argument | Wie `--all` |
+| `--check` | Nur lokale Dateien und Syntax; kein Backup |
+
+Ein `--usb`-Lauf darf nach bestätigtem Erfolg nicht
+vorsorglich wiederholt werden, wenn nur VM103 fehlschlug.
+Ein `--check`-PASS ist kein Archivnachweis.
+
+### USB-Mountpoint
+
+Das ext4-Dateisystem wird anhand der UUID
+`b9161f3a-5903-4761-936f-42360d13d84e` identifiziert.
+Der feste Mountpoint lautet
+`/run/media/loomit/NOVENA_BORG`.
+Der vorhandene fstab-Eintrag verwendet
+`rw,noauto,user,nosuid,nodev,noexec`.
+
+Am 23.10.2026 scheiterte der USB-Schritt mit
+`USB_MOUNT_STATUS=MOUNT_FAILED`, obwohl UUID und fstab
+stimmten. Die beiden Verzeichnisse
+`/run/media/loomit` und
+`/run/media/loomit/NOVENA_BORG` fehlten.
+Nach ihrer administrativen Wiederherstellung war der
+unveränderte USB-Backup-Lauf erfolgreich.
+
+Da `/run` flüchtig ist, muss die dauerhafte,
+sichere Bereitstellung des Mountpoints noch geklärt
+werden. Bis dahin vor einem USB-Lauf Existenz,
+Eigentümer, Rechte, Symlinkfreiheit, UUID und
+fstab-Eintrag prüfen. Keine wechselnden `/dev/sdX`-
+Namen verwenden, keine beliebigen Mounts erzwingen
+und keine fremden Mounts aushängen.
+
+### VM103 und Borg-Fehler 105
+
+Am 23.10. scheiterte VM103 zunächst mit
+`Backup permission issue` (Borg-Exitcode 105).
+Unter `/home/loomit/chatcmd-build` wurden
+nicht lesbare RootFS-Verzeichnisse und Root-eigene
+Build-Dateien nachgewiesen.
+
+Mit Benutzerfreigabe wurde der gesamte Pfad
+`/home/loomit/chatcmd-build` in der lokalen
+Borgmatic-Konfiguration
+`~/.config/novena-borg/vm103-borgmatic.yaml`
+unter `exclude_patterns` ausgeschlossen.
+Danach waren Konfigurationsvalidierung und echter
+VM103-Archivlauf erfolgreich.
+
+Keine pauschalen `chmod`-/`chown`-Änderungen am
+Debian-RootFS durchführen. Den Ausschluss bei
+einer Konfigurationswiederherstellung erhalten.
+Weitere Sicherungsquellen nicht ohne Freigabe
+ausschließen.
+
+### Nachweis und Wiederanlauf
+
+- Runner-Upload `PASS` und fachlicher Blockstatus
+  sind getrennt auszuwerten.
+- Nach jedem Backup die tatsächlichen Felder
+  `USB_STATUS`, `VM103_STATUS`, `OVERALL_STATUS`
+  sowie Archivnachweise prüfen.
+- Bei VM103 das neue Archiv anhand der Archivliste
+  und Archiv-ID bestätigen.
+- Nach einem Fehler zunächst das vollständige
+  Originalprotokoll aus GitHub lesen; nicht blind
+  denselben Backup-Lauf wiederholen.
+- Git-HEAD, Index und Worktree vor und nach
+  dokumentierten Projektaktionen kontrollieren.
+- Keine Passphrasen, privaten Schlüssel oder
+  vollständigen Geheimniskonfigurationen in
+  Runner-Protokolle oder Git übernehmen.
+- Erfolgreiche Archivierung ersetzt keinen
+  vollständigen Restore-Test.
+
+### Erfolgsbelege vom 23.10.2026
+
+USB: Archivzahl 14 → 15, `BACKUP_CREATE=PASS`,
+`NEW_ARCHIVE_PROOF=PASS`, `USB_UNMOUNT_STATUS=PASS`.
+
+VM103: `NOVENA-VM103-BACKUP-48`,
+Archiv `foobox-2026-10-23T21:28:31`,
+`VM103_STATUS=PASS`, `OVERALL_STATUS=PASS`,
+`GIT_HEAD_STABLE=PASS`, `GIT_INDEX_STABLE=PASS`.
+
 Stand 2026-10-22. Implementierung im Projekt, keine Installation außerhalb
 von Git. Ausschließlich statisch und mit Mocks qualifiziert.
 
