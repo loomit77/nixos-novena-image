@@ -6,6 +6,7 @@
 
   nixpkgs.overlays = [
     (import ./overlays/reproducible-bash.nix)
+    (import ./overlays/reproducible-boost.nix)
   ];
 
   boot.growPartition = true;
