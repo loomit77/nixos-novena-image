@@ -1355,3 +1355,15 @@ ohne gesonderte Freigabe unterbrochen werden.
 
 Backup: scripts/novena-backup.bash --all.
 Der USB-Teil enthält bereits den Tagesabschluss.
+
+## 2026-10-24 – CODA960-Veröffentlichung und Lizenz
+
+- [x] Öffentlich dokumentierte NXP-Lizenzquellen identifiziert.
+- [x] Zusätzliche Distributionslizenz nach Abschnitt 2.3 festgestellt.
+- [x] Einschränkung für Nutzungsberichte nach Abschnitt 3.8 erkannt.
+- [x] Proprietäre Firmware aus öffentlichem Image ausgeschlossen.
+- [ ] Weitergabe als Bestandteil des konkreten Novena-Images rechtlich klären.
+- [ ] Veröffentlichung technischer Nutzungsberichte rechtlich klären.
+- [ ] Optionale Firmwareinstallation ohne Firmwareweitergabe entwerfen.
+- [ ] Freie CODA960-Unterstützung im Standardimage qualifizieren.
+- [ ] Weitere Videofunktionen bei Bedarf gesondert untersuchen.

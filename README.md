@@ -307,3 +307,40 @@ getrennt von Nachweisen und kennzeichnet Image und Ergebnismanifest als
 experimentell unqualifiziert. Die Integritätsprüfungen bleiben erhalten.
 [Schnittstelle, offene Bedingungen und Prüfgrenzen](docs/DEBIAN-REFERENCE-IMAGE.md#2026-10-18--novena-jessie-20-experimenteller-erstboot-modus)
 sind dokumentiert. Keine Aussage über Bootfähigkeit oder bestätigte Jessie-Provenienz.
+
+## CODA960-Unterstützung und Firmware-Lizenz – 2026-10-24
+
+Die Novena verwendet einen NXP i.MX6 Quad mit CODA960-VPU.
+Der freie Linux-CODA-Treiber stellt hierfür V4L2-Unterstützung bereit.
+
+Für bestimmte Videofunktionen ist zusätzlich proprietäre Firmware
+erforderlich. Diese wird nicht mit diesem Repository und nicht mit dem
+öffentlichen universellen SD-Image verteilt.
+
+Für die Firmware aus NXP `firmware-imx` 8.32 gelten die NXP Software
+License v63 (Mai 2025), das zugehörige Software Content Register
+und gegebenenfalls weitere einschlägige Rechte.
+
+Das Register gewährt für das Firmwarepaket grundsätzlich die zusätzliche
+Distributionslizenz nach Abschnitt 2.3. Die Erlaubnis ist jedoch auf
+die dort genannten Bedingungen und autorisierten Systeme beschränkt.
+
+Die rechtliche Einordnung eines öffentlich herunterladbaren
+Novena-SD-Images ist noch nicht abschließend geklärt.
+
+Ein Lizenzdialog beim ersten Boot ersetzt keine Rechte des
+Image-Herausgebers zur Weitergabe der Firmware.
+
+Auch Abschnitt 3.8 zur Veröffentlichung von Berichten über die Nutzung
+der lizenzierten Software ist vor einer Veröffentlichung entsprechender
+Testberichte zu beachten.
+
+Quellen:
+
+- NXP Software License v63:
+  https://github.com/nxp-imx/meta-imx/blob/wrynose-6.18.20-2.0.0/LICENSE.txt
+- NXP Software Content Register:
+  https://github.com/nxp-imx/meta-imx/blob/wrynose-6.18.20-2.0.0/SCR-6.18.20-2.0.0.txt
+
+Bis zur Klärung bleibt die Firmwareinstallation optional und
+außerhalb des öffentlichen Images.

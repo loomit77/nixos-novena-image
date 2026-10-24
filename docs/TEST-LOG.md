@@ -3433,3 +3433,23 @@ Voraussetzungen, Sperren, fstab-Optionen, Mountidentität/-besitz, Mount-/Unmoun
 weiter belegten Zielpfad, TERM und Fish-Exitcode 37. Temporärdateien ausschließlich
 im Projekt; kein echter Backup-/Mount-/Unmount-/SSH-/Borglauf. Kein externer Runner
 wegen Schreibgrenze; Werkzeugausgaben im Chat, kein vollständiges Rohprotokoll.
+
+## 2026-10-24 – CODA960: Veröffentlichungsgrenze
+
+Die technische CODA960-Untersuchung wird getrennt von der
+öffentlichen Projekt- und Release-Dokumentation geführt.
+
+Hintergrund ist Abschnitt 3.8 der NXP Software License v63,
+der die Veröffentlichung beziehungsweise Weitergabe von
+Berichten über die Verwendung der lizenzierten Software
+einschränkt.
+
+Bis zur Klärung werden entsprechende neue Testdetails nicht
+in diese öffentliche Datei übernommen.
+
+Die technischen Ergebnisse bleiben lokal getrennt dokumentiert.
+Daraus wird keine Freigabe zur Firmwareweitergabe abgeleitet.
+
+Die Rechte für die Verteilung des Firmwarepakets und die
+Rechte für die Veröffentlichung von Nutzungsberichten
+sind unabhängig voneinander zu beurteilen.

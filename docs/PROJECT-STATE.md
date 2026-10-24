@@ -7373,3 +7373,36 @@ Der gemeinsame Backup-Launcher unterstützt getrennte USB-, VM103- und kombinier
 Betriebsarten; ohne Argument bleibt der kombinierte Ablauf erhalten. Fish-Funktionen
 liegen nur im Projekt. Statische und isolierte Mocktests PASS; reale Mountrechte
 weiterhin NOT_RELEASED, kein echter Backup-/SSH-/Mountlauf. Details: [Runbook](BACKUP-RUNBOOK.md).
+
+## 2026-10-24 – CODA960: Lizenz- und Releaseentscheidung
+
+Der Linux-CODA-Treiber ist eine freie Kernelkomponente.
+Die für bestimmte VPU-Funktionen benötigte NXP-Firmware ist
+davon rechtlich zu trennen.
+
+Das NXP Software Content Register für `firmware-imx` 8.32
+benennt die zusätzliche Distributionslizenz nach Abschnitt 2.3
+der NXP Software License v63.
+
+Diese Erlaubnis betrifft keine uneingeschränkte, eigenständige
+Firmwareweitergabe. Maßgeblich sind insbesondere die Definition
+eines Authorized System und die Bindung an NXP-Produkte.
+
+Abschnitt 3.8 enthält außerdem eine Einschränkung für die
+Veröffentlichung von Nutzungsberichten. Die Auswirkung auf
+öffentliche Hardwaretestdokumentation bleibt klärungsbedürftig.
+
+Projektentscheidung:
+- freie CODA960-Unterstützung grundsätzlich vorsehen
+- keine proprietäre Firmware in öffentliche Git-Artefakte aufnehmen
+- keine proprietäre Firmware im öffentlichen SD-Image verteilen
+- keine neuen Firmware-Nutzungsberichte öffentlich veröffentlichen,
+  solange Abschnitt 3.8 nicht hinreichend geklärt ist
+- keine produktive Imageänderung allein aufgrund dieser Prüfung
+
+Quellen:
+https://github.com/nxp-imx/meta-imx/blob/wrynose-6.18.20-2.0.0/LICENSE.txt
+https://github.com/nxp-imx/meta-imx/blob/wrynose-6.18.20-2.0.0/SCR-6.18.20-2.0.0.txt
+
+Dies ist eine vorsorgliche Projektentscheidung und keine
+verbindliche Rechtsauskunft.
