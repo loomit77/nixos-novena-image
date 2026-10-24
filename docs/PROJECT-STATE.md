@@ -7406,3 +7406,28 @@ https://github.com/nxp-imx/meta-imx/blob/wrynose-6.18.20-2.0.0/SCR-6.18.20-2.0.0
 
 Dies ist eine vorsorgliche Projektentscheidung und keine
 verbindliche Rechtsauskunft.
+
+<!-- NOVENA-20261024-RTC-SD-STATUS -->
+## Nachtrag 2026-10-24 – NixOS-SD-Boot und RTC
+
+Der autonome Boot des externen NixOS-SD-Systems
+wurde mit serieller Evidenz erfolgreich beobachtet.
+NOVENA-BOOT-VERIFY-02: PASS.
+Kernel 6.18.49; Root /dev/mmcblk1p2.
+Keine fehlgeschlagenen systemd-Dienste im Pruefumfang.
+
+Die externe PCF8523 wurde als rtc1 erkannt.
+RTC_VL_READ meldet ungueltige Zeitdaten
+und niedrige Backup-Spannung.
+
+Das originale PVT2-Layout enthaelt BT11P
+(BR1225A/FAN) und U10P (PCF8523).
+Die genaue elektrische Verbindung konnte
+mit dem vereinfachten Parser nicht
+abschliessend nachgewiesen werden.
+
+Eine erschoepfte RTC-Batterie bleibt eine
+plausible, aber unbestaetigte Hypothese.
+
+Die Novena wird fuer die aktuelle
+statische Untersuchung nicht benoetigt.

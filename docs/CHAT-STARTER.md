@@ -688,3 +688,100 @@ ohne gesonderte Freigabe unterbrochen werden.
 
 Backup: scripts/novena-backup.bash --all.
 Der USB-Teil enthält bereits den Tagesabschluss.
+
+<!-- NOVENA-HANDOVER-20261024-BOOT02 -->
+## Neuer Chat – Fortsetzung nach 24.10.2026
+
+Wir setzen das Projekt "Novena – universelles
+NixOS SD-Image" fort.
+
+Verbindliche Regeln aus AGENTS.md und
+NOVENA-ARBEITSREGELN.txt beachten.
+
+Aktueller Hardwarestand:
+- Novena wurde am 24.10.2026 erfolgreich
+  automatisch von externer SD gestartet.
+- SPL und U-Boot 2026.07, Linux 6.18.49,
+  NixOS 26.05, serielle Login-Anzeige.
+- SSH über 192.168.11.11 bestätigt.
+- Root-Dateisystem: /dev/mmcblk1p2.
+- systemd: running, keine failed units.
+- Ethernet, LVDS/DRM, Audio und SATA erkannt.
+- rtc0 funktioniert, rtc1/PCF8523 ist nicht
+  korrekt auslesbar (Invalid argument).
+- Alte Kernelwarnungen zunächst nicht erneut
+  ohne neue Evidenz untersuchen.
+
+Letzter maßgeblicher Prüfblock:
+NOVENA-BOOT-VERIFY-02 vom 24.10.2026.
+
+Serielles Original:
+~/novena-backups/serial-logs/NOVENA-SD-BOOT-20261024-RETRY.log
+
+SHA256:
+dea76b5a932efff2413ce5f7f6b8cacc7414d57824644944c8ced51570a18c70
+
+Protokollarchiv:
+Privates GitHub-Repository
+loomit77/project-block-logs/novena/2026/10/
+
+Die NXP-Lizenzanfrage wurde am 24.10.
+per E-Mail und offiziellem Formular eingereicht.
+Antwort ausstehend. Firmware nicht öffentlich
+verteilen, Nutzungsberichte vorsorglich
+nicht öffentlich ergänzen.
+
+Wichtig:
+Bestands-SD-System und neue Image-Builds
+nicht gleichsetzen.
+
+Naechster Auftrag:
+Zunächst die vorhandenen RTC- und VPU-Befunde
+sowie Device-Tree- und Kernelkonfiguration
+quellenorientiert auswerten.
+
+Die Novena kann für freigegebene spätere
+Prüfungen eingeschaltet bleiben.
+
+Keine unnötigen Wiederholungstests,
+keine neuen Builds oder Hardwareänderungen
+ohne ausdrückliche Freigabe.
+
+Arbeitsprinzip:
+"So viel wie nötig, so wenig wie möglich."
+
+<!-- NOVENA-20261024-RTC-SD-STATUS -->
+## Aktueller Startpunkt – 2026-10-24
+
+Projekt:
+Novena – universelles NixOS SD-Image.
+
+Der autonome externe SD-Boot mit NixOS
+wurde erfolgreich nachgewiesen.
+
+RTC:
+PCF8523 als rtc1 erkannt.
+Warnflags fuer ungueltige Daten
+und niedrige Backup-Spannung.
+BT11P (BR1225A/FAN) im
+PVT2-Layout nachgewiesen.
+Netzpfad und tatsaechliche
+Batteriespannung bleiben offen.
+
+Die statische RTC-Analyse ist
+vorlaeufig abgeschlossen.
+
+CODA960:
+Tests mit separat bereitgestellter
+Firmware erfolgreich im getesteten Umfang.
+Weitergabe der proprietaeren
+Firmware rechtlich ungeklärt.
+
+Naechste Aufgaben:
+VM102/VM104-Buildvergleich,
+Image-Qualifikation und
+kontrollierte Projektdokumentation.
+
+Novena wird aktuell nicht benoetigt.
+Keine neuen Builds, Hardwaretests
+oder SD-Schreibzugriffe ohne Freigabe.

@@ -2063,3 +2063,25 @@ derselben Sperre. Nicht gewählte Ziele benötigen keine lokalen Voraussetzungen
 oder externer Guards; nach USB-Fehler folgt im kombinierten Modus weiterhin VM103.
 Die fstab-user-Lösung bleibt administrativ vorzubereiten und ist nicht betrieblich
 freigegeben. Fish-Funktionen werden ausschließlich im Projekt bereitgestellt.
+
+<!-- NOVENA-20261024-RTC-SD-STATUS -->
+## Entscheidung 2026-10-24 – RTC
+
+Die statische RTC-Untersuchung wird
+mit dokumentierter Restunsicherheit
+vorlaeufig abgeschlossen.
+
+Weitere gleichartige Parserlaeufe
+werden ohne neue Evidenz nicht begonnen.
+
+Batteriespannungsmessung und eventueller
+Austausch sind getrennt freizugebende
+Hardwaremassnahmen.
+
+Der grosse Hauptakku bleibt abgeklemmt.
+
+CODA960:
+Proprietaere NXP-Firmware wird ohne
+geklaerte Weitergaberechte nicht
+in das oeffentliche Image aufgenommen.
+Eine Antwort von NXP steht aus.

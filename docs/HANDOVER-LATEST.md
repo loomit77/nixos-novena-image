@@ -1464,3 +1464,91 @@ ohne gesonderte Freigabe unterbrochen werden.
 
 Backup: scripts/novena-backup.bash --all.
 Der USB-Teil enthält bereits den Tagesabschluss.
+
+<!-- NOVENA-HANDOVER-20261024-BOOT02 -->
+## 2026-10-24 – Aktueller Novena-Kaltstart und Übergabe
+
+Der externe SD-Bootpfad wurde erneut real getestet:
+SPL 2026.07, U-Boot, Linux 6.18.49 und
+NixOS 26.05 erreichten automatisch die serielle
+Login-Anzeige.
+
+Serielle Originalaufzeichnung auf foobox:
+`~/novena-backups/serial-logs/NOVENA-SD-BOOT-20261024-RETRY.log`
+
+SHA256:
+`dea76b5a932efff2413ce5f7f6b8cacc7414d57824644944c8ced51570a18c70`
+
+Der nachfolgende Block NOVENA-BOOT-VERIFY-02 bestätigte:
+- SSH auf 192.168.11.11 erfolgreich
+- Root-Dateisystem auf /dev/mmcblk1p2
+- systemd running, null fehlgeschlagene Dienste
+- Ethernet mit bekannter Geräte-MAC
+- SATA-SSD und interne MMC erkannt
+- DRM-Geräte und LVDS-Anschluss vorhanden
+- ES8328-Audiogerät registriert
+- rtc0/SNVS lesbar
+- rtc1/PCF8523 weiterhin Invalid argument
+
+GPU-Beschleunigung wurde durch diese Prüfung nicht
+funktional nachgewiesen.
+
+Bekannte IT6251-, Audio-, PHY- und USB-Meldungen
+sind kein neuer Nachweis einer Root Cause.
+Abgeschlossene I2C3-/ES8328-Untersuchungen
+nicht ohne neue Evidenz wiederholen.
+
+Die NXP-Lizenzfrage zur proprietären VPU-Firmware
+ist offen. Firmware nicht öffentlich verteilen.
+Keine detaillierten neuen Firmware-Nutzungsberichte
+öffentlich veröffentlichen, solange die Rechte
+ungeklärt sind.
+
+Wichtig: Das erfolgreich gestartete Bestands-SD-System
+ist von neueren, separat gebauten Image-Artefakten
+zu unterscheiden. Der Kaltstart qualifiziert nicht
+automatisch die VM102-/VM104-Vergleichsimages.
+
+Naechste Prioritaeten:
+1. PCF8523-RTC anhand vorhandener Logs, Device Tree
+   und Kernelkonfiguration gezielt untersuchen.
+2. Firmware-Persistenz und optionalen CODA-Ladepfad
+   ohne Firmwareweitergabe statisch einordnen.
+3. Grafikbeschleunigung später getrennt qualifizieren.
+4. Sichere Ersteinrichtung des öffentlichen Images
+   planen (Root-Passwort und SSH).
+5. Bildreproduzierbarkeit und Hostvergleiche getrennt
+   anhand der vorhandenen Belege weiterführen.
+
+Keine neuen Builds, Reboots, Installationen oder
+Hardwaretests ohne gesonderte Freigabe.
+
+<!-- NOVENA-20261024-RTC-SD-STATUS -->
+## Nachtrag 2026-10-24 – NixOS-SD-Boot und RTC
+
+Autonomer externer NixOS-SD-Boot erfolgreich.
+NOVENA-BOOT-VERIFY-02: PASS.
+Kernel 6.18.49; Root /dev/mmcblk1p2.
+
+PCF8523 rtc1:
+RTC_VL_DATA_INVALID und RTC_VL_BACKUP_LOW.
+
+Das originale PVT2-Layout bestaetigt
+BT11P (BR1225A/FAN) und U10P.
+Der elektrische Netzpfad bleibt
+aufgrund unvollstaendiger Parserdaten offen.
+
+Die statische RTC-Untersuchung
+ist vorlaeufig abgeschlossen.
+
+CODA960:
+Proprietaere Firmware nicht fuer die
+oeffentliche Imageverteilung freigegeben.
+NXP-Lizenzklaerung steht aus.
+
+RTC-Originalprotokolle:
+NOVENA-RTC-VL-02,
+NOVENA-RTC-PCB-01/02,
+NOVENA-RTC-NET-01/02/03.
+
+Die Novena wird aktuell nicht benoetigt.

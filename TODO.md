@@ -1367,3 +1367,50 @@ Der USB-Teil enthält bereits den Tagesabschluss.
 - [ ] Optionale Firmwareinstallation ohne Firmwareweitergabe entwerfen.
 - [ ] Freie CODA960-Unterstützung im Standardimage qualifizieren.
 - [ ] Weitere Videofunktionen bei Bedarf gesondert untersuchen.
+
+<!-- NOVENA-HANDOVER-20261024-BOOT02 -->
+## 2026-10-24 – Kaltstart und offene Hardwarepunkte
+
+### Verifiziert
+
+- [x] Erneuten automatischen SD-Kaltstart
+      seriell aufgezeichnet.
+- [x] NixOS-Login nach SPL/U-Boot/Kernel erreicht.
+- [x] SSH-Zugang nach Neustart bestätigt.
+- [x] Root-Dateisystem und Speichergeräte geprüft.
+- [x] DRM-, Netzwerk- und Audiogeräte erfasst.
+- [x] Keine fehlgeschlagenen systemd-Dienste.
+
+### Offen
+
+- [ ] PCF8523-RTC: Fehler "Invalid argument"
+      anhand vorhandener Evidenz eingrenzen.
+- [ ] GPU-Beschleunigung später funktional prüfen.
+- [ ] Optionale VPU-Firmwareeinrichtung nach
+      Lizenzklärung bewerten.
+- [ ] NXP-Rückmeldung zur Lizenz abwarten.
+- [ ] Sichere Ersteinrichtung für öffentliche
+      Images entwerfen.
+- [ ] Unterschiede zwischen aktivem SD-System
+      und neueren Vergleichsimages dokumentieren.
+
+Keine neuen Testberichte zur Nutzung proprietärer
+Firmware öffentlich hinzufügen, solange die
+Lizenzlage nicht geklärt ist.
+
+<!-- NOVENA-20261024-RTC-SD-STATUS -->
+## Nachtrag 2026-10-24 – aktueller Folgestand
+
+- [x] Autonomen externen NixOS-SD-Boot nachgewiesen.
+- [x] PCF8523 als rtc1 und Warnflags festgestellt.
+- [x] PVT2-Original-Layout und BT11P lokalisiert.
+- [x] Statische RTC-Untersuchung vorlaeufig beendet.
+- [ ] Batterieposition auf realer Platine eindeutig bestaetigen.
+- [ ] RTC-Batteriespannung gegebenenfalls separat messen.
+- [ ] Batteriewechsel nur nach eigener Hardwarefreigabe.
+- [ ] Antwort von NXP zur CODA960-Lizenz abwarten.
+- [ ] VM102/VM104-Buildprovenienz abschliessend vergleichen.
+- [ ] Universelles SD-Image weiter qualifizieren.
+
+Dieser Nachtrag erteilt keine Build-
+oder Hardwarefreigabe.

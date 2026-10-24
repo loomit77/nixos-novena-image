@@ -3453,3 +3453,32 @@ Daraus wird keine Freigabe zur Firmwareweitergabe abgeleitet.
 Die Rechte für die Verteilung des Firmwarepakets und die
 Rechte für die Veröffentlichung von Nutzungsberichten
 sind unabhängig voneinander zu beurteilen.
+
+<!-- NOVENA-20261024-RTC-SD-STATUS -->
+## Nachtrag 2026-10-24 – RTC-Hardwarequellen
+
+NOVENA-RTC-VL-02:
+Runner PASS.
+PCF8523 /dev/rtc1:
+RTC_VL_DATA_INVALID und RTC_VL_BACKUP_LOW.
+
+NOVENA-RTC-PCB-01/02:
+Runner PASS.
+Originalarchive novena_pvt2.zip und
+gerbers-novena_pvt2_a.zip lokal nachgewiesen.
+BT11P, U10P und BT10P im Original-PCB lokalisiert.
+
+NOVENA-RTC-NET-01/02/03:
+Runner PASS.
+NET-03:
+RESULT=NO_COMPLETE_PATH_DEMONSTRATED.
+Sechs unvollstaendig dekodierte Leitungsobjekte.
+Eine elektrische Unterbrechung ist damit
+nicht nachgewiesen.
+
+Originalprotokolle mit SHA256-Sidecars:
+privates Repository project-block-logs,
+Verzeichnis novena/2026/10/.
+
+Keine RTC-Spannungsmessung und kein
+Hardwareeingriff innerhalb dieser Bloecke.
