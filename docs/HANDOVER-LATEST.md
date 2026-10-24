@@ -1581,3 +1581,17 @@ foobox-Abweichungen werden getrennt behandelt.
 
 Ausführliche Dokumentation:
 `docs/VM102-VM104-REPRODUCIBILITY-2026-10-24.md`
+
+## Nachtrag 2026-10-24 – Display-Untersuchung abgeschlossen
+
+Statische Offline-Analyse der historischen
+Backlight-/IT6251-/U-Boot-Übergabe qualifiziert
+abgeschlossen. Die Ursache der Dunkelphase
+ist weiterhin nicht bewiesen.
+
+Maßgeblicher Ergebnisstand:
+`docs/DISPLAY-HANDOVER-2026-10-24.md`.
+
+Nächster Schwerpunkt: NixOS-SD-Image,
+bestehende Qualifikation und Release-Anforderungen.
+Keine neuen Builds oder Hardwaretests freigegeben.

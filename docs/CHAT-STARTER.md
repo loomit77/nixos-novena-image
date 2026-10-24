@@ -801,3 +801,20 @@ Siehe:
 `docs/VM102-VM104-REPRODUCIBILITY-2026-10-24.md`
 
 Die foobox-Cross-Build-Abweichungen sind davon getrennt.
+
+## Nachtrag 2026-10-24 – nächster Arbeitsbeginn
+
+Display-Untersuchung 70–75 qualifiziert
+abgeschlossen; Root-Cause nicht bewiesen.
+Bitte zuerst
+`docs/DISPLAY-HANDOVER-2026-10-24.md`
+lesen und nicht erneut dieselben historischen
+Suchläufe beginnen.
+
+Das vollständige Referenz-SD-Image wurde auf
+VM102 und VM104 byteidentisch nachgewiesen.
+
+Nächster Auftrag: bestehenden Image- und
+Release-Qualifikationsstand systematisch
+auswerten. Keine neuen Builds, Patches,
+Hardwaretests oder Medienzugriffe ohne Freigabe.

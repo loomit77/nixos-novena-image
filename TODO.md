@@ -1430,3 +1430,15 @@ oder Hardwarefreigabe.
       keine ungeprüften Coreutils-/lsof-Patches.
 
 Referenz: `docs/VM102-VM104-REPRODUCIBILITY-2026-10-24.md`
+
+## Nachtrag 2026-10-24 – Display-Übergabe
+
+- [x] Historische U-Boot-, DTB- und IT6251-Sequenzen
+  offline untersucht (Blöcke 70–75).
+- [x] Statischen Display-Checkpoint dokumentiert:
+  `docs/DISPLAY-HANDOVER-2026-10-24.md`.
+- [ ] Ursache der Boot-Dunkelphase bei einem künftig
+  freigegebenen Hardwaretest gezielt bestätigen.
+- [ ] Reproduzierbares SD-Image und Release-Kriterien
+  auf Grundlage der bestehenden Referenzqualifikation
+  weiter bearbeiten. Kein Neubau ohne Freigabe.
