@@ -1,3 +1,84 @@
+## SSH-Zugänge – geprüfter Stand 24.10.2026
+
+Dieser Abschnitt ergänzt und aktualisiert die historischen
+SSH-Zugangsnachweise. Frühere Backup-Protokolle bleiben erhalten.
+Es werden keine privaten Schlüssel oder Passphrasen dokumentiert.
+
+### Proxmox VE
+
+- Hostname: `pve`
+- SSH-Ziel: `root@192.168.178.94`
+- Hostkeydatei: `~/.ssh/known_hosts`
+- Authentisierung: vorhandene SSH-Konfiguration von foobox
+- SSH-Verbindung am 24.10.2026 erneut geprüft: PASS
+- Proxmox-Version laut Inventur vom 19.10.2026: `9.2.11`
+
+SSH-Aufruf:
+
+    ssh -T -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" root@192.168.178.94
+
+### VM102 – NixOS-Build-VM
+
+- Hostname: `nixos-base`
+- SSH-Ziel: `loomit@192.168.178.18`
+- Hostkeydatei: `~/.ssh/known_hosts_novena_builder`
+- Historischer ED25519-Hostfingerabdruck:
+  `SHA256:T2Gh++PlrP3SWgO+pYqQkcJlRuv+lKHCUGDLxPNdMDY`
+- SSH-Verbindung am 24.10.2026 erneut geprüft: PASS
+
+SSH-Aufruf:
+
+    ssh -T -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts_novena_builder" loomit@192.168.178.18
+
+### VM103 – Borg-Backup-VM
+
+- Hostname: `borg-backup`
+- SSH-Ziel: `borgadmin@192.168.178.20`
+- SSH-Client-Schlüssel: `~/.ssh/id_ed25519`
+- Hostkeydatei: `~/.config/novena-borg/vm103-known-hosts`
+- Historischer ED25519-Hostfingerabdruck:
+  `SHA256:D3vVrOIEkyr8d97jk5Taoxxv9q0sP3NDxZu69wqaTSY`
+- Borg-Repository:
+  `ssh://borgadmin@192.168.178.20/srv/borg-storage/novena/foobox`
+- Erfolgreiche Borg-Sicherung vom 23.10.2026 dokumentiert.
+- Konfigurationsdateien am 24.10.2026 vorhanden: PASS.
+- Kein allgemeiner interaktiver Shell-Zugang vorausgesetzt.
+- Kein neuer Borg-Lauf oder Restore gestartet.
+
+Für produktive Sicherungen bleibt die bestehende
+Borgmatic-Konfiguration maßgeblich.
+
+### VM104 – NixOS-Build-VM
+
+- Hostname: `novena-clean-builder`
+- SSH-Ziel: `loomit@192.168.178.22`
+- Hostkeydatei: `~/.ssh/known_hosts`
+- SSH-Verbindung am 24.10.2026 erneut geprüft: PASS
+
+SSH-Aufruf:
+
+    ssh -T -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" loomit@192.168.178.22
+
+### Sicherheitsregeln
+
+- `StrictHostKeyChecking` bleibt aktiviert.
+- Hostkeys werden nicht automatisch akzeptiert oder ersetzt.
+- Private Schlüssel, Passwörter und Borg-Passphrasen
+  gehören nicht in Git.
+- SSH-Verbindungen erteilen keine Freigabe für Builds,
+  Konfigurationsänderungen oder Backups.
+
+### Primärnachweise
+
+- `NOVENA-PROXMOX-01-INVENTORY` vom 19.10.2026
+- `PROXMOX-BORG-VM-CREATE-14` vom 20.10.2026
+- `NOVENA-DUAL-SSH-VERIFY-28` vom 20.10.2026
+- `NOVENA-DUAL-BUILD-STATUS` vom 22.10.2026
+- `NOVENA-VM103-BACKUP-48` vom 23.10.2026
+- `NOVENA-IMAGE-COHORT-51` vom 24.10.2026
+
+---
+
 # Novena – SSH-Zugänge und Borg-Wiederherstellungswege
 
 ## Aktueller produktiver Stand – 23.10.2026
