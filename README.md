@@ -344,3 +344,21 @@ Quellen:
 
 Bis zur Klärung bleibt die Firmwareinstallation optional und
 außerhalb des öffentlichen Images.
+
+
+## Referenzcheckpoint: VM102/VM104, 2026-10-24
+
+Ein vollständiges Novena-NixOS-SD-Image wurde auf
+zwei getrennten NixOS-VMs byteidentisch nachgewiesen.
+
+Image-SHA256:
+`40169e4b275f1c8c882312f2dacfd28a9b64e63d0147fd562bf43fa9c4934a1a`
+
+Derivations-SHA256:
+`5142b14b4da32984955671b999ef231488ae9e42beba8e3f218d476c69ff9629`
+
+Details und Nachweisgrenzen:
+[VM102/VM104-Reproduzierbarkeitscheckpoint](docs/VM102-VM104-REPRODUCIBILITY-2026-10-24.md).
+
+Die abweichenden foobox-Builds sind ein separater
+Portabilitätsfall und ändern diesen Referenznachweis nicht.

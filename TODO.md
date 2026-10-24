@@ -1414,3 +1414,19 @@ Lizenzlage nicht geklärt ist.
 
 Dieser Nachtrag erteilt keine Build-
 oder Hardwarefreigabe.
+
+
+## Nachtrag 2026-10-24 – VM102/VM104-Reproduzierbarkeit
+
+- [x] Vollständiges Novena-SD-Image auf VM102 und VM104
+      mit identischem SHA256 nachgewiesen.
+- [x] Identische Image-Derivation auf beiden VMs bestätigt.
+- [x] Vorhandene Image-Buildartefakte inventarisiert.
+- [ ] Referenz-Buildumgebung und öffentliche Buildanleitung
+      für externe Nachbauer vollständig dokumentieren.
+- [ ] Unabhängigkeit sämtlicher Abhängigkeits-Builds bei
+      Bedarf gesondert qualifizieren.
+- [ ] foobox-Cross-Build-Abweichung separat behandeln;
+      keine ungeprüften Coreutils-/lsof-Patches.
+
+Referenz: `docs/VM102-VM104-REPRODUCIBILITY-2026-10-24.md`

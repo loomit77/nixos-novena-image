@@ -785,3 +785,19 @@ kontrollierte Projektdokumentation.
 Novena wird aktuell nicht benoetigt.
 Keine neuen Builds, Hardwaretests
 oder SD-Schreibzugriffe ohne Freigabe.
+
+
+## Nachtrag 2026-10-24 – bestätigter VM-Referenzbuild
+
+VM102 und VM104 besitzen ein byteidentisches vollständiges
+Novena-SD-Image (SHA256:
+`40169e4b275f1c8c882312f2dacfd28a9b64e63d0147fd562bf43fa9c4934a1a`).
+
+Die übereinstimmende Derivation wurde bestätigt.
+Keine Wiederholung des Image-Builds ohne neuen
+Nachweiszweck und ausdrückliche Freigabe.
+
+Siehe:
+`docs/VM102-VM104-REPRODUCIBILITY-2026-10-24.md`
+
+Die foobox-Cross-Build-Abweichungen sind davon getrennt.

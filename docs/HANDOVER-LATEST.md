@@ -1552,3 +1552,32 @@ NOVENA-RTC-PCB-01/02,
 NOVENA-RTC-NET-01/02/03.
 
 Die Novena wird aktuell nicht benoetigt.
+
+
+## Nachtrag 2026-10-24 – VM102/VM104-Image-Reproduzierbarkeit
+
+Auf VM102 und VM104 wurde ein vollständiges
+Novena-NixOS-SD-Image byteidentisch nachgewiesen.
+
+Image:
+`/nix/store/6d32c794lxlhd2pyfi53ivk3qylnwsir-nixos-novena-sd-image.img`
+
+SHA256:
+`40169e4b275f1c8c882312f2dacfd28a9b64e63d0147fd562bf43fa9c4934a1a`
+
+Die Image-Derivation und ihr SHA256 stimmen ebenfalls überein.
+
+Primärbelege: NOVENA-IMAGE-COHORT-54,
+NOVENA-IMAGE-THREEWAY-56 und
+NOVENA-VM-IMAGE-INVENTORY-66.
+
+Weitere Builds sind für die erneute Bestätigung dieses
+Referenzimages nicht erforderlich.
+
+Die vollständige Unabhängigkeit aller Abhängigkeits-Builds
+bleibt gesondert zu qualifizieren.
+
+foobox-Abweichungen werden getrennt behandelt.
+
+Ausführliche Dokumentation:
+`docs/VM102-VM104-REPRODUCIBILITY-2026-10-24.md`
