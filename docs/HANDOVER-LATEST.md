@@ -1595,3 +1595,37 @@ Maßgeblicher Ergebnisstand:
 Nächster Schwerpunkt: NixOS-SD-Image,
 bestehende Qualifikation und Release-Anforderungen.
 Keine neuen Builds oder Hardwaretests freigegeben.
+
+## Nachtrag 2026-10-25 – U-Boot 2026 / Display
+
+NOVENA-DOC-CONSOLIDATE-90
+
+Neuer maßgeblicher Ergebnisbericht:
+docs/UBOOT26-DISPLAY-QUALIFICATION-2026-10-25.md
+
+Basis-HEAD: 262c2d52dbb91cef8f77dacb309d5abd2862751c
+
+VM102 und VM104: vollständige U-Boot-2026-Images
+mit identischer SHA256 c858261155ce83813feaef20ed062ea66e5989b170e43c995270f70ede763750.
+
+foobox: getrennte Displayvariante mit SHA256
+99c34a52484e3d43598fe6487c97d76fb5bdafc58efb934769b6923f7863d5a9.
+
+Der kompilierte DTB enthält genau die beiden
+vorgesehenen neuen Regulator-Always-on-Eigenschaften.
+
+SPL-Bereich, U-Boot proper und zImage sind
+zwischen Baseline und Displayvariante identisch.
+
+Die acht zusätzlichen Bytes der boot.scr-Payload
+sind als regulärer Skriptgrößenpräfix erklärt.
+
+Prüfblöcke 88/89 bleiben aufgrund ihrer
+Python-Ausgabefehler formal FAIL.
+Ihre dokumentierten Teilbefunde bleiben gültig.
+
+Noch kein aktueller Hardwareboot und keine
+funktionale Bestätigung des Display-Fixes.
+
+Dokumentationsänderungen sind zunächst nur lokal.
+Commit/Push sind nicht Bestandteil dieses Blocks.

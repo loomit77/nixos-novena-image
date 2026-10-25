@@ -1442,3 +1442,22 @@ Referenz: `docs/VM102-VM104-REPRODUCIBILITY-2026-10-24.md`
 - [ ] Reproduzierbares SD-Image und Release-Kriterien
   auf Grundlage der bestehenden Referenzqualifikation
   weiter bearbeiten. Kein Neubau ohne Freigabe.
+
+## Nachtrag 2026-10-25 – U-Boot 2026 / Displayqualifikation
+
+NOVENA-DOC-CONSOLIDATE-90
+
+Maßgeblicher neuer Ergebnisbericht:
+docs/UBOOT26-DISPLAY-QUALIFICATION-2026-10-25.md
+
+- [x] VM102 und VM104: byteidentische U-Boot-2026-Baseline-Images.
+- [x] foobox: separate Displayvariante erfolgreich gebaut.
+- [x] Zwei beabsichtigte Always-on-Eigenschaften im DTB nachgewiesen.
+- [x] SPL-Bereich, U-Boot proper und Kernel zwischen Baseline und Displayvariante identisch.
+- [x] Acht-Byte-Präfix in boot.scr anhand von Messwerten erklärt.
+- [ ] Aktuellen U-Boot-2026-SPL/DDR-Stand weiter offline qualifizieren.
+- [ ] Displayvariante auf echter Novena nur nach gesonderter Freigabe testen.
+- [ ] Dokumentationsdiff prüfen; Commit und Push nur nach gesonderter Freigabe.
+
+Die technischen Prüfblöcke 88 und 89 bleiben trotz
+verwertbarer Teilergebnisse formal FAIL.

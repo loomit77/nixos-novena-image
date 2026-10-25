@@ -818,3 +818,26 @@ Nächster Auftrag: bestehenden Image- und
 Release-Qualifikationsstand systematisch
 auswerten. Keine neuen Builds, Patches,
 Hardwaretests oder Medienzugriffe ohne Freigabe.
+
+## Chat-Fortsetzung ab 2026-10-25
+
+NOVENA-DOC-CONSOLIDATE-90
+
+Zuerst lesen:
+docs/UBOOT26-DISPLAY-QUALIFICATION-2026-10-25.md
+
+Projektcheckpoint:
+262c2d52dbb91cef8f77dacb309d5abd2862751c
+
+VM102 und VM104: identische U-Boot-2026-Images.
+foobox: separate Displayvariante erfolgreich gebaut.
+
+DTB: genau zwei neue regulator-always-on-Eigenschaften.
+SPL-Bereich, U-Boot proper und Kernel unverändert.
+
+boot.scr-Acht-Byte-Präfix technisch erklärt.
+Historische FAIL-Ergebnisse 88/89 nicht umdeuten.
+
+Keine weiteren Wiederholungsprüfungen dafür.
+Hardwaretest und Git-Synchronisierung bleiben
+gesondert freigabepflichtig.
