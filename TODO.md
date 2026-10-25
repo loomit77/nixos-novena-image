@@ -1484,3 +1484,25 @@ Planungsentscheidung:
 
 Keine Bridge-Implementierung und keine zusätzliche
 Infrastruktur durch diesen Planungseintrag freigegeben.
+
+## Nachtrag 2026-10-25 – SD-Hardwareboot und Boot-Check
+
+Blöcke 104C–109 belegen den vollständigen SD-Boot
+mit U-Boot 2026.07 und NixOS 26.05 (Kernel 6.18.49).
+Block 108 bestätigt Root-Grow auf etwa 59 GiB und
+den stabilen IT6251-Displaylink mit 1920x1080.
+Die U-Boot-Bildausgabe war im neuesten Versuch
+nicht sichtbar, obwohl sie zuvor beobachtet wurde.
+Die Ursache bleibt offen; kein Display-Fix bestätigt.
+Die Novena wurde nach Abschluss ausgeschaltet.
+
+Neuer Entwicklungsstand:
+- scripts/novena-boot-check.bash: angelegt, noch nicht auf Hardware getestet.
+- modules/novena-development-access.nix: vorbereitet, nicht aktiviert.
+- scripts/novena-release-check.bash: konservativer Release-Preflight.
+- docs/NOVENA-BOOT-CHECK.md: Konzept und Sicherheitsgrenzen.
+Die aktuelle Root-Passwortkonfiguration blockiert eine Releasefreigabe.
+Noch offen: dedizierten foobox-Public-Key festlegen, Modul qualifizieren,
+maschinenlesbare Historie spezifizieren und Gesamtimage prüfen.
+
+Diese Umsetzung enthält keinen Build und keinen neuen Hardwaretest.
