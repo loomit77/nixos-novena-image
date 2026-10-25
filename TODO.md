@@ -1575,3 +1575,36 @@ Verbindlich:
 
 Originalprotokolle: loomit77/project-block-logs,
 Verzeichnis novena/2026/10/, Blöcke 104C bis 115.
+
+<!-- NOVENA-BRIDGE-DOCS-124 -->
+
+## 2026-10-25 – NOVENA-BRIDGE-LITE
+
+### Erledigt
+
+- [x] Bestehenden Novena-Bridge-Plan ausgewertet.
+- [x] Lokale Quellensuche durchgeführt (121).
+- [x] Ersten lokalen Bridge-Pilot erstellt (122).
+- [x] Fehlgeschlagenen Härtungsblock dokumentiert (123).
+- [x] Generator überarbeitet und fünf synthetische
+      Prüfungen bestanden (123R).
+- [x] Laufende Runner-Protokolle im geprüften Fall
+      von abgeschlossenen Protokollen getrennt.
+- [x] Bedienungs- und Architekturkonzept erstellt.
+
+### Offen
+
+- [ ] Dokumentationsänderungen unabhängig prüfen.
+- [ ] Historische Protokollformate breiter qualifizieren.
+- [ ] Fachliche Abnahme und technische Blockergebnisse
+      anhand der Quellen getrennt modellieren.
+- [ ] Snapshot-Veröffentlichung bei Abbruch härten.
+- [ ] GitHub-Uploadstatus unabhängig verifizieren.
+- [ ] Quellenvertrauen und SHA256-Integrität trennen.
+- [ ] Datenschutz und Veröffentlichungsumfang prüfen.
+- [ ] Bridge-Pilot vollständig qualifizieren.
+- [ ] Kontrollierte Git-Integration durchführen.
+- [ ] Tagesabschlussintegration erst später entscheiden.
+
+Keine automatische Ausführung von Builds,
+Hardwaretests oder Medien-Schreibzugriffen.

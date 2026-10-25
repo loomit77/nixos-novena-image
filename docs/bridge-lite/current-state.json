@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-10-25T11:03:28.465795+00:00",
+  "git": {
+    "head": "ae022c4e4e83d08219d497bb2d8f7a339df0a3ff",
+    "branch": "main",
+    "worktree": "MODIFIED",
+    "remote_sync": "UNKNOWN"
+  },
+  "image_inventory": {
+    "source": "docs/image-inventory.json",
+    "record_count": 209,
+    "unique_file_hashes": 116,
+    "host_counts": {
+      "foobox": 174,
+      "VM102": 24,
+      "VM104": 11
+    },
+    "scan_warnings": 1,
+    "path_conflicts": 4,
+    "hardware_image_identity": "UNKNOWN"
+  },
+  "recent_blocks": [
+    {
+      "source": "NOVENA-BRIDGE-LITE-HARDENING-123-20261025-115946-Sstr1V6U.txt",
+      "block_id": "NOVENA-BRIDGE-LITE-HARDENING-123",
+      "state": "COMPLETE",
+      "integrity": "PASS",
+      "complete": true,
+      "process_result": "FAIL",
+      "technical_result": "FAIL",
+      "professional_acceptance": "UNKNOWN",
+      "upload_result": "UNKNOWN",
+      "reasons": []
+    },
+    {
+      "source": "NOVENA-BRIDGE-LITE-PILOT-122-20261025-115655-lL67JA3d.txt",
+      "block_id": "NOVENA-BRIDGE-LITE-PILOT-122",
+      "state": "COMPLETE",
+      "integrity": "PASS",
+      "complete": true,
+      "process_result": "PASS",
+      "technical_result": "PASS",
+      "professional_acceptance": "UNKNOWN",
+      "upload_result": "UNKNOWN",
+      "reasons": []
+    },
+    {
+      "source": "NOVENA-BRIDGE-LITE-SOURCES-121-20261025-115156-dUMDIw1S.txt",
+      "block_id": "NOVENA-BRIDGE-LITE-SOURCES-121",
+      "state": "COMPLETE",
+      "integrity": "PASS",
+      "complete": true,
+      "process_result": "PASS",
+      "technical_result": "PASS",
+      "professional_acceptance": "UNKNOWN",
+      "upload_result": "UNKNOWN",
+      "reasons": []
+    },
+    {
+      "source": "NOVENA-SSH-GIT-INTEGRATION-120R-20261025-114659-jf0lxJTK.txt",
+      "block_id": "NOVENA-SSH-GIT-INTEGRATION-120R",
+      "state": "COMPLETE",
+      "integrity": "PASS",
+      "complete": true,
+      "process_result": "PASS",
+      "technical_result": "PASS",
+      "professional_acceptance": "UNKNOWN",
+      "upload_result": "UNKNOWN",
+      "reasons": []
+    },
+    {
+      "source": "NOVENA-SSH-GIT-INTEGRATION-120-20261025-114307-rKr0hS1g.txt",
+      "block_id": "NOVENA-SSH-GIT-INTEGRATION-120",
+      "state": "COMPLETE",
+      "integrity": "PASS",
+      "complete": true,
+      "process_result": "FAIL",
+      "technical_result": "FAIL",
+      "professional_acceptance": "UNKNOWN",
+      "upload_result": "UNKNOWN",
+      "reasons": []
+    },
+    {
+      "source": "NOVENA-SSH-STATIC-QUALIFICATION-119-20261025-114127-u4b7vnID.txt",
+      "block_id": "NOVENA-SSH-STATIC-QUALIFICATION-119",
+      "state": "COMPLETE",
+      "integrity": "PASS",
+      "complete": true,
+      "process_result": "PASS",
+      "technical_result": "PASS",
+      "professional_acceptance": "UNKNOWN",
+      "upload_result": "UNKNOWN",
+      "reasons": []
+    },
+    {
+      "source": "NOVENA-SSH-DEVELOPMENT-118-20261025-113930-2m53xDqn.txt",
+      "block_id": "NOVENA-SSH-DEVELOPMENT-118",
+      "state": "COMPLETE",
+      "integrity": "PASS",
+      "complete": true,
+      "process_result": "PASS",
+      "technical_result": "PASS",
+      "professional_acceptance": "UNKNOWN",
+      "upload_result": "UNKNOWN",
+      "reasons": []
+    },
+    {
+      "source": "NOVENA-SSH-RELEASE-PRECHECK-117-20261025-113619-nvLW01eD.txt",
+      "block_id": "NOVENA-SSH-RELEASE-PRECHECK-117",
+      "state": "COMPLETE",
+      "integrity": "PASS",
+      "complete": true,
+      "process_result": "PASS",
+      "technical_result": "PASS",
+      "professional_acceptance": "UNKNOWN",
+      "upload_result": "UNKNOWN",
+      "reasons": []
+    },
+    {
+      "source": "NOVENA-CHAT-START-116-20261025-112331-fhw63FiB.txt",
+      "block_id": "NOVENA-CHAT-START-116",
+      "state": "COMPLETE",
+      "integrity": "PASS",
+      "complete": true,
+      "process_result": "FAIL",
+      "technical_result": "FAIL",
+      "professional_acceptance": "UNKNOWN",
+      "upload_result": "UNKNOWN",
+      "reasons": []
+    },
+    {
+      "source": "NOVENA-SSH-KEY-INVENTORY-115-20261025-112106-8vuATLty.txt",
+      "block_id": "NOVENA-SSH-KEY-INVENTORY-115",
+      "state": "COMPLETE",
+      "integrity": "PASS",
+      "complete": true,
+      "process_result": "PASS",
+      "technical_result": "PASS",
+      "professional_acceptance": "UNKNOWN",
+      "upload_result": "UNKNOWN",
+      "reasons": []
+    },
+    {
+      "source": "NOVENA-DEVELOPMENT-GIT-114-20261025-111759-YwOvNKmE.txt",
+      "block_id": "NOVENA-DEVELOPMENT-GIT-114",
+      "state": "COMPLETE",
+      "integrity": "PASS",
+      "complete": true,
+      "process_result": "PASS",
+      "technical_result": "PASS",
+      "professional_acceptance": "UNKNOWN",
+      "upload_result": "UNKNOWN",
+      "reasons": []
+    },
+    {
+      "source": "NOVENA-DEVELOPMENT-HARDENING-113A-20261025-110422-ttdtYLgs.txt",
+      "block_id": "NOVENA-DEVELOPMENT-HARDENING-113A",
+      "state": "COMPLETE",
+      "integrity": "PASS",
+      "complete": true,
+      "process_result": "PASS",
+      "technical_result": "PASS",
+      "professional_acceptance": "UNKNOWN",
+      "upload_result": "UNKNOWN",
+      "reasons": []
+    }
+  ],
+  "pending_sources": [
+    {
+      "source": "NOVENA-BRIDGE-LITE-HARDENING-123R-20261025-120328-lhJiEPCF.txt",
+      "state": "IN_PROGRESS_OR_INCOMPLETE",
+      "reasons": [
+        "LOG_INCOMPLETE",
+        "LOG_INTEGRITY_MISSING",
+        "MISSING_RESULT_FIELDS"
+      ]
+    }
+  ],
+  "review_required_sources": [],
+  "limitations": [
+    "Local logs only",
+    "No independently verified upload status",
+    "No automatic professional acceptance",
+    "No verified hardware/image link",
+    "No automatic release approval"
+  ],
+  "snapshot_id": "af2b3ccb6f88e9aa191f06a1db227c2202444857e7485ae82f314b6570e0c326"
+}

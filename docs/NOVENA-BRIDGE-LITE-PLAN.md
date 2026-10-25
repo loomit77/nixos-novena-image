@@ -115,3 +115,96 @@ aus dem Homelab vollständig prüfen.
 
 Danach eine kleine Architektur- und Datenflussentscheidung
 dokumentieren, bevor Implementierungen beginnen.
+
+<!-- NOVENA-BRIDGE-DOCS-124 -->
+
+## Nachtrag 2026-10-25 – Lokaler Pilot implementiert
+
+Der ursprüngliche Plan bleibt als historischer Planungsstand
+erhalten. Die nachstehenden Ergebnisse aktualisieren ihn.
+
+### Erreichte Meilensteine
+
+- Block 121: lokale Quellensuche abgeschlossen.
+  Eine eigenständige Homelab-Bridge wurde dabei nicht
+  nachgewiesen. Die Suche war begrenzt.
+- Block 122: erster lokaler Python-Pilot erstellt.
+  JSON und Markdown wurden erfolgreich erzeugt.
+- Block 123: Härtungsversuch fehlgeschlagen.
+  Ursache war ein nicht passender Text-Patch-Kontext.
+  Die Wiederherstellung wurde ausgelöst.
+- Block 123R: kontrollierte Überarbeitung erfolgreich.
+  Fünf synthetische Prüfungen bestanden.
+  Der eigene laufende Runner-Block wurde als vorläufig
+  erkannt und nicht als abgeschlossen gewertet.
+
+Maßgeblicher technischer Ausgangspunkt:
+NOVENA-BRIDGE-LITE-HARDENING-123R.
+
+Die erfolgreiche technische Prüfung ist noch keine
+vollständige fachliche Produktivabnahme.
+
+### Architekturentscheidung für den Pilot
+
+Die Implementierung läuft lokal auf foobox.
+
+Bestandteile:
+
+- scripts/novena-bridge-lite.py
+- docs/PROJECT-STATUS.md
+- docs/bridge-lite/current-state.json
+
+Datenquellen:
+
+- lokales Git-Repository
+- lokale Runner-TXT-Protokolle und SHA256-Sidecars
+- docs/image-inventory.json
+
+Die Bridge ist keine zweite maßgebliche Wissensbasis.
+Originalprotokolle und Primärdokumente bleiben führend.
+
+Es gibt zunächst keine eigene VM, keinen Dienst,
+keine Datenbank und keine Netzwerk-API.
+
+### Datenverarbeitung
+
+Die Bridge verarbeitet aktuell bis zu zwölf
+abgeschlossene beziehungsweise prüfbedürftige
+lokale TXT-Protokolle.
+
+Laufende oder unvollständige Protokolle können
+gesondert als vorläufig erfasst werden.
+
+Die fachliche Abnahme bleibt UNKNOWN.
+Auch der unabhängig bestätigte GitHub-Uploadstatus
+wird noch nicht automatisch ermittelt.
+
+Die Image-/Hardware-Zuordnung wird nicht aus
+gleichen Dateinamen oder bloßen Build-Erfolgen abgeleitet.
+
+### Veröffentlichung und Sicherheit
+
+Die beiden Snapshot-Ausgabedateien erhalten
+dieselbe Snapshot-ID.
+
+Ihre Ersetzung erfolgt einzeln atomar.
+Eine gemeinsame transaktionale Veröffentlichung
+ist damit noch nicht nachgewiesen.
+
+Der Pilot darf keine Builds, Hardwaretests,
+SD-Schreibzugriffe oder Git-Mutationen auslösen.
+
+### Offene Qualifikation
+
+- Parser-Semantik historischer Protokolle prüfen.
+- Verschiedene Block-Ergebnisfelder korrekt zuordnen.
+- SHA256- und Quellvertrauen getrennt bewerten.
+- Snapshot-Konsistenz bei unterbrochener Veröffentlichung
+  nachweisbar absichern.
+- Veröffentlichungsumfang und Datenschutz prüfen.
+- Unabhängige Gesamtqualifikation durchführen.
+- Erst danach mögliche Integration in den
+  Tagesabschluss gesondert entscheiden.
+
+Bedienung und Grenzen:
+docs/NOVENA-BRIDGE-LITE.md

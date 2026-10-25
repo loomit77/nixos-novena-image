@@ -960,3 +960,40 @@ Dieses Profil ist ausschliesslich fuer
 ausdruecklich aktivierte Entwicklungsimages
 vorgesehen und darf nicht in Releases importiert
 werden.
+
+<!-- NOVENA-BRIDGE-DOCS-124 -->
+
+## NOVENA-BRIDGE-LITE – optionaler Projektstatus
+
+Stand 2026-10-25:
+
+Der lokale Bridge-Lite-Pilot ist implementiert.
+Block 122 und der korrigierte Block 123R
+haben die jeweils geprüften technischen
+Teilumfänge erfolgreich abgeschlossen.
+
+Block 123 bleibt historisch FAIL.
+
+Einstiegsdokumente:
+
+- docs/NOVENA-BRIDGE-LITE-PLAN.md
+- docs/NOVENA-BRIDGE-LITE.md
+- docs/PROJECT-STATUS.md
+- docs/bridge-lite/current-state.json
+
+Generator:
+
+scripts/novena-bridge-lite.py
+
+Der Bridge-Snapshot ist eine abgeleitete
+Übersicht, keine maßgebliche Primärquelle.
+
+Bei Abweichungen gelten geprüfte Originallogs,
+Git-Zustände und Projektdokumente.
+
+Der Generator darf nicht automatisch ausgeführt
+werden. Snapshot-Aktualisierungen benötigen
+eine gesonderte Freigabe und Runner-Protokollierung.
+
+Keine automatische Integration in den
+Tagesabschluss vor vollständiger Qualifikation.
