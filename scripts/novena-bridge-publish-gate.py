@@ -236,6 +236,80 @@ def production_publish(*args, **kwargs):
     raise GateError("PRODUCTION_PUBLICATION_DISABLED")
 
 
+def exact_fields(value, fields):
+    if type(value) is not dict or set(value) != set(fields):
+        raise GateError("MALFORMED_OR_UNEXPECTED_RESPONSE")
+    return value
+
+
+def update_refs_request(repository_id, ref_name, before_oid, after_oid):
+    """Build only; no HTTP adapter, credentials or production entry point."""
+    if (not isinstance(repository_id, str) or not repository_id.strip()
+            or ref_name != "refs/heads/main"):
+        raise GateError("INVALID_REPOSITORY_OR_REF")
+    for oid in (before_oid, after_oid):
+        if not isinstance(oid, str) or not re.fullmatch(r"[0-9a-f]{40}", oid):
+            raise GateError("INVALID_COMMIT_OID")
+    if before_oid == after_oid:
+        raise GateError("UNCHANGED_COMMIT")
+    return {
+        "query": "mutation($input: UpdateRefsInput!) { updateRefs(input: $input) { clientMutationId } }",
+        "variables": {"input": {
+            "repositoryId": repository_id,
+            "refUpdates": [{"name": ref_name, "beforeOid": before_oid,
+                            "afterOid": after_oid, "force": False}],
+        }},
+    }
+
+
+def verify_api_commit(record, before_oid, after_oid, data):
+    """Strict normalized reader contract, not a raw GitHub response schema.
+
+    Reader must enumerate the complete tree difference (including all pages),
+    resolve immutable objects and return raw blob bytes, never decoded text.
+    """
+    exact_fields(record, ("oid", "parents", "changes"))
+    if record["oid"] != after_oid or record["parents"] != [before_oid]:
+        raise GateError("UNEXPECTED_COMMIT_PARENT")
+    if type(record["changes"]) is not list or len(record["changes"]) != 1:
+        raise GateError("UNEXPECTED_COMMIT_CHANGES")
+    change = exact_fields(record["changes"][0],
+                          ("path", "status", "mode", "type", "bytes"))
+    if change != {"path": TARGET, "status": "added", "mode": "100644",
+                  "type": "blob", "bytes": data} or type(change["bytes"]) is not bytes:
+        raise GateError("UNEXPECTED_TARGET_OR_BYTES")
+
+
+def synthetic_graphql_publication(client, reader, repository_id, ref_name,
+                                  before_oid, after_oid, document):
+    """Injected transport model ONLY. No real client/reader is supplied here.
+
+    reader.head(repo, ref) -> OID; reader.commit(repo, oid) -> normalized record.
+    client(request) -> decoded GraphQL response. Exceptions propagate; no retry.
+    reader is independent of the mutation response and commit preparation.
+    """
+    data = payload(document)
+    request = update_refs_request(repository_id, ref_name, before_oid, after_oid)
+    verify_api_commit(reader.commit(repository_id, after_oid), before_oid, after_oid, data)
+    if reader.head(repository_id, ref_name) != before_oid:
+        raise GateError("STALE_REMOTE_HEAD")
+    response = exact_fields(client(request), ("data",))
+    result = exact_fields(response["data"], ("updateRefs",))
+    mutation = exact_fields(result["updateRefs"], ("clientMutationId",))
+    if mutation["clientMutationId"] is not None:
+        raise GateError("UNEXPECTED_MUTATION_ID")
+    # updateRefs does not supply authoritative resulting HEAD in this selection.
+    # Failure from this point can mean the update happened: never retry/rollback.
+    if reader.head(repository_id, ref_name) != after_oid:
+        raise GateError("RESULTING_HEAD_MISMATCH")
+    verify_api_commit(reader.commit(repository_id, after_oid), before_oid, after_oid, data)
+    if reader.head(repository_id, ref_name) != after_oid:
+        raise GateError("RESULTING_HEAD_MISMATCH")
+    return {"verification": "SYNTHETIC_API_READBACK_ONLY", "baseline_head": before_oid,
+            "head": after_oid, "repository_id": repository_id, "ref": ref_name,
+            "target": TARGET, "sha256": hashlib.sha256(data).hexdigest()}
+
+
 def expect_rejection(label, callback):
     try:
         callback()
