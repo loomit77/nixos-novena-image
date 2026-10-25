@@ -1461,3 +1461,26 @@ docs/UBOOT26-DISPLAY-QUALIFICATION-2026-10-25.md
 
 Die technischen Prüfblöcke 88 und 89 bleiben trotz
 verwertbarer Teilergebnisse formal FAIL.
+
+## Nachtrag 2026-10-25 – Dokumentationskonsolidierung und NOVENA-BRIDGE-LITE
+
+Planungsentscheidung:
+`docs/NOVENA-BRIDGE-LITE-PLAN.md`
+
+- [x] Zentrale Image-Inventur für foobox, VM102 und VM104 erstellen,
+  prüfen, committen und zu beiden Remotes übertragen.
+- [x] Dokumentationskonsolidierung und die Einbeziehung von
+  NOVENA-BRIDGE-LITE als Folgeprojekt festlegen.
+- [ ] Zuerst den aktuellen Display-Hardwaretest abschließen.
+- [ ] Danach den tatsächlichen Stand von NOVENA-BRIDGE-LITE
+  anhand der Homelab-Originaldokumentation prüfen.
+- [ ] Kurze, verbindliche Projektstatus-Übersicht konzipieren.
+- [ ] Bestehende historische Dokumente erhalten und
+  kompakte Einstiegspunkte mit Quellenverweisen schaffen.
+- [ ] Lesenden Bridge-Pilot mit überprüfbarem Status-Snapshot
+  planen und gesondert freigeben.
+- [ ] Nach Qualifikation über die Integration in
+  Chat-Starter und Tagesabschluss entscheiden.
+
+Keine Bridge-Implementierung und keine zusätzliche
+Infrastruktur durch diesen Planungseintrag freigegeben.
