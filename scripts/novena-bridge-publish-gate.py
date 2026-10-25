@@ -1,0 +1,378 @@
+#!/usr/bin/env python3
+"""Novena Bridge Exchange: local synthetic publication gate.
+
+Production publication is deliberately unavailable.
+"""
+
+import argparse
+import copy
+import hashlib
+import json
+import os
+import re
+import subprocess
+import tempfile
+from pathlib import Path
+
+import jsonschema
+
+ROOT = Path(__file__).resolve().parent.parent
+SCHEMA = ROOT / "docs/bridge-lite/exchange-schema-v1.json"
+PILOT = ROOT / "docs/bridge-lite/EXCHANGE-PILOT.json"
+
+TARGET = "novena/status/NOVENA-CURRENT-STATE.json"
+PRODUCTION_ENABLED = False
+
+
+class GateError(Exception):
+    pass
+
+
+def git(directory, *args, check=True):
+    env = os.environ.copy()
+    env["GIT_TERMINAL_PROMPT"] = "0"
+
+    result = subprocess.run(
+        ["git", "-C", str(directory), *args],
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+        env=env,
+    )
+    if check and result.returncode:
+        raise GateError("GIT_OPERATION_FAILED")
+    return result
+
+
+def head(repository):
+    value = git(
+        repository, "rev-parse", "refs/heads/main"
+    ).stdout.strip()
+
+    if not re.fullmatch(r"[0-9a-f]{40}", value):
+        raise GateError("INVALID_GIT_HEAD")
+    return value
+
+
+def payload(document):
+    schema = json.loads(
+        SCHEMA.read_text(encoding="utf-8")
+    )
+    jsonschema.Draft202012Validator.check_schema(schema)
+    jsonschema.Draft202012Validator(
+        schema,
+        format_checker=jsonschema.FormatChecker(),
+    ).validate(document)
+
+    if document["last_verified"] is not None:
+        raise GateError("INITIAL_CHECKPOINT_NOT_NULL")
+    if document["publication"]["state"] != "NOT_PUBLISHED":
+        raise GateError("FALSE_PUBLICATION_CLAIM")
+    if document["publication"]["commit"] is not None:
+        raise GateError("UNVERIFIED_COMMIT")
+
+    return (
+        json.dumps(
+            document,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        ) + "\n"
+    ).encode("utf-8")
+
+
+def create_initial_index(
+    test_remote, expected_head, document, test_root
+):
+    """Write only inside a marked, local synthetic bare Git repo."""
+
+    remote = Path(test_remote).resolve()
+    root = Path(test_root).resolve()
+
+    if remote == root or not remote.is_relative_to(root):
+        raise GateError("REMOTE_OUTSIDE_TEST_ROOT")
+
+    if not remote.is_dir():
+        raise GateError("TEST_REMOTE_MISSING")
+
+    marker = remote / "NOVENA_SYNTHETIC_TEST_ONLY"
+    if not marker.is_file() or marker.is_symlink():
+        raise GateError("TEST_MARKER_MISSING")
+
+    if git(
+        remote, "rev-parse", "--is-bare-repository"
+    ).stdout.strip() != "true":
+        raise GateError("REMOTE_NOT_BARE")
+
+    data = payload(document)
+
+    if head(remote) != expected_head:
+        raise GateError("STALE_REMOTE_HEAD")
+
+    with tempfile.TemporaryDirectory(
+        prefix="novena-publish-work-",
+        dir=root,
+    ) as workdir:
+        work = Path(workdir) / "checkout"
+
+        cloned = subprocess.run(
+            [
+                "git", "clone", "--quiet", "--no-hardlinks",
+                str(remote), str(work),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+        if cloned.returncode:
+            raise GateError("TEST_CLONE_FAILED")
+
+        if head(work) != expected_head:
+            raise GateError("CLONED_HEAD_MISMATCH")
+
+        if git(work, "status", "--porcelain").stdout.strip():
+            raise GateError("UNCLEAN_TEST_WORKTREE")
+
+        if Path(git(
+            work, "remote", "get-url", "origin"
+        ).stdout.strip()).resolve() != remote:
+            raise GateError("UNEXPECTED_TEST_ORIGIN")
+
+        destination = work / TARGET
+
+        if destination.exists() or destination.is_symlink():
+            raise GateError("TARGET_ALREADY_EXISTS")
+
+        destination.parent.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+        destination.write_bytes(data)
+
+        git(work, "add", "--", TARGET)
+        staged = git(
+            work, "diff", "--cached", "--name-only"
+        ).stdout.splitlines()
+
+        if staged != [TARGET]:
+            raise GateError("UNEXPECTED_STAGED_FILES")
+
+        git(
+            work, "config", "user.name",
+            "Novena Synthetic Test",
+        )
+        git(
+            work, "config", "user.email",
+            "synthetic@localhost.invalid",
+        )
+        git(
+            work, "commit", "-m",
+            "Synthetic Bridge Exchange initialization",
+        )
+
+        new_head = head(work)
+
+        # No force option and no leading '+' in refspec.
+        pushed = git(
+            work, "push", "--porcelain",
+            "origin", "HEAD:refs/heads/main",
+            check=False,
+        )
+
+        if pushed.returncode:
+            raise GateError("PUSH_CONFLICT_OR_FAILURE")
+
+        if head(remote) != new_head:
+            raise GateError("REMOTE_HEAD_MISMATCH")
+
+        stored = git(
+            remote,
+            "show", "refs/heads/main:" + TARGET,
+        ).stdout.encode("utf-8")
+
+        if stored != data:
+            raise GateError("REMOTE_CONTENT_MISMATCH")
+
+        kind = git(
+            remote, "cat-file", "-t",
+            "refs/heads/main:" + TARGET,
+        ).stdout.strip()
+
+        if kind != "blob":
+            raise GateError("TARGET_NOT_BLOB")
+
+        return {
+            "verified": True,
+            "head": new_head,
+            "sha256": hashlib.sha256(data).hexdigest(),
+        }
+
+
+def production_publish(*args, **kwargs):
+    raise GateError("PRODUCTION_PUBLICATION_DISABLED")
+
+
+def expect_rejection(label, callback):
+    try:
+        callback()
+    except (GateError, jsonschema.ValidationError):
+        print(label + "=REJECTED")
+    else:
+        raise AssertionError(label + "_NOT_REJECTED")
+
+
+def self_test():
+    document = json.loads(
+        PILOT.read_text(encoding="utf-8")
+    )
+    candidate_bytes = payload(document)
+
+    assert PRODUCTION_ENABLED is False
+
+    expect_rejection(
+        "PRODUCTION_CALL",
+        lambda: production_publish(),
+    )
+
+    with tempfile.TemporaryDirectory(
+        prefix="novena-publish-gate-144s-"
+    ) as temporary:
+        root = Path(temporary).resolve()
+        remote = root / "archive.git"
+        seed = root / "seed"
+
+        init = subprocess.run(
+            [
+                "git", "init", "-q", "--bare",
+                "--initial-branch=main", str(remote),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if init.returncode:
+            raise GateError("TEST_ARCHIVE_INIT_FAILED")
+
+        (remote / "NOVENA_SYNTHETIC_TEST_ONLY").write_text(
+            "Local synthetic test repository only\n"
+        )
+
+        cloned = subprocess.run(
+            ["git", "clone", "--quiet", str(remote), str(seed)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if cloned.returncode:
+            raise GateError("SEED_CLONE_FAILED")
+
+        git(
+            seed, "config", "user.name",
+            "Novena Synthetic Test",
+        )
+        git(
+            seed, "config", "user.email",
+            "synthetic@localhost.invalid",
+        )
+        (seed / "README.txt").write_text(
+            "Synthetic Git archive\n"
+        )
+
+        git(seed, "add", "README.txt")
+        git(seed, "commit", "-m", "Synthetic baseline")
+        git(seed, "push", "origin", "main")
+
+        baseline = head(remote)
+
+        expect_rejection(
+            "WRONG_EXPECTED_HEAD",
+            lambda: create_initial_index(
+                remote, "0" * 40, document, root
+            ),
+        )
+        expect_rejection(
+            "OUTSIDE_TEST_ROOT",
+            lambda: create_initial_index(
+                remote, baseline, document,
+                root / "unrelated",
+            ),
+        )
+
+        false_claim = copy.deepcopy(document)
+        false_claim["publication"]["state"] = "CONFIRMED"
+
+        expect_rejection(
+            "FALSE_PUBLICATION_CLAIM",
+            lambda: create_initial_index(
+                remote, baseline, false_claim, root
+            ),
+        )
+
+        promoted = copy.deepcopy(document)
+        promoted["last_verified"] = {
+            "block_id": "SYNTHETIC",
+            "git_head": "a" * 40,
+            "qualified_at_utc": "2026-10-25T12:00:00Z",
+            "qualification": "PASS",
+            "evidence_files": ["synthetic.txt"],
+        }
+        expect_rejection(
+            "UNAPPROVED_CHECKPOINT",
+            lambda: create_initial_index(
+                remote, baseline, promoted, root
+            ),
+        )
+
+        assert head(remote) == baseline
+
+        result = create_initial_index(
+            remote, baseline, document, root
+        )
+
+        assert result["verified"]
+        assert result["head"] != baseline
+        assert result["sha256"] == hashlib.sha256(
+            candidate_bytes
+        ).hexdigest()
+
+        print("LOCAL_INITIAL_PUBLICATION=PASS")
+        print("REMOTE_READBACK=PASS")
+
+        expect_rejection(
+            "DUPLICATE_INITIAL_PUBLICATION",
+            lambda: create_initial_index(
+                remote, result["head"], document, root
+            ),
+        )
+        expect_rejection(
+            "STALE_BASE_AFTER_PUBLICATION",
+            lambda: create_initial_index(
+                remote, baseline, document, root
+            ),
+        )
+
+        assert head(remote) == result["head"]
+        print("REMOTE_HEAD_PRESERVED=PASS")
+        print("SYNTHETIC_ARCHIVE_ONLY=YES")
+
+    print("TEMPORARY_ARCHIVE_REMOVED=PASS")
+    print("PRODUCTION_PUBLICATION=DISABLED")
+    print("SELF_TEST=PASS")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Novena Bridge: local publication gate"
+    )
+    parser.add_argument(
+        "--self-test", action="store_true", required=True
+    )
+    args = parser.parse_args()
+    if args.self_test:
+        self_test()
+
+
+if __name__ == "__main__":
+    main()
