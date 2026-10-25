@@ -8,6 +8,7 @@ import argparse
 import copy
 import hashlib
 import json
+import importlib.util
 import os
 import re
 import subprocess
@@ -17,23 +18,36 @@ from pathlib import Path
 import jsonschema
 
 ROOT = Path(__file__).resolve().parent.parent
-SCHEMA = ROOT / "docs/bridge-lite/exchange-schema-v1.json"
 PILOT = ROOT / "docs/bridge-lite/EXCHANGE-PILOT.json"
 
 TARGET = "novena/status/NOVENA-CURRENT-STATE.json"
 PRODUCTION_ENABLED = False
+
+# Reuse planner validation and canonical serialization; no network calls here.
+_spec = importlib.util.spec_from_file_location(
+    "novena_bridge_publisher", ROOT / "scripts/novena-bridge-publisher.py"
+)
+planner = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(planner)
 
 
 class GateError(Exception):
     pass
 
 
+def git_environment():
+    env = {key: value for key, value in os.environ.items()
+           if not key.startswith("GIT_")}
+    env.update(GIT_TERMINAL_PROMPT="0", GIT_CONFIG_NOSYSTEM="1",
+               GIT_CONFIG_GLOBAL=os.devnull, GIT_ALLOW_PROTOCOL="file")
+    return env
+
+
 def git(directory, *args, check=True):
-    env = os.environ.copy()
-    env["GIT_TERMINAL_PROMPT"] = "0"
+    env = git_environment()
 
     result = subprocess.run(
-        ["git", "-C", str(directory), *args],
+        ["git", "-c", "core.hooksPath=" + os.devnull, "-C", str(directory), *args],
         capture_output=True,
         text=True,
         timeout=30,
@@ -56,14 +70,7 @@ def head(repository):
 
 
 def payload(document):
-    schema = json.loads(
-        SCHEMA.read_text(encoding="utf-8")
-    )
-    jsonschema.Draft202012Validator.check_schema(schema)
-    jsonschema.Draft202012Validator(
-        schema,
-        format_checker=jsonschema.FormatChecker(),
-    ).validate(document)
+    planner.validate(document, planner.schema_validator())
 
     if document["last_verified"] is not None:
         raise GateError("INITIAL_CHECKPOINT_NOT_NULL")
@@ -72,14 +79,34 @@ def payload(document):
     if document["publication"]["commit"] is not None:
         raise GateError("UNVERIFIED_COMMIT")
 
-    return (
-        json.dumps(
-            document,
-            sort_keys=True,
-            separators=(",", ":"),
-            ensure_ascii=False,
-        ) + "\n"
-    ).encode("utf-8")
+    return planner.canonical(document)
+
+
+def verify_readback(repository, expected_head, expected_bytes):
+    """Verify one immutable commit and check branch HEAD on both sides."""
+    if head(repository) != expected_head:
+        raise GateError("REMOTE_HEAD_MISMATCH")
+    if git(repository, "cat-file", "-t", expected_head + ":" + TARGET).stdout.strip() != "blob":
+        raise GateError("TARGET_NOT_BLOB")
+    stored = subprocess.run(
+        ["git", "-C", str(repository), "show", expected_head + ":" + TARGET],
+        capture_output=True, timeout=30, check=False, env=git_environment(),
+    )
+    if stored.returncode or stored.stdout != expected_bytes:
+        raise GateError("REMOTE_CONTENT_MISMATCH")
+    if head(repository) != expected_head:
+        raise GateError("REMOTE_HEAD_MISMATCH")
+
+
+def verify_single_change(work, baseline, new_head):
+    if git(work, "rev-list", "--parents", "-n", "1", new_head).stdout.strip() != (
+        new_head + " " + baseline
+    ):
+        raise GateError("UNEXPECTED_COMMIT_PARENT")
+    changes = git(work, "diff-tree", "--no-commit-id", "--name-status",
+                  "-r", baseline, new_head).stdout.splitlines()
+    if changes != ["A\t" + TARGET]:
+        raise GateError("UNEXPECTED_COMMIT_CHANGES")
 
 
 def create_initial_index(
@@ -105,6 +132,8 @@ def create_initial_index(
     ).stdout.strip() != "true":
         raise GateError("REMOTE_NOT_BARE")
 
+    if not re.fullmatch(r"[0-9a-f]{40}", expected_head):
+        raise GateError("INVALID_EXPECTED_HEAD")
     data = payload(document)
 
     if head(remote) != expected_head:
@@ -125,6 +154,7 @@ def create_initial_index(
             text=True,
             timeout=30,
             check=False,
+            env=git_environment(),
         )
         if cloned.returncode:
             raise GateError("TEST_CLONE_FAILED")
@@ -142,6 +172,10 @@ def create_initial_index(
 
         destination = work / TARGET
 
+        if git(work, "ls-tree", expected_head, "--", TARGET).stdout.strip():
+            raise GateError("TARGET_ALREADY_EXISTS")
+        if any(parent.is_symlink() for parent in destination.parents):
+            raise GateError("SYMLINK_TARGET_PARENT")
         if destination.exists() or destination.is_symlink():
             raise GateError("TARGET_ALREADY_EXISTS")
 
@@ -174,38 +208,26 @@ def create_initial_index(
 
         new_head = head(work)
 
-        # No force option and no leading '+' in refspec.
-        pushed = git(
-            work, "push", "--porcelain",
-            "origin", "HEAD:refs/heads/main",
-            check=False,
-        )
+        verify_single_change(work, expected_head, new_head)
+        verify_readback(work, new_head, data)
 
-        if pushed.returncode:
-            raise GateError("PUSH_CONFLICT_OR_FAILURE")
+        # Local synthetic transport only: import objects without moving main.
+        # update-ref provides exact old-OID CAS, including concurrent rewinds.
+        git(remote, "fetch", "--quiet", "--no-write-fetch-head",
+            str(work), new_head)
+        updated = git(remote, "update-ref", "refs/heads/main",
+                      new_head, expected_head, check=False)
+        if updated.returncode:
+            raise GateError("CONCURRENT_REMOTE_CHANGE")
 
-        if head(remote) != new_head:
-            raise GateError("REMOTE_HEAD_MISMATCH")
-
-        stored = git(
-            remote,
-            "show", "refs/heads/main:" + TARGET,
-        ).stdout.encode("utf-8")
-
-        if stored != data:
-            raise GateError("REMOTE_CONTENT_MISMATCH")
-
-        kind = git(
-            remote, "cat-file", "-t",
-            "refs/heads/main:" + TARGET,
-        ).stdout.strip()
-
-        if kind != "blob":
-            raise GateError("TARGET_NOT_BLOB")
+        verify_readback(remote, new_head, data)
 
         return {
             "verified": True,
             "head": new_head,
+            "baseline_head": expected_head,
+            "target": TARGET,
+            "verification": "LOCAL_GIT_READBACK_ONLY",
             "sha256": hashlib.sha256(data).hexdigest(),
         }
 
@@ -217,7 +239,7 @@ def production_publish(*args, **kwargs):
 def expect_rejection(label, callback):
     try:
         callback()
-    except (GateError, jsonschema.ValidationError):
+    except (GateError, planner.PolicyError, jsonschema.ValidationError):
         print(label + "=REJECTED")
     else:
         raise AssertionError(label + "_NOT_REJECTED")
@@ -264,6 +286,7 @@ def self_test():
             capture_output=True,
             text=True,
             check=False,
+            env=git_environment(),
         )
         if cloned.returncode:
             raise GateError("SEED_CLONE_FAILED")
