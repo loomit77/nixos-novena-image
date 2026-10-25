@@ -1506,3 +1506,72 @@ Noch offen: dedizierten foobox-Public-Key festlegen, Modul qualifizieren,
 maschinenlesbare Historie spezifizieren und Gesamtimage prüfen.
 
 Diese Umsetzung enthält keinen Build und keinen neuen Hardwaretest.
+
+## Übergabe 2026-10-25 – NOVENA-CHAT-START-116
+
+Aktueller geprüfter Projektstand vor dieser Übergabe:
+
+- Branch: main
+- HEAD: 3027ba24e7f29bb00f219e6a2d3de9f7cab8abcb
+- Hardware: Novena kontrolliert heruntergefahren.
+- Kein neuer Hardwarestart ohne gesonderte Freigabe.
+
+Hardwaretest vom 25.10.2026:
+
+- Vollständiges NixOS-Displayimage geschrieben und verifiziert.
+- SPL/U-Boot 2026.07, Linux 6.18.49, NixOS 26.05.
+- Automatisches Root-Grow auf der 64-GB-SD: PASS.
+- SSH-Verbindung: PASS.
+- IT6251-Displaylink unter Linux: stabil mit 1920x1080.
+- Sichtbare U-Boot-Ausgabe fehlte gegenüber früherem Boot.
+- Display-Restproblem offen; kein bestätigter Fix.
+
+Entwicklungswerkzeuge:
+
+- scripts/novena-boot-check.bash vorhanden.
+- scripts/novena-release-check.bash vorhanden.
+- modules/novena-development-access.nix vorhanden,
+  aber nicht importiert.
+- docs/NOVENA-BOOT-CHECK.md vorhanden.
+- Git-Commit 3027ba24 wurde zu Codeberg und GitHub gepusht.
+- Standard-Boot-Check noch nicht auf Hardware ausgeführt.
+- Maschinenlesbare JSON-Zeile vorgesehen; noch nicht
+  funktional am Zielsystem qualifiziert.
+- Releasefreigabe bleibt gesperrt.
+
+SSH-Inventur Block 115:
+
+- Dedizierter foobox-Novena-Schlüssel bereits vorhanden.
+- Privat: ~/.ssh/id_ed25519_novena
+- Öffentlich: ~/.ssh/id_ed25519_novena.pub
+- ED25519-Fingerprint:
+  SHA256:w59g5hUN8YnGkl3r9zbmdHQ9E2oNcumiN/qL6Qdfq+s
+- Schlüsselmaterial nicht in Protokollen ausgeben.
+- Entwicklungsmodul noch nicht aktiviert.
+- Keine Server-Hostschlüssel im Image fest einbauen.
+
+Nächste Aufgaben:
+
+1. Git-Zustand und neuesten Nachtrag prüfen.
+2. Vorhandenes SSH-Entwicklungsmodul fachlich prüfen.
+3. Dedizierten öffentlichen foobox-Schlüssel einbinden.
+4. Entwicklungsprofil gegen Releaseprofil abgrenzen.
+5. Release-Sperre anhand der ausgewerteten Konfiguration
+   und des fertigen Images vervollständigen.
+6. Standard-Boot-Check und JSON-Historie statisch
+   qualifizieren und erst später auf Hardware testen.
+7. Das offene U-Boot-Displayverhalten weiter untersuchen.
+8. Vor neuen Builds oder Hardwaretests Freigabe einholen.
+
+Verbindlich:
+
+- Keine privaten Schlüssel in Git, Nix-Store oder Logs.
+- Keine bekannten Passwörter im Releaseimage.
+- Keine automatischen Hardwarestarts.
+- Runner, TXT, SHA256 und GitHub-Archiv beibehalten.
+- Alte Originalprotokolle unverändert erhalten.
+- I2C3/ES8328-Untersuchung bleibt abgeschlossen.
+- Novena bleibt bis zur nächsten Freigabe ausgeschaltet.
+
+Originalprotokolle: loomit77/project-block-logs,
+Verzeichnis novena/2026/10/, Blöcke 104C bis 115.

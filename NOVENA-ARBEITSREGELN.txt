@@ -911,3 +911,35 @@ nicht freigegebene Dateien bleiben geschuetzt.
 
 Diese Regel erteilt keine eigenstaendige
 Git-, Netzwerk- oder Schreibfreigabe.
+
+NOVENA-RUNNER-STANDARD-20261025
+==============================
+
+Verbindlicher Standard fuer technische Arbeitsbloecke:
+
+Wrapper:
+~/novena-backups/github-transport/run-and-upload.bash
+
+Aufruf:
+run-and-upload.bash BLOCK_ID COMMAND_FILE
+
+Der Wrapper verwendet den vorhandenen run-block.bash
+und uebernimmt TXT-Rohprotokollierung, SHA256-Sidecar
+und GitHub-Archivierung.
+
+Vollstaendige kopierbare Bash-Bloecke sind bereitzustellen.
+Die interaktive Fish-Shell ist zu beruecksichtigen.
+
+Keine erneute Runner-Inventur ohne neue konkrete
+Fehlerevidenz. Vorhandene Originalprotokolle und
+dokumentierte Aufrufbeispiele haben Vorrang.
+
+Technischer Blockstatus und Uploadstatus sind
+getrennt zu bewerten.
+
+Die Nutzung des Wrappers erteilt keine Freigabe
+fuer Builds, Hardwaretests, Medien-Schreibzugriffe
+oder Git-Mutationen.
+
+Bei sensiblen Daten ist vor dem Upload der
+Geheimnisschutz zu beachten.
