@@ -1608,3 +1608,23 @@ Verzeichnis novena/2026/10/, Blöcke 104C bis 115.
 
 Keine automatische Ausführung von Builds,
 Hardwaretests oder Medien-Schreibzugriffen.
+
+<!-- NOVENA-DAY-CLOSE-20261025-BRIDGE -->
+## Nachtrag 2026-10-25 – Bridge Exchange
+
+- [x] Bridge-Exchange-Schema und Kandidat 149 erstellt.
+- [x] Archiv-Evidenz und lokale Publisher-Gates qualifiziert.
+- [x] GraphQL-updateRefs-Schema mit beforeOid geprüft.
+- [x] Synthetisches CAS-Transportmodell implementiert.
+- [x] Block 161: 17 synthetische Tests PASS.
+- [x] Block 163: vier Dateien committed, beide Remotes PASS.
+- [ ] Produktiven API-Adapter implementieren und qualifizieren.
+- [ ] Git-Commit-Objektbereitstellung und unabhängige
+      GitHub-Rücklesekette implementieren und prüfen.
+- [ ] Echte GraphQL-CAS-Semantik und Berechtigungen qualifizieren.
+- [ ] Erstveröffentlichung des privaten Statusindex
+      gesondert freigeben und durchführen.
+- [ ] Novena-Hauptziel: Release- und Bootqualifikation
+      anhand der bestehenden Evidenz fortsetzen.
+
+Produktive Statusveröffentlichung bleibt gesperrt.

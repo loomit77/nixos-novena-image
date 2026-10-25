@@ -997,3 +997,37 @@ eine gesonderte Freigabe und Runner-Protokollierung.
 
 Keine automatische Integration in den
 Tagesabschluss vor vollständiger Qualifikation.
+
+<!-- NOVENA-DAY-CLOSE-20261025-BRIDGE -->
+## Chat-Fortsetzung ab 2026-10-26 – Bridge Exchange
+
+Wir setzen „Novena – universelles NixOS SD-Image“
+nach dem Entwicklungscheckpoint vom 25.10.2026 fort.
+
+foobox: `~/nixos-novena-image`
+Branch: main
+Bestätigter Ausgangs-HEAD:
+`29107f15b628abb0b18a34369c3957da75cd0b99`
+
+Zuerst die neuesten Nachträge in AGENTS.md,
+NOVENA-ARBEITSREGELN.txt, README.md, TODO.md,
+docs/HANDOVER-LATEST.md, docs/PROJECT-STATE.md
+und docs/DAILY-CLOSE.md auswerten.
+
+Bridge Exchange:
+- Block 163 PASS, Codeberg/GitHub synchron.
+- GraphQL-CAS-Transportmodell synthetisch getestet.
+- Produktive Veröffentlichung ausdrücklich gesperrt.
+- API-Adapter, Commitbereitstellung und echte
+  GitHub-Readbacks noch offen.
+
+Das universelle NixOS-SD-Image bleibt Hauptziel.
+Die vorhandenen Boot- und Imageergebnisse
+nicht durch den Bridge-Entwicklungsstand ersetzen.
+
+Vor Fortsetzung aktuelle Git-Zustände und den
+tatsächlichen Tagesabschlussstatus prüfen.
+
+Keine neuen Builds, Patches, Hardwaretests,
+SD-Schreibzugriffe oder Git-Änderungen
+ohne konkrete Freigabe.

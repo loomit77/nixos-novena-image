@@ -1720,3 +1720,51 @@ Verbindlich:
 
 Originalprotokolle: loomit77/project-block-logs,
 Verzeichnis novena/2026/10/, Blöcke 104C bis 115.
+
+<!-- NOVENA-DAY-CLOSE-20261025-BRIDGE -->
+## Übergabe 2026-10-25 – Bridge Exchange, Block 163
+
+Projekt: Novena – universelles NixOS SD-Image.
+Host: foobox. Branch: main.
+
+Letzter bestätigter Git-Checkpoint:
+`29107f15b628abb0b18a34369c3957da75cd0b99`
+
+Block 163:
+- Commit: bridge-lite: add synthetic GraphQL CAS transport model
+- Genau vier Dateien, 374 hinzugefügte Zeilen.
+- Codeberg und GitHub auf identischen HEAD geprüft.
+- Git-Index und Worktree sauber.
+- Produktionssperre aktiv.
+
+Blöcke 160–162:
+- Isolierte Codex-Implementierung.
+- Patch-SHA256:
+  `9dac1a5821c7cce8479932337db63de7678f0ac58862f166b9bcc8b1d28d393b`
+- Audit 161 und Integration 162: PASS.
+- 17 synthetische Tests sowie zwei Selbsttests PASS.
+
+Bridge-Status:
+- GraphQL-updateRefs-Schema mit beforeOid nachgewiesen.
+- Produktiver API-Adapter fehlt.
+- Commit-Objektbereitstellung fehlt.
+- Produktiver Statusindex nicht veröffentlicht.
+- Reale GraphQL-Mutation nicht ausgeführt.
+- last_verified bleibt null; keine Statuspromotion.
+
+Die Bridge-Arbeiten ersetzen nicht die technische
+Novena-Boot-, Image- und Releasequalifikation.
+
+Nächster Entwicklungsauftrag:
+Produktiven API-Adapter nur mit gesonderter Freigabe
+in isolierter Umgebung vorbereiten.
+
+Keine Builds, Hardwaretests, Git-Änderungen oder
+Medien-Schreibzugriffe ohne entsprechende Freigabe.
+
+Originalprotokolle:
+Privates GitHub-Archiv `loomit77/project-block-logs`,
+Verzeichnis `novena/2026/10/`, insbesondere Block 163.
+
+Hinweis: Tagesabschluss-Backup und Dokumentations-Push
+sind durch diesen Nachtrag noch nicht nachgewiesen.
