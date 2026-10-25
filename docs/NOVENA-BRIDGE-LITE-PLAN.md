@@ -208,3 +208,135 @@ SD-Schreibzugriffe oder Git-Mutationen auslösen.
 
 Bedienung und Grenzen:
 docs/NOVENA-BRIDGE-LITE.md
+
+<!-- NOVENA-BRIDGE-ARCHITECTURE-127R -->
+
+## Architekturentscheidung 2026-10-25 – Homelab-Abgleich
+
+Grundlage ist das ursprüngliche Homelab-Konzept
+NOVENA-BRIDGE-LITE vom 24.10.2026.
+
+Die Bridge ist eine kontrollierte Informationsverbindung
+zwischen foobox, dem vorhandenen Runner, dem privaten
+GitHub-Protokollarchiv und ChatGPT.
+
+Sie ersetzt keine Originalquellen und stellt keinen
+allgemeinen Shell-Zugriff bereit.
+
+### Baustein A – Bridge Core
+
+Der bereits implementierte lokale Pilot verarbeitet:
+
+- Git-HEAD und lokalen Worktree-Status;
+- lokale Runner-TXT-Protokolle;
+- lokale SHA256-Sidecars;
+- die bestehende Novena-Image-Inventur.
+
+Er erzeugt einen JSON-Snapshot und eine
+menschenlesbare Markdown-Übersicht.
+
+Die vorhandene technische Teilqualifikation basiert
+auf Block 122 und Block 123R. Block 123 bleibt FAIL.
+
+Ein Runner-PASS ist keine fachliche Abnahme.
+Ein gültiger lokaler SHA256-Abgleich ist kein
+unabhängiger Beweis für einen GitHub-Upload.
+
+### Baustein B – Bridge Exchange
+
+Dieser Baustein ist noch nicht implementiert.
+
+Er soll einen geprüften Statusindex unter dem Namen
+NOVENA-CURRENT-STATE.json im bestehenden privaten
+GitHub-Archiv project-block-logs bereitstellen.
+
+ChatGPT soll zunächst diesen Statusindex und danach
+die referenzierten Originalprotokolle lesen können.
+
+Das Ziel ist ein schneller, überprüfbarer Projektstart
+ohne wiederholte manuelle Übertragung von Logs.
+
+Keine zusätzliche VM, Datenbank, Netzwerk-API,
+öffentliche MCP-Schnittstelle oder Tailscale Funnel.
+
+### Zustandsmodell
+
+LAST_VERIFIED:
+Letzter anhand seiner Quellen bestätigter Checkpoint.
+
+CURRENT_UNKNOWN:
+Aktueller Live-Zustand ist nicht belegt.
+
+BLOCK_FAILED:
+Ein fehlgeschlagener Block wird dokumentiert, ersetzt
+aber nicht den letzten gültigen Checkpoint.
+
+IN_PROGRESS:
+Ein Vorgang läuft oder sein Abschluss ist unbekannt.
+
+UNKNOWN:
+Ein einzelnes Datenfeld ist nicht nachgewiesen.
+
+Diese Begriffe sind Architekturvorgaben und noch
+nicht vollständig im Pilot implementiert.
+
+### Historisches Homelab-Statusschema
+
+Der Entwurf vom 24.10.2026 enthielt:
+
+- schema_version
+- project
+- block_id
+- timestamp_utc
+- runner
+- upload
+- technical_result
+- log_file
+- sha256_file
+- git_head
+- build_state
+- verified
+
+Der ursprüngliche JSON-Datensatz war ein Beispiel,
+kein tatsächlich qualifizierter Projektcheckpoint.
+
+Das spätere Statusschema muss mindestens trennen:
+
+- Runner- und Wrapper-Erfolg;
+- fachliches Ergebnis;
+- Integrität des lokalen Protokolls;
+- unabhängigen Uploadnachweis;
+- Git-Checkpoint;
+- Build- und Hardwarezustand.
+
+Das pauschale Feld verified wird nicht unkritisch
+als allgemeine Freigabe übernommen.
+
+Nicht belegte Angaben bleiben UNKNOWN.
+
+### Checkpoint- und Veröffentlichungsregel
+
+Ein fehlgeschlagener Block darf LAST_VERIFIED
+nicht überschreiben.
+
+Fehler müssen separat und mit Quellenverweisen
+erhalten bleiben.
+
+Die Veröffentlichung erfolgt erst nach Prüfung
+des fertigen Statusindex und seiner Referenzen.
+
+Die bisherige TXT-/SHA256-Protokollierung,
+der Runner und der Git-Workflow bleiben bestehen.
+
+### Nächste Schritte
+
+1. Verbindliches Bridge-Exchange-Datenmodell.
+2. Zuordnung echter Originalprotokolle.
+3. Prüfung des unabhängigen GitHub-Lesewegs.
+4. Implementierung von LAST_VERIFIED.
+5. Negativtests für Block-Fail und Upload-Fail.
+6. Sichere Veröffentlichung im privaten Archiv.
+7. Nachweis des Nutzens bei einem neuen Chat.
+8. Spätere Automatisierung nur mit Freigabe.
+
+Keine automatische Tagesabschlussintegration.

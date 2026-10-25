@@ -154,3 +154,37 @@ und den möglichen späteren Betrieb entscheiden.
 Die bestehende Bridge-Lite-Planung bleibt
 maßgeblich. Keine automatische Erweiterung
 des Arbeitsumfangs.
+
+<!-- NOVENA-BRIDGE-ARCHITECTURE-127R -->
+
+## Architekturergänzung 2026-10-25
+
+NOVENA-BRIDGE-LITE besteht konzeptionell aus
+Bridge Core und Bridge Exchange.
+
+Bridge Core ist als lokaler Pilot vorhanden.
+Bridge Exchange ist noch nicht implementiert.
+
+Die geplante Datei NOVENA-CURRENT-STATE.json
+ist ein qualifizierter Statusindex für das
+bestehende private GitHub-Protokollarchiv.
+
+Der gegenwärtige lokale current-state.json-Snapshot
+ist kein Ersatz für einen bestätigten
+LAST_VERIFIED-Projektcheckpoint.
+
+Für die geplante Lösung ist kein allgemeiner
+Shell-MCP-Server erforderlich.
+
+Der vorhandene Runner und die bisherige
+GitHub-Archivierung bleiben unverändert.
+
+Ein erfolgreicher technischer Block ist
+keine automatische fachliche Abnahme.
+
+Die Veröffentlichung eines Statusindex und
+die Integration in bestehende Abschlussabläufe
+erfordern eigene Prüfungen und Freigaben.
+
+Verbindliche Planungsgrundlage:
+docs/NOVENA-BRIDGE-LITE-PLAN.md
