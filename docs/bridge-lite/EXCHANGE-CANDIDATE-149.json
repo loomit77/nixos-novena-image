@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "project": "novena",
+  "generated_at_utc": "2026-10-25T17:29:41.213059+00:00",
+  "last_verified": null,
+  "current": {
+    "state": "CURRENT_UNKNOWN",
+    "observed_at_utc": null
+  },
+  "latest_block": {
+    "block_id": "NOVENA-BRIDGE-PUBLISH-GATE-GIT-146R",
+    "runner": "PASS",
+    "upload": "PASS",
+    "technical_result": "PASS",
+    "professional_acceptance": "UNKNOWN"
+  },
+  "build": {
+    "state": "UNKNOWN",
+    "source": null
+  },
+  "evidence": [
+    {
+      "log_file": "NOVENA-SSH-GIT-INTEGRATION-120-20261025-114307-rKr0hS1g.txt",
+      "sha256_file": "NOVENA-SSH-GIT-INTEGRATION-120-20261025-114307-rKr0hS1g.txt.sha256",
+      "local_integrity": "PASS",
+      "archive_upload": "PASS"
+    },
+    {
+      "log_file": "NOVENA-SSH-GIT-INTEGRATION-120R-20261025-114659-jf0lxJTK.txt",
+      "sha256_file": "NOVENA-SSH-GIT-INTEGRATION-120R-20261025-114659-jf0lxJTK.txt.sha256",
+      "local_integrity": "PASS",
+      "archive_upload": "PASS"
+    },
+    {
+      "log_file": "NOVENA-BRIDGE-LITE-HARDENING-123-20261025-115946-Sstr1V6U.txt",
+      "sha256_file": "NOVENA-BRIDGE-LITE-HARDENING-123-20261025-115946-Sstr1V6U.txt.sha256",
+      "local_integrity": "PASS",
+      "archive_upload": "PASS"
+    },
+    {
+      "log_file": "NOVENA-BRIDGE-LITE-HARDENING-123R-20261025-120328-lhJiEPCF.txt",
+      "sha256_file": "NOVENA-BRIDGE-LITE-HARDENING-123R-20261025-120328-lhJiEPCF.txt.sha256",
+      "local_integrity": "PASS",
+      "archive_upload": "PASS"
+    },
+    {
+      "log_file": "NOVENA-BRIDGE-CONCEPT-127-20261025-121829-KHMaetnN.txt",
+      "sha256_file": "NOVENA-BRIDGE-CONCEPT-127-20261025-121829-KHMaetnN.txt.sha256",
+      "local_integrity": "PASS",
+      "archive_upload": "PASS"
+    },
+    {
+      "log_file": "NOVENA-BRIDGE-CONCEPT-127R-20261025-122632-EDhIWoRm.txt",
+      "sha256_file": "NOVENA-BRIDGE-CONCEPT-127R-20261025-122632-EDhIWoRm.txt.sha256",
+      "local_integrity": "PASS",
+      "archive_upload": "PASS"
+    },
+    {
+      "log_file": "NOVENA-BRIDGE-PUBLISH-GATE-144S-20261025-151618-uoVhhZZD.txt",
+      "sha256_file": "NOVENA-BRIDGE-PUBLISH-GATE-144S-20261025-151618-uoVhhZZD.txt.sha256",
+      "local_integrity": "PASS",
+      "archive_upload": "PASS"
+    },
+    {
+      "log_file": "NOVENA-BRIDGE-PUBLISH-GATE-AUDIT-145-20261025-175718-imr4TAZq.txt",
+      "sha256_file": "NOVENA-BRIDGE-PUBLISH-GATE-AUDIT-145-20261025-175718-imr4TAZq.txt.sha256",
+      "local_integrity": "PASS",
+      "archive_upload": "PASS"
+    },
+    {
+      "log_file": "NOVENA-BRIDGE-PUBLISH-GATE-GIT-146R-20261025-180643-ghPiJyYX.txt",
+      "sha256_file": "NOVENA-BRIDGE-PUBLISH-GATE-GIT-146R-20261025-180643-ghPiJyYX.txt.sha256",
+      "local_integrity": "PASS",
+      "archive_upload": "PASS"
+    }
+  ],
+  "publication": {
+    "state": "NOT_PUBLISHED",
+    "archive": "loomit77/project-block-logs",
+    "commit": null
+  },
+  "review_required": [
+    "LAST_VERIFIED_NOT_QUALIFIED",
+    "CURRENT_LIVE_STATE_UNKNOWN",
+    "HISTORICAL_NINE_BLOCK_SAMPLE_ONLY",
+    "LATEST_BLOCK_SCOPED_TO_SELECTED_EVIDENCE",
+    "PROFESSIONAL_PUBLICATION_APPROVAL_PENDING",
+    "PRODUCTION_PUBLISHER_NOT_QUALIFIED"
+  ]
+}
