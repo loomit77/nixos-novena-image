@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "project": "novena",
+  "generated_at_utc": "2026-10-25T11:59:37.780476+00:00",
+  "last_verified": null,
+  "current": {
+    "state": "CURRENT_UNKNOWN",
+    "observed_at_utc": null
+  },
+  "latest_block": {
+    "block_id": "NOVENA-BRIDGE-CONCEPT-127R",
+    "runner": "PASS",
+    "upload": "UNKNOWN",
+    "technical_result": "PASS",
+    "professional_acceptance": "UNKNOWN"
+  },
+  "build": {
+    "state": "UNKNOWN",
+    "source": null
+  },
+  "evidence": [
+    {
+      "log_file": "NOVENA-SSH-GIT-INTEGRATION-120-20261025-114307-rKr0hS1g.txt",
+      "sha256_file": "NOVENA-SSH-GIT-INTEGRATION-120-20261025-114307-rKr0hS1g.txt.sha256",
+      "local_integrity": "PASS",
+      "archive_upload": "UNKNOWN"
+    },
+    {
+      "log_file": "NOVENA-SSH-GIT-INTEGRATION-120R-20261025-114659-jf0lxJTK.txt",
+      "sha256_file": "NOVENA-SSH-GIT-INTEGRATION-120R-20261025-114659-jf0lxJTK.txt.sha256",
+      "local_integrity": "PASS",
+      "archive_upload": "UNKNOWN"
+    },
+    {
+      "log_file": "NOVENA-BRIDGE-LITE-HARDENING-123-20261025-115946-Sstr1V6U.txt",
+      "sha256_file": "NOVENA-BRIDGE-LITE-HARDENING-123-20261025-115946-Sstr1V6U.txt.sha256",
+      "local_integrity": "PASS",
+      "archive_upload": "UNKNOWN"
+    },
+    {
+      "log_file": "NOVENA-BRIDGE-LITE-HARDENING-123R-20261025-120328-lhJiEPCF.txt",
+      "sha256_file": "NOVENA-BRIDGE-LITE-HARDENING-123R-20261025-120328-lhJiEPCF.txt.sha256",
+      "local_integrity": "PASS",
+      "archive_upload": "UNKNOWN"
+    },
+    {
+      "log_file": "NOVENA-BRIDGE-CONCEPT-127-20261025-121829-KHMaetnN.txt",
+      "sha256_file": "NOVENA-BRIDGE-CONCEPT-127-20261025-121829-KHMaetnN.txt.sha256",
+      "local_integrity": "PASS",
+      "archive_upload": "UNKNOWN"
+    },
+    {
+      "log_file": "NOVENA-BRIDGE-CONCEPT-127R-20261025-122632-EDhIWoRm.txt",
+      "sha256_file": "NOVENA-BRIDGE-CONCEPT-127R-20261025-122632-EDhIWoRm.txt.sha256",
+      "local_integrity": "PASS",
+      "archive_upload": "UNKNOWN"
+    }
+  ],
+  "publication": {
+    "state": "NOT_PUBLISHED",
+    "archive": "loomit77/project-block-logs",
+    "commit": null
+  },
+  "review_required": [
+    "LAST_VERIFIED_NOT_QUALIFIED",
+    "ARCHIVE_UPLOAD_NOT_INDEPENDENTLY_VERIFIED",
+    "CURRENT_LIVE_STATE_UNKNOWN",
+    "HISTORICAL_SIX_BLOCK_SAMPLE_ONLY"
+  ]
+}

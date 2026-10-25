@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/novena/bridge-exchange/v1",
+  "title": "NOVENA-BRIDGE-LITE Exchange Index",
+  "description": "Proposed schema; not yet approved for publication.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project",
+    "generated_at_utc",
+    "last_verified",
+    "current",
+    "latest_block",
+    "build",
+    "evidence",
+    "publication",
+    "review_required"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "project": {
+      "const": "novena"
+    },
+    "generated_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_verified": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/checkpoint" }
+      ]
+    },
+    "current": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "observed_at_utc"],
+      "properties": {
+        "state": {
+          "enum": ["LAST_VERIFIED", "CURRENT_UNKNOWN", "IN_PROGRESS"]
+        },
+        "observed_at_utc": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        }
+      }
+    },
+    "latest_block": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/block" }
+      ]
+    },
+    "build": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "source"],
+      "properties": {
+        "state": {
+          "enum": [
+            "UNKNOWN",
+            "NOT_STARTED",
+            "RUNNING",
+            "PASS",
+            "FAIL"
+          ]
+        },
+        "source": { "type": ["string", "null"] }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/evidence" }
+    },
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "archive", "commit"],
+      "properties": {
+        "state": {
+          "enum": [
+            "NOT_PUBLISHED",
+            "UNKNOWN",
+            "CONFIRMED"
+          ]
+        },
+        "archive": {
+          "const": "loomit77/project-block-logs"
+        },
+        "commit": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      }
+    },
+    "review_required": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string" }
+    }
+  },
+  "$defs": {
+    "result": {
+      "enum": ["PASS", "FAIL", "UNKNOWN"]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "log_file",
+        "sha256_file",
+        "local_integrity",
+        "archive_upload"
+      ],
+      "properties": {
+        "log_file": { "type": "string", "minLength": 1 },
+        "sha256_file": { "type": "string", "minLength": 1 },
+        "local_integrity": {
+          "$ref": "#/$defs/result"
+        },
+        "archive_upload": {
+          "$ref": "#/$defs/result"
+        }
+      }
+    },
+    "checkpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "block_id",
+        "git_head",
+        "qualified_at_utc",
+        "qualification",
+        "evidence_files"
+      ],
+      "properties": {
+        "block_id": { "type": "string", "minLength": 1 },
+        "git_head": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "qualified_at_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "qualification": { "const": "PASS" },
+        "evidence_files": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "block_id",
+        "runner",
+        "upload",
+        "technical_result",
+        "professional_acceptance"
+      ],
+      "properties": {
+        "block_id": { "type": "string", "minLength": 1 },
+        "runner": { "$ref": "#/$defs/result" },
+        "upload": { "$ref": "#/$defs/result" },
+        "technical_result": { "$ref": "#/$defs/result" },
+        "professional_acceptance": {
+          "$ref": "#/$defs/result"
+        }
+      }
+    }
+  }
+}
