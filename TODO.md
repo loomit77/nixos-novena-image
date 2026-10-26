@@ -1628,3 +1628,17 @@ Hardwaretests oder Medien-Schreibzugriffen.
       anhand der bestehenden Evidenz fortsetzen.
 
 Produktive Statusveröffentlichung bleibt gesperrt.
+
+
+<!-- NOVENA-TODO-BACKUP-BRIDGE-20261026 -->
+## Stand 26.10.2026 – Backup qualifiziert, Bridge priorisiert
+
+- [x] Persistenten USB-Mountpoint unter `/run/media/loomit/NOVENA_BORG` mittels systemd-tmpfiles installieren (Block 179).
+- [x] Kombinierten produktiven Sicherungslauf USB + VM103 über `scripts/novena-backup.bash --all` durchführen (Block 180: `OVERALL_STATUS=PASS`).
+- [x] USB-Archivdifferenz 16→17 und VM103-Archiv `foobox-2026-10-26T06:07:20` nachweisen.
+- [ ] tmpfiles-Wiederherstellung bei einem späteren regulären Neustart verifizieren; dafür keinen zusätzlichen Neustart erzwingen.
+- [ ] Vollständigen Borg-Restore-Test separat planen.
+- [ ] Nach dieser Dokumentationsfortschreibung lokalen foobox-Checkout und Codeberg mit GitHub synchronisieren; Arbeitstree schützen.
+- [ ] Bridge: bestehenden Code, Tests und Befunde des synthetischen GraphQL-CAS-Modells auswerten.
+- [ ] Bridge: produktiven API-Adapter und Commitbereitstellung isoliert konzipieren und qualifizieren; produktive Veröffentlichung bleibt gesperrt.
+- [ ] Bridge: unabhängiges GitHub-Readback und gesonderte Live-Publikationsfreigabe klären.

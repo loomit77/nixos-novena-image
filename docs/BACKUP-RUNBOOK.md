@@ -411,3 +411,22 @@ ausstehenden systemd-daemon-reload-Aktualisierung.
 
 Keine Repository-Initialisierung, kein Prune/Delete.
 Ein vollständiger Restore-Test bleibt offen.
+
+
+<!-- NOVENA-BACKUP-E2E-20261026 -->
+## Produktiver Gesamtstand – 26.10.2026 (Block 180)
+
+**Maßgeblicher neuerer Nachweis; historische Einschränkungen oben bleiben als Historie erhalten.**
+
+- Verbindlicher kombinierter Einstieg auf foobox:
+  `bash ~/nixos-novena-image/scripts/novena-backup.bash --all`.
+  Die Fish-Funktion `backup-all` ist ein Alias dafür.
+- Nicht zusätzlich `daily-close.bash` ausführen: Der gemeinsame Launcher ruft es bereits für den USB-Schritt auf. Das Skript prüft Git, Dokumente, Repositoryidentität und Archivbestand, sichert USB und gibt einen Handover-Text aus; es schreibt keine neuen Projektdokumente und pusht keine Commits.
+- Der USB-Borgmatic-Pfad ist `~/.config/borgmatic/novena.yaml`; VM103 verwendet `~/.config/novena-borg/vm103-borgmatic.yaml` mit dem bestehenden SSH-/Hostkey-Setup. Keine YAML-Suche und keine manuelle Pfadverschiebung.
+- USB: UUID `b9161f3a-5903-4761-936f-42360d13d84e`, fstab-Benutzermount `/run/media/loomit/NOVENA_BORG`; `/etc/tmpfiles.d/novena-borg-mount.conf` wurde in Block 179 installiert. Die Regel erzeugt den Pfad unter `/run` erneut, mountet aber kein Dateisystem. Ein tatsächlicher weiterer Neustart wurde noch nicht qualifiziert.
+- Block 180 (26.10., 06:03:25–06:09:22): gemeinsamer Lauf **PASS**. USB-Mount `MOUNTED`, tägliche Sicherung `PASS`, Archivzahl **16 → 17**, ein neues Archiv, kein altes verloren, `USB_UNMOUNT_STATUS=PASS`. VM103 `PASS`, konkretes neues Archiv `foobox-2026-10-26T06:07:20`, Archiv-ID `8bce99b6517c4fd176dc393b62652bdb2fd26d38335ed53337d5b22c2c8828d2`; Imagesync 26 Quellen, zwei neue Kopien, keine Fehler.
+- Gesamtstatus: `USB_STATUS=PASS`, `VM103_STATUS=PASS`, `OVERALL_STATUS=PASS`; kein automatischer Retry; HEAD/Index/Worktree unverändert.
+- Original: privates `loomit77/project-block-logs` unter `novena/2026/10/NOVENA-BACKUP-E2E-180-20261026-060325-TkHPQ2Ms.txt`; Sidecar-SHA256 `f8155ef6336b9c00201ae100af3fb38e3978daa7fba4007a17eece8cf14c1ac5`.
+- Qualifikationsgrenze: erfolgreiche Archiverstellung und Archivlistennachweis, kein vollständiger Datenintegritäts- oder Restore-Test.
+
+**Betriebsregel:** Ein Aufruf für beide Ziele; bei Teilausfall erst Originalprotokoll lesen und nur das fehlgeschlagene Ziel nach eindeutiger Klärung gezielt nachholen (`--usb` beziehungsweise `--hdd`). Vorher keinen weiteren allgemeinen Diagnose- oder doppelten Backup-Lauf starten. Die integrierten Archivkontrollen sind maßgeblich.

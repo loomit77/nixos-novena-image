@@ -1768,3 +1768,15 @@ Verzeichnis `novena/2026/10/`, insbesondere Block 163.
 
 Hinweis: Tagesabschluss-Backup und Dokumentations-Push
 sind durch diesen Nachtrag noch nicht nachgewiesen.
+
+
+<!-- NOVENA-HANDOVER-BRIDGE-20261026 -->
+## Übergabe 26.10.2026 – Backup abgeschlossen, Bridge Exchange als Nächstes
+
+**Backup:** Die gestrige manuelle Fehlerkette ist durch die dauerhafte Mountpoint-Korrektur (Block 179) und den erfolgreichen kombinierten Produktivlauf (Block 180) abgelöst. Bedienung auf foobox: `bash ~/nixos-novena-image/scripts/novena-backup.bash --all`; alternativ `backup-all`. Der gemeinsame Einstieg enthält USB-`daily-close.bash` und den vorhandenen VM103-Launcher, beide Borgmatic-YAMLs bleiben unverändert. Nicht zusätzlich einzeln sichern. Einzelziel-Modi `--usb` und `--hdd` nur bei begründetem Nachholen. USB-Archive 16→17; VM103-Archiv `foobox-2026-10-26T06:07:20` mit ID `8bce99b6517c4fd176dc393b62652bdb2fd26d38335ed53337d5b22c2c8828d2`. Originalprotokoll `NOVENA-BACKUP-E2E-180-20261026-060325-TkHPQ2Ms.txt` (privates Blocklogarchiv). Mountpoint-Regel `/etc/tmpfiles.d/novena-borg-mount.conf` auf foobox installiert; Neustart-Persistenz noch nicht live erneut geprüft; Restore-Test offen.
+
+**Bridge:** Auf GitHub vor dieser Dokumentationsfortschreibung war der geprüfte Basis-HEAD `151fe0cf01e5140ceecb564d5c3c751aced8b62c`. Synthetischer GraphQL-CAS-Transport (Block 163) und Publisher-Gates qualifiziert; **Produktionsveröffentlichung gesperrt**. Offen: produktiver API-Adapter, Git-Commit-Objektbereitstellung, unabhängig rückgelesene GitHub-/GraphQL-Ergebnisse und gesonderte Publikationsfreigabe. `last_verified=null`, keine Statuspromotion, kein produktiver Statusindex veröffentlicht.
+
+**Neue Chat-Reihenfolge:** (1) aktuellen Git-Stand und letzten Nachtrag prüfen; (2) keine erneuten Backup-Diagnosen ohne neue Evidenz; (3) Bridge-Code und Bridge-Dokumente lesen, offene Adaptergrenzen präzisieren; (4) zunächst isolierte/synthetische Adapterqualifikation vorbereiten, keine echten API-Mutationen ohne explizite Freigabe. Novena-SD-Image bleibt Hauptziel. Keine Builds, Hardwaretests, SD-Schreibzugriffe oder neuen Patches ohne Freigabe.
+
+**Git-Synchronisierung beachten:** Eine Dokumentationsergänzung über die GitHub-API aktualisiert nicht automatisch den lokalen foobox-Checkout oder Codeberg. Vor weiteren Codeänderungen beide Seiten auf einen gemeinsamen HEAD synchronisieren; nicht blind pushen.

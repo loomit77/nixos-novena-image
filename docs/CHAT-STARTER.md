@@ -1031,3 +1031,15 @@ tatsächlichen Tagesabschlussstatus prüfen.
 Keine neuen Builds, Patches, Hardwaretests,
 SD-Schreibzugriffe oder Git-Änderungen
 ohne konkrete Freigabe.
+
+
+<!-- NOVENA-CHAT-START-20261026-BRIDGE-AFTER-BACKUP -->
+## Neuer Chat ab 26.10.2026 – Bridge Exchange fortsetzen
+
+Wir setzen das Projekt **Novena – universelles NixOS SD-Image** fort. Zuerst `AGENTS.md`, `NOVENA-ARBEITSREGELN.txt`, `docs/HANDOVER-LATEST.md`, `docs/CHAT-STARTER.md`, `docs/BACKUP-RUNBOOK.md`, `TODO.md` und die Bridge-Dateien lesen. Git-HEAD und Remotes frisch vergleichen, keine alten HEAD-Angaben als aktuelle Referenz übernehmen.
+
+**Backup abgeschlossen:** Block 179 installierte die systemd-tmpfiles-Regel für `/run/media/loomit/NOVENA_BORG`; Block 180 führte USB+VM103 produktiv über `scripts/novena-backup.bash --all` mit `OVERALL_STATUS=PASS` aus. USB 16→17 Archive, eigener Mount wieder ausgehängt. VM103-Archiv `foobox-2026-10-26T06:07:20` nachgewiesen. Keine getrennten Sicherungsaufrufe oder weiteren Check-Blöcke ohne neue Evidenz. Ein Neustart zur Validierung der tmpfiles-Persistenz und ein vollständiger Restore-Test bleiben offen. Original: `NOVENA-BACKUP-E2E-180-20261026-060325-TkHPQ2Ms.txt` im privaten `project-block-logs`.
+
+**Jetzt Schwerpunkt Bridge Exchange:** synthetisches GitHub-GraphQL-CAS-Modell und Publisher-Gates vorhanden (Blöcke 157–163, Projekt-Checkpoint 25.10.). Produktive Veröffentlichung bleibt deaktiviert. Es fehlen der produktive API-Adapter, Commit-Objektbereitstellung und unabhängiger API-Readback; `last_verified=null`, kein veröffentlichter privater Statusindex. Erst bestehende Bridge-Skripte, Tests, Dokumente und Protokolle auswerten, dann die nächste kleine isolierte Adaptermaßnahme planen. Keine Live-Mutation oder Statuspromotion ohne gesonderte Freigabe.
+
+**Wichtig für Start:** Dokumentationsfortschreibung über GitHub kann dem lokalen foobox- und Codeberg-Stand voraus sein. Erst synchronisieren; niemals den neueren Stand mit einem alten Push überschreiben. Arbeitsregel: Runner `~/novena-backups/github-transport/run-and-upload.bash`, TXT + SHA256 im privaten Archiv, möglichst ein großer sinnvoller Block. Keine Hardware- oder Buildmaßnahmen ohne Freigabe.

@@ -1157,3 +1157,21 @@ Dieser Eintrag belegt keine abgeschlossene Borg-Sicherung,
 keinen abgeschlossenen Dokumentations-Push und keine
 vollständige Tagesabschlussabnahme.
 Diese Ergebnisse müssen gesondert protokolliert werden.
+
+
+<!-- NOVENA-BACKUP-CLOSE-20261026 -->
+## 2026-10-26 – Gemeinsamer Borg-Tagesabschluss produktiv PASS
+
+Block 177: Read-only-Inventur. Grund für die reproduzierten USB-Mountfehler: `/run/media/loomit` und `/run/media/loomit/NOVENA_BORG` nach Neustart nicht vorhanden, UUID und fstab hingegen nachgewiesen.
+
+Block 178: historisch FAIL in der überstrengen frühen Geräteprüfung, keine tmpfiles-Regel installiert.
+
+Block 179: `/etc/tmpfiles.d/novena-borg-mount.conf` installiert; Verzeichnisse mit root:root und 0755 erzeugt; `USB_FSTAB=PASS`, `PERSISTENT_MOUNTPOINT=PASS`, kombinierter Launcher `--check` PASS. Die tatsächliche Persistenz nach dem nächsten Neustart bleibt nachzuweisen.
+
+Block 180: **Echter kombinierter Sicherungslauf PASS** über `scripts/novena-backup.bash --all`; kein zusätzlicher Aufruf von `daily-close.bash`.
+- USB: Borgmatic-PASS, Archive 16 → 17, genau ein neues Archiv, keine verschwundenen Archive, selbst eingehängter Stick wieder sicher ausgehängt.
+- VM103: Borgmatic-PASS; neues Archiv `foobox-2026-10-26T06:07:20`, ID `8bce99b6517c4fd176dc393b62652bdb2fd26d38335ed53337d5b22c2c8828d2`; Archivliste bestätigt.
+- Git-HEAD `151fe0cf01e5140ceecb564d5c3c751aced8b62c`, Index und Worktree während Block 180 stabil.
+- Vollständiges Runner-Originalprotokoll: `NOVENA-BACKUP-E2E-180-20261026-060325-TkHPQ2Ms.txt`; Sidecar SHA256 `f8155ef6336b9c00201ae100af3fb38e3978daa7fba4007a17eece8cf14c1ac5`.
+
+Der kombinierte Backupweg ist produktiv qualifiziert. **Nicht** damit nachgewiesen: vollständiger Restore, Neustart-Persistenz der tmpfiles-Regel oder automatische Erstellung/Push neuer Projektdokumentation. Künftiger Tagesabschluss: zuerst Dokumentation/Git bewusst bearbeiten, dann genau einmal den gemeinsamen Backup-Launcher über Runner; keine redundanten Backups/Archivprüfblöcke.
