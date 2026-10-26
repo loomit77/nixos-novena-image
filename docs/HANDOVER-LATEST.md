@@ -1780,3 +1780,57 @@ sind durch diesen Nachtrag noch nicht nachgewiesen.
 **Neue Chat-Reihenfolge:** (1) aktuellen Git-Stand und letzten Nachtrag prüfen; (2) keine erneuten Backup-Diagnosen ohne neue Evidenz; (3) Bridge-Code und Bridge-Dokumente lesen, offene Adaptergrenzen präzisieren; (4) zunächst isolierte/synthetische Adapterqualifikation vorbereiten, keine echten API-Mutationen ohne explizite Freigabe. Novena-SD-Image bleibt Hauptziel. Keine Builds, Hardwaretests, SD-Schreibzugriffe oder neuen Patches ohne Freigabe.
 
 **Git-Synchronisierung beachten:** Eine Dokumentationsergänzung über die GitHub-API aktualisiert nicht automatisch den lokalen foobox-Checkout oder Codeberg. Vor weiteren Codeänderungen beide Seiten auf einen gemeinsamen HEAD synchronisieren; nicht blind pushen.
+
+## Nachtrag 2026-10-26 – Rust-Bridge, geprüfter lokaler Stand
+
+Kennung: NOVENA-BRIDGE-RUST-266-HANDOVER-2026-10-26.
+
+Der lokale Rust-Bridge-Pilot wurde mit ausdrücklicher
+Quellenauswahl, privater Statusvorschau und getrenntem
+manuellen Status-Viewer erfolgreich erprobt.
+
+Maßgebliche neue Nachweise:
+
+- NOVENA-BRIDGE-RUST-250: Shadow-Adapter, 5/5 Tests PASS.
+- NOVENA-BRIDGE-RUST-256: Viewer, 4/4 Tests PASS.
+- NOVENA-BRIDGE-RUST-260: manueller End-to-End-Pfad PASS.
+  Preparer-Exitstatus 3 kennzeichnet REVIEW_REQUIRED.
+- NOVENA-BRIDGE-RUST-264: lokale Statussemantik PASS.
+- NOVENA-BRIDGE-RUST-265: Freigabematrix dokumentiert.
+
+Führende Dokumentation:
+docs/NOVENA-BRIDGE-LITE-PLAN.md
+tools/novena-bridge/README.md
+
+Die private Vorschau ist ein historischer Bericht,
+kein Live-Status und kein freigegebener Checkpoint.
+
+Aktuelle Statusgrenzen:
+
+- Runner-PASS ist keine technische oder fachliche Abnahme.
+- Quell-SHA256 bestätigt Bytes, nicht unabhängige Herkunft.
+- Uploadstatus, Remote-Synchronisierung und
+  Hardware-/Image-Zuordnung bleiben ohne eigenen Nachweis UNKNOWN.
+- Aktueller Bridge-Projektzustand: CURRENT_UNKNOWN.
+- Inventur-Provenienz: REVIEW_REQUIRED.
+- last_verified wird nicht automatisch fortgeschrieben.
+- Automatische Aktualisierung und produktive
+  Veröffentlichung bleiben gesperrt.
+
+Die historischen Image- und Store-Unterschiede wurden
+bereits untersucht. Die Untersuchung vom 20.10.2026
+bleibt entsprechend dem dokumentierten Abschluss geschlossen.
+
+Bei Wiederaufnahme zuerst die neuesten datierten
+Projektbelege und den tatsächlichen lokalen Git-Zustand
+prüfen. Historische Checkpoints nicht als Livezustand lesen.
+
+Dieser Nachtrag ist keine Freigabe für Git-Schreibzugriffe,
+Builds, Hardwaretests oder Produktivbetrieb.
+
+
+## Übergabe 27.10.2026
+Aktuelle Übergabe: /home/loomit/novena-backups/handovers/NOVENA-CHAT-START-2026-10-27.md
+Letzter PASS: NOVENA-BRIDGE-RUST-297
+Nächster Block: NOVENA-BRIDGE-RUST-298
+Block 298 noch nicht ausgeführt.

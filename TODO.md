@@ -1642,3 +1642,50 @@ Produktive Statusveröffentlichung bleibt gesperrt.
 - [ ] Bridge: bestehenden Code, Tests und Befunde des synthetischen GraphQL-CAS-Modells auswerten.
 - [ ] Bridge: produktiven API-Adapter und Commitbereitstellung isoliert konzipieren und qualifizieren; produktive Veröffentlichung bleibt gesperrt.
 - [ ] Bridge: unabhängiges GitHub-Readback und gesonderte Live-Publikationsfreigabe klären.
+
+<!-- NOVENA-BRIDGE-RUST-DECISION-20261026 -->
+
+## Bridge-Fertigstellung – Beschluss 2026-10-26
+
+- [ ] Rust-Builder, Cargo-Konfiguration und Nix-Einbindung inventarisieren.
+- [ ] Python-Bridge-Funktionen und bestehende Testvektoren zuordnen.
+- [ ] Rust-Zielarchitektur mit klaren Modulgrenzen festlegen.
+- [ ] Kanonische JSON- und Git-Objektprüfung in Rust qualifizieren.
+- [ ] Sicheren GitHub-Transport und Commitbereitstellung qualifizieren.
+- [ ] Atomare Veröffentlichung und unabhängiges Readback qualifizieren.
+- [ ] Freigegebenen Statusindex kontrolliert veröffentlichen.
+- [ ] Chat-Neustart anhand des Index und der Originalbelege testen.
+- [ ] Nach nutzbarem Bridge-Abschluss zum SD-Image zurückkehren.
+
+Offen bleibt insbesondere die produktive Freigabe.
+Kein automatischer Commit, Push, Build oder Hardwaretest.
+
+## Nachtrag 2026-10-26 – Rust-Bridge und nächste Prioritäten
+
+Kennung: NOVENA-BRIDGE-RUST-266-HANDOVER-2026-10-26.
+
+Der lokale Rust-Bridge-Pilot ist für den getesteten manuellen
+Vorschauworkflow technisch funktionsfähig. Die Ergebnisse bis
+NOVENA-BRIDGE-RUST-265 sind dokumentiert.
+
+- [x] Explizite lokale Quellenauswahl und Rust-Verarbeitung geprüft.
+- [x] Private Statusvorschau und lesender Viewer funktionsgeprüft.
+- [x] Shadow-Adapter und manuelle Statuserstellung dokumentiert.
+- [x] Statussemantik mit NOVENA-BRIDGE-RUST-264 geprüft.
+- [x] Freigabematrix mit NOVENA-BRIDGE-RUST-265 dokumentiert.
+- [ ] Unabhängige Herkunft und Authentizität der Quellen qualifizieren.
+- [ ] Fachliche und technische Gesamtfreigabe gesondert klären.
+- [ ] Produktive Veröffentlichung nur nach gesondertem Auftrag.
+- [ ] Automatische Aktualisierung und Runner-Integration nicht aktivieren.
+
+Die Inventur enthält weiterhin vier bekannte Pfadkonflikte
+und eine Scanwarnung. Sie bleibt REVIEW_REQUIRED.
+Die Reproduzierbarkeitsuntersuchung vom 20.10.2026
+ist abgeschlossen und wird ohne neue Evidenz nicht wiederholt.
+
+Die nächste technische Novena-Aufgabe ist anhand der neuesten
+Boot- und Hardwareevidenz festzulegen, nicht anhand älterer
+historischer TODO-Einträge.
+
+Keine Checkpoint-Promotion, kein Build und keine
+Hardwaretestfreigabe durch diesen Nachtrag.

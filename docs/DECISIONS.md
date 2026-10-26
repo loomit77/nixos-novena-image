@@ -2085,3 +2085,82 @@ Proprietaere NXP-Firmware wird ohne
 geklaerte Weitergaberechte nicht
 in das oeffentliche Image aufgenommen.
 Eine Antwort von NXP steht aus.
+
+<!-- NOVENA-BRIDGE-RUST-DECISION-20261026 -->
+
+## Architekturentscheidung 2026-10-26 – Bridge fertigstellen, Rust als Zielsprache
+
+### Beschluss
+
+Die kontrollierte Fertigstellung von NOVENA-BRIDGE-LITE
+und Bridge Exchange erhält vorübergehend Priorität
+vor der weiteren Arbeit am universellen NixOS-SD-Image.
+
+Ziel ist ein tatsächlich nutzbarer, überprüfbarer
+Statusaustausch zwischen foobox, dem bestehenden Runner,
+dem privaten GitHub-Protokollarchiv und ChatGPT.
+
+Danach wird die Arbeit am SD-Image fortgesetzt.
+
+### Sprachen und Zuständigkeiten
+
+- Nix: Systemkonfiguration und reproduzierbares Image.
+- Bash: Runner, Git-Abläufe und administrative Steuerung.
+- Rust: bevorzugte Zielsprache für die weitere Bridge-Entwicklung.
+- Python: vorhandene, vorläufig erhaltene Referenzimplementierung.
+
+Python wird nicht sofort vollständig übersetzt.
+Rust wird schrittweise gegen vorhandene Python-Ergebnisse
+und unabhängige Git-Testvektoren qualifiziert.
+
+Der bereits vorhandene Rust-Builder wird zunächst geprüft.
+Eine gemeinsame Codebasis mit Bridge Exchange ist
+nicht automatisch beschlossen.
+
+### Begründung
+
+Der Projektcode soll für den Projektverantwortlichen
+verständlich und langfristig wartbar sein.
+
+Die bisherige Python-Entwicklung ist technisch nützlich,
+aber nicht die gewünschte langfristige Hauptarchitektur
+für die komplexeren Bridge-Werkzeuge.
+
+Ein vollständiger Neuanfang würde vorhandene Tests,
+Quellenbezüge und Prüfergebnisse unnötig gefährden.
+
+### Definition des ersten nutzbaren Bridge-Ziels
+
+- Status aus nachvollziehbaren Quellen ableiten.
+- Runner, Upload, technisches Ergebnis und fachliche
+  Abnahme strikt getrennt behandeln.
+- LAST_VERIFIED nur durch belegte Qualifikation ändern.
+- Fehlgeschlagene Blöcke historisch erhalten.
+- Statusindex kontrolliert im privaten Archiv bereitstellen.
+- Unabhängiges Readback gegen die Originalquellen ermöglichen.
+- Fortsetzung in einem neuen Chat anhand des Index erproben.
+
+Die Bridge ersetzt weder Originalprotokolle noch
+Handover-Dokumente oder fachliche Entscheidungen.
+
+### Sicherheits- und Freigabegrenzen
+
+Keine automatische Freigabe von Builds, Hardwaretests,
+SD-Schreibzugriffen, Git-Commits, Pushes oder
+produktiven Bridge-Veröffentlichungen.
+
+Die Produktionssperre des Publish-Gates bleibt aktiv,
+bis ein gesondert qualifizierter und freigegebener
+Veröffentlichungsschritt vorliegt.
+
+### Evidenz und Aussagegrenzen
+
+Die Blöcke 183 bis 201 dokumentieren Python-Referenzcode,
+lokale synthetische Prüfungen, lesende GitHub-API-Tests
+und eine isolierte synthetische Commitbereitstellung.
+
+Das ist keine abgeschlossene produktive Bridge.
+Der initiale Statusindex ist noch nicht veröffentlicht.
+
+Der tatsächliche Rust-Builder-Bestand und seine Eignung
+für eine Wiederverwendung werden gesondert inventarisiert.

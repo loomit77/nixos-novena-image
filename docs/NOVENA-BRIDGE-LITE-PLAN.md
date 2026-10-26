@@ -340,3 +340,197 @@ der Runner und der Git-Workflow bleiben bestehen.
 8. Spätere Automatisierung nur mit Freigabe.
 
 Keine automatische Tagesabschlussintegration.
+
+<!-- NOVENA-BRIDGE-RUST-DECISION-20261026 -->
+
+## Nachtrag 2026-10-26 – Fertigstellungsplan und Sprachwechsel
+
+Der historische Plan und die Python-Pilotimplementierung
+bleiben als Referenz erhalten.
+
+Neue Priorität:
+
+1. Vorhandene Rust-Werkzeuge und Cargo-Abhängigkeiten
+   inventarisieren.
+2. Bridge-Funktionen und Testvektoren konsolidieren.
+3. Rust-Komponenten schrittweise und mit Vergleichstests
+   gegen die Python-Referenz entwickeln.
+4. Sichere Commitbereitstellung und Veröffentlichungs-
+   semantik getrennt qualifizieren.
+5. Einen überprüfbaren Statusindex bereitstellen.
+6. Statusindex und Originalbelege im neuen Chat lesen
+   und ihren praktischen Nutzen nachweisen.
+7. Danach zum universellen NixOS-SD-Image zurückkehren.
+
+Keine zusätzliche VM, kein Hintergrunddienst und
+keine allgemeine Shell-API sind Teil dieses Beschlusses.
+
+Bestehende Runner und Protokolle werden nicht ersetzt.
+Automatisierung darf nur in gesondert freigegebenem
+Umfang aktiviert werden.
+
+Das produktive Publish-Gate bleibt gesperrt.
+
+## Nachtrag 2026-10-26 – Lokal getesteter Rust-Bridge-Workflow
+
+Die Rust-Bridge unterstützt die explizite lokale Quellenauswahl für
+Runnerprotokoll, lokale Git-Beobachtung und Image-Inventur. Der lokale
+Workflow erzeugt eine private Statusvorschau samt Provenienz. Ein optionaler
+Shadow-Adapter und ein privater Status-Viewer sind vorhanden.
+Die historischen Planungsabschnitte bleiben als Referenz erhalten.
+
+Nachgewiesene Teilergebnisse:
+
+- Block `NOVENA-BRIDGE-RUST-250`: fünf gezielte Shadow-Adapter-Tests `PASS`.
+- Block `NOVENA-BRIDGE-RUST-256`: vier Viewer-Laufzeittests `PASS`.
+- Block `NOVENA-BRIDGE-RUST-260`: erster erfolgreicher End-to-End-Aufruf
+  der lokalen Statuserstellung und anschließenden Anzeige. Der Preparer
+  lieferte Exitstatus `3`; der Viewer las die private Ausgabe erfolgreich
+  zurück. Der Reviewstatus bleibt `REVIEW_REQUIRED`.
+
+Diese Ergebnisse belegen den lokalen Vorschauworkflow. Technische und
+fachliche Abnahme bleiben `UNKNOWN`. Es gibt keine Checkpoint-Promotion
+und keine Veröffentlichung. Inventurkonflikte und die unabhängige
+Gesamtqualifikation bleiben offen. Es gibt keine automatische
+Aktualisierung und keine Runner-Integration.
+
+Die manuelle Bedienung mit `prepare-status.sh` und dem separaten
+`bridge-status.sh`-Aufruf ist im
+[Rust-Bridge-README](../tools/novena-bridge/README.md#manuelle-statuserstellung-und-anzeige)
+dokumentiert. Die Ausgabe bleibt eine historische lokale Vorschau und
+erteilt keine Freigabe.
+
+## Freigabematrix 2026-10-26 – Rust-Bridge
+
+Kennung: NOVENA-BRIDGE-RUST-265.
+
+Diese Matrix bewertet ausschließlich den vorhandenen lokalen
+Bridge-Piloten. Sie ist keine Produktivfreigabe und ersetzt
+keine Originalprotokolle.
+
+| Prüfkriterium | Status | Evidenz / Grenze |
+|---|---|---|
+| Lokale Rust-Verarbeitung | PASS | Explizite Originalquellen; Block 252 |
+| Private Statusvorbereitung | PASS | Block 253 und End-to-End-Block 260 |
+| Manueller Status-Viewer | PASS | Vier Laufzeitfälle, Block 256 |
+| Optionaler Shadow-Adapter | PASS | Fünf Laufzeitfälle, Block 250 |
+| Statussemantik Exchange v1 | PASS | Block 264 |
+| Originalbytes / SHA256 | LOKAL GEPRÜFT | Keine unabhängige Quellenauthentifizierung |
+| Provenienz | REVIEW_REQUIRED | Lokale Auswahl und Git-Beobachtung |
+| Image-Inventur | REVIEW_REQUIRED | Vier bekannte Pfadkonflikte und eine Scanwarnung |
+| Technische Gesamtqualifikation | UNKNOWN | Keine unabhängige Gesamtprüfung |
+| Fachliche Gesamtqualifikation | UNKNOWN | Keine Freigabe erteilt |
+| Aktueller Live-Projektstatus | CURRENT_UNKNOWN | Historische lokale Vorschau |
+| Hardware-/Image-Zuordnung | UNKNOWN | Keine gesicherte Identität aus Bridge-Quellen |
+| Remote-/Upload-Nachweis | UNKNOWN | Keine unabhängige Attestation |
+| last_verified-Promotion | GESPERRT | Keine qualifizierte Freigabe |
+| Produktive Veröffentlichung | GESPERRT | Eigenständige Freigabe erforderlich |
+| Automatische Aktualisierung | NICHT AKTIV | Kein Dienst und keine Runner-Integration |
+
+### Voraussetzungen für spätere Freigaben
+
+Eine spätere technische oder fachliche Gesamtfreigabe setzt
+eine gesonderte unabhängige Prüfung der dafür vorgesehenen
+Originalquellen und Statuszuordnungen voraus.
+
+Insbesondere müssen Quellenherkunft, Authentizität,
+Prüfumfang, Git-Beobachtung und die beabsichtigte
+Image-/Hardware-Zuordnung hinreichend belegt werden.
+Nicht belegbare Aussagen bleiben UNKNOWN.
+
+Eine Promotion von last_verified benötigt einen ausdrücklich
+qualifizierten Checkpoint mit referenzierter Originalevidenz.
+Runner-PASS, Quell-SHA256-PASS oder ein erfolgreiches
+Erzeugen einer Statusvorschau genügen hierfür nicht.
+
+Produktive Veröffentlichung, automatische Aktualisierung,
+Runner-Integration und etwaige Git-Schreiboperationen
+benötigen jeweils einen gesonderten Auftrag und eine
+ausdrückliche Freigabe. Bis dahin bleiben diese Gates gesperrt.
+
+### Abgeschlossene Untersuchungen
+
+Der Reproduzierbarkeitsvergleich vom 20.10.2026 bleibt gemäß
+docs/NOVENA-DUAL-REPRO-2026-10-20.md abgeschlossen.
+Die Inventurabweichungen sind bekannt und dokumentiert.
+Daraus wird kein neuer Image-, Build- oder Hardwaretest
+abgeleitet. Eine erneute Ursachenuntersuchung erfolgt nur
+bei neuer Evidenz oder gesondertem Auftrag.
+
+### Nachweisgrenze
+
+Block NOVENA-BRIDGE-RUST-264 bestätigte die lokale
+Statussemantik. Die verwendete private Vorschau ist
+historisch und ausdrücklich kein Live-Checkpoint.
+
+Der Projekt- und Veröffentlichungsstatus darf aus dieser
+Matrix nicht automatisch verändert werden.
+
+<!-- NOVENA-BRIDGE-RUST-LANGUAGE-2026-10-26 -->
+
+## Architekturentscheidung 26.10.2026 – Rust als Bridge-Sprache
+
+Kennung: NOVENA-BRIDGE-RUST-LANGUAGE-2026-10-26.
+
+### Verbindliche Entscheidung
+
+**Rust ist die maßgebliche Implementierungssprache
+für die neue Novena-Bridge.**
+
+Die bestehende Rust-Codebasis unter
+`tools/novena-bridge/` wird weiterentwickelt.
+
+Insbesondere sollen folgende Komponenten in Rust
+implementiert beziehungsweise integriert werden:
+
+- Verarbeitung und Validierung von Originalquellen;
+- Exchange-Protokoll und Statusmodell;
+- Git-Objekt- und Commit-Verifikation;
+- GitHub-Transport und API-Anbindung;
+- Compare-and-Swap-/CAS-Veröffentlichungslogik;
+- unabhängige Rücklesung und Ergebnisprüfung;
+- Checkpoint-Schutz und Freigabesperren.
+
+### Abgrenzung zu Python und Bash
+
+Die älteren Python-Bridge-Skripte bleiben als
+historische Referenzen und bestehende Quellen
+erhalten. Sie werden nicht zum produktiven
+Implementierungspfad der neuen Rust-Bridge.
+
+Es wird kein zweiter Python-Publisher entwickelt.
+Vorhandene Python-Funktionen dürfen zur Prüfung
+historischer Verträge herangezogen werden, ersetzen
+aber keine Rust-Implementierung.
+
+Bash bleibt als dünne Aufruf-, Bedien- und
+Runner-Schicht zulässig. Fachliche Bridge-Logik
+wird nicht neu in Bash implementiert.
+
+### Entwicklungsregeln
+
+- Bestehende Rust-Module wiederverwenden.
+- Keine Neuentwicklung bereits implementierter Funktionen.
+- Vor Änderungen konkrete Rust-Schnittstellen prüfen.
+- Isolierte und reproduzierbare Rust-Tests bevorzugen.
+- Keine automatische GitHub- oder Git-Mutation.
+- Keine Produktivveröffentlichung ohne eigene Freigabe.
+- Kein automatisches Fortschreiben von last_verified.
+- UNKNOWN und REVIEW_REQUIRED bleiben erhalten,
+  solange die erforderliche Evidenz fehlt.
+- Keine Builds oder Hardwaretests ohne Freigabe.
+
+### Bekannter Projektstand
+
+Der lokale Rust-Workflow für private Statusvorschauen
+und den manuellen Viewer wurde erfolgreich geprüft.
+
+Die dokumentierte Freigabematrix bleibt maßgeblich.
+Eine vollständige produktive GitHub-Anbindung in Rust
+ist noch nicht qualifiziert.
+
+Die Python-zentrierten Inventuren der Blöcke 268 und
+269 waren lesend und haben den Rust-Code nicht ersetzt.
+
+Die nächste Implementierungsarbeit erfolgt ausschließlich
+anhand der vorhandenen Rust-Schnittstellen.

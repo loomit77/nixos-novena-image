@@ -1043,3 +1043,73 @@ Wir setzen das Projekt **Novena – universelles NixOS SD-Image** fort. Zuerst `
 **Jetzt Schwerpunkt Bridge Exchange:** synthetisches GitHub-GraphQL-CAS-Modell und Publisher-Gates vorhanden (Blöcke 157–163, Projekt-Checkpoint 25.10.). Produktive Veröffentlichung bleibt deaktiviert. Es fehlen der produktive API-Adapter, Commit-Objektbereitstellung und unabhängiger API-Readback; `last_verified=null`, kein veröffentlichter privater Statusindex. Erst bestehende Bridge-Skripte, Tests, Dokumente und Protokolle auswerten, dann die nächste kleine isolierte Adaptermaßnahme planen. Keine Live-Mutation oder Statuspromotion ohne gesonderte Freigabe.
 
 **Wichtig für Start:** Dokumentationsfortschreibung über GitHub kann dem lokalen foobox- und Codeberg-Stand voraus sein. Erst synchronisieren; niemals den neueren Stand mit einem alten Push überschreiben. Arbeitsregel: Runner `~/novena-backups/github-transport/run-and-upload.bash`, TXT + SHA256 im privaten Archiv, möglichst ein großer sinnvoller Block. Keine Hardware- oder Buildmaßnahmen ohne Freigabe.
+
+<!-- NOVENA-BRIDGE-RUST-DECISION-20261026 -->
+
+## Bridge-Entscheidung vom 26.10.2026
+
+Die Bridge soll vor der Rückkehr zum universellen
+NixOS-SD-Image bis zu einem nutzbaren, überprüfbaren
+Statusaustausch fertiggestellt werden.
+
+Rust ist die Zielsprache für die weitere Entwicklung.
+Die bisherigen Python-Komponenten bleiben zunächst
+unverändert als Vergleichs- und Testreferenz erhalten.
+
+Aktuelle nächste Aufgaben:
+- Rust-Builder und Cargo-Bestand auswerten.
+- Bridge-Testvektoren für die Rust-Implementierung sichern.
+- Den kleinsten sinnvoll abgrenzbaren Rust-Teil bestimmen.
+
+Bridge Exchange ist noch nicht produktiv veröffentlicht.
+Das Publish-Gate bleibt gesperrt.
+
+Bei einer erfolgreichen Runner-Abschlussmeldung:
+zuerst Originalprotokoll und SHA256-Sidecar auswerten,
+danach bei eindeutigem Ergebnis direkt den nächsten
+sicheren Bash-Runner-Block bereitstellen.
+
+Commits, Pushes, Builds, Hardwaretests und produktive
+Veröffentlichungen erfordern eigene Freigaben.
+
+## Chat-Start-Nachtrag 2026-10-26 – Rust-Bridge
+
+Kennung: NOVENA-BRIDGE-RUST-266-HANDOVER-2026-10-26.
+
+Beim nächsten Chat zuerst AGENTS.md,
+NOVENA-ARBEITSREGELN.txt, TODO.md,
+docs/HANDOVER-LATEST.md und die neuesten datierten
+Nachträge auswerten. Git-HEAD, Index und Worktree
+getrennt prüfen. Historische Werte sind nicht automatisch
+aktuelle Werte.
+
+Rust-Bridge-Stand:
+
+- Manueller lokaler Statusworkflow bis Block 260 PASS.
+- Statussemantik Block 264 PASS.
+- Freigabematrix Block 265 dokumentiert.
+- Private Vorschau bleibt historisch und REVIEW_REQUIRED.
+- Unabhängige Quellenauthentifizierung und fachliche
+  Gesamtqualifikation stehen aus.
+- Keine automatische Veröffentlichung, Checkpoint-Promotion
+  oder Integration in den vorhandenen Runner.
+
+Bedienungs- und Freigabegrenzen:
+tools/novena-bridge/README.md
+docs/NOVENA-BRIDGE-LITE-PLAN.md
+
+Die Untersuchung der bekannten Image-Reproduzierbarkeits-
+abweichungen ist gemäß Abschluss vom 20.10.2026 geschlossen.
+Nicht erneut ohne neue Evidenz beginnen.
+
+Die nächste konkrete technische Aufgabe aus dem aktuellen
+Novena-Boot- und Hardwarestand bestimmen.
+Keine Builds, Hardwaretests, Commits oder Pushes ohne
+gesonderte Freigabe. Kein Tagesabschluss ausgelöst.
+
+
+## Übergabe 27.10.2026
+Aktuelle Übergabe: /home/loomit/novena-backups/handovers/NOVENA-CHAT-START-2026-10-27.md
+Letzter PASS: NOVENA-BRIDGE-RUST-297
+Nächster Block: NOVENA-BRIDGE-RUST-298
+Block 298 noch nicht ausgeführt.
