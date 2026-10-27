@@ -58,7 +58,7 @@ impl<'a> OfflineRun<'a> {
             return Err(BridgeError("RUN_PACKAGE_DIGEST"));
         }
         let p = crate::parse_exchange_v1(package).map_err(|_| BridgeError("RUN_PACKAGE"))?;
-        let (mode, old, new) = match self.spec.mode() {
+        let (_, old, new) = match self.spec.mode() {
             ReadbackMode::Snapshot { expected } => ("initial", None, *expected),
             ReadbackMode::Transition { old, new, .. } => ("update", Some(*old), *new),
         };
@@ -83,6 +83,14 @@ impl<'a> OfflineRun<'a> {
                 "payload_sha256":hex(o.payload_sha256())})
             })
             .collect();
+        self.binding_bytes(commits)
+    }
+
+    fn binding_bytes(&self, commits: Vec<Value>) -> BridgeResult<Vec<u8>> {
+        let mode = match self.spec.mode() {
+            ReadbackMode::Snapshot { .. } => "initial",
+            ReadbackMode::Transition { .. } => "update",
+        };
         let v = json!({"contract":CONTRACT,"scope":"OFFLINE_ONLY",
             "provenance":"UNTRUSTED_ACQUISITION_CLAIM",
             "repository":self.spec.repository(),"reference":self.spec.reference(),
@@ -104,6 +112,50 @@ impl<'a> OfflineRun<'a> {
         manifest: &AcquisitionManifest<'_>,
         package: &[u8],
     ) -> BridgeResult<BoundOfflineReplay> {
+        self.verify_inner(manifest, package, None)
+    }
+    /// Explizite Dateiauswahl; Manifestoriginal als unveränderlicher Slice.
+    /// Jeder Aufruf öffnet und prüft beide Originaldateien unabhängig neu.
+    pub fn verify_files(
+        &self,
+        manifest: &AcquisitionManifest<'_>,
+        package: &[u8],
+        directory: &std::path::Path,
+    ) -> BridgeResult<BoundOfflineReplay> {
+        self.budget.check()?;
+        self.budget.fail((|| {
+            if manifest.original().len() > MAX_MANIFEST_BYTES {
+                return Err(BridgeError("RUN_MANIFEST_LIMIT"));
+            }
+            if package.len() > crate::offline_package::MAX_PACKAGE_BYTES
+                || <[u8; 32]>::from(Sha256::digest(package)) != self.package_sha256
+            {
+                return Err(BridgeError("RUN_PACKAGE_DIGEST"));
+            }
+            let claims = manifest
+                .exports()
+                .iter()
+                .map(|c| {
+                    json!({
+                        "git_oid":c.oid.to_string(),"length":c.length,
+                        "payload_sha256":hex(&c.payload_sha256)
+                    })
+                })
+                .collect();
+            if self.binding_bytes(claims)? != manifest.original() {
+                return Err(BridgeError("RUN_MANIFEST_MISMATCH"));
+            }
+            self.budget.handoff_capacity(manifest.exports())?;
+            let commits = crate::raw_commit_files::read_handoff(directory, manifest.exports())?;
+            self.verify_inner(manifest, package, Some(commits))
+        })())
+    }
+    fn verify_inner(
+        &self,
+        manifest: &AcquisitionManifest<'_>,
+        package: &[u8],
+        commits: Option<std::collections::BTreeMap<Oid, Vec<u8>>>,
+    ) -> BridgeResult<BoundOfflineReplay> {
         self.budget.check()?;
         self.budget.fail((|| {
             if manifest.original().len() > MAX_MANIFEST_BYTES {
@@ -116,7 +168,11 @@ impl<'a> OfflineRun<'a> {
             {
                 return Err(BridgeError("RUN_PACKAGE_DIGEST"));
             }
-            let complete = crate::offline_package::verify_package_in_run(package, self.budget)?;
+            let complete = if let Some(commits) = commits {
+                crate::offline_package::verify_handoff_in_run(package, self.budget, commits)?
+            } else {
+                crate::offline_package::verify_package_in_run(package, self.budget)?
+            };
             let binding = self.manifest_bytes(&complete)?;
             if binding != manifest.original() {
                 return Err(BridgeError("RUN_MANIFEST_MISMATCH"));
@@ -140,7 +196,11 @@ impl<'a> OfflineRun<'a> {
             {
                 return Err(BridgeError("RUN_EXPORT_MISMATCH"));
             }
-            Ok(BoundOfflineReplay { complete, binding })
+            Ok(BoundOfflineReplay {
+                complete,
+                binding,
+                usage: self.budget.consumption(),
+            })
         })())
     }
 }
@@ -150,6 +210,7 @@ impl<'a> OfflineRun<'a> {
 pub struct BoundOfflineReplay {
     complete: CompleteReadback,
     binding: Vec<u8>,
+    usage: [usize; 8],
 }
 impl BoundOfflineReplay {
     pub fn complete(&self) -> &CompleteReadback {
@@ -168,6 +229,7 @@ pub fn compare_replays(
 ) -> BridgeResult<&'static str> {
     if std::ptr::eq(a, b)
         || a.binding != b.binding
+        || a.usage != b.usage
         || a.complete.package().bytes() != b.complete.package().bytes()
         || a.complete.evidence().bytes() != b.complete.evidence().bytes()
     {

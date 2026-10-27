@@ -624,10 +624,17 @@ dependencies = [
 name = "novena-bridge"
 version = "0.1.0"
 dependencies = [
+ "bytes",
+ "http-body-util",
+ "hyper",
+ "hyper-util",
  "reqwest",
+ "rustls",
  "serde_json",
  "sha1",
  "sha2",
+ "tokio",
+ "tokio-rustls",
 ]
 
 [[package]]

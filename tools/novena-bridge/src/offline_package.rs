@@ -156,10 +156,22 @@ pub(crate) fn verify_package_in_run(
     budget: &RunBudget,
 ) -> BridgeResult<CompleteReadback> {
     budget.check()?;
-    budget.fail(replay(bytes, budget))
+    budget.fail(replay(bytes, budget, None))
 }
 
-fn replay(bytes: &[u8], budget: &RunBudget) -> BridgeResult<CompleteReadback> {
+pub(crate) fn verify_handoff_in_run(
+    bytes: &[u8],
+    budget: &RunBudget,
+    commits: BTreeMap<Oid, Vec<u8>>,
+) -> BridgeResult<CompleteReadback> {
+    budget.check()?;
+    budget.fail(replay(bytes, budget, Some(commits)))
+}
+fn replay(
+    bytes: &[u8],
+    budget: &RunBudget,
+    mut supplied: Option<BTreeMap<Oid, Vec<u8>>>,
+) -> BridgeResult<CompleteReadback> {
     if bytes.len() > MAX_PACKAGE_BYTES {
         return Err(BridgeError("PACKAGE_LIMIT"));
     }
@@ -239,7 +251,22 @@ fn replay(bytes: &[u8], budget: &RunBudget) -> BridgeResult<CompleteReadback> {
             return Err(BridgeError("PACKAGE_OBJECT_ORDER"));
         }
         previous = Some(oid);
-        raw_map.insert(oid, payload(&c["payload_base64"], MIB, &mut total)?);
+        let packaged = payload(&c["payload_base64"], MIB, &mut total)?;
+        let original = if let Some(files) = supplied.as_mut() {
+            let original = files
+                .remove(&oid)
+                .ok_or(BridgeError("RAW_HANDOFF_MISSING"))?;
+            if original != packaged {
+                return Err(BridgeError("RAW_HANDOFF_PACKAGE_MISMATCH"));
+            }
+            original
+        } else {
+            packaged
+        };
+        raw_map.insert(oid, original);
+    }
+    if supplied.as_ref().is_some_and(|m| !m.is_empty()) {
+        return Err(BridgeError("RAW_HANDOFF_UNUSED"));
     }
     let result = {
         let mut reader = RestReader::new(

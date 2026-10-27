@@ -770,6 +770,322 @@ mod object_evidence_295 {
         novena_bridge::canonical_json(&serde_json::to_vec(v).unwrap()).unwrap()
     }
 
+    struct HandoffDir(std::path::PathBuf);
+    impl HandoffDir {
+        fn new() -> Self {
+            use std::sync::atomic::{AtomicUsize, Ordering};
+            static NEXT: AtomicUsize = AtomicUsize::new(0);
+            let path = std::env::temp_dir().join(format!(
+                "novena-299-{}-{}",
+                std::process::id(),
+                NEXT.fetch_add(1, Ordering::Relaxed)
+            ));
+            use std::os::unix::fs::DirBuilderExt;
+            std::fs::DirBuilder::new()
+                .mode(0o700)
+                .create(&path)
+                .unwrap();
+            Self(path)
+        }
+    }
+    impl Drop for HandoffDir {
+        fn drop(&mut self) {
+            std::fs::remove_dir_all(&self.0).unwrap();
+        }
+    }
+    fn file_replay(
+        original: &CompleteReadback,
+        case: usize,
+    ) -> BridgeResult<novena_bridge::offline_run::BoundOfflineReplay> {
+        use novena_bridge::offline_run::OfflineRun;
+        let dir = HandoffDir::new();
+        let value: Value = serde_json::from_slice(original.package().bytes()).unwrap();
+        let before = Oid::parse(value["before"].as_str().unwrap()).unwrap();
+        let after = Oid::parse(value["after"].as_str().unwrap()).unwrap();
+        let expected = payload();
+        let mut claims: Vec<_> = original
+            .evidence()
+            .objects()
+            .iter()
+            .filter(|o| o.kind() == EvidenceKind::Commit)
+            .map(|o| ExportClaim {
+                oid: o.oid(),
+                length: o.length(),
+                payload_sha256: *o.payload_sha256(),
+            })
+            .collect();
+        for c in value["original_commits"].as_array().unwrap() {
+            std::fs::write(
+                dir.0.join(c["git_oid"].as_str().unwrap()),
+                novena_bridge::protocol::decode_base64(c["payload_base64"].as_str().unwrap())
+                    .unwrap(),
+            )
+            .unwrap();
+        }
+        let path = dir.0.join(claims[0].oid.to_string());
+        let budget = RunBudget::new();
+        let spec = ReadbackSpec::new(
+            "SYNTHETIC_REPOSITORY_ID",
+            1,
+            after,
+            ReadbackMode::Snapshot {
+                expected: expected.bytes(),
+            },
+        )
+        .unwrap();
+        let digest = Sha256::digest(original.package().bytes()).into();
+        let run = OfflineRun::new(spec, before, "synthetic-299", digest, &budget).unwrap();
+        let mut manifest: Value =
+            serde_json::from_slice(&run.manifest_bytes(original).unwrap()).unwrap();
+        let mut package = value.clone();
+        let mut selected = dir.0.clone();
+        match case {
+            0 => {}
+            1 => {
+                claims[0].payload_sha256 = [0; 32];
+            }
+            2 => {
+                std::fs::remove_file(&path).unwrap();
+            }
+            3 => {
+                std::fs::write(dir.0.join("unexpected"), b"x").unwrap();
+            }
+            4 => {
+                let mut b = std::fs::read(&path).unwrap();
+                *b.last_mut().unwrap() = b'x';
+                std::fs::write(&path, b).unwrap();
+            }
+            5 => {
+                let mut b = std::fs::read(&path).unwrap();
+                b.pop();
+                std::fs::write(&path, b).unwrap();
+            }
+            6 => {
+                std::fs::remove_file(&path).unwrap();
+                std::os::unix::fs::symlink("/etc/passwd", &path).unwrap();
+            }
+            7 => {
+                selected = dir.0.join("..");
+            }
+            8 => {
+                std::fs::write(&path, vec![b'x'; 1024 * 1024 + 1]).unwrap();
+            }
+            9 => {
+                manifest["repository"] = json!("other/repo");
+            }
+            10 => {
+                manifest["reference"] = json!("refs/heads/other");
+            }
+            11 => {
+                manifest["offline_run_id"] = json!("other-run");
+            }
+            12 => {
+                manifest["contract"] = json!("NOVENA_OFFLINE_RUN_V2");
+            }
+            13 => {
+                manifest["provenance"] = json!("AUTHENTICATED_GITHUB");
+            }
+            14 => {
+                claims[1].oid = claims[0].oid;
+            }
+            15 => {
+                let mut b = std::fs::read(&path).unwrap();
+                *b.last_mut().unwrap() = b'x';
+                claims[0].payload_sha256 = Sha256::digest(&b).into();
+                std::fs::write(&path, b).unwrap();
+            }
+            16 => {
+                std::fs::remove_file(&path).unwrap();
+                std::fs::create_dir(&path).unwrap();
+            }
+            17 => {
+                std::fs::hard_link(&path, dir.0.join("alias")).unwrap();
+            }
+            18 => {
+                for response in package["responses"].as_array_mut().unwrap() {
+                    if response["endpoint"]
+                        .as_str()
+                        .unwrap()
+                        .contains("/git/blobs/")
+                    {
+                        let mut body: Value = serde_json::from_slice(
+                            &novena_bridge::protocol::decode_base64(
+                                response["body_base64"].as_str().unwrap(),
+                            )
+                            .unwrap(),
+                        )
+                        .unwrap();
+                        if body["content"] == encode_base64(b"preserved") {
+                            body["content"] = json!(encode_base64(b"tampered!"));
+                            response["body_base64"] =
+                                json!(encode_base64(&serde_json::to_vec(&body).unwrap()));
+                        }
+                    }
+                }
+            }
+            19 => {
+                for response in package["responses"].as_array_mut().unwrap() {
+                    if response["endpoint"]
+                        .as_str()
+                        .unwrap()
+                        .contains("/git/trees/")
+                    {
+                        let mut body: Value = serde_json::from_slice(
+                            &novena_bridge::protocol::decode_base64(
+                                response["body_base64"].as_str().unwrap(),
+                            )
+                            .unwrap(),
+                        )
+                        .unwrap();
+                        body["truncated"] = json!(true);
+                        response["body_base64"] =
+                            json!(encode_base64(&serde_json::to_vec(&body).unwrap()));
+                    }
+                }
+            }
+            20 => {
+                let bytes = std::fs::read(&path).unwrap();
+                let mut source = budget.commits(|_: Oid| Ok(bytes.clone()));
+                source.raw_commit(claims[0].oid).unwrap();
+                source.raw_commit(claims[0].oid).unwrap();
+                assert_eq!(
+                    source.raw_commit(claims[0].oid).unwrap_err(),
+                    BridgeError("RUN_BUDGET_EXCEEDED")
+                );
+            }
+            21 => {
+                manifest["before"] = json!("0".repeat(40));
+            }
+            22 => {
+                manifest["after"] = json!("0".repeat(40));
+            }
+            23 => {
+                claims[0].length = 1024 * 1024 + 1;
+            }
+            27 => {
+                let bytes = std::fs::read(&path).unwrap();
+                let mut source = budget.commits(|_: Oid| Ok(bytes.clone()));
+                source.raw_commit(claims[0].oid).unwrap();
+            }
+            26 => {
+                let mut reader = RestReader::new(
+                    budget.responses(|_: &str| {
+                        Ok(serde_json::to_vec(
+                            &json!({"full_name":ARCHIVE,"node_id":"SYNTHETIC_REPOSITORY_ID"}),
+                        )
+                        .unwrap())
+                    }),
+                    256,
+                )
+                .unwrap();
+                reader.repository().unwrap();
+            }
+            25 => {}
+            24 => {
+                std::fs::rename(&dir.0, dir.0.with_extension("real")).unwrap();
+                std::os::unix::fs::symlink(dir.0.with_extension("real"), &dir.0).unwrap();
+            }
+            _ => unreachable!(),
+        }
+        if matches!(case, 1 | 15) {
+            manifest["original_commits"][0]["payload_sha256"] = json!(claims[0]
+                .payload_sha256
+                .iter()
+                .map(|b| format!("{b:02x}"))
+                .collect::<String>());
+        }
+        let bytes = encoded(&package);
+        let spec = ReadbackSpec::new(
+            "SYNTHETIC_REPOSITORY_ID",
+            1,
+            after,
+            ReadbackMode::Snapshot {
+                expected: expected.bytes(),
+            },
+        )
+        .unwrap();
+        // Anpassung des äußeren Digests erreicht bei 18/19 den Objektprüfer.
+        let run = OfflineRun::new(
+            spec,
+            before,
+            "synthetic-299",
+            Sha256::digest(&bytes).into(),
+            &budget,
+        );
+        let result = run.and_then(|run| {
+            manifest["package_sha256"] = json!(format!("{:x}", Sha256::digest(&bytes)));
+            let mut original_manifest = encoded(&manifest);
+            if case == 25 {
+                original_manifest.push(b' ');
+            }
+            let manifest = AcquisitionManifest::untrusted(&original_manifest, &claims)?;
+            let result = run.verify_files(&manifest, &bytes, &selected);
+            if result.is_err() {
+                assert_eq!(
+                    run.verify_files(&manifest, &bytes, &selected).unwrap_err(),
+                    BridgeError("RUN_ALREADY_FAILED")
+                );
+            }
+            result
+        });
+        if case == 24 {
+            std::fs::remove_file(&dir.0).unwrap();
+            std::fs::rename(dir.0.with_extension("real"), &dir.0).unwrap();
+        }
+        assert_eq!(expected.bytes(), payload().bytes());
+        assert!(
+            serde_json::from_slice::<Value>(expected.bytes()).unwrap()["last_verified"].is_null()
+        );
+        assert_eq!(
+            production_publish(),
+            Err(BridgeError("PRODUCTION_PUBLICATION_DISABLED"))
+        );
+        result
+    }
+    #[test]
+    fn offline_299_file_handoff_negative_matrix() {
+        let original = run(fixture(b"299 original\n"), false).unwrap();
+        for case in 1..26 {
+            let error = file_replay(&original, case).unwrap_err();
+            let expected = match case {
+                1 | 4 => Some("RAW_HANDOFF_DIGEST"),
+                5 | 8 | 16 => Some("RAW_HANDOFF_FILE"),
+                15 => Some("COMMIT_HASH_MISMATCH"),
+                18 => Some("BLOB_HASH_MISMATCH"),
+                19 => Some("INCOMPLETE_OR_WRONG_TREE"),
+                9..=13 | 21 | 22 | 25 => Some("RUN_MANIFEST_MISMATCH"),
+                _ => None,
+            };
+            if let Some(expected) = expected {
+                assert_eq!(error, BridgeError(expected), "case {case}");
+            }
+        }
+        assert_eq!(
+            file_replay(&original, 27).unwrap_err(),
+            BridgeError("RUN_BUDGET_EXCEEDED")
+        );
+    }
+    #[test]
+    fn offline_299_export_import_independent_file_replays() {
+        let original = run(fixture(b"299 original\n"), false).unwrap();
+        let dir = HandoffDir::new();
+        novena_bridge::offline_package::export_private(original.package(), &dir.0).unwrap();
+        let imported = novena_bridge::offline_package::import_private(&dir.0).unwrap();
+        let a = file_replay(&imported, 0).unwrap();
+        let b = file_replay(&imported, 0).unwrap();
+        assert_eq!(
+            novena_bridge::offline_run::compare_replays(&a, &b).unwrap(),
+            "REPLAY_CONSISTENT_OFFLINE"
+        );
+        assert!(!a.complete().report().publication_performed);
+        let different_usage = file_replay(&imported, 26).unwrap();
+        assert!(novena_bridge::offline_run::compare_replays(&a, &different_usage).is_err());
+        assert!(file_replay(&imported, 18).is_err());
+        assert!(file_replay(&imported, 4).is_err());
+        let different = run(fixture(b"299 different\n"), false).unwrap();
+        let c = file_replay(&different, 0).unwrap();
+        assert!(novena_bridge::offline_run::compare_replays(&a, &c).is_err());
+    }
     fn bound_replay(
         original: &CompleteReadback,
         package: &[u8],

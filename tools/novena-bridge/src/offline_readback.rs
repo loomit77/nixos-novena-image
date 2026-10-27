@@ -168,6 +168,36 @@ impl RunBudget {
     pub fn new() -> Self {
         Self::default()
     }
+    /// Vor Dateizugriff prüfen; die tatsächliche Abrechnung erfolgt genau
+    /// einmal durch BudgetedCommits im bestehenden vollständigen Replay.
+    pub(crate) fn handoff_capacity(&self, claims: &[ExportClaim]) -> BridgeResult<()> {
+        self.check()?;
+        let u = self.0.borrow();
+        let bytes = claims
+            .iter()
+            .try_fold(0usize, |total, c| total.checked_add(c.length))
+            .ok_or(BridgeError("RUN_BUDGET_EXCEEDED"))?;
+        if claims.len() > 2usize.saturating_sub(u.commits)
+            || bytes > (2 * MIB).saturating_sub(u.raw)
+            || bytes > (32 * MIB).saturating_sub(u.bodies + u.raw)
+        {
+            return Err(BridgeError("RUN_BUDGET_EXCEEDED"));
+        }
+        Ok(())
+    }
+    pub(crate) fn consumption(&self) -> [usize; 8] {
+        let u = self.0.borrow();
+        [
+            u.requests,
+            u.bodies,
+            u.raw,
+            u.commits,
+            u.trees,
+            u.entries,
+            u.tree_bytes,
+            u.blob_bytes,
+        ]
+    }
     pub(crate) fn check(&self) -> BridgeResult<()> {
         if self.0.borrow().failed {
             Err(BridgeError("RUN_ALREADY_FAILED"))

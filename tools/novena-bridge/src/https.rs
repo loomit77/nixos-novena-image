@@ -1,15 +1,15 @@
 //! Explizite HTTPS-GET-Quelle, ohne CLI-Anbindung oder RawCommitSource.
 //!
-//! Keine Live-Qualifikation. HEADER_MEMORY_BOUNDARY=BLOCKED: reqwest 0.13.5
-//! exponiert weder Hypers max_header_size noch max_buf_size für HTTP/1.
-//! Die Headeranzahl unten ist keine Byte- oder Allokationsgrenze.
-//! RequestBuilder::timeout wird in reqwest 0.13.5 bis in TotalTimeoutBody
-//! weitergegeben und bricht auch wartende Body-Reads ab. Die eigenen monotonen
-//! Prüfungen ergänzen dies; sie allein könnten blockierende Reads nicht abbrechen.
+//! Keine Live-Qualifikation. Feste Headeraufnahme vor Hypers HTTP/1-Parser.
+//! Eine monotone Tokio-Deadline umfasst Verbindung, TLS, Header und Body.
 use crate::protocol::{allowed_endpoint, ResponseSource};
 use crate::{BridgeError, BridgeResult};
-use reqwest::blocking::{Client, ClientBuilder};
+use http_body_util::BodyExt;
+use std::sync::Arc;
+#[path = "https_header.rs"]
+mod header;
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION, CONTENT_ENCODING, LOCATION};
+#[cfg(test)]
 use std::io::Read;
 use std::time::{Duration, Instant};
 
@@ -23,38 +23,13 @@ fn target(endpoint: &str) -> BridgeResult<String> {
     Ok(format!("https://api.github.com/{endpoint}"))
 }
 
-fn client_builder(roots: Vec<reqwest::Certificate>) -> ClientBuilder {
-    Client::builder()
-        .https_only(true)
-        .http1_only()
-        // Nur Anzahl; auch unbekannte Header und Statuszeile können zusammen
-        // mehr als 32 KiB belegen. Keine nachträgliche HeaderMap-Scheingarantie.
-        .http1_max_headers(100)
-        .redirect(reqwest::redirect::Policy::none())
-        .referer(false)
-        .no_proxy()
-        .retry(reqwest::retry::never())
-        .pool_max_idle_per_host(0)
-        .no_gzip()
-        .no_brotli()
-        .no_deflate()
-        .no_zstd()
-        .tls_backend_rustls()
-        .tls_certs_only(roots)
-        .tls_version_min(reqwest::tls::Version::TLS_1_2)
-        .tls_sni(true)
-        .tls_sslkeylogfile(false)
-        .connect_timeout(Duration::from_secs(10))
-        .timeout(REQUEST_TIMEOUT)
-}
-
 /// Kein Default/Debug/Serialize und kein übergebbarer Client oder freier URL.
 /// Konstruktion sendet nichts; erst ResponseSource::get führt einen GET aus.
 /// CA-DER-Bytes und optionales Token stammen ausschließlich vom Aufrufer.
 /// Der Aufrufer muss die freigegebene CA-Provenienz und Leserechte sicherstellen.
 /// Keine Umgebungs-, Datei-, gh-, Git-, Cookie- oder Credential-Erkennung.
 pub struct HttpsGetSource {
-    client: Client,
+    tls: Arc<rustls::ClientConfig>,
     authorization: Option<HeaderValue>,
     budget: ReceiveBudget,
     #[cfg(test)]
@@ -78,17 +53,21 @@ impl HttpsGetSource {
             return Err(BridgeError("INVALID_TLS_ROOTS"));
         }
         let authorization = authorization(token)?;
-        let roots = roots_der
-            .iter()
-            .map(|der| {
-                reqwest::Certificate::from_der(der).map_err(|_| BridgeError("INVALID_TLS_ROOTS"))
-            })
-            .collect::<BridgeResult<Vec<_>>>()?;
-        let client = client_builder(roots)
-            .build()
-            .map_err(|_| BridgeError("HTTPS_CLIENT_INIT_FAILED"))?;
+        let mut roots = rustls::RootCertStore::empty();
+        for der in roots_der {
+            roots
+                .add(rustls::pki_types::CertificateDer::from(der.to_vec()))
+                .map_err(|_| BridgeError("INVALID_TLS_ROOTS"))?;
+        }
+        let tls = rustls::ClientConfig::builder_with_provider(Arc::new(
+            rustls::crypto::aws_lc_rs::default_provider(),
+        ))
+        .with_protocol_versions(&[&rustls::version::TLS13, &rustls::version::TLS12])
+        .map_err(|_| BridgeError("HTTPS_CLIENT_INIT_FAILED"))?
+        .with_root_certificates(roots)
+        .with_no_client_auth();
         Ok(Self {
-            client,
+            tls: Arc::new(tls),
             authorization,
             budget,
             #[cfg(test)]
@@ -101,13 +80,6 @@ impl HttpsGetSource {
     fn local_test(root: &[u8], port: u16) -> Self {
         assert_ne!(port, 0);
         let mut source = Self::new(&[root], Some("SYNTHETIC_SECRET"), 1, 1024).unwrap();
-        source.client = client_builder(vec![reqwest::Certificate::from_der(root).unwrap()])
-            .resolve(
-                "api.github.com",
-                std::net::SocketAddr::from(([127, 0, 0, 1], port)),
-            )
-            .build()
-            .unwrap();
         source.local_port = Some(port);
         source
     }
@@ -128,31 +100,117 @@ impl HttpsGetSource {
         if remaining.is_zero() {
             return Err(BridgeError("HTTP_TIMEOUT"));
         }
-        let mut request = self
-            .client
-            .get(url)
-            .header("Accept", "application/vnd.github+json")
-            .header("X-GitHub-Api-Version", "2022-11-28")
-            .header("User-Agent", "novena-bridge/0.1")
-            .header("Accept-Encoding", "identity")
-            // Request-Override ist wesentlich: der blocking Client-Default
-            // allein setzt nur die Wartezeit pro send/read. Dieser Override
-            // erreicht zusätzlich den gemeinsamen asynchronen Body-Timer.
-            .timeout(remaining);
-        if let Some(value) = &self.authorization {
-            request = request.header(AUTHORIZATION, value.clone());
-        }
-        let mut response = request
-            .send()
-            .map_err(|_| BridgeError("HTTPS_REQUEST_FAILED"))?;
-        check_headers(response.status().as_u16(), response.headers())?;
-        if response
-            .content_length()
-            .is_some_and(|n| n > self.budget.response_limit.min(self.budget.remaining) as u64)
-        {
-            return Err(BridgeError("RESPONSE_TOO_LARGE"));
-        }
-        self.budget.receive(&mut response, deadline, Instant::now)
+        // Runtime erst bei explizitem GET; Konstruktion hat keine Socketwirkung.
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .map_err(|_| BridgeError("HTTPS_CLIENT_INIT_FAILED"))?;
+        runtime.block_on(async {
+            let deadline = tokio::time::Instant::from_std(deadline);
+            let headers_received = std::cell::Cell::new(false);
+            let work = async {
+                let parsed =
+                    reqwest::Url::parse(&url).map_err(|_| BridgeError("HTTPS_REQUEST_FAILED"))?;
+                let port = parsed.port().unwrap_or(443);
+                #[cfg(test)]
+                let host = if self.local_port.is_some() {
+                    "127.0.0.1"
+                } else {
+                    "api.github.com"
+                };
+                #[cfg(not(test))]
+                let host = "api.github.com";
+                let tcp = tokio::time::timeout(
+                    Duration::from_secs(10),
+                    tokio::net::TcpStream::connect((host, port)),
+                )
+                .await
+                .map_err(|_| BridgeError("HTTPS_REQUEST_FAILED"))?
+                .map_err(|_| BridgeError("HTTPS_REQUEST_FAILED"))?;
+                let name = rustls::pki_types::ServerName::try_from("api.github.com").unwrap();
+                let tls = tokio_rustls::TlsConnector::from(self.tls.clone())
+                    .connect(name, tcp)
+                    .await
+                    .map_err(|_| BridgeError("HTTPS_REQUEST_FAILED"))?;
+                let io = hyper_util::rt::TokioIo::new(header::HeaderGate::new(tls));
+                let (mut sender, connection) = hyper::client::conn::http1::Builder::new()
+                    .max_headers(100)
+                    .max_buf_size(header::MAX_HEADER_BYTES)
+                    .handshake(io)
+                    .await
+                    .map_err(|_| BridgeError("HTTPS_REQUEST_FAILED"))?;
+                let driver = tokio::spawn(connection);
+                // Drop bricht den einzigen Connectiontask auch bei Fehler/Timeout ab.
+                struct Abort(tokio::task::JoinHandle<Result<(), hyper::Error>>);
+                impl Drop for Abort {
+                    fn drop(&mut self) {
+                        self.0.abort();
+                    }
+                }
+                let _driver = Abort(driver);
+                let mut request = hyper::Request::builder()
+                    .method("GET")
+                    .uri(parsed.path())
+                    .header("Host", parsed.authority())
+                    .header("Accept", "application/vnd.github+json")
+                    .header("X-GitHub-Api-Version", "2022-11-28")
+                    .header("User-Agent", "novena-bridge/0.1")
+                    .header("Accept-Encoding", "identity")
+                    .header("Connection", "close");
+                if let Some(value) = &self.authorization {
+                    request = request.header(AUTHORIZATION, value.clone());
+                }
+                let request = request
+                    .body(http_body_util::Empty::<bytes::Bytes>::new())
+                    .map_err(|_| BridgeError("HTTPS_REQUEST_FAILED"))?;
+                let response = sender
+                    .send_request(request)
+                    .await
+                    .map_err(|_| BridgeError("HTTPS_REQUEST_FAILED"))?;
+                headers_received.set(true);
+                check_headers(response.status().as_u16(), response.headers())?;
+                if response
+                    .headers()
+                    .get(reqwest::header::CONTENT_LENGTH)
+                    .and_then(|v| v.to_str().ok())
+                    .and_then(|v| v.parse::<u64>().ok())
+                    .is_some_and(|n| {
+                        n > self.budget.response_limit.min(self.budget.remaining) as u64
+                    })
+                {
+                    return Err(BridgeError("RESPONSE_TOO_LARGE"));
+                }
+                // Dieselbe begrenzte Empfangsschleife wie in den Budgettests.
+                let mut body = response.into_body();
+                let mut pending = bytes::Bytes::new();
+                let mut bytes = Vec::new();
+                let mut buffer = [0u8; 8192];
+                loop {
+                    let size = self.budget.read_size(bytes.len(), buffer.len())?;
+                    while pending.is_empty() {
+                        match body.frame().await {
+                            Some(Ok(frame)) => {
+                                if let Ok(data) = frame.into_data() {
+                                    pending = data;
+                                }
+                            }
+                            Some(Err(_)) => return Err(BridgeError("HTTPS_BODY_READ_FAILED")),
+                            None => return self.budget.finish(bytes),
+                        }
+                    }
+                    let count = size.min(pending.len());
+                    buffer[..count].copy_from_slice(&pending.split_to(count));
+                    self.budget.append(&mut bytes, &buffer[..count])?;
+                }
+            };
+            tokio::time::timeout_at(deadline, work).await.map_err(|_| {
+                BridgeError(if headers_received.get() {
+                    "HTTP_TIMEOUT"
+                } else {
+                    "HTTPS_REQUEST_FAILED"
+                })
+            })?
+        })
     }
 }
 
@@ -250,6 +308,31 @@ impl ReceiveBudget {
         Ok(operation.min(now + self.request_timeout))
     }
 
+    fn read_size(&self, length: usize, buffer: usize) -> BridgeResult<usize> {
+        let size = buffer
+            .min(self.response_limit - length + 1)
+            .min(self.remaining);
+        if size == 0 {
+            return Err(BridgeError("RESPONSE_BUDGET_EXCEEDED"));
+        }
+        Ok(size)
+    }
+    fn append(&mut self, body: &mut Vec<u8>, data: &[u8]) -> BridgeResult<()> {
+        self.remaining -= data.len();
+        if data.len() > self.response_limit - body.len() {
+            return Err(BridgeError("RESPONSE_TOO_LARGE"));
+        }
+        body.extend_from_slice(data);
+        Ok(())
+    }
+    fn finish(&self, body: Vec<u8>) -> BridgeResult<Vec<u8>> {
+        if body.is_empty() {
+            Err(BridgeError("INVALID_HTTP_BODY"))
+        } else {
+            Ok(body)
+        }
+    }
+    #[cfg(test)]
     fn receive(
         &mut self,
         reader: &mut impl Read,
@@ -264,32 +347,18 @@ impl ReceiveBudget {
             }
             // Höchstens eine zusätzliche Byteprobe pro Antwort. Auch die Probe
             // wird vom Gesamtbudget abgezogen, nie über dessen Grenze gelesen.
-            let size = buffer
-                .len()
-                .min(self.response_limit - body.len() + 1)
-                .min(self.remaining);
-            if size == 0 {
-                // Kein ungezählter EOF-Read am Gesamtlimit: konservativer Abbruch.
-                return Err(BridgeError("RESPONSE_BUDGET_EXCEEDED"));
-            }
+            let size = self.read_size(body.len(), buffer.len())?;
             let count = reader
                 .read(&mut buffer[..size])
                 .map_err(|_| BridgeError("HTTPS_BODY_READ_FAILED"))?;
-            self.remaining -= count;
+            // Abrechnung vor dem nachgelagerten Deadlinefehler erhalten.
+            self.append(&mut body, &buffer[..count])?;
             if now() >= deadline {
                 return Err(BridgeError("HTTP_TIMEOUT"));
             }
             if count == 0 {
-                return if body.is_empty() {
-                    Err(BridgeError("INVALID_HTTP_BODY"))
-                } else {
-                    Ok(body)
-                };
+                return self.finish(body);
             }
-            if count > self.response_limit - body.len() {
-                return Err(BridgeError("RESPONSE_TOO_LARGE"));
-            }
-            body.extend_from_slice(&buffer[..count]);
         }
     }
 }
@@ -339,15 +408,16 @@ mod tests {
     }
 
     #[test]
-    fn reqwest_builder_has_redirects_disabled_and_no_explicit_proxies() {
-        // Konfigurationsbeobachtung ohne build, Runtime, DNS oder Socket.
-        // Debug legt die Systemproxyflagge/Retrypolicy nicht offen: deren
-        // Durchsetzung ist hier nur durch die lokale reqwest-API belegt.
-        let config = format!("{:?}", client_builder(Vec::new()));
-        assert!(config.contains("redirect_policy: Policy(None)"));
-        assert!(config.contains("http1_only: true"));
-        assert!(!config.contains("proxies:"));
-        assert!(!config.contains("referer: true"));
+    fn transport_policy_has_no_implicit_roots_or_redirect_followup() {
+        // Konstruktion ohne Runtime, DNS oder Socket. Explizite Roots sind Pflicht.
+        assert!(HttpsGetSource::new(&[], None, 1, 2).is_err());
+        assert!(HttpsGetSource::new(&[b"invalid"], None, 1, 2).is_err());
+        let mut headers = HeaderMap::new();
+        headers.insert(LOCATION, HeaderValue::from_static("https://other.invalid"));
+        assert_eq!(
+            check_headers(200, &headers),
+            Err(BridgeError("HTTP_REDIRECT_REJECTED"))
+        );
     }
 
     #[test]

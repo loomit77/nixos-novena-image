@@ -6,6 +6,7 @@ use sha1::{Digest, Sha1};
 
 pub mod attestation;
 pub mod https;
+pub mod local_supervisor;
 pub mod logs;
 pub mod object_evidence;
 pub mod objects;

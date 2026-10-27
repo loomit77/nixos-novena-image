@@ -872,7 +872,7 @@ fn local_tls_excessive_header_count() {
     );
 }
 
-// Charakterisierung der API-Lücke, keine Sicherheitsabnahme einer Bytegrenze.
+// Harte Bytegrenze im bestehenden HTTPS-Pfad.
 // Explizit gezählte Wirebytes: Statuszeile, Headerzeilen und Abschluss-CRLF;
 // der zweibytegroße Body zählt nicht mit. Alle Eingaben bleiben endlich.
 fn sized_header_reply(head_bytes: usize, long_status: bool) -> Vec<u8> {
@@ -903,34 +903,43 @@ fn local_tls_header_just_below_32k_accepted() {
 }
 
 #[test]
-fn local_tls_header_above_32k_currently_accepted() {
+fn local_tls_header_exact_32k_accepted() {
+    receive_case(
+        sized_header_reply(32 * 1024, false),
+        false,
+        Ok(b"{}".to_vec()),
+    );
+}
+
+#[test]
+fn local_tls_header_above_32k_rejected() {
     receive_case(
         sized_header_reply(32 * 1024 + 1, false),
         false,
-        Ok(b"{}".to_vec()),
+        Err(BridgeError("HTTPS_REQUEST_FAILED")),
     );
 }
 
 #[test]
-fn local_tls_single_64k_header_currently_accepted() {
+fn local_tls_single_64k_header_rejected() {
     receive_case(
         sized_header_reply(64 * 1024, false),
         false,
-        Ok(b"{}".to_vec()),
+        Err(BridgeError("HTTPS_REQUEST_FAILED")),
     );
 }
 
 #[test]
-fn local_tls_long_status_line_above_32k_currently_accepted() {
+fn local_tls_long_status_line_above_32k_rejected() {
     receive_case(
         sized_header_reply(40 * 1024, true),
         false,
-        Ok(b"{}".to_vec()),
+        Err(BridgeError("HTTPS_REQUEST_FAILED")),
     );
 }
 
 #[test]
-fn local_tls_100_headers_above_32k_currently_accepted() {
+fn local_tls_100_headers_above_32k_rejected() {
     let mut reply = String::from("HTTP/1.1 200 OK\r\n");
     for index in 0..99 {
         reply.push_str(&format!("X-Unknown-{index}: {}\r\n", "x".repeat(400)));
@@ -938,7 +947,11 @@ fn local_tls_100_headers_above_32k_currently_accepted() {
     reply.push_str("Content-Length: 2\r\n\r\n");
     assert!(reply.len() > 32 * 1024);
     reply.push_str("{}");
-    receive_case(reply.into_bytes(), false, Ok(b"{}".to_vec()));
+    receive_case(
+        reply.into_bytes(),
+        false,
+        Err(BridgeError("HTTPS_REQUEST_FAILED")),
+    );
 }
 
 #[test]

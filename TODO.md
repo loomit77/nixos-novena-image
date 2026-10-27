@@ -1689,3 +1689,63 @@ historischer TODO-Einträge.
 
 Keine Checkpoint-Promotion, kein Build und keine
 Hardwaretestfreigabe durch diesen Nachtrag.
+
+<!-- NOVENA-BRIDGE-STATUS-TODO-2026-10-27 -->
+## Novena Bridge – Statusindex und Projektübergabe
+
+Stand: 27.10.2026.
+
+### Verbindliche Entscheidungen
+
+- Die bestehende Rust-Bridge wird weiterentwickelt.
+- Kein paralleler Python-Publisher und keine zweite TODO-Verwaltung.
+- Bestehende Runner, TXT-Protokolle und SHA256-Sidecars bleiben maßgeblich.
+- GitHub-Upload auch bei fehlgeschlagenen Blöcken beibehalten.
+- Git-Index und geschützte ITA-Einträge erhalten.
+- Codex weiterhin für zusammenhängende Gesamtaufträge mit Teilaufgaben verwenden.
+- Keine zusätzliche VM, kein Daemon, kein Tailscale Funnel erforderlich.
+- Borg-Backup und Tagesabschluss nicht verändern.
+- Produktive Veröffentlichung ausschließlich nach eigener Qualifikation und Freigabe.
+
+### Offene Aufgaben
+
+- [x] Block 300: Originalprotokoll ausgewertet; vollständige Offline-Rust-Qualifikation PASS.
+- [ ] JSON-Ergebniszusammenfassung pro Runner-Block aus Original-TXT und SHA256 ableiten.
+- [ ] Runner-, Upload-, Technik- und Fachstatus getrennt darstellen.
+- [ ] Fehlende oder widersprüchliche Angaben als UNKNOWN oder REVIEW_REQUIRED behandeln.
+- [ ] JSON-Ergebnisdateien selbst mit SHA256 nachweisen.
+- [ ] NOVENA-CURRENT-STATE.json aus geprüften Quellen vorbereiten.
+- [ ] Letzten gültigen Checkpoint bei fehlgeschlagenen Blöcken unverändert erhalten.
+- [ ] Historisch abgeschlossene Untersuchungen mit Originalbelegen referenzieren.
+- [ ] Keine zweite konkurrierende Aufgabenliste aufbauen.
+- [ ] GitHub-Veröffentlichung und unabhängige Rücklesung gesondert qualifizieren.
+- [ ] Chat-Starter und Handover später an den geprüften Status anbinden.
+- [ ] Nach Bridge-Stabilisierung universelles NixOS-SD-Image priorisieren.
+
+### Abnahmekriterien
+
+- Letzter belegter Stand ist nach Chatwechsel rekonstruierbar.
+- Fehlerhafte Blöcke werden niemals als fachlicher PASS dargestellt.
+- Originalprotokolle bleiben unverändert erhalten.
+- Fehlgeschlagene Uploads überschreiben keinen gültigen Checkpoint.
+- Git-HEAD und Index bleiben bei Statusprüfungen unverändert.
+- Keine automatisch behauptete Hardware-, Build- oder Remote-Provenienz.
+- Keine Produktivveröffentlichung allein aufgrund eines Runner-PASS.
+
+### Aktueller Nachweisstand
+
+NOVENA-BRIDGE-RUST-299:
+Codex-Ausführung PASS; 65 Integrationstests PASS;
+Gesamtsuite wegen lokaler Socket-Sandboxfehler nicht vollständig PASS.
+
+NOVENA-BRIDGE-RUST-300:
+Runner PASS; GitHub-Upload PASS.
+Baseline PASS; Codex PASS; Rustfmt PASS; Cargo Check PASS;
+Clippy PASS; vollständige Offline-Testsuite PASS.
+Git-HEAD und Git-Index unverändert.
+Produktive Bridge-Veröffentlichung weiterhin gesperrt.
+
+Maßgeblich bleiben die Originalprotokolle im privaten
+GitHub-Archiv project-block-logs.
+
+<!-- END NOVENA-BRIDGE-STATUS-TODO-2026-10-27 -->

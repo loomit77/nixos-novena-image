@@ -5268,3 +5268,371 @@ HOST_SUPERVISOR=NOT_QUALIFIED;
 LIVE_GITHUB_READBACK=NOT_EXECUTED;
 BRIDGE_PUBLICATION=BLOCKED;
 LAST_VERIFIED=UNMODIFIED.
+
+
+## NOVENA-BRIDGE-RUST-299 – Gebundene Offline-Rohcommitübergabe
+
+Datum: 2026-10-27. Implementiert, Offline-Integration geprüft; vollständige
+Laufzeitqualifikation wegen Socketverbot der Codex-Sandbox offen.
+297, der abgebrochene Block 298 und der statische Preflight 298R2 werden
+hierdurch nicht rückwirkend umbewertet. Der Auftrag nennt 158 Tests für 297;
+der vorhandene Nachtrag „297 – Äußere Qualifikation“ nennt dagegen 156.
+Der aktuelle Checkout registriert nach zwei neuen Testfunktionen 158 Tests
+(93 Bibliothek, 65 Integration). Die historische Zähldifferenz bleibt ohne
+Abgleich mit dem damaligen Originalartefakt offen.
+
+### Vertrag und Implementierung
+
+`OfflineRun::verify_files(manifest, package, directory)` erweitert den
+bestehenden Laufvertrag NOVENA_OFFLINE_RUN_V1; keine konkurrierenden
+Manifest-, Budget-, Paket- oder Erfolgstypen. Vor Dateizugriff werden
+Manifestgrenze, erwarteter Paket-SHA256, bytegenaue kanonische Manifestbindung
+und verfügbares gemeinsames Rohcommitbudget geprüft. Die Manifestbindung
+umfasst Lauf-ID, feste Repository-/Ref-Erwartungen, Node-/numerischen Pin,
+Basis-/Ziel-OIDs, Modus, Beobachtungen, Commitlängen/SHA256, Paketversion
+und Budgetvertrag. Unbekannte Felder, andere Versionen, Whitespaceänderungen
+und Herkunftsbehauptungen passen nicht zu den erwarteten Originalbytes.
+Manifestbytes sind ein unveränderlicher Speicher-Slice, kein erneut geöffneter
+Dateipfad; ihre Beschaffung wird hier nicht authentifiziert.
+
+Der interne Adapter in raw_commit_files.rs öffnet unter Linux alle
+Verzeichniskomponenten mit O_NOFOLLOW/O_DIRECTORY, verankert Folgezugriffe
+an eigenen offenen Deskriptoren über /proc/self/fd und öffnet Nutzdateien
+mit O_NOFOLLOW/O_NONBLOCK. Dies übernimmt das bestehende Linux-Flagmuster
+des lokalen Quellenadapters und ergänzt die dort fehlende Elternverankerung.
+Keine externe Bibliothek, kein unsafe, keine Abhängigkeitsänderung.
+Absolute Auswahl ohne ParentDir, exakt zwei sortierte verschiedene OIDs;
+Dateinamen entstehen ausschließlich aus dem privaten Oid-Typ. Inventur vor
+und nach der Aufnahme weist weitere Namen zurück. Nur reguläre Dateien mit
+einem Hardlink und exakt erwarteter Länge; maximal 1 MiB pro Commit,
+2 MiB insgesamt. Genau ein begrenzter Nutzdatei-Lesevorgang pro Commit und
+Replay. Die gelesenen Bytes durchlaufen SHA256, vorhandenen Commitparser
+und Git-Commit-OID-Prüfung. Kein Vorprüfungs-/Wiederöffnungsfenster für
+Nutzdateien und keine Ausgabe eines teilweise geprüften Inventars.
+
+Der bestehende Paket-Replay vergleicht seine Commitbytes mit diesen Bytes
+und führt die Dateibytes durch denselben vollständigen Commit-/Tree-/Blob-
+Readback. BudgetedCommits rechnet sie genau einmal ab; der vorgelagerte
+Kapazitätscheck setzt keine Zähler zurück. Fehler vergiften den Laufkontext.
+Paketgrenze 64 MiB und vorhandene REST-/Tree-/Blobgrenzen bleiben wirksam.
+Export/Import verwenden weiterhin den bestehenden Paketvertrag.
+
+BoundOfflineReplay hält zusätzlich die acht tatsächlichen Budgetzähler
+(Requests, Bodies, Rawbytes, Commits, Trees, Einträge, Treebytes, Blobbytes).
+compare_replays vergleicht diese neben Manifestbindung, Paket und unabhängig
+neu berechnetem Inventar; eine Selbstreferenz wird weiterhin abgewiesen.
+Einziges positives Vergleichsergebnis: REPLAY_CONSISTENT_OFFLINE.
+Kein authentifizierter Remote-Erwerb, kein Status- oder last_verified-Schreiber.
+
+### Neue Tests und tatsächliche Ergebnisse
+
+Zwei neue Rust-Testfunktionen in tests/protocol.rs:
+
+- offline_299_file_handoff_negative_matrix: 26 negative Varianten über reale
+  Dateizugriffe und den bestehenden Verifier. Falscher SHA256, fehlende Datei,
+  zusätzliche Datei, veränderte und gekürzte Bytes, Dateisymlink, ParentDir,
+  Übergröße, Repository/Ref/Lauf/Version/Herkunft, widersprüchliche Doppel-OID,
+  Git-OID-Fehler trotz passend angepasstem SHA256, Verzeichnis statt Datei,
+  Hardlinkalias, Nebenblobmanipulation, unvollständiger Tree, vergiftetes und
+  bereits teilweise verbrauchtes Rohcommitbudget, falsche Basis/Ziel-OIDs,
+  übergroßer Claim, Elternsymlink und veränderte Manifestbytes. Für zentrale
+  Fälle werden die konkreten Verifierfehler geprüft, nicht nur irgendein Err.
+- offline_299_export_import_independent_file_replays: vollständiger positiver
+  Readback -> Inventar/Paket -> privater Export -> Import mit Wiederprüfung ->
+  zwei separate Dateireplays -> Konsistenzvergleich. Negative Integration mit
+  manipulierten Commitbytes und Nebenblob. Andere Commitbytes und anderer
+  vorheriger Budgetverbrauch ergeben Replaykonflikt. Payloadbytes bleiben
+  unverändert, last_verified null, Publikationsgate gesperrt. Vorhandene
+  Updatefälle prüfen zusätzlich den Erhalt eines nichtleeren Checkpoints.
+
+Prüfumgebung: Cargo/Rust 1.99.1; ausschließlich offline/locked, separates
+CARGO_TARGET_DIR=/tmp/novena-bridge-299-target. Keine Nachladung.
+
+- cargo fmt --all -- --check: Exit 0.
+- cargo check --offline --locked: Exit 0.
+- cargo clippy --offline --locked --all-targets -- -D warnings: Exit 0.
+- cargo test --offline --locked: Exit 101. Bibliothek: 49 PASS, 44 FAIL.
+  Sämtliche 43 lokalen TLS-Tests scheitern vor dem Serverstart an
+  TcpListener::bind in src/https_local_tls.rs:158 mit EPERM/Operation not
+  permitted. Der bestehende raw_files_reject_socket_without_opening_it
+  scheitert ebenso an UnixListener::bind in src/raw_commit_tests.rs:246.
+  Das sind Umgebungsblockaden, keine bestandenen fachlichen Negativtests.
+  Kein Socket-Test wurde verändert, ignoriert oder als PASS umklassifiziert.
+- Cargo bricht nach dem Bibliotheksfehler vor den Integrationstests ab.
+  Deshalb anschließend alle sieben Integrationstestziele explizit mit
+  cargo test --offline --locked --test cli --test local_sources --test logs
+  --test objects --test protocol --test schema_oracle --test sources:
+  Exit 0, 65 PASS (3+3+5+3+45+1+5). Nach den letzten Änderungen erneut PASS.
+- cargo test --offline --locked --doc: Exit 0, keine Doctests.
+- Die zwei neuen Testfunktionen zusätzlich gezielt PASS; keine Mockerfolge
+  anstelle der Byteverifier. Insgesamt 114 verschiedene Tests PASS und
+  44 durch die Socket-Sandbox fehlgeschlagen; kein vollständiges Suite-PASS.
+
+Die TLS-Wiederholung war wegen des veränderten gemeinsam verwendeten
+Paketprüfers und Replayvergleichs im vorhandenen TLS-Integrationstest relevant.
+Keine externe Netzwerkverbindung oder Beschaffung. Kein erneuter Versuch,
+das Socketverbot zu umgehen. Ein erster Editierversuch hatte wegen eines
+falschen Arbeitsverzeichnisses FileNotFoundError vor jeder Dateiänderung;
+danach mit korrektem Repositorypfad ausgeführt. Keine fachliche Reparatur
+oder Teständerung aufgrund der Socketfehler.
+
+Evidenz sind die direkten Cargo-Prozessausgaben dieser Sitzung. Kein äußerer
+Runner und kein Upload wurden gestartet; diese Zusammenfassung ist kein
+vollständiges maschinelles TXT-Rohprotokoll des gesamten Entwicklungsblocks.
+HEAD 25930587a55337defd7ff8d0312129f451667bf6 und Index-SHA256
+05e05d9999a865b8bf7ed801628d2540121f0ff27697854e9cbe986a9de2e4fa
+vor/nach identisch. Ausgangs-Working-Tree sauber. Cargo.toml/Cargo.lock sowie
+AGENTS.md/NOVENA-ARBEITSREGELN.txt unverändert; keine Git-Mutation.
+
+### Grenzen, offene Architektur und nächster Auftrag
+
+Die neue Übergabe schließt die Pfadumleitung zwischen Metadatenvorprüfung
+und open durch deskriptorverankerte Auswahl; Änderungen offener Nutzdateien
+müssen dennoch den extern erwarteten SHA256 und Git-OID erfüllen. Weder
+ein atomarer Verzeichnissnapshot noch Schutz gegen privilegierte Mount-/
+Kernelmanipulation, blockierende reguläre Dateisystem-I/O oder ein sicherer
+Host-Supervisor wird behauptet. Zusätzliche Namen werden zu den beiden
+Inventurzeitpunkten ausgeschlossen, nicht zeitlich lückenlos überwacht.
+Gezielte konkurrierende Pfad-/Mount-Austauschversuche sind nicht qualifiziert.
+Die bisherige RawCommitFiles::from_trusted_immutable_directory-API und die
+allgemeinen Paket-Dateiadapter behalten ihren dokumentierten externen
+Unveränderlichkeitsvertrag; die neue Garantie gilt für verify_files.
+
+Erwartete Manifest-/Paket-/Objekthashes und Pins bleiben Angaben des Aufrufers.
+Keine unabhängige Pinprovenienz, authentifizierte GitHub-Herkunft, SSH-Erhebung,
+atomare Remoteaufnahme, ABA-/Ancestorprüfung oder produktive Freigabe.
+HTTP-Headerallokationsgrenze und gemeinsame Traversalrestgrenzen bleiben
+separate Aufgaben. Keine Änderung an Statusindex oder last_verified;
+keine Hardware-, SD-, Image-, Nix-, SSH- oder Publikationsaktion.
+
+Nächster sinnvoller Block NOVENA-BRIDGE-RUST-300: vollständige Offline-
+Qualifikation des unveränderten Socket-Testumfangs in einer explizit passenden
+lokalen Umgebung und Abgleich der historischen Testzählung mit Original-
+artefakt/Protokoll. Danach gezielte konkurrierende Dateiaustauschqualifikation
+und gesonderte Host-Supervisor-/Headergrenzenarbeit. Produktive Veröffentlichung
+bleibt unabhängig davon BLOCKED.
+
+IMPLEMENTATION_STATUS=IMPLEMENTED_OFFLINE_QUALIFIED_PARTIALLY;
+TOTAL_RUST_TESTS=158; NEW_TEST_FUNCTIONS=2;
+DISTINCT_PASS=114; SOCKET_BLOCKED_FAILURES=44;
+LOCAL_TLS_TESTS=43_EPERM; FULL_SUITE=NOT_PASS;
+FMT=PASS; CHECK=PASS; CLIPPY=PASS;
+GIT_MUTATION=NONE; LIVE_ACCESS=NONE;
+PUBLICATION_STATUS=BLOCKED; LAST_VERIFIED=UNMODIFIED.
+
+---
+
+## NOVENA-BRIDGE-RUST-300 – Dateiaustausch, Headergrenze und lokale Kindaufsicht
+
+Datum: 2026-10-27. Offline-Teilqualifikation durch Codex bestanden;
+Socket-Gesamtqualifikation des geänderten Stands bleibt dem äußeren Runner.
+Die sechs uncommitteten Dateien aus Block 299 bleiben erhalten. Kein Git-
+Indexschreiben, Commit, Push, Netzwerk-/SSH-Erwerb, Statusindexschreiben,
+last_verified-Eingriff, Hardware-, Medien- oder Imagezugriff.
+
+### Evidenz und historische Zählung
+
+Der bereits laufende äußere Runner ist lokal lesbar unter
+`/home/loomit/novena-backups/block-logs/NOVENA-BRIDGE-RUST-300-20261027-075407-mAOKpuaL.txt`.
+Sein Baselineabschnitt vor `=== B: CODEX GESAMTAUFTRAG ===` enthält tatsächliche
+Testergebnisse: 93 Bibliotheks-, 2 Binary- und 65 Integrationstests PASS,
+insgesamt **160**. Darunter sind 43 lokale TLS-Tests. Diese Baseline belegt
+Block 299 vor den Änderungen dieses Blocks, nicht den neuen Transport.
+Das laufende Protokoll ist noch kein abgeschlossenes, gehashtes Original.
+
+Das abgeschlossene Originalprotokoll
+`NOVENA-BRIDGE-RUST-297-20261026-214940-lybLQ5GU.txt` wurde anhand seines
+vorhandenen Sidecars geprüft: SHA256
+`caff6f43a119a160a2684c31c4904d92ba56defa7d794e3ac002986258010570`.
+Seine Cargo-Ergebnisse sind 93 Bibliotheks-, 2 Binary- und 63 Integrationstests,
+insgesamt **158**, Cargo-Exit 0. Die historische Angabe 156 entspricht dem
+Umfang ohne die zwei Binary-Tests. Ebenso lässt die Angabe 158 in Block 299
+bei 93+65 diese zwei Tests aus. Historische Einträge bleiben unverändert;
+die Zählweise wird hier anhand der Originalausgaben eingeordnet. Der reine
+Testzählungswiderspruch ist damit geklärt, ohne Vor-Git-Provenienz aus einem
+Commit oder einer Zusammenfassung abzuleiten.
+
+### Sicherheitsaudit des vorhandenen Block-299-Pfads
+
+| Gegenstand | Befund / Aussagegrenze |
+|---|---|
+| Manifest/Version | Exakter kanonischer Vergleich mit NOVENA_OFFLINE_RUN_V1 und NOVENA_OFFLINE_REPLAY_V1; unbekannte Felder/Versionen und abweichende Originalbytes scheitern. verify_files prüft Bindung und Paketdigest vor Dateizugriff. |
+| Repository/Ref/Lauf | Feste Repository-/Refwerte, Node-ID, numerischer Erwartungspin, before/after, Modus, Laufname und zwei Beobachtungsphasen gebunden. Numerische ID und Laufname bleiben Aufrufererwartungen; keine authentifizierte Herkunft oder globale Laufnamensregistry. |
+| Originalbytes | Länge, SHA256 der Nutzbytes, vorhandener Commitparser und Git-OID einschließlich Git-Headerdomäne; danach bytegenauer Vergleich mit Paketcommits und vollständiger Readback. |
+| Budget | Derselbe RunBudget wird vor Dateiöffnung geprüft und im Replay belastet; kein Reset. Fehler vergiften den Kontext. Bereits verbrauchte Kapazität sowie erneuter Replay im selben Kontext bleiben durch die vorhandenen 299-Matrizen geprüft. |
+| Deskriptoren | Alle Eltern O_DIRECTORY/O_NOFOLLOW, finale Datei O_NOFOLLOW/O_NONBLOCK, weitere Zugriffe an eigenen /proc/self/fd-Ankern. Kein zweites Öffnen derselben Nutzdatei zur Hashprüfung. Linux-/procfs-Vertrag. |
+| Links/Inventar | Reguläre Dateien, nlink=1 und Länge vor Lesen. Neu: nlink und Länge zusätzlich nach Lesen. Inventar exakt zu Beginn und Ende, keine lückenlose Ereignisüberwachung. |
+| Konkurrenz | Geprüft sind tatsächlich gelesene Bytes. Rename nach open darf ursprüngliche Bytes liefern; ein danach gleichnamiger Symlink wird nicht mehr verfolgt. Kein Anspruch auf dauerhafte Pfadbindung, atomaren Snapshot, Mountadministrationsschutz oder präemptive reguläre Datei-I/O. |
+| Fehler/Teilevidenz | Objekt-/Manifest-/Inventarfehler ergeben Err und keinen BoundOfflineReplay. Intern bereits erzeugte Zwischenwerte werden nicht herausgegeben. |
+| Replayvergleich | Zwei getrennte vollständige Prüfungen; Vergleich von Bindung, Paket, neuem Inventar und tatsächlichem Budgetverbrauch. Selbstvergleich gesperrt. Keine zwei authentifizierten Remoteerhebungen behauptet. |
+| Status | Statusverträge unverändert: last_verified bleibt gleich, produktive Publikation bedingungslos gesperrt; kein neuer Promotionspfad. |
+
+Keine neue Architektur und kein zweiter Manifest-/Objektprüfer. Für die
+Legacy-API RawCommitFiles und die allgemeinen Paket-Dateiadapter bleibt der
+explizite externe Unveränderlichkeitsvertrag bestehen. Die stärkere
+Deskriptorverankerung gilt weiterhin für verify_files. Kein nachgewiesener
+Bypass der gepinnten Commitbytes durch die getesteten Pfadaustausche.
+Die Hardlink-Nachprüfung schließt ein zusätzlich beobachtbares Zeitfenster;
+sie beweist nicht, dass ein Link nie zwischen zwei Prüfungen bestand.
+
+### Deterministische Dateisystemtests
+
+Neues `src/handoff_race_tests.rs`: vier Testfunktionen im selben privaten
+Adapter. `read_handoff_observed` bietet interne feste Eingriffspunkte nach
+Elternverankerung, vor open, nach open und nach Lesen; der öffentliche
+Produktionspfad übergibt eine leere Closure. Keine Threads, Zufallsrennen,
+Schedulerannahmen oder produktiven Daten. Alle Eingriffe sind echte
+write/rename/remove/symlink/hard_link/create_dir-Operationen im eigenen
+synthetischen Tempbaum.
+
+- Vor open: anderer regulärer Inode gleicher Länge, veränderte Bytes auf
+  gleichem Inode, Symlink, Entfernung, zusätzlicher Hardlink, zusätzlicher
+  Inventarname, fehlendes zweites Objekt, Verzeichnis statt Commit: Err.
+- Nach Elternverankerung: Parent durch regulären Baum oder Symlink ersetzt;
+  geöffneter Anker liefert weiterhin die richtigen Originale. Ein späterer
+  neuer Aufruf über den Symlink scheitert.
+- Nach Dateiöffnung: Namensaustausch zu anderem Inode oder Symlink liefert
+  die ursprünglichen geprüften Bytes; Änderung über den offenen Inode,
+  Entfernung und neuer Hardlink scheitern. Diese erfolgreichen Originalreads
+  sind ausdrücklich keine Erfolgsbehauptung über den späteren Dateipfad.
+- Wiederholte Neuöffnung, falscher SHA256 und passende neue SHA256 bei falscher
+  Git-OID werden getrennt geprüft. Bereits zurückgegebene Bytewerte ändern
+  sich durch spätere Schreibzugriffe nicht.
+
+Vorhandene 297-/299-Matrizen bleiben unverändert, einschließlich unvollständigem
+Inventar, Budgetvorverbrauch, vergiftetem Lauf und unabhängigen Dateireplays.
+Nichtdeterministische Stressrennen oder privilegierte Mountwechsel wurden
+nicht ausgeführt und werden nicht durch diese Sequenztests behauptet.
+
+### Harte Headergrenze im bestehenden HttpsGetSource
+
+Die lokal vorhandenen gepinnten reqwest-0.13.5-Quellen exponieren die nötige
+HTTP/1-Puffergrenze nicht. Ein HeaderMap-Check nach send wäre zu spät. Deshalb
+nutzt **derselbe HttpsGetSource** jetzt direkt die bereits transitiv gepinnten
+Hyper-/Tokio-/Rustls-Bausteine. Keine parallele Quelle, kein freier URL, kein
+neuer Erwerbspfad. Cargo.toml ergänzt sieben exakte direkte Abhängigkeiten;
+Cargo.lock ändert ausschließlich die direkten Abhängigkeitskanten der eigenen
+Crate, keine Paketversion, Quelle oder Prüfsumme. Dies ist die notwendige,
+offline aufgelöste Abhängigkeitsänderung für den Eingriff vor Parserallokation.
+
+`https_header.rs` hält einen festen 32768-Byte-Puffer zwischen TLS und Hyper.
+Statuszeile, sämtliche Headerzeilen und Abschluss-CRLF zählen mit. Erst ein
+vollständiger zulässiger Headerblock gelangt zu Hyper. 32768 Byte sind erlaubt,
+32769 werden vor Weitergabe abgewiesen, ohne die ganze übergroße Zeile
+anzulegen. Abgeschnittene Header geben keine Teilbytes an Hyper. Striktes
+Statuspräfix und Abweisung aller 1xx verhindern Umgehung durch eine Folge
+von Informationsantworten. Hyper bleibt der eigentliche HTTP-/Framingparser;
+zusätzlich max_headers=100 und max_buf_size=32768. TLS-Recordpuffer und Hypers
+eigene begrenzte Puffer existieren zusätzlich: 32 KiB sind kein Gesamt-RAM-Limit.
+
+Explizite CA-DERs, Hostname/SNI api.github.com, TLS >=1.2, sensible Bearerheader,
+GET-Allowlist und statische Fehler bleiben bestehen. Keine Proxy-/Credential-
+Discovery, Redirectausführung, Dekompression, Wiederverwendung oder Retry.
+Ein einziger Connectiontask wird bei Abschluss/Fehler abgebrochen; die lokale
+Runtime wird nur für explizites GET angelegt. Die monotone absolute Deadline
+umfasst Connect/TLS/Header/Body, ohne Neustart bei Fortschritt. Bodytimeout
+ist Err, nie vollständige Objektbytes. DNS-Worker-/Kernelabschluss ist damit
+weiterhin keine vollständig präemptive Hostdeadline.
+
+Die vorhandene Empfangsabrechnung wurde in gemeinsame read_size/append/finish-
+Operationen zerlegt, die sowohl der echte Hyper-Bodypfad als auch die bisherigen
+Budgettests verwenden. Probe und Gesamtbudget bleiben begrenzt; bei Fehler
+schließt die Quelle. Parser-/TLS-Framepuffer ersetzen keinen gemeinsamen
+empfangsseitigen REST-/Raw-Restbudgetvertrag. CAS-Semantik unverändert.
+
+Drei neue socketfreie Tests nutzen den echten Gate und Hyperparser über
+Tokio-Duplexbytes: Grenze -1/exakt/+1/64 KiB; abgeschnittene Header; ungültige
+Statuszeilen; negative, nichtnumerische, überlaufende, widersprüchliche und
+abgeschnittene Content-Length; Informationsantworten; keine Headerteilweitergabe
+und kein Read jenseits der Grenze. Ein Watchdogtimeout lässt den Test scheitern
+und wird nicht als erwarteter Parserfehler akzeptiert.
+
+Ein neuer TLS-Test prüft exakt 32 KiB. Die vier bestehenden Charakterisierungs-
+fälle oberhalb 32 KiB verlangen nun Ablehnung statt Akzeptanz; alle bisherigen
+Negativfälle bleiben bestehen. Der alte reqwest-Builder-Konfigurationstest
+wurde an die neue direkte Transportpolitik angepasst, einschließlich fehlender/
+ungültiger CA und Redirectablehnung. 44 TLS-Tests warten auf den äußeren Runner.
+
+### Lokale Hostaufsicht und konkrete Restblocker
+
+Neu `local_supervisor.rs`: LocalChildGuard übernimmt einen **bereits separat
+autorisiert gestarteten** Child, startet selbst nichts und gibt nur einen
+lokalen Exitabschluss zurück. Einmaliger monotoner wait_until-Vertrag,
+Deadlineprüfung vor/nach Exitbeobachtung, Nichtnull-Exit als Fehler, bei Timeout
+oder Wartefehler kill+wait, Drop-Cleanup des direkten Kinds. Kein Retry und
+kein Erwerbs-/Objektevidenztyp. Drei Tests verwenden echte /bin/true, /bin/false
+und /bin/sleep mit leerer Umgebung und Null-stdio; Drop-Reaping wird unabhängig
+über /proc/thread-self/children beobachtet. Kein SSH/Git-Unterprozess.
+
+Dieser begrenzte Baustein erfüllt NICHT die gesamte Host-Supervisoranforderung.
+Offen sind insbesondere cgroup-Prozessbaumkontrolle auch für entkoppelte
+Nachkommen, RAM/Swap/CPU/PID-Limits, Quoten, begrenztes Pipe-/Diskspooling,
+Credentials und präemptive Deadline-/Abbruchdurchsetzung. Drop kann einen
+OS-Cleanupfehler nicht als Rückgabewert melden; kill/wait haben keine zugesagte
+präemptive Kerneldeadline. Der Baustein ist deshalb kein Live-Erwerbsgate.
+Ein sicherer vollständiger Erheber braucht einen separat qualifizierten
+Host-Isolationsvertrag, nicht nur zusätzliche Manifestzahlen.
+
+Kleinster Folgeauftrag: Linux-cgroup-v2-/privater-Spool-Vertrag für genau einen
+lokalen synthetischen Erwerber, mit delegierter Test-cgroup, Prozessbaumabbruch,
+Quoten, begrenzten stdout/stderr und negativen Fork-/Timeout-/Disklimitfällen;
+noch ohne SSH oder Remotezugriff. Erst danach authentifizierte Erhebung mit
+unabhängigen Repository-/Hostschlüsselpins und eigenen Nur-Lese-Credentials.
+Gemeinsame Traversal-/empfangsseitige Restgrenzen bleiben separat offen;
+flatten und Vollständigkeitswalk besitzen weiterhin getrennte Traversalzähler.
+
+Offlinepaket, SHA256 und Replay bestätigen die geprüften lokalen Bytes und
+Relationen, keine authentifizierte GitHub-Herkunft, reale Erwerbsklammer,
+Remote-Frische, ABA-Freiheit, Ancestorhistorie oder fachliche Abnahme.
+Der V1-Evidenzvertrag bleibt unverändert einschließlich seiner konservativen
+Offline-Limitationsangaben; er behauptet keine neue Transportprovenienz.
+
+### Ausführung und geänderte Dateien
+
+Eigene Änderungen: Cargo.toml, Cargo.lock, src/https.rs, src/https_header.rs
+(neu), src/https_local_tls.rs, src/lib.rs, src/local_supervisor.rs (neu),
+src/raw_commit_files.rs, src/handoff_race_tests.rs (neu), dieses Dokument.
+Die übrigen uncommitteten 299-Dateien wurden nicht verändert.
+
+Alle Cargo-Läufe verwenden den vom äußeren Runner gesetzten
+CARGO_TARGET_DIR=/tmp/novena-300-target.fU1jRLoD. Kein Rustup, Download oder
+Sockettest gestartet. Nach lokaler Offline-Auflösung der ausschließlich
+bereits gepinnten Abhängigkeitskanten alle Prüfungen locked:
+
+- cargo fmt --all -- --check: Exit 0.
+- cargo check --offline --locked: Exit 0.
+- cargo clippy --offline --locked --all-targets -- -D warnings: Exit 0.
+- cargo test --offline --locked -- --skip https::local_tls:: --skip
+  raw_files_reject_socket_without_opening_it: Exit 0, **126 PASS**:
+  59 Bibliothek + 2 Binary + 65 Integration; 45 Socketfälle bewusst gefiltert
+  (44 TLS, 1 Unixsocket), keine ignorierten/umklassifizierten Fehler.
+  Doctests: 0. Neuer Stand registriert 171 Tests einschließlich Binary.
+- Vier neue Dateitests und drei socketfreie Headerfälle zusätzlich gezielt
+  PASS. Nach Erweiterung der Prozess-/Headernegativen diese gezielt erneut
+  geprüft; konkrete letzte Resultate siehe direkte Cargoausgaben.
+- Insgesamt elf zusätzliche Testfunktionen gegenüber der äußeren Baseline:
+  vier Datei-, drei Header-, drei Prozess- und ein TLS-Test. Zehn davon lokal
+  socketfrei qualifiziert, ein neuer TLS-Fall nur implementiert.
+
+Entwicklungszwischenfehler: Ein Dateianlageversuch nutzte einen zum gesetzten
+Crate-Arbeitsverzeichnis unpassenden relativen Pfad; die Datei wurde nicht
+angelegt, Cargo meldete das fehlende Modul. Zwei Cargoaufrufe aus dem
+Repositoryroot fanden kein Cargo.toml. Nach korrektem Pfad wurden diese
+Fehler behoben. Keine Testfehler als PASS bewertet, keine Socket-EPERM-
+Wiederholung. Vollständige neue Socket-Gesamtqualifikation bleibt offen.
+
+IMPLEMENTATION_STATUS=OFFLINE_COMPONENTS_IMPLEMENTED;
+SECURITY_AUDIT=BOUNDED_OFFLINE_CONTRACT_REVIEWED;
+FILE_RACE_TESTS=PASS_DETERMINISTIC_SEQUENCES;
+HEADER_LIMIT_STATUS=IMPLEMENTED_PREPARSER_32768_BYTES_TLS_PENDING;
+HOST_SUPERVISOR_STATUS=DIRECT_CHILD_ONLY_NOT_ISOLATED_ACQUISITION;
+FMT_RESULT=PASS; CHECK_RESULT=PASS; CLIPPY_RESULT=PASS;
+TEST_RESULT=126_SOCKET_FREE_PASS_45_FILTERED_FULL_SUITE_PENDING;
+AUTHENTICATED_REMOTE_EVIDENCE=NOT_IMPLEMENTED;
+PUBLICATION_STATUS=BLOCKED; LAST_VERIFIED=UNMODIFIED.
+
+Nächster Block: NOVENA-BRIDGE-RUST-301 erst anhand der äußeren abschließenden
+300-Ausgabe auswerten; insbesondere alle 44 TLS-Fälle des geänderten Transports.
+Danach den oben abgegrenzten lokalen Supervisor-Isolationsvertrag qualifizieren
+und gemeinsame Traversal-/Empfangsrestgrenzen schließen. Keine automatische
+produktive Erwerbung, Veröffentlichung oder Checkpointpromotion.
