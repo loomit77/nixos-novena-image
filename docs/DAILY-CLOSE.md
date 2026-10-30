@@ -1175,3 +1175,52 @@ Block 180: **Echter kombinierter Sicherungslauf PASS** über `scripts/novena-bac
 - Vollständiges Runner-Originalprotokoll: `NOVENA-BACKUP-E2E-180-20261026-060325-TkHPQ2Ms.txt`; Sidecar SHA256 `f8155ef6336b9c00201ae100af3fb38e3978daa7fba4007a17eece8cf14c1ac5`.
 
 Der kombinierte Backupweg ist produktiv qualifiziert. **Nicht** damit nachgewiesen: vollständiger Restore, Neustart-Persistenz der tmpfiles-Regel oder automatische Erstellung/Push neuer Projektdokumentation. Künftiger Tagesabschluss: zuerst Dokumentation/Git bewusst bearbeiten, dann genau einmal den gemeinsamen Backup-Launcher über Runner; keine redundanten Backups/Archivprüfblöcke.
+
+<!-- NOVENA-DAY-CLOSE-20261030-411 -->
+## 2026-10-30 – Borg-Backup, Bridge RC406 und Git-Abschluss
+
+Geltungsbereich: Novena/Bridge und Tagesabschluss auf foobox.
+Der ursprüngliche lokale Quellcheckpoint ist
+\`d20281687076ca971d5d2ee5877340cdcd58e7aa\`;
+der ursprüngliche Git-Index-SHA256 ist
+\`ec128c81a56644ebd9a16de5134bc9fd37b52359386a9b8c8f61e4f1938d995a\`.
+Die bestehenden lokalen Bridge-Worktree-Änderungen sowie Intent-to-add
+bleiben unangetastet; der Dokumentationscommit wird in einer separaten
+Arbeitskopie ausgeführt. Der Quell-Worktree ist daher nach dem Push noch
+auf dem ursprünglichen HEAD; **kein automatisches Pull/Merge**.
+
+- Bridge RC406: äußerer Runner PASS, 308 Rust-Tests PASS, 0 FAIL,
+  2 ignoriert; fmt/Clippy und Snapshot-SHA256 PASS.
+  Qualifizierter isolierter Snapshot:
+  \`/home/loomit/novena-backups/snapshots/novena-bridge-codex-rc-406.7qGiEJOb\`.
+  RC406-Bericht: PARTIAL/BLOCKED; M3 (Shell/Rust-Transaktion) und
+  M5 (realer Origin mit Upload-V2/Paket/CAS) bleiben technisch offen.
+  Produktive Aktivierung, Remote-Upload, Publisher und last_verified BLOCKED.
+- Block 407: RC406-Report/Restliste und vollständiges Snapshot-Manifest
+  gelesen, Snapshot-SHA256 PASS, Git-HEAD/Index/Status unverändert.
+- Block 409: kombinierter Backup-Lauf PASS. USB-Borg 18→19 Archive,
+  ein neues Archiv, kein bisheriges Archiv verschwunden;
+  USB-Mount durch den Launcher erfolgreich wieder ausgehängt.
+  VM103-Borg PASS; neues Archiv \`foobox-2026-10-30T06:56:03\`,
+  ID \`6e7bb6d8ad31d4d9d8ce7f9c6f9b81d3bb2a003f0ffa6b201f0631b8d0d00520\`.
+  Eine vollständige Wiederherstellungsprobe wird dadurch nicht belegt.
+- Block 410: Git-HEAD, Index und Worktree in der laufenden
+  Hauptarbeitskopie unverändert; elf geänderte und sechs unversionierte
+  Worktree-Pfade geschützt. Keine Projektdateien in Block410 geändert.
+- Block 408: vorbereitet, **nicht ausgeführt** und kein Prüfnachweis.
+
+Originalprotokolle (private GitHub-Archivpfade):
+- \`novena/2026/10/NOVENA-BRIDGE-1.0-RC-406-20261029-190557-Xm3YhCeT.txt\`
+- \`novena/2026/10/NOVENA-BRIDGE-RC406-REVIEW-407-20261030-061840-iOpQqs9E.txt\`
+- \`novena/2026/10/NOVENA-DAY-CLOSE-BACKUP-409-20261030-062454-VmTZ3w4D.txt\`
+- \`novena/2026/10/NOVENA-DAY-CLOSE-GIT-410-20261030-072840-QMfgU3lN.txt\`
+
+Zu allen vier Protokollen ist ein SHA256-Sidecar im Archiv vorhanden.
+Die Werte wurden aus GitHub gelesen, jedoch nicht separat auf die
+GitHub-Dateibytes neu berechnet. Historische FAIL-Ergebnisse bleiben erhalten.
+
+Tagesabschluss-Dokumentationscommit und Synchronisierung zu Codeberg/GitHub:
+nur bei erfolgreichem, separat protokolliertem Block 411 als PASS
+zu bewerten. Keiner der Backup- oder Rust-Nachweise ist eine
+Produktivfreigabe. Folgeschritt: ein zusammenhängender isolierter
+Integrationsauftrag für M3 und M5.
